@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia do Projeto | Site Semog</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 141 95'%3E%3Crect fill='%231B2D70' width='36' height='95'/%3E%3Crect fill='%231B2D70' x='52' width='36' height='95'/%3E%3Crect fill='%231B2D70' x='105' width='36' height='95'/%3E%3C/svg%3E">
+  <style>
+    :root { --navy:#1B2D70; --ice:#ADD5EB; --silver:#BCBCC7; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Georgia, "Times New Roman", serif;
+      background: #F7F8FC; color: #1c2333; line-height: 1.7;
+      font-size: 17px;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+    h1, h2, h3 { font-family: Arial, Helvetica, sans-serif; color: var(--navy); line-height: 1.2; }
+    h1 { font-size: 2.2rem; border-bottom: 4px solid var(--ice); padding-bottom: 0.8rem; }
+    h2 { font-size: 1.5rem; margin-top: 3rem; }
+    h3 { font-size: 1.1rem; margin-top: 2rem; }
+    a { color: var(--navy); }
+    code { background: #E9EDF7; padding: 2px 7px; border-radius: 4px; font-size: 0.88em; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+    th, td { text-align: left; border-bottom: 1px solid #d8dcea; padding: 0.6rem 0.8rem; vertical-align: top; }
+    th { font-family: Arial, sans-serif; background: #EDF1FA; }
+    .pill { display: inline-block; background: var(--navy); color: #fff; font-family: Arial, sans-serif; font-size: 0.75rem; padding: 3px 12px; border-radius: 99px; margin-right: 6px; }
+    .note { background: #FFF7E0; border-left: 4px solid #E0B84A; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; }
+    ul { padding-left: 1.3rem; }
+    li { margin-bottom: 0.4rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Guia do Projeto: Site Semog</h1>
+    <p><span class="pill">HTML estático</span><span class="pill">validação de design</span><span class="pill">pronto para migrar a Next.js</span></p>
+
+    <h2>1. O que foi feito</h2>
+    <p>
+      Site institucional completo da Semog Administradora de Condomínios, em HTML/CSS/JS puro
+      (para validação de design antes do Next.js), com <strong>8 páginas</strong>:
+    </p>
+    <table>
+      <tr><th>Arquivo</th><th>Página</th><th>Destaques</th></tr>
+      <tr><td><code>index.html</code></td><td>Home</td><td>Hero 3D em Three.js, contadores animados, marquee de valores, grid assimétrico de soluções, bandas Semog Garante e app, presença regional</td></tr>
+      <tr><td><code>semog.html</code></td><td>A Semog</td><td>Manifesto, timeline horizontal com scroll-hijack (GSAP pin + scrub), valores, seção "empresa humana"</td></tr>
+      <tr><td><code>solucoes.html</code></td><td>Soluções</td><td>3 verticais, bento grid de benefícios, showcase da prestação de contas digital, destaque máximo ao Semog Garante (1%), app, FAQ com schema</td></tr>
+      <tr><td><code>incorporadoras.html</code></td><td>Incorporadoras</td><td>Processo em linha do tempo vertical (da planta à assembleia), ganhos para a marca, conteúdo inspirado no benchmark Lello (só conteúdo, zero UX)</td></tr>
+      <tr><td><code>blog.html</code></td><td>Blog</td><td>Post em destaque + grid editorial com 6 pautas reais de gestão condominial, newsletter</td></tr>
+      <tr><td><code>contato.html</code></td><td>Contato</td><td>3 atalhos de atendimento rápido + 4 unidades com foto, dados e âncoras (#recife, #joao-pessoa...)</td></tr>
+      <tr><td><code>proposta.html</code></td><td>Proposta</td><td>Formulário focado em conversão com pills de segmento, validação client-side, painel de confiança lateral</td></tr>
+      <tr><td><code>administradora-de-condominios-recife.html</code></td><td>SEO local (exemplar)</td><td>Página-modelo de SEO local para "administradora de condomínios em recife"</td></tr>
+    </table>
+
+    <h2>2. Direção de design</h2>
+    <ul>
+      <li><strong>Conceito:</strong> "Noite Institucional". Tema navy escuro contínuo (arquétipo governante: solidez, autoridade, permanência), com azul-gelo <code>#ADD5EB</code> como único acento e prata <code>#BCBCC7</code> nos neutros. As cores da marca são a base de toda a paleta.</li>
+      <li><strong>O logo virou linguagem:</strong> as três barras do logotipo Semog viram as três torres 3D do hero, o separador do marquee, o glyph do pilar "Condomínios" e o favicon.</li>
+      <li><strong>Tipografia:</strong> Clash Display (títulos, via Fontshare) + Satoshi (texto). Nada de Inter/serifas default.</li>
+      <li><strong>Sistema de forma:</strong> botões = pílula; cards = 20px; inputs = 12px. Consistente em todas as páginas.</li>
+      <li><strong>Gradientes da marca</strong> (pedido do briefing): banda do Garante, hero radial, texto "Inadimplência zero.", célula do bento.</li>
+      <li><strong>Voz:</strong> "Preocupe-se apenas em morar" é o H1 da home. Copy inteira em tom governante: calma, direta, sem hype.</li>
+    </ul>
+
+    <h2>2.0 Iteração 8: acertos de contraste (Soluções e Contato)</h2>
+    <ul>
+      <li><strong>Soluções:</strong> kickers das verticais ("Condomínios Residenciais" etc.) em navy forte; card Associações com texto claro literal sobre a foto; botões "+" do FAQ em navy na seção clara.</li>
+      <li><strong>Contato:</strong> cards de atendimento voltaram para seção azul escura (como sugerido), com ícones em quadrados de gradiente navy→ice e ícones brancos; "Resolva fácil" em branco, emendado sem a faixa azul que vazava entre as seções; setas dos cards em navy sólido.</li>
+    </ul>
+
+    <h2>2.1 Iteração 7: ritmo C6 em todas as páginas e landings locais completas</h2>
+    <ul>
+      <li><strong>Ritmo claro/escuro estendido</strong> a Soluções (verticais, bento, app, benefícios e FAQ claros; prestação, Garante e Semog One escuros), A Semog (valores e Empresa Humana claros), Incorporadoras (processo e ganhos claros), Blog (grid claro), Contato (atendimento e Resolva Fácil claros) e Garante (como funciona, comparativo e G5 claros).</li>
+      <li><strong>Legibilidade corrigida:</strong> nomes das cidades no accordion da home agora em branco literal (independem do tema da seção); números do bento em gradiente navy; células com foto e a célula-destaque com texto claro garantido.</li>
+      <li><strong>Landings locais v2 (pacote completo de SEO local):</strong>
+        <ul>
+          <li>Cartão rico da unidade: foto da cidade, endereço estruturado, telefone/WhatsApp, horário e botões "Como chegar" + WhatsApp;</li>
+          <li><strong>Bairros atendidos</strong> em pills (palavras-chave de bairro para busca local);</li>
+          <li>Serviços com headline sticky e selos "EXCLUSIVA"/"1% AO MÊS";</li>
+          <li>Banda escura do Semog Garante;</li>
+          <li><strong>2 depoimentos locais por cidade</strong> <span class="pill" style="background:#E0B84A;color:#3a2c00;">Atenção</span> são textos-amostra: substituir por depoimentos reais de clientes (e então considerar marcação Review/aggregateRating no schema);</li>
+          <li>Faixa de credenciais (CRECI/UF, ABADI, SECOVI, Desde 1991) — confirmar os registros reais antes de publicar;</li>
+          <li>FAQ local com pergunta de bairros + schema atualizado (streetAddress, geo, knowsAbout).</li>
+        </ul>
+      </li>
+      <li><strong>Checklist de rankeamento local pós-lançamento:</strong> criar Google Business Profile por unidade com o MESMO endereço/telefone do site (NAP), pedir avaliações de síndicos, publicar os posts do blog e conquistar citações locais (Secovi, CRECI, imprensa regional).</li>
+    </ul>
+
+    <h2>2.2 Iteração 6: ritmo claro/escuro (ref. C6), página de serviço e SEO local</h2>
+    <ul>
+      <li><strong>Ritmo claro/escuro:</strong> sistema de seções claras (<code>.sec-light</code>) inspirado no C6 Bank. Na home: números e presença em fundo claro, produtos em branco, mantendo hero, manifesto, banda do Garante e fechamento escuros.</li>
+      <li><strong>Gradiente nas fontes:</strong> utilitários <code>.gx</code> (navy→ice, para fundos claros) e <code>.gx-ice</code> (para escuros), aplicados nos números gigantes, em palavras-chave de headlines e no "1%".</li>
+      <li><strong>Produtos v3 (C6 style):</strong> grade 2x2 de cards com fundos alternados (branco/navy/deep) e <strong>imagens conceituais de estúdio</strong> geradas no Higgsfield: leque de documentos de vidro, moedas + barras de cristal, macro de smartphone e cubo de camadas (Semog One). Banda escura conceitual do Garante com o vídeo do escudo na sequência.</li>
+      <li><strong>Nova página <code>administracao-de-condominios.html</code>:</strong> o serviço principal detalhado. Estruturada a partir do que as pessoas realmente buscam no Google: o que faz uma administradora, quanto custa, como escolher e como funciona a troca. Hero conceitual (chave no pódio), 9 serviços em cards claros, método em 4 passos, seção "quanto custa" com checklist de contratação e FAQ com schema.</li>
+      <li><strong>SEO local reforçado nas landings:</strong> bloco NAP visível (endereço, telefone, horário, "como chegar") + <code>streetAddress</code>/<code>postalCode</code> no schema LocalBusiness. <span class="pill" style="background:#E0B84A;color:#3a2c00;">Atenção</span> os endereços são placeholders "Av. Exemplo" realistas: substituir pelos reais (essencial para o Google Business Profile bater com o site).</li>
+      <li><strong>Interlinking:</strong> landings → página de serviço → Garante; footer com "Administração de condomínios" em destaque.</li>
+    </ul>
+
+    <h2>2.3 Iteração 5: vitrine de produtos, footer novo e ajustes finos</h2>
+    <ul>
+      <li><strong>Vitrine "O sistema Semog":</strong> o sticky-stack foi substituído por uma vitrine interativa com os 4 produtos (Prestação de Contas, Semog Garante, Aplicativo e <strong>Semog One</strong>): lista à esquerda com item ativo expandido, mídia à direita com crossfade, badge contextual e barra de progresso com auto-avanço a cada 6s (pausa no hover, clique/teclado trocam).</li>
+      <li><strong>Footer redesenhado:</strong> faixa de CTA com o slogan gigante + botão, colunas reorganizadas (Soluções agora lista os 4 produtos + Benefícios; "Onde estamos" aponta para as landings locais), barra final com <strong>Privacidade</strong> e <strong>Termos de uso</strong>. O watermark "SEMOG" foi removido.</li>
+      <li><strong>Páginas legais:</strong> <code>privacidade.html</code> (estrutura LGPD) e <code>termos.html</code> criadas com o chrome do site, marcadas como "em revisão pelo jurídico".</li>
+      <li><strong>Marquee consertado:</strong> separador "/" no lugar do símbolo, loop contínuo perfeito e velocidade de 20s.</li>
+      <li><strong>Clash Display de volta</strong> nos títulos (a pedido), com tracking -0.02em para melhor leitura.</li>
+      <li>Nova imagem <code>semog-one.webp</code> (GPT Image 2): monitor com o ERP Semog One em português.</li>
+    </ul>
+
+    <h2>2.4 Iteração 4: refinamentos do cliente</h2>
+    <ul>
+      <li><strong>Tipografia do branding:</strong> títulos migrados para <strong>Saira</strong> (fonte oficial da marca), com tracking confortável para leitura.</li>
+      <li><strong>Identidade limpa:</strong> logo 100% branca, marquee de valores sem o símbolo repetido, labels de seção sem as barras, pilares sem ícones, preloader com as três barras em outline branco.</li>
+      <li><strong>Home:</strong> Prestação de Contas + Semog Garante + Aplicativo agora vivem em uma única seção <em>sticky-stack</em> ("O sistema Semog"): cards em tela cheia que se empilham no scroll. Em Soluções, cada produto mantém sua área completa.</li>
+      <li><strong>Soluções:</strong> nova seção de tecnologia própria com o <strong>Semog One</strong> (ERP interno) e roadmap 2026 (Gestão de Manutenções, Gestão de Contratos, chatbot pioneiro de 2019 no ar) + nova seção <strong>Clube de Benefícios</strong> (id #beneficios): internet mais barata, descontos com fornecedores, seguros e vantagens para moradores.</li>
+      <li><strong>Contato:</strong> seção <strong>"Resolva fácil"</strong> de autoatendimento: 2ª via de boleto, CND, acordo de pagamento, alteração de titularidade, declaração de quitação e reservas (links a apontar para o portal/app).</li>
+      <li><strong>A Semog:</strong> timeline ganhou 2019 (primeiro chatbot do setor) e a seção Empresa Humana foi redesenhada com rows interativas e foto com legenda em vidro.</li>
+      <li><strong>Nova página <code>garante.html</code>:</strong> hero com vídeo exclusivo do escudo (Seedance 2.0), ticker, problema em word-reveal, como funciona em rows, "1%" monumental, comparativo sem/com Garante, seção G5 Partners e FAQ com schema.</li>
+      <li><strong>4 landing pages locais</strong> padronizadas e geradas por template (Recife, João Pessoa, Campina Grande, Belém), cada uma com hero da cidade, números, serviços, banda do Garante, FAQ local e LocalBusiness + FAQPage schema. Prontas para campanhas de mídia como página de entrada.</li>
+      <li>Botão de enviar proposta sem efeito magnético (pedido do cliente).</li>
+    </ul>
+
+    <h2>2.5 Iteração 3: nivelamento pelo hero</h2>
+    <ul>
+      <li><strong>Tipografia unificada:</strong> todo o site agora usa Clash Display peso 500 (o mesmo do hero), tracking -0.035em. Nada de títulos "pesados" nas internas.</li>
+      <li><strong>Linguagem estrutural (ref. terminal-industries):</strong> cabeçalhos de seção com hairline + micro-label, parede de números com divisórias verticais e numerais gigantes, pilares como rows interativas de largura total (hover expande e acende), features em grades hairline sem caixas.</li>
+      <li><strong>Manifesto e quote com revelação palavra a palavra</strong> no scroll (scrub), como nos melhores institucionais premiados.</li>
+      <li><strong>Presença em accordion slider:</strong> os 4 painéis de cidades expandem no hover (flex transition), com Recife aberto por padrão.</li>
+      <li><strong>Política de motion:</strong> o site é uma demo de motion. Reveals, contadores, marquee e headlines rodam SEMPRE, mesmo com "efeitos de animação" desligados no Windows (que era o motivo de nada se mover na sua máquina). Apenas smooth scroll e parallax respeitam a preferência do SO.</li>
+      <li><strong>ABRIR-SITE.bat:</strong> duplo clique abre o site com servidor local (ou direto no navegador se não houver Python). O site também funciona 100% via file:// pois não há mais ES modules.</li>
+    </ul>
+
+    <h2>3. Técnicas visuais avançadas (iteração 2)</h2>
+    <ul>
+      <li><strong>Hero de vídeo cinematográfico:</strong> vídeo full-screen gerado no Higgsfield (Seedance 2.0, image-to-video em 1080p a partir da nossa própria imagem das torres), sem overlay, rodando em loop local (<code>assets/video/hero.mp4</code>). Adaptado da referência enviada pelo cliente.</li>
+      <li><strong>Headline caractere por caractere:</strong> o slogan "Preocupe-se apenas em morar." entra letra a letra (stagger de 30ms, translateX(-18px), 500ms por caractere), com palavras inquebráveis para nunca hifenizar. Implementação em CSS transitions puras: funciona mesmo sem GSAP.</li>
+      <li><strong>Liquid glass:</strong> navbar em pílula flutuante e cartão-tag "Condomínios. Métricas. Organização." com a receita completa (blend luminosity, blur, borda em gradiente via mask). Rotulada como aproximação web, com fallback para <code>prefers-reduced-transparency</code>.</li>
+      <li><strong>Preloader assinatura:</strong> as três barras do logo pulsam enquanto o vídeo carrega (sai no <code>canplay</code> ou em no máximo 2,2s).</li>
+      <li><strong>Lenis smooth scroll</strong> integrado ao ScrollTrigger em todas as páginas.</li>
+      <li><strong>Scroll-hijack horizontal (GSAP):</strong> timeline "De 1991 até aqui" com a seção inteira pinada (título + cartões, centrados verticalmente) e trilha deslizando com scrub. No mobile vira scroll horizontal nativo.</li>
+      <li><strong>Motion system:</strong> reveals expo.out, stagger em grids, contadores animados, botões magnéticos, micro-tátil no clique. Tudo desligado sob reduced-motion.</li>
+      <li><strong>Grain overlay</strong> fixo para textura cinematográfica sem custo de repaint.</li>
+      <li><strong>Zero dependência de CDN:</strong> GSAP, ScrollTrigger e Lenis vendorizados em <code>assets/js/vendor/</code> (na primeira rodada o CDN estava bloqueado na máquina do cliente e nenhum motion rodava).</li>
+    </ul>
+
+    <h2>4. De onde vieram as imagens e o vídeo</h2>
+    <p>
+      <strong>Todos os assets foram gerados por IA no Higgsfield</strong> (nenhum banco de imagem),
+      com prompts escritos para a paleta navy/gelo da marca. Na iteração 2, as imagens com texto
+      migraram para o <strong>GPT Image 2</strong> e as fotográficas para o <strong>Nano Banana Pro</strong>,
+      todas em clima noturno/blue hour para casar com o tema:
+    </p>
+    <table>
+      <tr><th>Arquivo</th><th>Modelo</th><th>Conteúdo</th></tr>
+      <tr><td><code>video/hero.mp4</code></td><td>Seedance 2.0 (image-to-video, 1080p, 8s)</td><td>Vídeo do hero: dolly lento sobre as três torres com neblina e janelas acendendo, gerado a partir da nossa imagem das torres</td></tr>
+      <tr><td><code>prestacao-contas.webp</code></td><td>GPT Image 2 (2K, high)</td><td>Notebook com a "Prestação de Contas Digital" em português impecável: Condomínio Vista do Parque, Despesas Mensais, selo "Assinado Digitalmente"</td></tr>
+      <tr><td><code>app-phone.webp</code></td><td>GPT Image 2 (2K, high)</td><td>App Semog em lobby noturno: Olá Marina, Boletos, Reservas, Assembleias, Avisos, Saldo R$ 84.230,00</td></tr>
+      <tr><td><code>equipe.webp</code></td><td>Nano Banana Pro</td><td>Atendimento humano em escritório blue hour, skyline navy</td></tr>
+      <tr><td><code>comercial.webp</code></td><td>Nano Banana Pro</td><td>Lobby corporativo noturno com reflexos azuis</td></tr>
+      <tr><td><code>associacoes.webp</code></td><td>Nano Banana Pro</td><td>Reunião de associação em salão ao entardecer</td></tr>
+      <tr><td><code>blog-financas.webp</code></td><td>Nano Banana Pro</td><td>Flat lay financeiro em mesa navy</td></tr>
+      <tr><td><code>hero-towers.webp</code></td><td>Soul v2</td><td>Torres à noite (frame-base do vídeo e heros internos, sem letreiros)</td></tr>
+      <tr><td><code>garante.webp</code></td><td>Soul v2</td><td>Escudo de vidro protegendo maquete de três torres (Semog Garante), 100% sem texto</td></tr>
+      <tr><td><code>residencial / incorporadoras.webp</code></td><td>Soul v2</td><td>Piscina blue hour; obra com gruas ao amanhecer</td></tr>
+      <tr><td><code>recife / joao-pessoa / campina-grande / belem.webp</code></td><td>Soul v2</td><td>Marco Zero, Cabo Branco, Açude Velho e Ver-o-Peso na blue hour</td></tr>
+      <tr><td><code>blog-lazer.webp</code></td><td>Soul v2</td><td>Academia do condomínio ao pôr do sol</td></tr>
+    </table>
+    <p class="note">Para produção: comprimir o <code>hero.mp4</code> (~10 MB) para ~3-4 MB com ffmpeg (CRF 28, sem áudio) e servir um poster WebP, como já configurado na tag de vídeo.</p>
+
+    <h2>5. SEO: como vamos buscar o 1º lugar</h2>
+    <ul>
+      <li><strong>Páginas locais dedicadas</strong> (decisão do projeto): schema sozinho não ganha busca local; página dedicada por cidade ganha. Criei o exemplar <code>administradora-de-condominios-recife.html</code> com H1 exato da consulta, conteúdo local (bairros e RMR), FAQ com FAQPage schema e LocalBusiness com geo. <span class="note" style="display:block;margin-top:0.6rem;">No Next.js, transformar em rota dinâmica <code>/administradora-de-condominios/[cidade]</code> e replicar para João Pessoa, Campina Grande e Belém.</span></li>
+      <li><strong>JSON-LD em todas as páginas:</strong> Organization (foundingDate 1991, subOrganizations por filial), WebSite, Service, Product (Semog Garante), FAQPage, AboutPage, ContactPage com 4 LocalBusiness, Blog e BreadcrumbList.</li>
+      <li><strong>Fundamentos:</strong> titles e descriptions únicos por página, canonical, Open Graph/Twitter, <code>sitemap.xml</code>, <code>robots.txt</code>, HTML semântico, alt text em todas as imagens, lazy-loading, imagens WebP comprimidas (40 a 270 KB).</li>
+      <li><strong>Próximos passos de autoridade:</strong> Google Business Profile por unidade, avaliações de síndicos, blog publicando de verdade (as 6 pautas do blog.html são reais e buscáveis), backlinks locais (Secovi-PE, CRECI, imprensa regional).</li>
+    </ul>
+
+    <h2>6. Decisões que valem registro</h2>
+    <ul>
+      <li><strong>Tema escuro único</strong> em todo o site (sem alternância clara/escura por seção) para consistência premium; fotos foram geradas na mesma temperatura de cor para parecerem uma única sessão fotográfica.</li>
+      <li><strong>Um só CTA de intenção:</strong> "Solicitar proposta" é o único rótulo de conversão no site inteiro (nav, heros, bandas, footer), sem competidores tipo "fale conosco" no mesmo nível.</li>
+      <li><strong>Semog Garante com o maior palco:</strong> banda própria na home + seção monumental em Soluções com "1%" gigante em gradiente e os 4 passos do produto.</li>
+      <li><strong>Acessibilidade:</strong> skip-link, foco visível, aria-labels, contraste AA nos textos, reduced-motion respeitado em tudo (3D, GSAP, marquee, CSS).</li>
+      <li><strong>Degradação elegante:</strong> sem WebGL o hero mantém o gradiente da marca; sem GSAP tudo aparece estático; formulário valida no cliente e mostra estado de sucesso.</li>
+    </ul>
+
+    <h2>7. O que ajustar com dados reais (placeholders)</h2>
+    <ul>
+      <li>Endereços, telefones e WhatsApp das 4 unidades (usei <code>(81) 0000-0000</code> e "Av. Exemplo").</li>
+      <li>Anos da timeline em <code>semog.html</code> (2000, 2010, 2018, 2023, 2025 são estimativas a confirmar).</li>
+      <li>Links das lojas do aplicativo, URL real do WhatsApp, e-mail de contato e CNPJ no rodapé.</li>
+      <li>Destino do formulário de proposta (hoje é demonstração; ligar em API/CRM no Next.js).</li>
+      <li>Fotos reais dos sócios e da equipe quando disponíveis (fortalecem o pilar "empresa humana" e o E-E-A-T do Google).</li>
+    </ul>
+
+    <h2>8. Como rodar</h2>
+    <p>
+      O hero 3D usa módulos ES, então o site precisa de um servidor HTTP (não abrir com dois cliques no arquivo).
+      Na pasta do projeto:
+    </p>
+    <p><code>python -m http.server 8347</code> &rarr; abrir <a href="http://localhost:8347/">http://localhost:8347/</a></p>
+    <p>Stack de produção sugerida: Next.js (App Router) na Vercel, com <code>next/image</code>, <code>next/font</code> e as rotas locais dinâmicas de SEO.</p>
+  </div>
+</body>
+</html>

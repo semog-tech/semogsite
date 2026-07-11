@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar Proposta | Semog Administradora de Condomínios</title>
+  <meta name="description" content="Solicite uma proposta para o seu condomínio, associação ou empreendimento. A Semog responde em até 24 horas úteis, com plano sob medida e sem compromisso.">
+  <link rel="canonical" href="https://www.semog.com.br/proposta.html">
+  <meta name="theme-color" content="#0A102E">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Semog Administradora de Condomínios">
+  <meta property="og:title" content="Solicite uma proposta | Semog">
+  <meta property="og:description" content="Conte como é o seu condomínio e receba uma proposta sob medida em até 24 horas úteis.">
+  <meta property="og:url" content="https://www.semog.com.br/proposta.html">
+  <meta property="og:image" content="https://www.semog.com.br/assets/img/hero-towers.webp">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 141 95'%3E%3Crect fill='%23ADD5EB' width='36' height='95'/%3E%3Crect fill='%23ADD5EB' x='52' width='36' height='95'/%3E%3Crect fill='%23ADD5EB' x='105' width='36' height='95'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/semog.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Solicitar proposta",
+    "url": "https://www.semog.com.br/proposta.html",
+    "inLanguage": "pt-BR",
+    "about": { "@id": "https://www.semog.com.br/#org" }
+  }
+  </script>
+
+  <style>
+    .proposal-wrap {
+      min-height: 100dvh;
+      background:
+        radial-gradient(70% 60% at 100% 0%, rgba(42,63,150,0.5) 0%, transparent 55%),
+        var(--grad-hero);
+      padding-top: 120px;
+      padding-bottom: var(--section);
+    }
+    .prop-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(2.5rem, 5vw, 4.5rem); align-items: start; }
+
+    .prop-head h1 { font-size: clamp(2.2rem, 4.6vw, 3.6rem); max-width: 15ch; }
+    .prop-head p { max-width: 46ch; }
+
+    .prop-form {
+      border: 1px solid var(--line-strong); border-radius: var(--r-card);
+      background: rgba(10, 16, 46, 0.55);
+      backdrop-filter: blur(14px);
+      padding: clamp(1.8rem, 4vw, 2.8rem);
+      box-shadow: var(--shadow-card);
+      margin-top: 2.4rem;
+    }
+    .prop-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+    .prop-form .row.single { grid-template-columns: 1fr; }
+
+    .type-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .type-pills input { position: absolute; opacity: 0; pointer-events: none; }
+    .type-pills label {
+      border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+      padding: 0.6rem 1.2rem; font-size: 0.92rem; color: var(--text-2);
+      cursor: pointer; transition: all 0.25s ease; font-weight: 500;
+    }
+    .type-pills input:checked + label {
+      background: var(--ice-400); color: var(--navy-900); border-color: var(--ice-400);
+    }
+    .type-pills input:focus-visible + label { outline: 2px solid var(--ice-400); outline-offset: 3px; }
+
+    .prop-form .submit-row { margin-top: 1.8rem; display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+    .prop-form .promise { font-size: 0.86rem; color: var(--text-3); max-width: 24ch; }
+
+    .form-success {
+      display: none; text-align: center; padding: 3rem 1.5rem;
+    }
+    .form-success .ic {
+      width: 72px; height: 72px; border-radius: var(--r-pill);
+      background: rgba(173,213,235,0.12); border: 1px solid var(--ice-400);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.4rem;
+    }
+    .form-success h2 { font-size: 1.7rem; }
+    .form-success p { color: var(--text-2); max-width: 40ch; margin-inline: auto; }
+
+    /* Painel de confiança */
+    .trust-panel { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 1.4rem; }
+    .trust-card {
+      border: 1px solid var(--line); border-radius: var(--r-card);
+      padding: 1.8rem;
+      background: linear-gradient(180deg, rgba(173,213,235,0.05), rgba(173,213,235,0.015));
+    }
+    .trust-card.hero-card {
+      background-image: linear-gradient(rgba(5,8,26,0.72), rgba(5,8,26,0.72)), url("assets/img/hero-towers.webp");
+      background-size: cover; background-position: center;
+      border-color: var(--line-strong);
+    }
+    .trust-card h3 { font-size: 1.15rem; }
+    .trust-card p { color: var(--text-2); font-size: 0.93rem; margin: 0; }
+    .trust-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+    .trust-stats .stat-value { font-size: 2rem; }
+    .trust-stats .stat-label { font-size: 0.85rem; margin-top: 0.2rem; }
+    .trust-quote {
+      font-family: var(--font-display); font-size: 1.25rem; font-weight: 500;
+      line-height: 1.35; margin: 0 0 0.8rem;
+    }
+    .trust-quote em { font-style: normal; color: var(--ice-400); }
+
+    @media (max-width: 1024px) {
+      .prop-grid { grid-template-columns: 1fr; }
+      .trust-panel { position: static; }
+    }
+    @media (max-width: 620px) {
+      .prop-form .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="nav-inner liquid-glass">
+      <a href="index.html" class="nav-logo" aria-label="Semog, página inicial">
+        <img src="assets/img/semog-logo-light.svg" alt="Semog" width="140" height="22" style="height:22px;width:auto;">
+      </a>
+      <nav aria-label="Principal">
+        <ul class="nav-links">
+          <li><a href="semog.html">A Semog</a></li>
+          <li><a href="solucoes.html">Soluções</a></li>
+          <li><a href="incorporadoras.html">Incorporadoras</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </nav>
+      <a href="proposta.html" class="btn btn-primary btn-sm nav-cta" aria-current="page">Solicitar proposta</a>
+      <button class="nav-burger" aria-expanded="false" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+  <div class="nav-mobile" id="menu-mobile">
+    <a href="semog.html">A Semog</a>
+    <a href="solucoes.html">Soluções</a>
+    <a href="incorporadoras.html">Incorporadoras</a>
+    <a href="blog.html">Blog</a>
+    <a href="contato.html">Contato</a>
+    <a href="proposta.html" class="btn btn-primary">Solicitar proposta</a>
+  </div>
+
+  <main id="conteudo">
+    <section class="proposal-wrap">
+      <div class="container">
+        <div class="prop-grid">
+
+          <!-- Coluna do formulário -->
+          <div>
+            <div class="prop-head">
+              <h1 data-chars>Vamos falar do seu condomínio?</h1>
+              <p class="lead" data-reveal data-reveal-delay="0.3">
+                Preencha em dois minutos. Nossa equipe comercial responde em até 24 horas úteis.
+              </p>
+            </div>
+
+            <form class="prop-form" id="prop-form" novalidate data-reveal data-reveal-delay="0.4">
+              <div class="row single">
+                <div class="field">
+                  <span style="font-size:0.9rem;font-weight:600;">O que você representa?</span>
+                  <div class="type-pills" role="radiogroup" aria-label="Tipo de estrutura">
+                    <input type="radio" name="tipo" id="t-res" value="Condomínio residencial" checked>
+                    <label for="t-res">Condomínio residencial</label>
+                    <input type="radio" name="tipo" id="t-com" value="Condomínio comercial">
+                    <label for="t-com">Condomínio comercial</label>
+                    <input type="radio" name="tipo" id="t-ass" value="Associação">
+                    <label for="t-ass">Associação</label>
+                    <input type="radio" name="tipo" id="t-inc" value="Incorporadora">
+                    <label for="t-inc">Incorporadora</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label for="f-nome">Seu nome</label>
+                  <input type="text" id="f-nome" name="nome" required autocomplete="name" placeholder="Como devemos te chamar">
+                  <span class="error">Informe o seu nome.</span>
+                </div>
+                <div class="field">
+                  <label for="f-cargo">Seu papel</label>
+                  <select id="f-cargo" name="cargo">
+                    <option>Síndico(a)</option>
+                    <option>Conselheiro(a)</option>
+                    <option>Morador(a)</option>
+                    <option>Incorporador(a) / Construtora</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label for="f-email">E-mail</label>
+                  <input type="email" id="f-email" name="email" required autocomplete="email" placeholder="voce@exemplo.com.br">
+                  <span class="error">Informe um e-mail válido.</span>
+                </div>
+                <div class="field">
+                  <label for="f-fone">WhatsApp</label>
+                  <input type="tel" id="f-fone" name="telefone" required autocomplete="tel" placeholder="(81) 9 0000-0000">
+                  <span class="error">Informe um telefone para contato.</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label for="f-cidade">Cidade do condomínio</label>
+                  <select id="f-cidade" name="cidade">
+                    <option>Recife e região</option>
+                    <option>João Pessoa e região</option>
+                    <option>Campina Grande e região</option>
+                    <option>Belém e região</option>
+                    <option>Outra cidade</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="f-unidades">Número de unidades</label>
+                  <select id="f-unidades" name="unidades">
+                    <option>Até 30</option>
+                    <option>31 a 80</option>
+                    <option>81 a 150</option>
+                    <option>Mais de 150</option>
+                    <option>Em lançamento</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row single">
+                <div class="field">
+                  <label for="f-msg">Conte um pouco do momento do condomínio <span style="color:var(--text-3);font-weight:400;">(opcional)</span></label>
+                  <textarea id="f-msg" name="mensagem" rows="4" placeholder="Ex.: estamos insatisfeitos com a prestação de contas atual e temos inadimplência alta."></textarea>
+                  <span class="hint">Quanto mais contexto, mais precisa será a proposta.</span>
+                </div>
+              </div>
+              <div class="submit-row">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  Enviar solicitação
+                  <svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <span class="promise">Resposta em até 24 horas úteis. Sem compromisso.</span>
+              </div>
+            </form>
+
+            <div class="prop-form form-success" id="form-success" role="status">
+              <div class="ic" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ADD5EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+              <h2>Solicitação recebida!</h2>
+              <p>Obrigado pela confiança. Um consultor da Semog vai entrar em contato pelo WhatsApp ou e-mail informado em até 24 horas úteis.</p>
+            </div>
+          </div>
+
+          <!-- Painel de confiança -->
+          <aside class="trust-panel" data-reveal="right">
+            <div class="trust-card hero-card">
+              <div class="trust-stats">
+                <div>
+                  <div class="stat-value">35</div>
+                  <p class="stat-label">anos de mercado</p>
+                </div>
+                <div>
+                  <div class="stat-value">+700</div>
+                  <p class="stat-label">condomínios</p>
+                </div>
+                <div>
+                  <div class="stat-value">+70 mil</div>
+                  <p class="stat-label">clientes</p>
+                </div>
+                <div>
+                  <div class="stat-value">4</div>
+                  <p class="stat-label">unidades na região</p>
+                </div>
+              </div>
+            </div>
+            <div class="trust-card">
+              <p class="trust-quote">Com o Semog Garante, a inadimplência do seu condomínio <em>cai a zero.</em></p>
+              <p>Pergunte ao consultor sobre a garantia de 100% da arrecadação por 1% ao mês.</p>
+            </div>
+            <div class="trust-card">
+              <h3>Prefere conversar agora?</h3>
+              <p>Chame no WhatsApp: <a href="https://wa.me/5581999999999" style="color:var(--ice-300);font-weight:600;">(81) 9 9999-9999</a></p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-cta">
+        <p class="slog">Preocupe-se apenas <em>em morar.</em></p>
+        <a href="proposta.html" class="btn btn-white btn-lg" data-magnetic>
+          Solicitar proposta
+          <svg class="arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/img/semog-logo-light.svg" alt="Semog" width="160" height="24">
+          <p>Administradora de condomínios líder do Nordeste. Desde 1991 cuidando de comunidades com transparência, retidão e dinâmica.</p>
+        </div>
+        <div>
+          <h4>Institucional</h4>
+          <ul>
+            <li><a href="semog.html">A Semog</a></li>
+            <li><a href="solucoes.html">Soluções</a></li>
+            <li><a href="incorporadoras.html">Incorporadoras</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contato.html">Contato</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Soluções</h4>
+          <ul>
+            <li><a href="administracao-de-condominios.html">Administração de condomínios</a></li>
+            <li><a href="garante.html">Semog Garante</a></li>
+            <li><a href="solucoes.html#prestacao">Prestação de contas</a></li>
+            <li><a href="solucoes.html#aplicativo">Aplicativo</a></li>
+            <li><a href="solucoes.html#tecnologia">Semog One</a></li>
+            <li><a href="solucoes.html#beneficios">Benefícios</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Onde estamos</h4>
+          <ul>
+            <li><a href="administradora-de-condominios-recife.html">Recife · Matriz</a></li>
+            <li><a href="administradora-de-condominios-joao-pessoa.html">João Pessoa</a></li>
+            <li><a href="administradora-de-condominios-campina-grande.html">Campina Grande</a></li>
+            <li><a href="administradora-de-condominios-belem.html">Belém</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Semog Administradora de Condomínios · Desde 1991</span>
+        <nav class="legal" aria-label="Legal">
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/vendor/gsap.min.js"></script>
+  <script src="assets/js/vendor/ScrollTrigger.min.js"></script>
+  <script src="assets/js/vendor/lenis.min.js"></script>
+  <script src="assets/js/semog.js"></script>
+  <script>
+    /* Validação simples + estado de sucesso (demo estática) */
+    (function () {
+      var form = document.getElementById("prop-form");
+      var ok = document.getElementById("form-success");
+      if (!form) return;
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var valid = true;
+        form.querySelectorAll(".field input[required]").forEach(function (input) {
+          var field = input.closest(".field");
+          var bad = !input.value.trim() || (input.type === "email" && !/^\S+@\S+\.\S+$/.test(input.value));
+          field.classList.toggle("has-error", bad);
+          if (bad) valid = false;
+        });
+        if (!valid) return;
+        form.style.display = "none";
+        ok.style.display = "block";
+        ok.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    })();
+  </script>
+</body>
+</html>

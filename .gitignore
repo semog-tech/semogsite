@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Temporários
+*.tmp
+*.log
+.playwright-mcp/
+
+# Screenshots de validação (ficam no scratchpad, não no repo)
+*-desktop.jpeg
+v*-*.jpeg
