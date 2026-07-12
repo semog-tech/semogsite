@@ -12,7 +12,7 @@ const sizes: Record<Size, string> = {
 }
 const variants: Record<Variant, string> = {
   primary:
-    'bg-ice-400 text-navy-900 shadow-[0_8px_30px_-10px_rgba(173,213,235,0.45)] hover:bg-ice-300 hover:-translate-y-0.5',
+    'bg-ice-400 text-navy-900 shadow-[0_8px_30px_-10px_rgba(173,213,235,0.45)] hover:bg-ice-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_-12px_rgba(173,213,235,0.55)]',
   ghost:
     'bg-ice-400/5 border-line-strong text-fg hover:border-ice-400 hover:bg-ice-400/10 hover:-translate-y-0.5',
   white:
@@ -45,7 +45,10 @@ export function Button({
     <>
       {children}
       {withArrow && (
-        <span className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
+        <span
+          aria-hidden="true"
+          className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+        >
           →
         </span>
       )}
