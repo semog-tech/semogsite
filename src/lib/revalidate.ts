@@ -13,7 +13,14 @@ import { revalidatePath } from 'next/cache'
 export function revalidatePage(slug: string): void {
   try {
     revalidatePath(slug === 'home' ? '/' : `/${slug}`)
-  } catch {
-    // fora de um request Next.js (ex.: seed/script standalone): sem-op.
+  } catch (err) {
+    const path = slug === 'home' ? '/' : `/${slug}`
+    // Ignora erro esperado fora de request context (ex.: seed standalone).
+    // Loga outros erros reais para visibilidade.
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    if (/static generation store|outside a request scope/i.test(errorMsg)) {
+      return // sem-op: contexto esperado
+    }
+    console.error('revalidatePage falhou para', path, err)
   }
 }
