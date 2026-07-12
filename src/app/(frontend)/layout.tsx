@@ -1,4 +1,5 @@
 import type React from 'react'
+import { clash, satoshi } from '../../fonts'
 import '../../styles/theme.css'
 
 export const metadata = {
@@ -10,7 +11,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en">
+    <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">
       <body>
         <main>{children}</main>
       </body>
