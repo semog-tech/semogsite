@@ -3,7 +3,7 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["src/**", "!src/app/(payload)/**", "!src/payload-types.ts"]
+    "includes": ["src/**", "!src/app/(payload)/**", "!src/payload-types.ts", "!src/migrations/**"]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
   "linter": { "enabled": true, "rules": { "recommended": true } },
