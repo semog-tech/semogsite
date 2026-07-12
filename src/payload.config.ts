@@ -27,7 +27,12 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI,
+      // pool pequeno: instância Supabase compartilhada com o webapp — não competir por conexões
+      max: 5,
     },
+    // schema dedicado do CMS, isolado de public/auth/storage do webapp.
+    // Precisa existir antes do init (criado via migration Supabase `create_cms_schema`).
+    schemaName: 'cms',
     // em dev usamos push automático de schema; em prod, migrations (Task 6)
     push: process.env.NODE_ENV !== 'production',
   }),

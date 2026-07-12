@@ -8,8 +8,17 @@ Site institucional Semog, construído em **Next.js 16 + Payload 3**, com Postgre
 - **Node 20+** (o repo fixa a versão em `.nvmrc`; use `nvm use` se disponível)
 - **pnpm 10.12.4** (fixado em `package.json` → `packageManager`; use `corepack enable` para
   garantir a versão certa)
-- Um projeto Supabase (Postgres + Storage) — peça acesso ao dono do projeto ou crie um novo em
-  https://supabase.com/dashboard
+- Acesso ao projeto Supabase **`semog`** (ref `qvxlkovrxfqigeaopvui`, us-east-2) — peça as
+  credenciais ao dono. O CMS não usa um projeto próprio (ver "Arquitetura de dados" abaixo).
+
+## Arquitetura de dados (schema `cms`)
+
+O CMS **compartilha o projeto Supabase `semog`** com o webapp, mas fica isolado num **schema
+dedicado `cms`** (já criado no banco). O Payload é configurado com `schemaName: 'cms'`
+(`payload.config.ts`), então todas as tabelas dele vivem em `cms.*`, sem tocar em
+`public`/`auth`/`storage` do webapp. O pool do Postgres é limitado (`max: 5`) para não competir
+por conexões com o app. Uploads vão num **bucket dedicado `media`** (separado dos buckets do
+webapp). Se um dia precisar de isolamento total, migra-se para um projeto Supabase próprio.
 
 ## Configurar o `.env`
 
