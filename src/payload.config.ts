@@ -37,6 +37,9 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI,
       // pool pequeno: instância Supabase compartilhada com o webapp — não competir por conexões
       max: 5,
+      // Supabase (pooler e direct) exige TLS mas apresenta um cert fora da trust store
+      // padrão do Node; sem isso o pg 8.x falha com SELF_SIGNED_CERT_IN_CHAIN.
+      ssl: { rejectUnauthorized: false },
     },
     // schema dedicado do CMS, isolado de public/auth/storage do webapp.
     // Precisa existir antes do init (criado via migration Supabase `create_cms_schema`).
