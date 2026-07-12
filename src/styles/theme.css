@@ -1,0 +1,195 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand — navy */
+  --color-navy-950: #05081a;
+  --color-navy-900: #0a102e;
+  --color-navy-850: #0d1439;
+  --color-navy-800: #101a48;
+  --color-navy-700: #16225c;
+  --color-navy-600: #1b2d70; /* primária */
+  --color-navy-500: #2a3f96;
+  --color-navy-400: #3b54be;
+  /* ice */
+  --color-ice-300: #d8ecf7;
+  --color-ice-400: #add5eb; /* acento */
+  --color-ice-500: #7fb8db;
+  --color-ice-600: #5895bd;
+  /* silver */
+  --color-silver-100: #edeef5;
+  --color-silver-300: #bcbcc7;
+  --color-silver-500: #8e90a6;
+
+  /* Semantic (referem as CSS vars definidas no @layer base) */
+  --color-bg: var(--bg);
+  --color-bg-raise: var(--bg-raise);
+  --color-bg-deep: var(--bg-deep);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+
+  /* Fonts (variáveis vindas do next/font — Task 2) */
+  --font-display: var(--font-clash), 'Satoshi', system-ui, sans-serif;
+  --font-body: var(--font-satoshi), system-ui, -apple-system, sans-serif;
+
+  /* Type scale (clamp fiel ao ref) */
+  --text-hero: clamp(2.6rem, 6.2vw, 5.2rem);
+  --text-h2: clamp(2rem, 4.2vw, 3.4rem);
+  --text-h3: clamp(1.4rem, 2.4vw, 2rem);
+  --text-lead: clamp(1.05rem, 1.5vw, 1.3rem);
+
+  /* Radii */
+  --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-pill: 999px;
+
+  /* Shadows (tinted navy) */
+  --shadow-card: 0 24px 60px -24px rgba(5, 8, 26, 0.7);
+  --shadow-glow: 0 0 80px -20px rgba(173, 213, 235, 0.25);
+
+  /* Layout */
+  --container-site: 1280px;
+}
+
+@layer base {
+  :root {
+    --bg: var(--color-navy-900);
+    --bg-raise: var(--color-navy-850);
+    --bg-deep: var(--color-navy-950);
+    --text: #edf1fa;
+    --text-2: #b4bdd9;
+    --text-3: #7e88ac;
+    --line: rgba(173, 213, 235, 0.14);
+    --line-strong: rgba(173, 213, 235, 0.28);
+    --accent: var(--color-ice-400);
+    /* gradientes da marca */
+    --grad-brand: linear-gradient(135deg, #1b2d70 0%, #2a3f96 45%, #5895bd 100%);
+    --grad-ice: linear-gradient(120deg, #add5eb 0%, #d8ecf7 60%, #add5eb 100%);
+    --grad-hero: radial-gradient(120% 90% at 70% 10%, #1b2d70 0%, #0d1439 48%, #05081a 100%);
+    --grad-band: linear-gradient(160deg, #101a48 0%, #1b2d70 55%, #16225c 100%);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  img {
+    max-width: 100%;
+    display: block;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+  ::selection {
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6em;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: var(--text-hero);
+  }
+  h2 {
+    font-size: var(--text-h2);
+  }
+  h3 {
+    font-size: var(--text-h3);
+  }
+  p {
+    margin: 0 0 1em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ice-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Seções claras: trocam os semânticos (ref semog.css:128-137) */
+  .sec-light {
+    --text: #10152e;
+    --text-2: #4b557a;
+    --text-3: #7a83a6;
+    --line: rgba(16, 26, 72, 0.12);
+    --line-strong: rgba(16, 26, 72, 0.24);
+    background: #f2f4f9;
+    color: var(--text);
+  }
+  .sec-light.white {
+    background: #fff;
+  }
+}
+
+@layer utilities {
+  .grad-text {
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .gx {
+    background: linear-gradient(100deg, #1b2d70 0%, #3b54be 52%, #5895bd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .gx-ice {
+    background: linear-gradient(100deg, #add5eb 0%, #d8ecf7 55%, #7fb8db 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+    padding: 0.8rem 1.4rem;
+    border-radius: 0 0 12px 0;
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+}
