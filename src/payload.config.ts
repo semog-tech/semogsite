@@ -10,6 +10,10 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { Company } from './globals/Company'
+import { Footer } from './globals/Footer'
+import { Header } from './globals/Header'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,6 +26,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, Posts, Categories],
+  globals: [Header, Footer, Company, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
