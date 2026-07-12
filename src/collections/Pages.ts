@@ -4,12 +4,25 @@ import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { richTextBlock } from '@/blocks/RichText/config'
 import { statsBlock } from '@/blocks/Stats/config'
+import { revalidatePage } from '@/lib/revalidate'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: { useAsTitle: 'title', group: 'Conteúdo', defaultColumns: ['title', 'slug', 'updatedAt'] },
   access: { read: () => true },
   versions: { drafts: true },
+  hooks: {
+    afterChange: [
+      ({ doc }) => {
+        revalidatePage(doc.slug)
+      },
+    ],
+    afterDelete: [
+      ({ doc }) => {
+        revalidatePage(doc.slug)
+      },
+    ],
+  },
   fields: [
     { name: 'title', type: 'text', required: true },
     {
