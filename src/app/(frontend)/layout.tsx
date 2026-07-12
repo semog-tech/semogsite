@@ -1,5 +1,6 @@
 import type React from 'react'
 import { clash, satoshi } from '../../fonts'
+import { LenisProvider } from '../../motion/LenisProvider'
 import '../../styles/theme.css'
 
 export const metadata = {
@@ -13,7 +14,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">
       <body>
-        <main>{children}</main>
+        <LenisProvider>
+          <main>{children}</main>
+        </LenisProvider>
       </body>
     </html>
   )
