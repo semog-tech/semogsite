@@ -2,26 +2,17 @@
 
 Site institucional da **Semog Administradora de Condomínios**, líder do Nordeste desde 1991.
 
-Fase atual: **validação de design em HTML estático** (sem build), pronto para migração posterior a Next.js na Vercel.
+Fase atual: **migração para Next.js 16 + Payload 3** (Postgres + Storage no Supabase), na Vercel.
 
 ## Como rodar localmente
 
-O site usa vídeo e imagens via caminhos relativos, então precisa de um servidor HTTP (não abra o arquivo direto no navegador).
+Veja **[`docs/DEV.md`](docs/DEV.md)** para pré-requisitos, configuração do `.env` (Supabase
+Postgres + Storage) e os comandos de desenvolvimento (`pnpm dev`, `pnpm check`, migrations).
 
-**Windows:** duplo clique em `ABRIR-SITE.bat`
+O site estático original — usado como referência visual e de conteúdo para a migração — está
+congelado em [`_reference/`](_reference/) e não deve ser editado.
 
-**Ou, com Python:**
-```bash
-python -m http.server 8347
-# abra http://localhost:8347
-```
-
-**Ou, com Node:**
-```bash
-npx serve .
-```
-
-## Páginas
+## Páginas (site de referência em `_reference/`)
 
 | Arquivo | Página |
 |---|---|
