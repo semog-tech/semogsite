@@ -1,4 +1,9 @@
 import type { CollectionConfig } from 'payload'
+import { ctaBandBlock } from '@/blocks/CTABand/config'
+import { featureGridBlock } from '@/blocks/FeatureGrid/config'
+import { heroBlock } from '@/blocks/Hero/config'
+import { richTextBlock } from '@/blocks/RichText/config'
+import { statsBlock } from '@/blocks/Stats/config'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -15,7 +20,11 @@ export const Pages: CollectionConfig = {
       index: true,
       admin: { description: "Use 'home' para a página inicial. Sem acento (ex.: solucoes)." },
     },
-    { name: 'layout', type: 'blocks', blocks: [] },
+    {
+      name: 'layout',
+      type: 'blocks',
+      blocks: [heroBlock, statsBlock, featureGridBlock, ctaBandBlock, richTextBlock],
+    },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
   ],
 }
