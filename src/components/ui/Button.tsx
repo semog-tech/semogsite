@@ -33,6 +33,8 @@ export function Button({
   withArrow,
   onClick,
   className = '',
+  type = 'button',
+  disabled,
 }: {
   children: ReactNode
   variant?: Variant
@@ -41,8 +43,11 @@ export function Button({
   withArrow?: boolean
   onClick?: () => void
   className?: string
+  /** Só se aplica ao `<button>` (sem `href`) — ex.: `submit` num `<form>` de RHF. */
+  type?: 'button' | 'submit'
+  disabled?: boolean
 }) {
-  const cls = `${base} ${sizes[size]} ${variants[variant]} ${className}`
+  const cls = `${base} ${sizes[size]} ${variants[variant]} ${disabled ? 'pointer-events-none opacity-50' : ''} ${className}`
   const inner = (
     <>
       {children}
@@ -61,7 +66,7 @@ export function Button({
       {inner}
     </a>
   ) : (
-    <button className={cls} onClick={onClick} type="button">
+    <button className={cls} onClick={onClick} type={type} disabled={disabled}>
       {inner}
     </button>
   )

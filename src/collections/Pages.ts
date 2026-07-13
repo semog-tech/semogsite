@@ -7,6 +7,7 @@ import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { faqBlock } from '@/blocks/Faq/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
+import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { registrosBlock } from '@/blocks/Registros/config'
@@ -62,6 +63,7 @@ export const Pages: CollectionConfig = {
         showcaseBlock,
         benefitsBlock,
         contactInfoBlock,
+        formEmbedBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

@@ -8,6 +8,7 @@ import { ContactInfoBlock } from './ContactInfo/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FaqBlock } from './Faq/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
+import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { RegistrosBlock } from './Registros/Component'
@@ -34,6 +35,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   showcase: ShowcaseBlock,
   benefits: BenefitsBlock,
   contactInfo: ContactInfoBlock,
+  formEmbed: FormEmbedBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

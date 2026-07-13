@@ -209,6 +209,7 @@ export interface Page {
         | ShowcaseBlock
         | BenefitsBlock
         | ContactInfoBlock
+        | FormEmbedBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -519,6 +520,19 @@ export interface ContactInfoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'contactInfo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock".
+ */
+export interface FormEmbedBlock {
+  formType: 'contato' | 'proposta';
+  eyebrow?: string | null;
+  title?: string | null;
+  text?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formEmbed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -873,6 +887,7 @@ export interface PagesSelect<T extends boolean = true> {
         showcase?: T | ShowcaseBlockSelect<T>;
         benefits?: T | BenefitsBlockSelect<T>;
         contactInfo?: T | ContactInfoBlockSelect<T>;
+        formEmbed?: T | FormEmbedBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -1155,6 +1170,18 @@ export interface ContactInfoBlockSelect<T extends boolean = true> {
         id?: T;
       };
   whatsapp?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormEmbedBlock_select".
+ */
+export interface FormEmbedBlockSelect<T extends boolean = true> {
+  formType?: T;
+  eyebrow?: T;
+  title?: T;
+  text?: T;
   id?: T;
   blockName?: T;
 }

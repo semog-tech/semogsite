@@ -8,6 +8,7 @@ import type {
   CTABandBlock,
   FaqBlock,
   FeatureGridBlock,
+  FormEmbedBlock,
   GaranteBlock,
   HeroBlock,
   Page,
@@ -59,13 +60,14 @@ import type {
  *   passo, como faixa "O que está incluído na implantação") + CTABand
  *   final.
  * - "Contato" (slug `contato`), fiel a `_reference/contato.html`: Hero +
- *   RichText (a seção "Atendimento rápido"/`.quick-grid` — WhatsApp, e-mail
- *   e link para proposta — sob o título "Prefere falar direto?") +
- *   ContactInfo (as 4 unidades de `.unit`). A seção `.selfserve` do
- *   `_reference` linka para autoatendimentos (`href="#"`) que não existem
- *   ainda nesta migração, por isso fica de fora — e, como pedido nesta
- *   task, esta página **não** ganha um formulário de contato: isso é
- *   trabalho do Plano 4.
+ *   FormEmbed (`formType: 'contato'` — form real de RHF/Zod/Turnstile, Plano
+ *   4b Task 5) + ContactInfo (as 4 unidades de `.unit`). O `_reference` não
+ *   tem `<form>`, só os atalhos `.quick-grid` (WhatsApp/e-mail/proposta);
+ *   este seed troca esses atalhos pelo form de verdade — quem quiser falar
+ *   direto ainda tem WhatsApp/telefone nos cards de unidade logo abaixo. A
+ *   seção `.selfserve` do `_reference` linka para autoatendimentos
+ *   (`href="#"`) que não existem ainda nesta migração, por isso fica de
+ *   fora.
  * - "Proposta" (slug `proposta`), fiel a `_reference/proposta.html`: Hero
  *   (o headline/lead da coluna do formulário) + Benefits (os números do
  *   `.trust-stats` — prova social) + RichText (o passo a passo depois do
@@ -872,10 +874,9 @@ const incorporadorasCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
 // ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` =====
 //
 // NOTA: `_reference/contato.html` não tem `<form>` — só atalhos (WhatsApp,
-// e-mail, link de proposta) e cards de unidade. Um formulário de contato
-// de verdade (com submit funcional) é escopo do **Plano 4**; aqui a seção
-// "Prefere falar direto?" cobre o mesmo atalho do `.quick-grid` sem simular
-// envio nenhum.
+// e-mail, link de proposta) e cards de unidade. O form de verdade (RHF/Zod/
+// Turnstile, `formType: 'contato'`) é a Task 5 do Plano 4b — ver
+// `src/components/forms/ContactForm.tsx` e `src/blocks/FormEmbed`.
 
 const contatoHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   blockType: 'hero',
@@ -883,32 +884,12 @@ const contatoHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   subhead: 'Atendimento rápido nos canais digitais e quatro unidades de portas abertas.',
 }
 
-const contatoCanais: Omit<RichTextBlock, 'id' | 'blockName'> = {
-  blockType: 'richText',
-  content: legalRichText([
-    h2('Prefere falar direto?'),
-    p(
-      'Os pedidos mais comuns não precisam de formulário: fale direto com a gente pelos canais abaixo.',
-    ),
-    pWithLink(
-      'WhatsApp — resposta em horário comercial, geralmente em poucos minutos: ',
-      '(81) 9 9999-9999',
-      'https://wa.me/5581999999999',
-      '.',
-    ),
-    pWithLink(
-      'E-mail — para solicitações formais, documentos e propostas: ',
-      'contato@semog.com.br',
-      'mailto:contato@semog.com.br',
-      '.',
-    ),
-    pWithLink(
-      'Proposta comercial — conte sobre o seu condomínio e receba retorno em até 24 horas úteis pela ',
-      'página de proposta',
-      '/proposta',
-      '.',
-    ),
-  ]),
+const contatoFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
+  blockType: 'formEmbed',
+  formType: 'contato',
+  eyebrow: 'Fale com a gente',
+  title: 'Envie sua mensagem.',
+  text: 'Preencha o formulário e nossa equipe responde em horário comercial, geralmente em poucos minutos.',
 }
 
 const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
@@ -1359,7 +1340,7 @@ async function seedPages() {
   await upsertPage(payload, {
     title: 'Contato',
     slug: 'contato',
-    layout: [contatoHero, contatoCanais, contatoUnidades],
+    layout: [contatoHero, contatoFormEmbed, contatoUnidades],
   })
 
   await upsertPage(payload, {

@@ -28,6 +28,7 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
     "@payloadcms/db-postgres": "3.86.0",
     "@payloadcms/next": "3.86.0",
     "@payloadcms/plugin-form-builder": "3.86.0",
@@ -47,6 +48,7 @@
     "payload": "3.86.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "react-hook-form": "^7.81.0",
     "sharp": "0.34.2",
     "zod": "^4.4.3"
   },
