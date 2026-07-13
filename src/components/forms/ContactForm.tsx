@@ -60,6 +60,7 @@ export function ContactForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
+      setStatus('error')
       setMessage('Aguarde a verificação de segurança concluir antes de enviar.')
       return
     }
@@ -101,8 +102,10 @@ export function ContactForm() {
             />
           </svg>
         </div>
-        <h3 className="text-h3">Recebemos sua mensagem!</h3>
-        <p className="mx-auto m-0 max-w-[40ch] text-fg-2">{message}</p>
+        <h3 className="text-h3">{message}</h3>
+        <p className="mx-auto m-0 max-w-[40ch] text-fg-2">
+          Nossa equipe entra em contato em breve.
+        </p>
       </div>
     )
   }
