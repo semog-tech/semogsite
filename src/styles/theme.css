@@ -151,10 +151,41 @@
     --text-3: #7a83a6;
     --line: rgba(16, 26, 72, 0.12);
     --line-strong: rgba(16, 26, 72, 0.24);
+    --bg: #f2f4f9;
+    --bg-raise: #ffffff;
+    --bg-deep: #f2f4f9;
     background: #f2f4f9;
     color: var(--text);
+
+    /*
+     * A indireção `--color-*` no @theme resolve no escopo em que a var()
+     * é declarada (:root) e o RESULTADO herda — não a referência. Por isso,
+     * trocar apenas os intermediários (--text/--bg/--line acima) não é
+     * suficiente para as utilities Tailwind (text-fg, bg-bg-raise,
+     * border-line etc.), que ficam "congeladas" nos valores escuros de
+     * :root. Redeclarar os tokens semânticos aqui força a var() a
+     * reresolver contra os intermediários claros já sobrescritos.
+     */
+    --color-fg: var(--text);
+    --color-fg-2: var(--text-2);
+    --color-fg-3: var(--text-3);
+    --color-bg: var(--bg);
+    --color-bg-raise: var(--bg-raise);
+    --color-bg-deep: var(--bg-deep);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+
+    /*
+     * --color-ice-400 (#add5eb) é acento pensado para fundo navy escuro;
+     * sobre fundos claros (#f2f4f9/#fff) o contraste cai para ~1.4–1.6:1
+     * (usado em texto/UI visível: números do Benefits, rótulo de cidade do
+     * Cities, ícone "+" do Faq). Redireciona para navy-500, que mede
+     * ~8.5–9.3:1 sobre os dois fundos claros.
+     */
+    --color-accent: var(--color-navy-500);
   }
   .sec-light.white {
+    --bg: #ffffff;
     background: #fff;
   }
 }
