@@ -1,4 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -37,9 +38,8 @@ const nextConfig: NextConfig = {
     // Baseline security headers + CSP. The CSP is intentionally permissive on
     // 'unsafe-inline'/'unsafe-eval' and img/font/connect sources because the
     // Payload admin (/admin) and Next's own hydration bootstrap inject inline
-    // scripts/styles that a strict `script-src 'self'` would block. Hardening
-    // (nonces, dropping unsafe-*, adding Sentry/analytics domains) is
-    // deferred to Plan 4c once those integrations land.
+    // scripts/styles that a strict `script-src 'self'` would block. Further
+    // hardening (nonces, dropping unsafe-*) is deferred.
     //
     // `https://challenges.cloudflare.com` (Plan 4b Task 3) is Cloudflare
     // Turnstile's domain: `script-src` loads its `api.js`, `frame-src` is the
@@ -48,6 +48,11 @@ const nextConfig: NextConfig = {
     // by CSP (script won't load, or the iframe/its network calls get
     // refused) — verified empirically with no CSP violations after adding
     // these (see Task 3 report).
+    //
+    // `https://*.sentry.io` (Plan 4c Task 1) is where the browser SDK sends
+    // error/performance events. DSN is deferred — without it the SDK is
+    // disabled and never calls out — but the CSP allowance is added now so
+    // nothing needs touching again once a DSN lands.
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -59,7 +64,7 @@ const nextConfig: NextConfig = {
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io",
     ].join('; ')
 
     return [
@@ -124,4 +129,14 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+// Source-map upload (and every other build-time Sentry step that needs
+// credentials) only runs when `SENTRY_AUTH_TOKEN` is set — without it the
+// bundler plugin no-ops silently (`silent: true` suppresses its warning
+// about the missing token instead of failing the build). This keeps
+// `pnpm build` green with an empty Sentry env, which is the state until a
+// DSN + auth token are provisioned.
+export default withSentryConfig(withPayload(nextConfig, { devBundleServerPackages: false }), {
+  silent: true,
+  widenClientFileUpload: false,
+  disableLogger: true,
+})

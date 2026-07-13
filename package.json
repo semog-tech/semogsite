@@ -39,6 +39,7 @@
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.1.0",
     "@sendgrid/mail": "^8.1.6",
+    "@sentry/nextjs": "^10.65.0",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
     "graphql": "^16.8.1",
