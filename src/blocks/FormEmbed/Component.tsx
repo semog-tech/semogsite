@@ -1,4 +1,5 @@
 import { ContactForm } from '@/components/forms/ContactForm'
+import { PropostaForm } from '@/components/forms/PropostaForm'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
@@ -12,10 +13,6 @@ import type { FormEmbedBlock as FormEmbedBlockType } from '@/payload-types'
  * diferente do layout de duas colunas do ref (form + trust-panel), porque
  * este bloco precisa funcionar solto em qualquer página, não só em
  * `/proposta`.
- *
- * `formType: 'proposta'` ainda não renderiza nada — `<PropostaForm>` é
- * escopo da Task 6 do Plano 4b. Não quebra a página: o card fica vazio até
- * lá.
  */
 export function FormEmbedBlock({ formType, eyebrow, title, text }: FormEmbedBlockType) {
   if (!formType) return null
@@ -36,7 +33,8 @@ export function FormEmbedBlock({ formType, eyebrow, title, text }: FormEmbedBloc
             </div>
           )}
           <div className="rounded-card border border-line-strong bg-[rgba(10,16,46,0.55)] p-[clamp(1.8rem,4vw,2.8rem)] shadow-card backdrop-blur-md">
-            {formType === 'contato' ? <ContactForm /> : null}
+            {formType === 'contato' && <ContactForm />}
+            {formType === 'proposta' && <PropostaForm />}
           </div>
         </div>
       </Container>

@@ -70,12 +70,10 @@ import type {
  *   fora.
  * - "Proposta" (slug `proposta`), fiel a `_reference/proposta.html`: Hero
  *   (o headline/lead da coluna do formulário) + Benefits (os números do
- *   `.trust-stats` — prova social) + RichText (o passo a passo depois do
- *   envio, mais uma seção "Prefere falar direto?" com WhatsApp/e-mail/
- *   Contato enquanto o formulário não existe) + CTABand (aponta para o
- *   WhatsApp, já que a própria página de proposta ainda não tem o
- *   `<form>` de verdade). O `.prop-form` de `_reference/proposta.html` é
- *   **Plano 4**: esta task não constrói `<form>` sem submit real.
+ *   `.trust-stats` — prova social) + FormEmbed (`formType: 'proposta'` —
+ *   form real de RHF/Zod/Turnstile, Plano 4b Task 6) + CTABand (WhatsApp
+ *   como canal alternativo pra quem prefere falar direto, mesmo espírito do
+ *   `ContactInfo` que fica abaixo do form em "Contato").
  * - Quatro landings de cidade (slugs
  *   `administradora-de-condominios-{recife,joao-pessoa,campina-grande,
  *   belem}`), fiéis a `_reference/administradora-de-condominios-*.html`:
@@ -929,10 +927,9 @@ const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
 //
 // NOTA: `_reference/proposta.html` tem um `<form id="prop-form">` com
 // validação e "sucesso" só em JS de página estática (sem submit real para
-// nenhum backend). Construir esse `<form>` de verdade (com endpoint,
-// validação server-side etc.) é escopo do **Plano 4**; esta task só monta o
-// shell da página com prova social e os canais diretos já funcionais
-// (WhatsApp/e-mail/Contato), sem simular envio nenhum.
+// nenhum backend). O form de verdade (RHF/Zod/Turnstile, `formType:
+// 'proposta'`) é a Task 6 do Plano 4b — ver `src/components/forms/PropostaForm.tsx`
+// e `src/blocks/FormEmbed`.
 
 const propostaHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   blockType: 'hero',
@@ -964,32 +961,12 @@ const propostaProvaSocial: Omit<BenefitsBlock, 'id' | 'blockName'> = {
   ],
 }
 
-const propostaComoFunciona: Omit<RichTextBlock, 'id' | 'blockName'> = {
-  blockType: 'richText',
-  content: legalRichText([
-    h2('Como funciona o pedido de proposta.'),
-    p(
-      'Conte como é o seu condomínio — tipo de estrutura, cidade, número de unidades e o momento atual — e a nossa equipe comercial prepara uma proposta sob medida, sem compromisso.',
-    ),
-    ul([
-      'Você envia as informações do condomínio.',
-      'Nossa equipe analisa o cenário e monta o plano ideal.',
-      'Você recebe a proposta em até 24 horas úteis, pelo WhatsApp ou e-mail.',
-    ]),
-    h2('Prefere falar direto?'),
-    {
-      kind: 'p',
-      parts: [
-        'Enquanto o formulário de solicitação está em preparação, fale agora com a nossa equipe comercial pelo WhatsApp ',
-        { text: '(81) 9 9999-9999', href: 'https://wa.me/5581999999999' },
-        ' ou pelo e-mail ',
-        { text: 'contato@semog.com.br', href: 'mailto:contato@semog.com.br' },
-        '. Também dá para conferir todos os canais na página de ',
-        { text: 'Contato', href: '/contato' },
-        '.',
-      ],
-    },
-  ]),
+const propostaFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
+  blockType: 'formEmbed',
+  formType: 'proposta',
+  eyebrow: 'Solicitar proposta',
+  title: 'Conte sobre o seu condomínio.',
+  text: 'Preencha os dados abaixo e a nossa equipe comercial responde em até 24 horas úteis, pelo WhatsApp ou e-mail informado.',
 }
 
 const propostaCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
@@ -1346,7 +1323,7 @@ async function seedPages() {
   await upsertPage(payload, {
     title: 'Solicitar Proposta',
     slug: 'proposta',
-    layout: [propostaHero, propostaProvaSocial, propostaComoFunciona, propostaCtaBand],
+    layout: [propostaHero, propostaProvaSocial, propostaFormEmbed, propostaCtaBand],
   })
 
   await seedCityLanding(payload, recifeCityLanding)

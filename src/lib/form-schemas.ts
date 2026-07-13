@@ -97,3 +97,15 @@ export const propostaSchema = z.object({
 })
 
 export type PropostaValues = z.infer<typeof propostaSchema>
+
+/**
+ * Tipo "de entrada" (pré-parse) do form — necessário só por causa de
+ * `unidades` (`z.preprocess`, cujo tipo de input é `unknown`). `useForm` em
+ * `PropostaForm.tsx` usa este tipo pro estado bruto dos campos e
+ * `PropostaValues` pro valor entregue em `handleSubmit` (já validado/
+ * coagido pelo `zodResolver`) — sem isso, o `Resolver<PropostaValues, …>`
+ * esperado por `useForm<PropostaValues>` não bate com o `Resolver<z.input<…>,
+ * …>` que `zodResolver` de fato devolve, e o `tsc` acusa dois tipos
+ * `Resolver` "não relacionados".
+ */
+export type PropostaInput = z.input<typeof propostaSchema>
