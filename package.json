@@ -18,6 +18,7 @@
     "seed:globals": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/globals.ts",
     "seed:posts": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/posts.ts",
     "seed:pages": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/pages.ts",
+    "seed:forms": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/forms.ts",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",
@@ -29,6 +30,7 @@
   "dependencies": {
     "@payloadcms/db-postgres": "3.86.0",
     "@payloadcms/next": "3.86.0",
+    "@payloadcms/plugin-form-builder": "3.86.0",
     "@payloadcms/plugin-seo": "3.86.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/storage-s3": "3.86.0",

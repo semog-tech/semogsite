@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
@@ -76,6 +77,30 @@ export default buildConfig({
         region: process.env.S3_REGION,
         endpoint: process.env.S3_ENDPOINT,
         forcePathStyle: true,
+      },
+    }),
+    formBuilderPlugin({
+      fields: {
+        text: true,
+        textarea: true,
+        email: true,
+        select: true,
+        number: true,
+        checkbox: true,
+        // Sem gateway de pagamento nem upload/endereçamento neste site — só os
+        // tipos usados pelos formulários "Contato" e "Proposta" (Plano 4).
+        payment: false,
+        upload: false,
+        state: false,
+        country: false,
+        date: false,
+        message: false,
+      },
+      formOverrides: {
+        admin: { group: 'Formulários' },
+      },
+      formSubmissionOverrides: {
+        admin: { group: 'Formulários' },
       },
     }),
   ],
