@@ -8,11 +8,14 @@ export const statsBlock: Block = {
   slug: 'stats',
   interfaceName: 'StatsBlock',
   fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'title', type: 'text' },
     {
       name: 'items',
       type: 'array',
       fields: [
         { name: 'value', type: 'number', required: true },
+        { name: 'prefix', type: 'text' },
         { name: 'suffix', type: 'text' },
         { name: 'label', type: 'text', required: true },
       ],

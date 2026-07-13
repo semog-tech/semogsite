@@ -221,9 +221,12 @@ export interface HeroBlock {
  * via the `definition` "StatsBlock".
  */
 export interface StatsBlock {
+  eyebrow?: string | null;
+  title?: string | null;
   items?:
     | {
         value: number;
+        prefix?: string | null;
         suffix?: string | null;
         label: string;
         id?: string | null;
@@ -506,10 +509,13 @@ export interface HeroBlockSelect<T extends boolean = true> {
  * via the `definition` "StatsBlock_select".
  */
 export interface StatsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
   items?:
     | T
     | {
         value?: T;
+        prefix?: T;
         suffix?: T;
         label?: T;
         id?: T;
