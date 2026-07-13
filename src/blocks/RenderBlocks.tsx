@@ -1,6 +1,7 @@
 import type React from 'react'
 import type { Page } from '@/payload-types'
 import { AppShowcaseBlock } from './AppShowcase/Component'
+import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FaqBlock } from './Faq/Component'
@@ -26,6 +27,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   faq: FaqBlock,
   ctaBand: CTABandBlock,
   richText: RichTextBlock,
+  blogList: BlogListBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

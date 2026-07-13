@@ -201,6 +201,7 @@ export interface Page {
         | FaqBlock
         | CTABandBlock
         | RichTextBlock
+        | BlogListBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -429,6 +430,20 @@ export interface RichTextBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock".
+ */
+export interface BlogListBlock {
+  title?: string | null;
+  /**
+   * Quantidade de posts a exibir (padrão 6).
+   */
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'blogList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -616,6 +631,7 @@ export interface PagesSelect<T extends boolean = true> {
         faq?: T | FaqBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
+        blogList?: T | BlogListBlockSelect<T>;
       };
   publishedAt?: T;
   updatedAt?: T;
@@ -819,6 +835,16 @@ export interface CTABandBlockSelect<T extends boolean = true> {
  */
 export interface RichTextBlockSelect<T extends boolean = true> {
   content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogListBlock_select".
+ */
+export interface BlogListBlockSelect<T extends boolean = true> {
+  title?: T;
+  limit?: T;
   id?: T;
   blockName?: T;
 }

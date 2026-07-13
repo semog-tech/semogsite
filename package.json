@@ -16,6 +16,7 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/home.ts",
     "seed:globals": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/globals.ts",
+    "seed:posts": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/posts.ts",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",

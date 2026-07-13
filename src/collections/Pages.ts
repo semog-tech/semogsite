@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { appShowcaseBlock } from '@/blocks/AppShowcase/config'
+import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { faqBlock } from '@/blocks/Faq/config'
@@ -54,6 +55,7 @@ export const Pages: CollectionConfig = {
         faqBlock,
         ctaBandBlock,
         richTextBlock,
+        blogListBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
