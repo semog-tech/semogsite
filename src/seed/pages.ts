@@ -11,11 +11,12 @@ import type {
   Page,
   RegistrosBlock,
   RichTextBlock,
+  ShowcaseBlock,
   StatsBlock,
 } from '@/payload-types'
 
 /**
- * Seed idempotente de quatro páginas de CMS compostas só de blocos já
+ * Seed idempotente de seis páginas de CMS compostas só de blocos já
  * existentes (sem mídia, sem novo blocos):
  *
  * - "Privacidade" e "Termos", fiel ao corpo de `_reference/privacidade.html`
@@ -32,6 +33,20 @@ import type {
  *   do aplicativo) + Garante (seção "Semog Garante") + Registros (faixa de
  *   selos da seção "Por que Semog") + Faq (as 5 perguntas do FAQPage
  *   schema.org do `_reference`) + CTABand final.
+ * - "Administração de condomínios" (slug `administracao-de-condominios`),
+ *   fiel a `_reference/administracao-de-condominios.html`: Hero + FeatureGrid
+ *   (a grade `.svc-grid` de 9 serviços, seção "O que fazemos") + Showcase
+ *   (os 4 passos de `.method`/"Como fazemos", terminando na "Transparência
+ *   contínua"/prestação de contas digital — `mediaSide: 'left'`) + Faq (as 5
+ *   perguntas do FAQPage schema.org, que também cobrem a seção "Quanto
+ *   custa") + CTABand final.
+ * - "Semog Garante" (slug `garante`), fiel a `_reference/garante.html`: Hero
+ *   (vídeo do escudo, sem mídia aqui) + Garante detalhado (os 4 passos de
+ *   `.g-how`/"Como funciona" como features, preço "1%" e nota de rodapé,
+ *   texto explicando a parceria com a G5 Partners de `.g-partner`) +
+ *   Showcase (a comparação antes/depois de `.g-compare`, cada item como par
+ *   título do aspecto + frase "Antes: … Com o Garante: …") + Faq (as 4
+ *   perguntas do FAQPage schema.org) + CTABand final.
  *
  * Prova, junto com `home.ts`/`posts.ts`, que a rota catch-all
  * `[[...slug]]` serve qualquer página de CMS por slug.
@@ -477,6 +492,250 @@ const solucoesCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
   cta: { label: 'Solicitar proposta', href: '/proposta' },
 }
 
+// ===== "Administração de condomínios" (slug `administracao-de-condominios`),
+// fiel a `_reference/administracao-de-condominios.html` =====
+
+const administracaoHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+  blockType: 'hero',
+  eyebrow: 'O serviço principal da Semog',
+  headline: 'Administração de condomínios, por inteiro.',
+  subhead:
+    'Do boleto à assembleia, assumimos a operação para o síndico decidir com tranquilidade e o morador só morar.',
+  ctas: [{ label: 'Solicitar proposta', href: '/proposta', variant: 'white' }],
+}
+
+const administracaoServicos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
+  blockType: 'featureGrid',
+  eyebrow: 'O que fazemos',
+  title: 'Tudo que o condomínio precisa, em um só contrato.',
+  features: [
+    {
+      title: 'Gestão financeira',
+      description:
+        'Boletos, contas a pagar, fluxo de caixa, previsão orçamentária e fundo de reserva sob controle.',
+    },
+    {
+      title: 'Cobrança e inadimplência',
+      description:
+        'Régua de cobrança profissional e, com o Semog Garante, receita 100% assegurada em contrato.',
+    },
+    {
+      title: 'Contabilidade e prestação de contas',
+      description:
+        'Balancetes, obrigações fiscais e a única prestação de contas 100% digital do mercado.',
+    },
+    {
+      title: 'Departamento pessoal',
+      description:
+        'Folha, férias, encargos e rotinas trabalhistas dos funcionários do condomínio, sem risco para o síndico.',
+    },
+    {
+      title: 'Jurídico condominial',
+      description:
+        'Convenção, regimento, notificações, acordos e suporte em conflitos, com advogados especializados.',
+    },
+    {
+      title: 'Assembleias',
+      description:
+        'Convocação, condução, ata e votação digital pelo aplicativo, presencial ou online.',
+    },
+    {
+      title: 'Manutenção e fornecedores',
+      description:
+        'Preventivas, orçamentos comparados e rede homologada com preço de escala de 700 condomínios.',
+    },
+    {
+      title: 'Seguros obrigatórios',
+      description: 'Cotação, contratação e renovação do seguro condominial em condições especiais.',
+    },
+    {
+      title: 'Atendimento e comunicação',
+      description:
+        'Canal direto com síndicos e moradores: aplicativo, WhatsApp e o chatbot pioneiro do setor.',
+    },
+  ],
+}
+
+const administracaoMetodo: Omit<ShowcaseBlock, 'id' | 'blockName'> = {
+  blockType: 'showcase',
+  eyebrow: 'Como fazemos',
+  title: 'Da migração à transparência contínua.',
+  text: 'Diagnóstico, migração sem ruptura e operação com método — terminando na prestação de contas digital aberta a qualquer condômino.',
+  features: [
+    {
+      title: 'Diagnóstico e proposta',
+      description:
+        'Entendemos o momento do condomínio: inadimplência, contratos, pendências e prioridades. A proposta chega em até 24 horas úteis, com escopo claro.',
+    },
+    {
+      title: 'Migração sem ruptura',
+      description:
+        'Auditoria e transferência de documentos, comunicação aos condôminos e cadastro completo no Semog One, sem interromper a operação.',
+    },
+    {
+      title: 'Operação com método',
+      description:
+        'Rotinas financeiras, DP, manutenção e atendimento rodando no nosso ERP, com prazos definidos e indicadores acompanhados pela diretoria.',
+    },
+    {
+      title: 'Transparência contínua',
+      description:
+        'Prestação de contas digital aberta a qualquer condômino, relatórios mensais ao conselho e acesso direto aos sócios quando precisar.',
+    },
+  ],
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  mediaSide: 'left',
+}
+
+const administracaoFaq: Omit<FaqBlock, 'id' | 'blockName'> = {
+  blockType: 'faq',
+  title: 'Perguntas frequentes.',
+  items: [
+    {
+      question: 'O que faz uma administradora de condomínios?',
+      answer:
+        'Ela assume a operação do condomínio: finanças e cobrança, contabilidade e prestação de contas, departamento pessoal, jurídico, assembleias, fornecedores, manutenção e seguros. O síndico continua decidindo; a administradora executa com método e responde por prazos.',
+    },
+    {
+      question: 'Quanto custa contratar?',
+      answer:
+        'Depende do porte e do escopo. A Semog envia proposta personalizada em até 24 horas úteis, sem compromisso, com tudo discriminado: taxa de administração, serviços incluídos e opcionais como o Semog Garante.',
+    },
+    {
+      question: 'Como escolher a administradora certa?',
+      answer:
+        'Compare tempo de mercado, carteira de condomínios, transparência da prestação de contas, tecnologia para o morador e estrutura de cobrança. Visite a sede, converse com clientes atuais e peça uma proposta detalhada por escrito.',
+    },
+    {
+      question: 'Trocar de administradora dá trabalho?',
+      answer:
+        'Com condução profissional, não. Aprovada a troca em assembleia, a Semog cuida de toda a migração: documentos, comunicação aos moradores e transição financeira, sem interromper boletos nem pagamentos.',
+    },
+    {
+      question: 'A Semog atende meu tipo de condomínio?',
+      answer:
+        'Atendemos condomínios residenciais, comerciais, mistos e associações de moradores, em Recife, João Pessoa, Campina Grande, Belém e regiões. Para incorporadoras, implantamos o condomínio da planta à primeira assembleia.',
+    },
+  ],
+}
+
+const administracaoCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+  blockType: 'ctaBand',
+  title: 'Seu condomínio administrado pela líder.',
+  text: 'Conte como é o seu condomínio e receba uma proposta sob medida em até 24 horas úteis.',
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+}
+
+// ===== "Semog Garante" (slug `garante`), fiel a `_reference/garante.html` =====
+
+const garanteHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+  blockType: 'hero',
+  eyebrow: 'Semog Garante · uma parceria Semog + G5 Partners',
+  headline: 'Inadimplência zero.',
+  subhead:
+    'O condomínio recebe 100% da arrecadação prevista, todos os meses. Chova, atrase quem atrasar.',
+  ctas: [{ label: 'Solicitar proposta', href: '/proposta', variant: 'white' }],
+}
+
+const garanteDetalhado: Omit<GaranteBlock, 'id' | 'blockName'> = {
+  blockType: 'garante',
+  eyebrow: 'Como funciona',
+  title: '1% da arrecadação. Só isso.',
+  text: 'Operado em parceria com a G5 Partners, especialista em soluções financeiras para o mercado condominial: a Semog cuida da gestão e do relacionamento, a G5 da estrutura de capital que assegura o repasse integral. Um contrato só, um parceiro só.',
+  features: [
+    {
+      title: 'O condomínio recebe tudo',
+      description:
+        'No dia previsto, 100% da arrecadação entra no caixa do condomínio. Com ou sem atrasos, a receita está garantida em contrato.',
+    },
+    {
+      title: 'A cobrança vira problema nosso',
+      description:
+        'A Semog e a G5 Partners assumem toda a régua de cobrança: negociação humana, dentro da lei e sem constrangimento entre vizinhos.',
+    },
+    {
+      title: 'O orçamento vira certeza',
+      description:
+        'Sem buraco no fluxo de caixa, manutenção, obras e melhorias saem do papel no prazo combinado em assembleia.',
+    },
+    {
+      title: 'O síndico dorme tranquilo',
+      description:
+        'Nada de lista de devedores na porta do elevador nem assembleia tensa. A relação entre vizinhos fica preservada.',
+    },
+  ],
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  note: 'Sem taxa de adesão, sem carência escondida, sem pegadinha no contrato.',
+}
+
+const garanteDiferenca: Omit<ShowcaseBlock, 'id' | 'blockName'> = {
+  blockType: 'showcase',
+  eyebrow: 'A diferença no dia a dia',
+  title: 'O que muda com o Semog Garante.',
+  text: 'Todo síndico conhece o ciclo: inadimplência sobe, o caixa aperta, a obra para, a assembleia esquenta. O Garante quebra esse ciclo no primeiro mês.',
+  features: [
+    {
+      title: 'Receita',
+      description:
+        'Antes: imprevisível, refém dos atrasos do mês. Com o Garante: 100% da arrecadação garantida em contrato.',
+    },
+    {
+      title: 'Cobrança',
+      description:
+        'Antes: o síndico cobra o vizinho, com constrangimento. Com o Garante: cobrança profissional, sem envolver o síndico.',
+    },
+    {
+      title: 'Obras e manutenção',
+      description: 'Antes: adiadas por falta de caixa. Com o Garante: dentro do cronograma.',
+    },
+    {
+      title: 'Rateio',
+      description:
+        'Antes: rateio extra para cobrir buracos. Com o Garante: zero rateio extra por inadimplência.',
+    },
+    {
+      title: 'Assembleias',
+      description:
+        'Antes: dominadas pela pauta da inadimplência. Com o Garante: para decidir o futuro, não o débito.',
+    },
+  ],
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  mediaSide: 'right',
+}
+
+const garanteFaq: Omit<FaqBlock, 'id' | 'blockName'> = {
+  blockType: 'faq',
+  title: 'Perguntas diretas, respostas diretas.',
+  items: [
+    {
+      question: 'O que é o Semog Garante?',
+      answer:
+        'É o produto que garante 100% da arrecadação prevista do condomínio, todos os meses, mesmo com condôminos em atraso. Uma parceria da Semog com a G5 Partners, por 1% da arrecadação.',
+    },
+    {
+      question: 'Quanto custa?',
+      answer: '1% da arrecadação mensal. Sem taxa de adesão e sem carência escondida.',
+    },
+    {
+      question: 'Quem cobra os condôminos em atraso?',
+      answer:
+        'A Semog e a G5 Partners assumem toda a cobrança, com respeito e dentro da lei. O síndico não participa e a convivência entre vizinhos fica preservada.',
+    },
+    {
+      question: 'Meu condomínio precisa ser administrado pela Semog?',
+      answer:
+        'Sim, o Garante é exclusivo para condomínios Semog. Se o seu ainda não é, a migração é conduzida pela nossa equipe sem interromper a operação, e o Garante já pode entrar no primeiro mês.',
+    },
+  ],
+}
+
+const garanteCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+  blockType: 'ctaBand',
+  title: 'Quanto vale nunca mais se preocupar com a arrecadação?',
+  text: 'Envie os dados do condomínio e receba a simulação do Garante em até 24 horas úteis.',
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+}
+
 async function upsertPage(
   payload: Awaited<ReturnType<typeof getPayload>>,
   args: { title: string; slug: string; layout: NonNullable<Page['layout']> },
@@ -552,6 +811,24 @@ async function seedPages() {
       solucoesFaq,
       solucoesCtaBand,
     ],
+  })
+
+  await upsertPage(payload, {
+    title: 'Administração de condomínios',
+    slug: 'administracao-de-condominios',
+    layout: [
+      administracaoHero,
+      administracaoServicos,
+      administracaoMetodo,
+      administracaoFaq,
+      administracaoCtaBand,
+    ],
+  })
+
+  await upsertPage(payload, {
+    title: 'Semog Garante',
+    slug: 'garante',
+    layout: [garanteHero, garanteDetalhado, garanteDiferenca, garanteFaq, garanteCtaBand],
   })
 }
 
