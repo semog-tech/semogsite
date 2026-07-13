@@ -34,12 +34,13 @@ export function absoluteUrl(path: string): string {
   return `${base}/${normalized}`
 }
 
-function resolveImageUrl(
+/** Resolve o `Media` populado (não só a URL) — precisamos de `width`/`height` próprios em `buildMetadata`. */
+function resolveImageSource(
   image: SeoMeta['image'] | undefined,
   fallback?: SeoMeta['image'],
-): string | undefined {
+): Media | undefined {
   const source = image && typeof image === 'object' ? image : fallback
-  if (source && typeof source === 'object' && source.url) return source.url
+  if (source && typeof source === 'object' && source.url) return source
   return undefined
 }
 
@@ -78,12 +79,32 @@ export function buildMetadata({
   path: string
   ogType?: 'website' | 'article'
 }): Metadata {
-  const title = doc?.meta?.title || doc?.title || settings?.defaultTitle || FALLBACK_TITLE
+  // `doc.title` é o rótulo bruto do admin (ex.: "Soluções"), sem marca — só
+  // esse ramo do fallback precisa do sufixo. `meta.title` e
+  // `settings.defaultTitle` já vêm completos (preenchidos com a marca por
+  // quem cadastra o SEO).
+  const title = doc?.meta?.title
+    ? doc.meta.title
+    : doc?.title
+      ? `${doc.title} | ${FALLBACK_TITLE}`
+      : settings?.defaultTitle || FALLBACK_TITLE
   const description = doc?.meta?.description || settings?.defaultDescription || undefined
-  const uploadedImageUrl = resolveImageUrl(doc?.meta?.image, settings?.ogImage)
-  const imageUrl = uploadedImageUrl || dynamicOgImageUrl(path)
+  const uploadedImage = resolveImageSource(doc?.meta?.image, settings?.ogImage)
   const canonical = absoluteUrl(path)
-  const ogImages = [{ url: imageUrl, width: 1200, height: 630 }]
+  // 1200x630 é a dimensão fixa da nossa rota OG dinâmica (`next/og`) — uma
+  // imagem enviada pelo CMS pode ter proporção diferente, então só herda
+  // dims quando o próprio `Media` as informa (senão omite e deixa o
+  // consumidor inferir do arquivo).
+  const ogImages = uploadedImage
+    ? [
+        {
+          url: uploadedImage.url as string,
+          ...(uploadedImage.width && uploadedImage.height
+            ? { width: uploadedImage.width, height: uploadedImage.height }
+            : {}),
+        },
+      ]
+    : [{ url: dynamicOgImageUrl(path), width: 1200, height: 630 }]
 
   return {
     title,

@@ -18,10 +18,13 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">
       <body>
+        <a href="#conteudo" className="skip-link">
+          Pular para o conteúdo
+        </a>
         <ConsentProvider>
           <LenisProvider>
             <HeaderServer />
-            <main>{children}</main>
+            <main id="conteudo">{children}</main>
             <FooterServer />
           </LenisProvider>
           <CookieBanner />

@@ -85,6 +85,14 @@
       scroll-behavior: auto;
     }
   }
+  /* Lenis assume o smooth-scroll (adiciona a classe `lenis` em <html>) — o
+     scroll-behavior nativo do navegador continua ativo por baixo e dobra a
+     animação em qualquer scroll programático (ex.: `Link` com hash, `focus()`
+     de um elemento fora da viewport). Desativado só quando o Lenis está
+     ativo; reduced-motion acima já cobre o caso sem Lenis. */
+  html.lenis {
+    scroll-behavior: auto;
+  }
 
   body {
     margin: 0;
@@ -139,7 +147,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ice-400);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -225,5 +233,16 @@
   }
   .skip-link:focus {
     left: 0;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 }

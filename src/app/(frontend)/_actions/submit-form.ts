@@ -153,20 +153,26 @@ export async function submitForm(
         }))
 
       if (process.env.CONTACT_TO) {
-        await sendMail({
+        const notificationResult = await sendMail({
           to: process.env.CONTACT_TO,
           subject: `Novo contato via ${formTitle}`,
           react: ContactNotification({ formTitle, fields }),
         })
+        if (notificationResult.ok === false) {
+          console.error('[submit-form] sendMail falhou:', notificationResult.error)
+        }
       } else {
         console.info('[submit-form] CONTACT_TO ausente — notificação interna não enviada.')
       }
 
-      await sendMail({
+      const autoReplyResult = await sendMail({
         to: data.email,
         subject: 'Recebemos seu contato — Semog',
         react: ContactAutoReply({ name: data.nome }),
       })
+      if (autoReplyResult.ok === false) {
+        console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
+      }
     } catch (mailErr) {
       console.error('[submit-form] falha ao enviar e-mail (submissão já salva):', mailErr)
     }

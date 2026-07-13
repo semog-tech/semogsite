@@ -19,7 +19,7 @@ export const getPageBySlug = cache(async (slug: string): Promise<Page | null> =>
   const payload = await getPayloadClient()
   const res = await payload.find({
     collection: 'pages',
-    where: { slug: { equals: slug } },
+    where: { slug: { equals: slug }, _status: { equals: 'published' } },
     limit: 1,
     depth: 2,
   })

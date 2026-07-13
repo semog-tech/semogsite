@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 type Variant = 'primary' | 'ghost' | 'white' | 'glass'
@@ -10,6 +11,15 @@ const sizes: Record<Size, string> = {
   lg: 'px-[2.6rem] py-[1.15rem] text-[1.05rem]',
   sm: 'px-[1.4rem] py-[0.7rem] text-[0.88rem]',
 }
+/**
+ * Rota interna = começa com `/` e não com `//` (protocol-relative) e não
+ * contém `:` (descarta `mailto:`, `tel:`, `https:` etc. — nenhuma rota
+ * interna legítima tem `:` no path).
+ */
+function isInternalHref(href: string): boolean {
+  return href.startsWith('/') && !href.startsWith('//') && !href.includes(':')
+}
+
 const variants: Record<Variant, string> = {
   primary:
     'bg-ice-400 text-navy-900 shadow-[0_8px_30px_-10px_rgba(173,213,235,0.45)] hover:bg-ice-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_-12px_rgba(173,213,235,0.55)]',
@@ -61,11 +71,18 @@ export function Button({
       )}
     </>
   )
-  return href ? (
-    <a className={cls} href={href}>
-      {inner}
-    </a>
-  ) : (
+  if (href) {
+    return isInternalHref(href) ? (
+      <Link href={href} className={cls}>
+        {inner}
+      </Link>
+    ) : (
+      <a className={cls} href={href}>
+        {inner}
+      </a>
+    )
+  }
+  return (
     <button className={cls} onClick={onClick} type={type} disabled={disabled}>
       {inner}
     </button>

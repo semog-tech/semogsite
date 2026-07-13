@@ -24,11 +24,10 @@ export function Words({
     const el = ref.current
     if (!el) return
     const text = children.trim()
-    el.setAttribute('aria-label', text)
-    el.innerHTML = text
+    el.innerHTML = `<span class="sr-only">${text}</span>${text
       .split(/\s+/)
       .map((w) => `<span class="wd" aria-hidden="true" style="opacity:0.14;">${w}</span>`)
-      .join(' ')
+      .join(' ')}`
     const words = el.querySelectorAll('.wd')
 
     const tween = reduceHeavy
