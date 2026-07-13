@@ -44,6 +44,22 @@ function resolveImageUrl(
 }
 
 /**
+ * URL absoluta da rota OG dinâmica (`next/og`) correspondente a um `path`.
+ * Usada como fallback de `openGraph.images`/`twitter.images` quando o doc não
+ * tem uma imagem de SEO própria — espelha as rotas `opengraph-image.tsx` em
+ * `src/app/` (raiz), não `src/app/(frontend)/`: `''`/`'home'` → o card
+ * default (`src/app/opengraph-image.tsx`); qualquer outro path →
+ * `<path>/opengraph-image` (cobre tanto pages, `path` = slug único →
+ * `src/app/[slug]/opengraph-image.tsx`, quanto posts, `path` = `blog/<slug>`
+ * → `src/app/blog/[slug]/opengraph-image.tsx`).
+ */
+function dynamicOgImageUrl(path: string): string {
+  const normalized = path.replace(/^\/+/, '')
+  if (normalized === '' || normalized === 'home') return absoluteUrl('opengraph-image')
+  return absoluteUrl(`${normalized}/opengraph-image`)
+}
+
+/**
  * Monta o objeto `Metadata` do Next a partir do `meta` do doc (Page/Post,
  * populado pelo plugin-seo), com fallback pro título/descrição padrão do
  * global `SiteSettings` e, por fim, pro título bruto do doc.
@@ -64,8 +80,10 @@ export function buildMetadata({
 }): Metadata {
   const title = doc?.meta?.title || doc?.title || settings?.defaultTitle || FALLBACK_TITLE
   const description = doc?.meta?.description || settings?.defaultDescription || undefined
-  const imageUrl = resolveImageUrl(doc?.meta?.image, settings?.ogImage)
+  const uploadedImageUrl = resolveImageUrl(doc?.meta?.image, settings?.ogImage)
+  const imageUrl = uploadedImageUrl || dynamicOgImageUrl(path)
   const canonical = absoluteUrl(path)
+  const ogImages = [{ url: imageUrl, width: 1200, height: 630 }]
 
   return {
     title,
@@ -80,7 +98,11 @@ export function buildMetadata({
       type: ogType,
       siteName: FALLBACK_TITLE,
       locale: 'pt_BR',
-      ...(imageUrl ? { images: [{ url: imageUrl }] } : {}),
+      images: ogImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: ogImages,
     },
   }
 }
