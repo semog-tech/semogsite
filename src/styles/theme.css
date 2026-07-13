@@ -148,7 +148,10 @@
   .sec-light {
     --text: #10152e;
     --text-2: #4b557a;
-    --text-3: #7a83a6;
+    /* #7a83a6 media ~3.4–3.7:1 sobre #f2f4f9/#fff (falha AA em texto pequeno,
+       ex.: `cite` de depoimentos). Escurecido para >=4.5:1 nos dois fundos
+       (Task 6 do Plano 4a) — não altera --text-3 fora de .sec-light. */
+    --text-3: #5a6488;
     --line: rgba(16, 26, 72, 0.12);
     --line-strong: rgba(16, 26, 72, 0.24);
     --bg: #f2f4f9;

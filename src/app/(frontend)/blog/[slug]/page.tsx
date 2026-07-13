@@ -17,6 +17,9 @@ export async function generateMetadata({
   const path = `blog/${slug}`
   try {
     const [post, settings] = await Promise.all([getPostBySlug(slug), getSiteSettings()])
+    if (!post) {
+      return { title: 'Página não encontrada — Semog', description: undefined }
+    }
     return buildMetadata({ doc: post, settings, path, ogType: 'article' })
   } catch {
     // DB indisponível — não derruba o render, cai no fallback embutido em `buildMetadata`.

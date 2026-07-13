@@ -15,6 +15,13 @@ export async function generateMetadata({
   const path = slug?.join('/') || 'home'
   try {
     const [page, settings] = await Promise.all([getPageBySlug(path), getSiteSettings()])
+    // Sem página publicada nesse slug: `notFound()` (abaixo, no body) renderiza
+    // o `not-found.tsx` do grupo, mas o <head> já foi resolvido aqui — sem
+    // isso, a aba mostraria o título genérico do site (via fallback de
+    // `buildMetadata`) numa página de erro 404.
+    if (!page) {
+      return { title: 'Página não encontrada — Semog', description: undefined }
+    }
     return buildMetadata({ doc: page, settings, path })
   } catch {
     // DB indisponível — não derruba o render, cai no fallback embutido em `buildMetadata`.

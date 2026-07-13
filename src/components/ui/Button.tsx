@@ -31,6 +31,7 @@ export function Button({
   size = 'md',
   href,
   withArrow,
+  onClick,
   className = '',
 }: {
   children: ReactNode
@@ -38,6 +39,7 @@ export function Button({
   size?: Size
   href?: string
   withArrow?: boolean
+  onClick?: () => void
   className?: string
 }) {
   const cls = `${base} ${sizes[size]} ${variants[variant]} ${className}`
@@ -59,7 +61,7 @@ export function Button({
       {inner}
     </a>
   ) : (
-    <button className={cls} type="button">
+    <button className={cls} onClick={onClick} type="button">
       {inner}
     </button>
   )
