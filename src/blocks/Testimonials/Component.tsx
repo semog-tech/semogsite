@@ -27,7 +27,7 @@ export function TestimonialsBlock({ eyebrow, title, items }: TestimonialsBlockTy
         <div className="grid grid-cols-1 gap-[1.4rem] sm:grid-cols-2">
           {items.map((item, i) => (
             <Reveal key={item.id ?? item.author} delay={i * 0.08}>
-              <div className="h-full rounded-card border border-line bg-bg-raise p-[2rem]">
+              <div className="h-full rounded-card border border-line bg-white p-[2rem]">
                 <blockquote className="m-0 mb-[1.2rem] font-display text-[clamp(1.1rem,2vw,1.35rem)] leading-[1.35] font-medium">
                   &ldquo;{item.quote}&rdquo;
                 </blockquote>
