@@ -189,7 +189,18 @@ export interface Page {
    */
   slug: string;
   layout?:
-    (HeroBlock | StatsBlock | FeatureGridBlock | GaranteBlock | CitiesBlock | CTABandBlock | RichTextBlock)[] | null;
+    | (
+        | HeroBlock
+        | StatsBlock
+        | FeatureGridBlock
+        | GaranteBlock
+        | CitiesBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | CTABandBlock
+        | RichTextBlock
+      )[]
+    | null;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -298,6 +309,43 @@ export interface CitiesBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cities';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        quote: string;
+        author: string;
+        role?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -521,6 +569,8 @@ export interface PagesSelect<T extends boolean = true> {
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
       };
@@ -625,6 +675,41 @@ export interface CitiesBlockSelect<T extends boolean = true> {
         city?: T;
         uf?: T;
         role?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        quote?: T;
+        author?: T;
+        role?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
         id?: T;
       };
   id?: T;

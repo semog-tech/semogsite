@@ -2,11 +2,13 @@ import type React from 'react'
 import type { Page } from '@/payload-types'
 import { CitiesBlock } from './Cities/Component'
 import { CTABandBlock } from './CTABand/Component'
+import { FaqBlock } from './Faq/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { RichTextBlock } from './RichText/Component'
 import { StatsBlock } from './Stats/Component'
+import { TestimonialsBlock } from './Testimonials/Component'
 
 type Block = NonNullable<Page['layout']>[number]
 // biome-ignore lint/suspicious/noExplicitAny: cada componente valida seu próprio bloco
@@ -16,6 +18,8 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,
+  testimonials: TestimonialsBlock,
+  faq: FaqBlock,
   ctaBand: CTABandBlock,
   richText: RichTextBlock,
 }

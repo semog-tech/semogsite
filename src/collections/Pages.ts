@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload'
 import { citiesBlock } from '@/blocks/Cities/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
+import { faqBlock } from '@/blocks/Faq/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { richTextBlock } from '@/blocks/RichText/config'
 import { statsBlock } from '@/blocks/Stats/config'
+import { testimonialsBlock } from '@/blocks/Testimonials/config'
 import { revalidatePage } from '@/lib/revalidate'
 
 export const Pages: CollectionConfig = {
@@ -44,6 +46,8 @@ export const Pages: CollectionConfig = {
         featureGridBlock,
         garanteBlock,
         citiesBlock,
+        testimonialsBlock,
+        faqBlock,
         ctaBandBlock,
         richTextBlock,
       ],
