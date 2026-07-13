@@ -13,6 +13,15 @@ import { absoluteUrl, siteUrl } from '@/lib/seo'
  * afetam a URL, então `/robots.txt` continua sendo servido do jeito certo.
  */
 export default function robots(): MetadataRoute.Robots {
+  // Indexação DESLIGADA por padrão (ambiente de teste): bloqueia TODOS os
+  // crawlers e não expõe o sitemap. Só libera quando SITE_ALLOW_INDEX==='true'
+  // (launch real). Combina com o `X-Robots-Tag: noindex` do next.config.
+  const allowIndex = process.env.SITE_ALLOW_INDEX === 'true'
+
+  if (!allowIndex) {
+    return { rules: { userAgent: '*', disallow: '/' } }
+  }
+
   return {
     rules: {
       userAgent: '*',

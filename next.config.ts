@@ -68,10 +68,19 @@ const nextConfig: NextConfig = {
       "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io",
     ].join('; ')
 
+    // Indexação DESLIGADA por padrão (ambiente de teste): emite
+    // `X-Robots-Tag: noindex, nofollow` em TODAS as respostas, então o site não
+    // aparece no Google. Só habilita indexação quando `SITE_ALLOW_INDEX==='true'`
+    // (setar essa env só no launch real do domínio de produção).
+    const allowIndex = process.env.SITE_ALLOW_INDEX === 'true'
+
     return [
       {
         source: '/(.*)',
         headers: [
+          ...(allowIndex
+            ? []
+            : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]),
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
