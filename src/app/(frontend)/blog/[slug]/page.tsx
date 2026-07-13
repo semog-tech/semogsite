@@ -18,6 +18,7 @@ export async function generateMetadata({
   try {
     const [post, settings] = await Promise.all([getPostBySlug(slug), getSiteSettings()])
     if (!post) {
+      // Canonical e openGraph são omitidos intencionalmente: um 404 não deve emitir canonical apontando para si ou OG image.
       return { title: 'Página não encontrada — Semog', description: undefined }
     }
     return buildMetadata({ doc: post, settings, path, ogType: 'article' })

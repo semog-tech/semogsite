@@ -20,6 +20,7 @@ export async function generateMetadata({
     // isso, a aba mostraria o título genérico do site (via fallback de
     // `buildMetadata`) numa página de erro 404.
     if (!page) {
+      // Canonical e openGraph são omitidos intencionalmente: um 404 não deve emitir canonical apontando para si ou OG image.
       return { title: 'Página não encontrada — Semog', description: undefined }
     }
     return buildMetadata({ doc: page, settings, path })
