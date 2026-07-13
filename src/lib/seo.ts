@@ -20,9 +20,10 @@ export interface SeoDoc {
   meta?: SeoMeta | null
 }
 
-function siteUrl(): string {
+/** Base URL do site (sem trailing slash), fonte única para `absoluteUrl` e `robots.ts`. */
+export function siteUrl(): string {
   const v = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  return v ? v : DEFAULT_SITE_URL
+  return (v ? v : DEFAULT_SITE_URL).replace(/\/+$/, '')
 }
 
 /** Monta uma URL absoluta a partir de um path relativo (`/solucoes`, `solucoes`, `''`/`home`). */
