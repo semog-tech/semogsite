@@ -188,7 +188,7 @@ export interface Page {
    * Use 'home' para a página inicial. Sem acento (ex.: solucoes).
    */
   slug: string;
-  layout?: (HeroBlock | StatsBlock | FeatureGridBlock | CTABandBlock | RichTextBlock)[] | null;
+  layout?: (HeroBlock | StatsBlock | FeatureGridBlock | GaranteBlock | CTABandBlock | RichTextBlock)[] | null;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -254,6 +254,30 @@ export interface FeatureGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'featureGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GaranteBlock".
+ */
+export interface GaranteBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  features?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'garante';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -475,6 +499,7 @@ export interface PagesSelect<T extends boolean = true> {
         hero?: T | HeroBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
+        garante?: T | GaranteBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
       };
@@ -538,6 +563,31 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
         description?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GaranteBlock_select".
+ */
+export interface GaranteBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  features?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }
