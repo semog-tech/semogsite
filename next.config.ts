@@ -38,19 +38,28 @@ const nextConfig: NextConfig = {
     // 'unsafe-inline'/'unsafe-eval' and img/font/connect sources because the
     // Payload admin (/admin) and Next's own hydration bootstrap inject inline
     // scripts/styles that a strict `script-src 'self'` would block. Hardening
-    // (nonces, dropping unsafe-*, adding Turnstile/Sentry/analytics domains)
-    // is deferred to Plan 4b/4c once those integrations land.
+    // (nonces, dropping unsafe-*, adding Sentry/analytics domains) is
+    // deferred to Plan 4c once those integrations land.
+    //
+    // `https://challenges.cloudflare.com` (Plan 4b Task 3) is Cloudflare
+    // Turnstile's domain: `script-src` loads its `api.js`, `frame-src` is the
+    // widget's own iframe, `connect-src` covers the XHR/fetch the widget does
+    // from the top frame. Without all three the widget is silently blocked
+    // by CSP (script won't load, or the iframe/its network calls get
+    // refused) — verified empirically with no CSP violations after adding
+    // these (see Task 3 report).
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
+      "frame-src 'self' https://challenges.cloudflare.com",
       "object-src 'none'",
       "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com",
     ].join('; ')
 
     return [
