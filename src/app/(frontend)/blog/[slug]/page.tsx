@@ -1,10 +1,28 @@
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
-import { getPostBySlug } from '@/lib/payload'
+import { getPostBySlug, getSiteSettings } from '@/lib/payload'
+import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const path = `blog/${slug}`
+  try {
+    const [post, settings] = await Promise.all([getPostBySlug(slug), getSiteSettings()])
+    return buildMetadata({ doc: post, settings, path, ogType: 'article' })
+  } catch {
+    // DB indisponível — não derruba o render, cai no fallback embutido em `buildMetadata`.
+    return buildMetadata({ doc: null, settings: null, path, ogType: 'article' })
+  }
+}
 
 /**
  * Rota estática `/blog/[slug]`, mais específica que o catch-all

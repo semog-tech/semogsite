@@ -1,7 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
-import type { Page, Post } from '@/payload-types'
+import type { Page, Post, SiteSettings } from '@/payload-types'
 
 /**
  * `cache()` (React, dedupe por requisição) garante que `HeaderServer` e
@@ -52,4 +52,19 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     depth: 1,
   })
   return res.docs[0] ?? null
+}
+
+/**
+ * Global `site-settings` (título/descrição padrão, usados em `generateMetadata`
+ * como fallback do `meta` por documento) — nunca lança: se o DB estiver fora
+ * do ar, `buildMetadata` cai pro fallback embutido em `src/lib/seo.ts`.
+ */
+export async function getSiteSettings(): Promise<SiteSettings | null> {
+  try {
+    const payload = await getPayloadClient()
+    const settings = await payload.findGlobal({ slug: 'site-settings' })
+    return settings ?? null
+  } catch {
+    return null
+  }
 }

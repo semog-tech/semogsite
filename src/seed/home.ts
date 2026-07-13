@@ -179,6 +179,14 @@ async function seedHome() {
     slug: 'home',
     _status: 'published' as const,
     layout,
+    // Espelha `<title>`/meta description de `_reference/index.html` — o
+    // `meta.title` do plugin-seo tem prioridade sobre `title` (rótulo
+    // administrativo, "Home") em `buildMetadata` (`src/lib/seo.ts`).
+    meta: {
+      title: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
+      description:
+        'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 700 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
+    },
   }
 
   if (existing.docs[0]) {
