@@ -1,7 +1,9 @@
 import type { CollectionConfig } from 'payload'
 import { appShowcaseBlock } from '@/blocks/AppShowcase/config'
+import { benefitsBlock } from '@/blocks/Benefits/config'
 import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
+import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { faqBlock } from '@/blocks/Faq/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
@@ -9,6 +11,7 @@ import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
+import { showcaseBlock } from '@/blocks/Showcase/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
 import { revalidatePage } from '@/lib/revalidate'
@@ -56,6 +59,9 @@ export const Pages: CollectionConfig = {
         ctaBandBlock,
         richTextBlock,
         blogListBlock,
+        showcaseBlock,
+        benefitsBlock,
+        contactInfoBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

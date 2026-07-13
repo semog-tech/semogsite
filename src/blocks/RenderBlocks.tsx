@@ -1,8 +1,10 @@
 import type React from 'react'
 import type { Page } from '@/payload-types'
 import { AppShowcaseBlock } from './AppShowcase/Component'
+import { BenefitsBlock } from './Benefits/Component'
 import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
+import { ContactInfoBlock } from './ContactInfo/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FaqBlock } from './Faq/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
@@ -10,6 +12,7 @@ import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
+import { ShowcaseBlock } from './Showcase/Component'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 
@@ -28,6 +31,9 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   ctaBand: CTABandBlock,
   richText: RichTextBlock,
   blogList: BlogListBlock,
+  showcase: ShowcaseBlock,
+  benefits: BenefitsBlock,
+  contactInfo: ContactInfoBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

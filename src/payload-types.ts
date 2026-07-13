@@ -202,6 +202,9 @@ export interface Page {
         | CTABandBlock
         | RichTextBlock
         | BlogListBlock
+        | ShowcaseBlock
+        | BenefitsBlock
+        | ContactInfoBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -444,6 +447,69 @@ export interface BlogListBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShowcaseBlock".
+ */
+export interface ShowcaseBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  features?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  mediaSide?: ('left' | 'right') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'showcase';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BenefitsBlock".
+ */
+export interface BenefitsBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'benefits';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactInfoBlock".
+ */
+export interface ContactInfoBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        city: string;
+        uf: string;
+        address: string;
+        phone: string;
+        id?: string | null;
+      }[]
+    | null;
+  whatsapp?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contactInfo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -632,6 +698,9 @@ export interface PagesSelect<T extends boolean = true> {
         ctaBand?: T | CTABandBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
+        showcase?: T | ShowcaseBlockSelect<T>;
+        benefits?: T | BenefitsBlockSelect<T>;
+        contactInfo?: T | ContactInfoBlockSelect<T>;
       };
   publishedAt?: T;
   updatedAt?: T;
@@ -845,6 +914,68 @@ export interface RichTextBlockSelect<T extends boolean = true> {
 export interface BlogListBlockSelect<T extends boolean = true> {
   title?: T;
   limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShowcaseBlock_select".
+ */
+export interface ShowcaseBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  features?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  mediaSide?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BenefitsBlock_select".
+ */
+export interface BenefitsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactInfoBlock_select".
+ */
+export interface ContactInfoBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        city?: T;
+        uf?: T;
+        address?: T;
+        phone?: T;
+        id?: T;
+      };
+  whatsapp?: T;
   id?: T;
   blockName?: T;
 }
