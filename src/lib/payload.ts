@@ -15,7 +15,7 @@ export const getPayloadClient = cache(async () => {
   return getPayload({ config })
 })
 
-export async function getPageBySlug(slug: string): Promise<Page | null> {
+export const getPageBySlug = cache(async (slug: string): Promise<Page | null> => {
   const payload = await getPayloadClient()
   const res = await payload.find({
     collection: 'pages',
@@ -24,14 +24,14 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
     depth: 2,
   })
   return res.docs[0] ?? null
-}
+})
 
 /**
  * Posts publicados mais recentes, para o bloco `BlogList` — `depth: 1`
  * resolve `category` (usada nos cards) sem popular `heroImage` além do id
  * (ainda não usado, S3 fica para depois).
  */
-export async function getRecentPosts(limit = 6): Promise<Post[]> {
+export const getRecentPosts = cache(async (limit = 6): Promise<Post[]> => {
   const payload = await getPayloadClient()
   const res = await payload.find({
     collection: 'posts',
@@ -41,9 +41,9 @@ export async function getRecentPosts(limit = 6): Promise<Post[]> {
     depth: 1,
   })
   return res.docs
-}
+})
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+export const getPostBySlug = cache(async (slug: string): Promise<Post | null> => {
   const payload = await getPayloadClient()
   const res = await payload.find({
     collection: 'posts',
@@ -52,7 +52,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     depth: 1,
   })
   return res.docs[0] ?? null
-}
+})
 
 /**
  * Global `site-settings` (título/descrição padrão, usados em `generateMetadata`

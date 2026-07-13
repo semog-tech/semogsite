@@ -21,7 +21,8 @@ export interface SeoDoc {
 }
 
 function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL
+  const v = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  return v ? v : DEFAULT_SITE_URL
 }
 
 /** Monta uma URL absoluta a partir de um path relativo (`/solucoes`, `solucoes`, `''`/`home`). */
