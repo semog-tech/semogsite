@@ -32,6 +32,7 @@ export function CookieBanner() {
     if (decided) return
     // Um frame depois do mount, dispara a transição de entrada.
     const raf = requestAnimationFrame(() => setEntered(true))
+    // Brief focus blip on mount accepted to keep route on ISR (no SSR cookie read).
     containerRef.current?.focus()
     return () => cancelAnimationFrame(raf)
   }, [decided])

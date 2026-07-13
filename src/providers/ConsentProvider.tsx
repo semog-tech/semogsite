@@ -61,14 +61,15 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     [commit],
   )
 
-  const save = useCallback((partial: Partial<Record<ConsentCategory, boolean>>) => {
-    setConsentState((prev) => {
-      const next: Consent = { ...prev, ...partial, necessary: true }
+  const save = useCallback(
+    (partial: Partial<Record<ConsentCategory, boolean>>) => {
+      const next: Consent = { ...consent, ...partial, necessary: true }
       persistConsent(next)
-      return next
-    })
-    setDecided(true)
-  }, [])
+      setConsentState(next)
+      setDecided(true)
+    },
+    [consent],
+  )
 
   const value = useMemo<ConsentContextValue>(
     () => ({

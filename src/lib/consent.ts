@@ -40,8 +40,9 @@ function readCookieRaw(name: string): string | null {
 function writeCookieRaw(name: string, value: string, days: number): void {
   if (!isBrowser()) return
   const maxAge = days * 24 * 60 * 60
+  const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : ''
   // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API não tem suporte em Safari/Firefox; cookie de consentimento é simples o bastante pra não justificar um polyfill.
-  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax`
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax${secure}`
 }
 
 /** Faz o parse de um valor bruto (string) de cookie de consentimento; `null` se ausente/inválido. */
@@ -56,7 +57,10 @@ export function parseConsentCookie(raw: string | null | undefined): Consent | nu
   }
 }
 
-/** Lê o consentimento salvo no cookie do browser. `null` = usuário ainda não decidiu. */
+/**
+ * Lê o consentimento salvo no cookie do browser. `null` = usuário ainda não decidiu.
+ * CLIENT-ONLY: reads `document.cookie`, so returns `null` on server (fail-closed).
+ */
 export function getConsent(): Consent | null {
   return parseConsentCookie(readCookieRaw(CONSENT_COOKIE_NAME))
 }
@@ -70,6 +74,7 @@ export function setConsent(consent: Consent): void {
 /**
  * `true` se a categoria pode rodar agora. `necessary` é sempre `true`;
  * as demais dependem do cookie salvo (sem decisão = sem consentimento).
+ * CLIENT-ONLY: reads `document.cookie`, so returns fail-closed default on server.
  */
 export function hasConsent(category: ConsentCategory): boolean {
   if (category === 'necessary') return true
