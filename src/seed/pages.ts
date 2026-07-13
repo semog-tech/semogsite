@@ -2,7 +2,9 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import type {
   AppShowcaseBlock,
+  BenefitsBlock,
   CitiesBlock,
+  ContactInfoBlock,
   CTABandBlock,
   FaqBlock,
   FeatureGridBlock,
@@ -16,7 +18,7 @@ import type {
 } from '@/payload-types'
 
 /**
- * Seed idempotente de seis páginas de CMS compostas só de blocos já
+ * Seed idempotente de nove páginas de CMS compostas só de blocos já
  * existentes (sem mídia, sem novo blocos):
  *
  * - "Privacidade" e "Termos", fiel ao corpo de `_reference/privacidade.html`
@@ -47,6 +49,30 @@ import type {
  *   Showcase (a comparação antes/depois de `.g-compare`, cada item como par
  *   título do aspecto + frase "Antes: … Com o Garante: …") + Faq (as 4
  *   perguntas do FAQPage schema.org) + CTABand final.
+ * - "Incorporadoras" (slug `incorporadoras`), fiel a
+ *   `_reference/incorporadoras.html`: Hero + FeatureGrid (os 4 cards de
+ *   `.why-grid`/"O que a sua incorporadora ganha") + Showcase (os 5 passos
+ *   de `.proc-list`/"Como trabalhamos", com o parágrafo de `.argument` como
+ *   texto de apoio, já que a página não tem um bloco dedicado só para essa
+ *   seção intermediária) + Registros (versão condensada das `.tags` de cada
+ *   passo, como faixa "O que está incluído na implantação") + CTABand
+ *   final.
+ * - "Contato" (slug `contato`), fiel a `_reference/contato.html`: Hero +
+ *   RichText (a seção "Atendimento rápido"/`.quick-grid` — WhatsApp, e-mail
+ *   e link para proposta — sob o título "Prefere falar direto?") +
+ *   ContactInfo (as 4 unidades de `.unit`). A seção `.selfserve` do
+ *   `_reference` linka para autoatendimentos (`href="#"`) que não existem
+ *   ainda nesta migração, por isso fica de fora — e, como pedido nesta
+ *   task, esta página **não** ganha um formulário de contato: isso é
+ *   trabalho do Plano 4.
+ * - "Proposta" (slug `proposta`), fiel a `_reference/proposta.html`: Hero
+ *   (o headline/lead da coluna do formulário) + Benefits (os números do
+ *   `.trust-stats` — prova social) + RichText (o passo a passo depois do
+ *   envio, mais uma seção "Prefere falar direto?" com WhatsApp/e-mail/
+ *   Contato enquanto o formulário não existe) + CTABand (aponta para o
+ *   WhatsApp, já que a própria página de proposta ainda não tem o
+ *   `<form>` de verdade). O `.prop-form` de `_reference/proposta.html` é
+ *   **Plano 4**: esta task não constrói `<form>` sem submit real.
  *
  * Prova, junto com `home.ts`/`posts.ts`, que a rota catch-all
  * `[[...slug]]` serve qualquer página de CMS por slug.
@@ -736,6 +762,247 @@ const garanteCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
   cta: { label: 'Solicitar proposta', href: '/proposta' },
 }
 
+// ===== "Incorporadoras" (slug `incorporadoras`), fiel a
+// `_reference/incorporadoras.html` =====
+
+const incorporadorasHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+  blockType: 'hero',
+  headline: 'O condomínio nasce bem antes das chaves.',
+  subhead:
+    'A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente e a sua marca.',
+  ctas: [{ label: 'Solicitar proposta', href: '/proposta' }],
+}
+
+const incorporadorasGanhos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
+  blockType: 'featureGrid',
+  title: 'O que a sua incorporadora ganha.',
+  features: [
+    {
+      title: 'Reputação protegida',
+      description:
+        'Condomínio bem implantado significa comprador satisfeito falando bem do empreendimento nas redes e para amigos. O melhor marketing do próximo lançamento.',
+    },
+    {
+      title: 'Time liberado para construir',
+      description:
+        'Sua equipe de engenharia e relacionamento para de responder sobre taxa de condomínio e volta a fazer o que sabe: entregar obra.',
+    },
+    {
+      title: 'Números desde o dia zero',
+      description:
+        'Previsão orçamentária auditável e prestação de contas digital desde a instalação. O conselho do condomínio nasce confiando na gestão.',
+    },
+    {
+      title: 'Um parceiro em quatro praças',
+      description:
+        'Lançou em Recife, João Pessoa, Campina Grande ou Belém? A mesma Semog implanta, com equipe local e padrão único de qualidade.',
+    },
+  ],
+}
+
+const incorporadorasProcesso: Omit<ShowcaseBlock, 'id' | 'blockName'> = {
+  blockType: 'showcase',
+  eyebrow: 'Como trabalhamos',
+  title: 'Da planta à primeira assembleia.',
+  text: 'A experiência do comprador não termina na escritura: os primeiros doze meses do condomínio definem como a sua marca será lembrada. Com 35 anos de implantações, a Semog garante que a vida no empreendimento comece tão bem quanto a obra terminou.',
+  features: [
+    {
+      title: 'Previsão orçamentária ainda na planta',
+      description:
+        'Calculamos a taxa condominial realista antes do lançamento, evitando a armadilha da taxa promocional que explode no segundo ano. Sua equipe de vendas divulga um número que se sustenta.',
+    },
+    {
+      title: 'Convenção e regimento sob medida',
+      description:
+        'Elaboramos convenção, regimento interno e estrutura jurídica adequados ao perfil do empreendimento, prontos para registro e alinhados ao memorial de incorporação.',
+    },
+    {
+      title: 'Assembleia de instalação conduzida',
+      description:
+        'Organizamos e conduzimos a assembleia que dá vida jurídica ao condomínio: eleição do síndico, aprovação da previsão e posse da administração, sem tumulto e com ata impecável.',
+    },
+    {
+      title: 'Entrega das unidades organizada',
+      description:
+        'Estruturamos o calendário de vistorias e entrega de chaves junto à sua equipe, com contratação de pessoal, implantação de portaria e áreas comuns operando desde o primeiro morador.',
+    },
+    {
+      title: 'Pós-obra sem atrito',
+      description:
+        'Fazemos a ponte entre condomínio e construtora na fase de garantias: chamados técnicos documentados, prazos monitorados e comunicação que evita o desgaste público da sua marca.',
+    },
+  ],
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+}
+
+const incorporadorasRegistros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
+  blockType: 'registros',
+  title: 'O que está incluído na implantação.',
+  items: [
+    { label: 'Estudo de custos e benchmark regional' },
+    { label: 'Assessoria jurídica e registro em cartório' },
+    { label: 'Condução profissional de assembleia' },
+    { label: 'Implantação de equipe e portaria' },
+    { label: 'Gestão de garantias pós-obra' },
+  ],
+}
+
+const incorporadorasCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+  blockType: 'ctaBand',
+  title: 'Tem lançamento no radar?',
+  text: 'Envolva a Semog ainda na planta e lance com a taxa certa, a convenção certa e a operação pronta.',
+  cta: { label: 'Solicitar proposta', href: '/proposta' },
+}
+
+// ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` =====
+//
+// NOTA: `_reference/contato.html` não tem `<form>` — só atalhos (WhatsApp,
+// e-mail, link de proposta) e cards de unidade. Um formulário de contato
+// de verdade (com submit funcional) é escopo do **Plano 4**; aqui a seção
+// "Prefere falar direto?" cobre o mesmo atalho do `.quick-grid` sem simular
+// envio nenhum.
+
+const contatoHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+  blockType: 'hero',
+  headline: 'Fale com gente que resolve.',
+  subhead: 'Atendimento rápido nos canais digitais e quatro unidades de portas abertas.',
+}
+
+const contatoCanais: Omit<RichTextBlock, 'id' | 'blockName'> = {
+  blockType: 'richText',
+  content: legalRichText([
+    h2('Prefere falar direto?'),
+    p(
+      'Os pedidos mais comuns não precisam de formulário: fale direto com a gente pelos canais abaixo.',
+    ),
+    pWithLink(
+      'WhatsApp — resposta em horário comercial, geralmente em poucos minutos: ',
+      '(81) 9 9999-9999',
+      'https://wa.me/5581999999999',
+      '.',
+    ),
+    pWithLink(
+      'E-mail — para solicitações formais, documentos e propostas: ',
+      'contato@semog.com.br',
+      'mailto:contato@semog.com.br',
+      '.',
+    ),
+    pWithLink(
+      'Proposta comercial — conte sobre o seu condomínio e receba retorno em até 24 horas úteis pela ',
+      'página de proposta',
+      '/proposta',
+      '.',
+    ),
+  ]),
+}
+
+const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
+  blockType: 'contactInfo',
+  eyebrow: 'Unidades',
+  title: 'As Semogs, de portas abertas.',
+  items: [
+    {
+      city: 'Recife',
+      uf: 'PE · Matriz',
+      address: 'Av. Exemplo, 1000, Boa Viagem, Recife/PE',
+      phone: '(81) 0000-0000',
+    },
+    {
+      city: 'João Pessoa',
+      uf: 'PB · Filial',
+      address: 'Av. Exemplo, 200, Manaíra, João Pessoa/PB',
+      phone: '(83) 0000-0000',
+    },
+    {
+      city: 'Campina Grande',
+      uf: 'PB · Filial',
+      address: 'Rua Exemplo, 300, Centro, Campina Grande/PB',
+      phone: '(83) 0000-0001',
+    },
+    {
+      city: 'Belém',
+      uf: 'PA · Filial',
+      address: 'Av. Exemplo, 400, Umarizal, Belém/PA',
+      phone: '(91) 0000-0000',
+    },
+  ],
+  whatsapp: '5581999999999',
+}
+
+// ===== "Proposta" (slug `proposta`), fiel a `_reference/proposta.html` =====
+//
+// NOTA: `_reference/proposta.html` tem um `<form id="prop-form">` com
+// validação e "sucesso" só em JS de página estática (sem submit real para
+// nenhum backend). Construir esse `<form>` de verdade (com endpoint,
+// validação server-side etc.) é escopo do **Plano 4**; esta task só monta o
+// shell da página com prova social e os canais diretos já funcionais
+// (WhatsApp/e-mail/Contato), sem simular envio nenhum.
+
+const propostaHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+  blockType: 'hero',
+  headline: 'Vamos falar do seu condomínio?',
+  subhead: 'Preencha em dois minutos. Nossa equipe comercial responde em até 24 horas úteis.',
+}
+
+const propostaProvaSocial: Omit<BenefitsBlock, 'id' | 'blockName'> = {
+  blockType: 'benefits',
+  eyebrow: 'Por que pedir à Semog',
+  title: 'Números que sustentam a proposta.',
+  items: [
+    {
+      title: '35 anos de mercado',
+      description: 'Trajetória consolidada desde 1991, com renovação constante de contratos.',
+    },
+    {
+      title: '+700 condomínios',
+      description: 'Carteira ativa em Recife, João Pessoa, Campina Grande e Belém.',
+    },
+    {
+      title: '+70 mil clientes',
+      description: 'Síndicos, conselheiros e moradores atendidos todos os dias.',
+    },
+    {
+      title: '4 unidades na região',
+      description: 'Equipes locais em cada praça, prontas para atender o seu condomínio.',
+    },
+  ],
+}
+
+const propostaComoFunciona: Omit<RichTextBlock, 'id' | 'blockName'> = {
+  blockType: 'richText',
+  content: legalRichText([
+    h2('Como funciona o pedido de proposta.'),
+    p(
+      'Conte como é o seu condomínio — tipo de estrutura, cidade, número de unidades e o momento atual — e a nossa equipe comercial prepara uma proposta sob medida, sem compromisso.',
+    ),
+    ul([
+      'Você envia as informações do condomínio.',
+      'Nossa equipe analisa o cenário e monta o plano ideal.',
+      'Você recebe a proposta em até 24 horas úteis, pelo WhatsApp ou e-mail.',
+    ]),
+    h2('Prefere falar direto?'),
+    {
+      kind: 'p',
+      parts: [
+        'Enquanto o formulário de solicitação está em preparação, fale agora com a nossa equipe comercial pelo WhatsApp ',
+        { text: '(81) 9 9999-9999', href: 'https://wa.me/5581999999999' },
+        ' ou pelo e-mail ',
+        { text: 'contato@semog.com.br', href: 'mailto:contato@semog.com.br' },
+        '. Também dá para conferir todos os canais na página de ',
+        { text: 'Contato', href: '/contato' },
+        '.',
+      ],
+    },
+  ]),
+}
+
+const propostaCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+  blockType: 'ctaBand',
+  title: 'Pronto para receber a sua proposta?',
+  text: 'Fale agora com a Semog e receba uma proposta sob medida para o seu condomínio.',
+  cta: { label: 'Falar no WhatsApp', href: 'https://wa.me/5581999999999' },
+}
+
 async function upsertPage(
   payload: Awaited<ReturnType<typeof getPayload>>,
   args: { title: string; slug: string; layout: NonNullable<Page['layout']> },
@@ -829,6 +1096,30 @@ async function seedPages() {
     title: 'Semog Garante',
     slug: 'garante',
     layout: [garanteHero, garanteDetalhado, garanteDiferenca, garanteFaq, garanteCtaBand],
+  })
+
+  await upsertPage(payload, {
+    title: 'Para Incorporadoras',
+    slug: 'incorporadoras',
+    layout: [
+      incorporadorasHero,
+      incorporadorasGanhos,
+      incorporadorasProcesso,
+      incorporadorasRegistros,
+      incorporadorasCtaBand,
+    ],
+  })
+
+  await upsertPage(payload, {
+    title: 'Contato',
+    slug: 'contato',
+    layout: [contatoHero, contatoCanais, contatoUnidades],
+  })
+
+  await upsertPage(payload, {
+    title: 'Solicitar Proposta',
+    slug: 'proposta',
+    layout: [propostaHero, propostaProvaSocial, propostaComoFunciona, propostaCtaBand],
   })
 }
 
