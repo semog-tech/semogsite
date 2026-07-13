@@ -188,7 +188,8 @@ export interface Page {
    * Use 'home' para a página inicial. Sem acento (ex.: solucoes).
    */
   slug: string;
-  layout?: (HeroBlock | StatsBlock | FeatureGridBlock | GaranteBlock | CTABandBlock | RichTextBlock)[] | null;
+  layout?:
+    (HeroBlock | StatsBlock | FeatureGridBlock | GaranteBlock | CitiesBlock | CTABandBlock | RichTextBlock)[] | null;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -278,6 +279,25 @@ export interface GaranteBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'garante';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CitiesBlock".
+ */
+export interface CitiesBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  items?:
+    | {
+        city: string;
+        uf: string;
+        role?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cities';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -500,6 +520,7 @@ export interface PagesSelect<T extends boolean = true> {
         stats?: T | StatsBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
+        cities?: T | CitiesBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
       };
@@ -588,6 +609,24 @@ export interface GaranteBlockSelect<T extends boolean = true> {
         href?: T;
       };
   note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CitiesBlock_select".
+ */
+export interface CitiesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        city?: T;
+        uf?: T;
+        role?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

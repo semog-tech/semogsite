@@ -1,20 +1,26 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import type {
+  CitiesBlock,
   CTABandBlock,
   FeatureGridBlock,
+  GaranteBlock,
   HeroBlock,
   RichTextBlock,
   StatsBlock,
 } from '@/payload-types'
 
 /**
- * Seed idempotente da Page `home`, aproximando a estrutura de
+ * Seed idempotente da Page `home`, em fidelidade total à ordem de seções de
  * `_reference/index.html`: Hero (slogan "Preocupe-se apenas em morar"),
- * Stats (números da seção "Semog em números"), FeatureGrid (Pilares) e
- * CTABand (seção "CTA final"), fechando com um parágrafo institucional em
- * RichText (Manifesto). Só texto — sem `video`/`poster`/uploads, já que as
- * chaves S3 ainda não estão configuradas.
+ * Stats (número da seção "Semog em números", com eyebrow/título e prefixo
+ * "+" nos itens 700/70mil/100 — `_reference/index.html:519-536`), Semog
+ * Garante (banda `.g-band-home` + os 4 passos "Como funciona" de
+ * `garante.html`), FeatureGrid (Pilares), Cities (seção "Presença",
+ * `.cities-acc`), CTABand (seção "CTA final") e um parágrafo institucional
+ * em RichText (Manifesto) fechando a página. Só texto — sem
+ * `video`/`poster`/uploads, já que as chaves S3 ainda não estão
+ * configuradas.
  *
  * Executa via `pnpm seed` (`payload run src/seed/home.ts`): o próprio
  * script obtém a instância do Payload com `getPayload({ config })`, o CLI
@@ -34,12 +40,45 @@ const heroBlock: Omit<HeroBlock, 'id' | 'blockName'> = {
 
 const statsBlock: Omit<StatsBlock, 'id' | 'blockName'> = {
   blockType: 'stats',
+  eyebrow: 'A líder do Nordeste',
+  title: 'Liderança não se declara. Se comprova.',
   items: [
     { value: 35, label: 'Anos de mercado' },
-    { value: 700, label: 'Condomínios' },
-    { value: 70, suffix: 'mil', label: 'Clientes' },
-    { value: 100, label: 'Especialistas' },
+    { value: 700, prefix: '+', label: 'Condomínios' },
+    { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
+    { value: 100, prefix: '+', label: 'Especialistas' },
   ],
+}
+
+const garanteBlock: Omit<GaranteBlock, 'id' | 'blockName'> = {
+  blockType: 'garante',
+  eyebrow: 'Semog Garante',
+  title: 'A receita do condomínio, blindada.',
+  text: 'Garantia de 100% da arrecadação do condomínio, todos os meses, por 1% da arrecadação. Parceria Semog + G5 Partners.',
+  features: [
+    {
+      title: 'O condomínio recebe tudo',
+      description:
+        'No dia previsto, 100% da arrecadação entra no caixa do condomínio. Com ou sem atrasos, a receita está garantida em contrato.',
+    },
+    {
+      title: 'A cobrança vira problema nosso',
+      description:
+        'A Semog e a G5 Partners assumem toda a régua de cobrança: negociação humana, dentro da lei e sem constrangimento entre vizinhos.',
+    },
+    {
+      title: 'O orçamento vira certeza',
+      description:
+        'Sem buraco no fluxo de caixa, manutenção, obras e melhorias saem do papel no prazo combinado em assembleia.',
+    },
+    {
+      title: 'O síndico dorme tranquilo',
+      description:
+        'Nada de lista de devedores na porta do elevador nem assembleia tensa. A relação entre vizinhos fica preservada.',
+    },
+  ],
+  cta: { label: 'Conhecer o Semog Garante', href: '/garante' },
+  note: '1% da arrecadação. Sem adesão, sem letra miúda.',
 }
 
 const featureGridBlock: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
@@ -60,6 +99,18 @@ const featureGridBlock: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
       description:
         'Processos claros, prazos cumpridos e documentação impecável, sempre ao seu alcance.',
     },
+  ],
+}
+
+const citiesBlock: Omit<CitiesBlock, 'id' | 'blockName'> = {
+  blockType: 'cities',
+  eyebrow: 'Presença',
+  title: 'Do Nordeste ao Norte, perto de você.',
+  items: [
+    { city: 'Recife', uf: 'PE', role: 'Matriz' },
+    { city: 'João Pessoa', uf: 'PB', role: 'Filial' },
+    { city: 'Campina Grande', uf: 'PB', role: 'Filial' },
+    { city: 'Belém', uf: 'PA', role: 'Filial' },
   ],
 }
 
@@ -106,7 +157,15 @@ const richTextBlock: Omit<RichTextBlock, 'id' | 'blockName'> = {
 async function seedHome() {
   const payload = await getPayload({ config })
 
-  const layout = [heroBlock, statsBlock, featureGridBlock, ctaBandBlock, richTextBlock]
+  const layout = [
+    heroBlock,
+    statsBlock,
+    garanteBlock,
+    featureGridBlock,
+    citiesBlock,
+    ctaBandBlock,
+    richTextBlock,
+  ]
 
   const existing = await payload.find({
     collection: 'pages',

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { citiesBlock } from '@/blocks/Cities/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { garanteBlock } from '@/blocks/Garante/config'
@@ -37,7 +38,15 @@ export const Pages: CollectionConfig = {
     {
       name: 'layout',
       type: 'blocks',
-      blocks: [heroBlock, statsBlock, featureGridBlock, garanteBlock, ctaBandBlock, richTextBlock],
+      blocks: [
+        heroBlock,
+        statsBlock,
+        featureGridBlock,
+        garanteBlock,
+        citiesBlock,
+        ctaBandBlock,
+        richTextBlock,
+      ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
   ],

@@ -1,5 +1,6 @@
 import type React from 'react'
 import type { Page } from '@/payload-types'
+import { CitiesBlock } from './Cities/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
 import { GaranteBlock } from './Garante/Component'
@@ -14,6 +15,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   stats: StatsBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
+  cities: CitiesBlock,
   ctaBand: CTABandBlock,
   richText: RichTextBlock,
 }
