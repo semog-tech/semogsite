@@ -195,6 +195,8 @@ export interface Page {
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
+        | RegistrosBlock
+        | AppShowcaseBlock
         | TestimonialsBlock
         | FaqBlock
         | CTABandBlock
@@ -309,6 +311,45 @@ export interface CitiesBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cities';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RegistrosBlock".
+ */
+export interface RegistrosBlock {
+  title?: string | null;
+  items?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'registros';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AppShowcaseBlock".
+ */
+export interface AppShowcaseBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  features?:
+    | {
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'appShowcase';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -569,6 +610,8 @@ export interface PagesSelect<T extends boolean = true> {
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
+        registros?: T | RegistrosBlockSelect<T>;
+        appShowcase?: T | AppShowcaseBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
@@ -676,6 +719,45 @@ export interface CitiesBlockSelect<T extends boolean = true> {
         uf?: T;
         role?: T;
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RegistrosBlock_select".
+ */
+export interface RegistrosBlockSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AppShowcaseBlock_select".
+ */
+export interface AppShowcaseBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  features?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
       };
   id?: T;
   blockName?: T;

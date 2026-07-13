@@ -1,11 +1,13 @@
 import type React from 'react'
 import type { Page } from '@/payload-types'
+import { AppShowcaseBlock } from './AppShowcase/Component'
 import { CitiesBlock } from './Cities/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FaqBlock } from './Faq/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
+import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
@@ -18,6 +20,8 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,
+  registros: RegistrosBlock,
+  appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,
   faq: FaqBlock,
   ctaBand: CTABandBlock,
