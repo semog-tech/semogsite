@@ -29,13 +29,15 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * Sem `tag`, o layout permanece de 1 coluna (comportamento anterior).
  *
  * `pageHeroOverlay` (sem efeito com `video`) troca o tratamento acima pelo
- * `.page-hero`/`.page-hero .bg`/`.page-hero::after` de
- * `_reference/solucoes.html:87-107`: 74dvh em vez de 100dvh, `poster` a
- * 0.5 de opacidade e recortado em `center 65%`, e um gradiente escuro por
- * cima (`rgba(5,8,26,.55)` → `rgba(10,16,46,.3)` → `--color-navy-900`
- * opaco) para dar contraste ao texto — verbatim do ref, sem overlay algum
- * o fundo ficava claro demais. Ver a doc do campo em `Hero/config.ts` para
- * o porquê dos valores serem fixos (específicos de `/solucoes`).
+ * `.page-hero`/`.page-hero .bg`/`.page-hero::after` do ref (ex.:
+ * `_reference/solucoes.html:87-107`, `_reference/administracao-de-
+ * condominios.html:61-77`): altura reduzida em vez de 100dvh, `poster` com
+ * opacidade e recorte próprios, e um gradiente escuro por cima para dar
+ * contraste ao texto — cada página tem seus próprios números (ver
+ * `pageHeroMinHeight`/`pageHeroPosterOpacity`/`pageHeroBgPosition`/
+ * `pageHeroGradient`, documentados em `Hero/config.ts`), aplicados via
+ * `style` (não dá pra gerar classe Tailwind estática a partir de valor
+ * dinâmico do CMS).
  */
 export function HeroBlock({
   eyebrow,
@@ -45,12 +47,22 @@ export function HeroBlock({
   video,
   poster,
   pageHeroOverlay,
+  pageHeroMinHeight,
+  pageHeroPosterOpacity,
+  pageHeroBgPosition,
+  pageHeroGradient,
   ctas,
 }: HeroBlockType) {
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
   const isPageHero = !videoUrl && !!pageHeroOverlay && !!posterMedia
+  const minHeight = pageHeroMinHeight || '74dvh'
+  const posterOpacity = pageHeroPosterOpacity ?? 0.5
+  const bgPosition = pageHeroBgPosition || 'center 65%'
+  const gradient =
+    pageHeroGradient ||
+    'linear-gradient(180deg, rgba(5,8,26,0.55) 0%, rgba(10,16,46,0.3) 50%, var(--color-navy-900) 100%)'
 
   const subheadAndCtas = (
     <>
@@ -83,11 +95,8 @@ export function HeroBlock({
 
   return (
     <Section
-      className={
-        isPageHero
-          ? 'flex min-h-[74dvh] flex-col overflow-hidden !py-0 bg-navy-950'
-          : 'flex min-h-dvh flex-col overflow-hidden !py-0 bg-navy-950'
-      }
+      className="flex flex-col overflow-hidden !py-0 bg-navy-950"
+      style={isPageHero ? { minHeight } : { minHeight: '100dvh' }}
     >
       {videoUrl ? (
         <video
@@ -106,18 +115,16 @@ export function HeroBlock({
             resource={posterMedia}
             fill
             priority
-            className={
-              isPageHero
-                ? 'absolute inset-0 z-[1] object-cover object-[center_65%] opacity-50'
-                : 'absolute inset-0 z-[1] object-cover'
-            }
+            className="absolute inset-0 z-[1] object-cover"
+            style={isPageHero ? { objectPosition: bgPosition, opacity: posterOpacity } : undefined}
           />
         )
       )}
       {isPageHero && (
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-[2] bg-[linear-gradient(180deg,rgba(5,8,26,0.55)_0%,rgba(10,16,46,0.3)_50%,var(--color-navy-900)_100%)]"
+          className="absolute inset-0 z-[2]"
+          style={{ background: gradient }}
         />
       )}
       <Container

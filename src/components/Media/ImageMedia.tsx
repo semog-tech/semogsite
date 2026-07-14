@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import type { CSSProperties } from 'react'
 import type { Media } from '@/payload-types'
 
 type Props = {
@@ -7,9 +8,10 @@ type Props = {
   sizes?: string
   priority?: boolean
   fill?: boolean
+  style?: CSSProperties
 }
 
-export function ImageMedia({ resource, className, sizes, priority, fill }: Props) {
+export function ImageMedia({ resource, className, sizes, priority, fill, style }: Props) {
   if (!resource || typeof resource === 'string') return null
   const { url, alt, width, height } = resource
   if (!url) return null
@@ -22,6 +24,7 @@ export function ImageMedia({ resource, className, sizes, priority, fill }: Props
         sizes={sizes}
         priority={priority}
         className={className}
+        style={style}
       />
     )
   return (
@@ -33,6 +36,7 @@ export function ImageMedia({ resource, className, sizes, priority, fill }: Props
       sizes={sizes}
       priority={priority}
       className={className}
+      style={style}
     />
   )
 }
