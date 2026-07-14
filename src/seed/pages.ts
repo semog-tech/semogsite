@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import type {
   AppShowcaseBlock,
   BenefitsBlock,
-  CitiesBlock,
+  ClubeBeneficiosBlock,
   ContactInfoBlock,
   CTABandBlock,
   FaqBlock,
@@ -12,12 +12,20 @@ import type {
   GaranteBlock,
   HeroBlock,
   Page,
+  PillarsBlock,
+  PrestacaoBlock,
   RegistrosBlock,
   RichTextBlock,
   ShowcaseBlock,
+  SociosBlock,
+  SolucoesBentoBlock,
   StatsBlock,
+  TecnologiaRoadmapBlock,
   TestimonialsBlock,
+  TimelineBlock,
+  WordsSectionBlock,
 } from '@/payload-types'
+import { getMediaId } from './lib/media'
 
 /**
  * Seed idempotente de treze páginas de CMS compostas só de blocos já
@@ -28,15 +36,24 @@ import type {
  *   de "última atualização", sem ctas/video) seguido de um único bloco
  *   RichText com o texto completo — heading `h2` por seção numerada e
  *   listas onde o `_reference` usa `<ul>`.
- * - "A Semog" (slug `semog`), fiel a `_reference/semog.html`: Hero + o
- *   parágrafo-manifesto em RichText + Stats (números da seção manifesto) +
- *   dois FeatureGrid (Valores e Sócios/"empresa humana") + Cities
- *   (expansão geográfica contada na timeline) + CTABand final.
- * - "Soluções" (slug `solucoes`), fiel a `_reference/solucoes.html`: Hero +
- *   FeatureGrid dos três tipos de condomínio atendidos + AppShowcase (seção
- *   do aplicativo) + Garante (seção "Semog Garante") + Registros (faixa de
- *   selos da seção "Por que Semog") + Faq (as 5 perguntas do FAQPage
- *   schema.org do `_reference`) + CTABand final.
+ * - "A Semog" (slug `semog`), fiel a `_reference/semog.html`: Hero (poster
+ *   `hero-towers.webp`) + WordsSection (parágrafo-manifesto, scrub palavra-
+ *   a-palavra) + Stats (mini-stats sem cabeçalho próprio, igual ao ref,
+ *   dentro do próprio `.manifesto`) + Timeline (`#historia`, os 8 cartões
+ *   datados 1991→Hoje, pin + scrub horizontal) + Pillars (Valores,
+ *   hover-rows) + Socios ("Empresa humana", `equipe.webp` + `.f-feats`) +
+ *   CTABand `variant:'centered'` final. Sem Cities: `_reference/semog.html`
+ *   não tem grid de "Presença" — isso é contado só pela Timeline.
+ * - "Soluções" (slug `solucoes`), fiel a `_reference/solucoes.html`: Hero
+ *   (poster `residencial.webp`) + SolucoesBento (as 3 verticais
+ *   residencial/comercial/associações, com foto real cada) + Registros
+ *   (faixa de selos da seção "Por que Semog") + Prestacao (`#prestacao`,
+ *   `prestacao-contas.webp`) + TecnologiaRoadmap (`#tecnologia`, Semog One
+ *   `semog-one.webp` + roadmap 2026) + ClubeBeneficios (`#beneficios`) +
+ *   Garante em banda com vídeo (`garante.mp4`/`garante.webp` + chip "1%"),
+ *   ANTES do App (ordem corrigida vs. o seed anterior) + AppShowcase (seção
+ *   do aplicativo) + Faq (as 5 perguntas do FAQPage schema.org do
+ *   `_reference`) + CTABand `variant:'centered'` final.
  * - "Administração de condomínios" (slug `administracao-de-condominios`),
  *   fiel a `_reference/administracao-de-condominios.html`: Hero + FeatureGrid
  *   (a grade `.svc-grid` de 9 serviços, seção "O que fazemos") + Showcase
@@ -314,223 +331,460 @@ const termosRichText: Omit<RichTextBlock, 'id' | 'blockName'> = {
 
 // ===== "A Semog" (slug `semog`), fiel a `_reference/semog.html` =====
 
-const semogHero: Omit<HeroBlock, 'id' | 'blockName'> = {
-  blockType: 'hero',
-  eyebrow: 'Desde 1991',
-  headline: 'Governança se constrói com tempo.',
-  subhead:
-    'Nascemos no Recife, crescemos com o Nordeste e nos tornamos referência nacional em administração de condomínios.',
-}
+async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const [heroPosterId, equipeId] = await Promise.all([
+    getMediaId(payload, 'hero-towers.webp'),
+    getMediaId(payload, 'equipe.webp'),
+  ])
 
-const semogManifesto: Omit<RichTextBlock, 'id' | 'blockName'> = {
-  blockType: 'richText',
-  content: legalRichText([
-    p(
-      'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. Esse trabalho é nosso. O de vocês é viver bem.',
-    ),
-  ]),
-}
+  // `.page-hero`, `_reference/semog.html:236-245` — só imagem de fundo
+  // (`.bg`), sem vídeo nesta página interna.
+  const semogHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+    blockType: 'hero',
+    eyebrow: 'Desde 1991',
+    headline: 'Governança se constrói com tempo.',
+    subhead:
+      'Nascemos no Recife, crescemos com o Nordeste e nos tornamos referência nacional em administração de condomínios.',
+    poster: heroPosterId,
+  }
 
-const semogStats: Omit<StatsBlock, 'id' | 'blockName'> = {
-  blockType: 'stats',
-  eyebrow: 'Nossa história',
-  title: 'De 1991 até aqui.',
-  items: [
-    { value: 35, label: 'Anos de mercado' },
-    { value: 700, prefix: '+', label: 'Condomínios' },
-    { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
-    { value: 100, prefix: '+', label: 'Colaboradores' },
-  ],
-}
+  // `.manifesto .big`, `_reference/semog.html:248-253` — o `em` "Esse
+  // trabalho é nosso." em ice não tem contrapartida no `WordsSectionBlock`
+  // (`text` é texto puro, sem inline formatting), mesma limitação já
+  // presente no manifesto da home.
+  const semogManifesto: Omit<WordsSectionBlock, 'id' | 'blockName'> = {
+    blockType: 'wordsSection',
+    text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. Esse trabalho é nosso. O de vocês é viver bem.',
+  }
 
-const semogValores: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
-  blockType: 'featureGrid',
-  title: 'O que não abrimos mão.',
-  features: [
-    {
-      title: 'Transparência',
-      description:
-        'Cada centavo do condomínio é rastreável. Prestação de contas aberta, documentos públicos para os condôminos e nada embaixo do tapete.',
-    },
-    {
-      title: 'Retidão',
-      description:
-        'Fazemos o certo mesmo quando ninguém está olhando. É assim há 35 anos, e é por isso que síndicos renovam com a gente.',
-    },
-    {
-      title: 'Dinâmica',
-      description:
-        'Condomínio não pode esperar. Respostas rápidas, processos digitais e uma equipe que resolve no primeiro contato.',
-    },
-  ],
-}
+  // `.mini-stats`, `_reference/semog.html:254-271` — vive dentro da própria
+  // `.manifesto`, sem cabeçalho próprio (por isso sem eyebrow/title, ao
+  // contrário do StatsBlock da home).
+  const semogStats: Omit<StatsBlock, 'id' | 'blockName'> = {
+    blockType: 'stats',
+    items: [
+      { value: 35, label: 'Anos de mercado' },
+      { value: 700, prefix: '+', label: 'Condomínios' },
+      { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
+      { value: 100, prefix: '+', label: 'Colaboradores' },
+    ],
+  }
 
-const semogSocios: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
-  blockType: 'featureGrid',
-  eyebrow: 'Empresa humana',
-  title: 'Tecnologia na operação. Gente na relação.',
-  features: [
-    {
-      title: 'Canal direto com os sócios',
-      description:
-        'Sem camadas, sem protocolo, sem "vou verificar e retorno". Quem atende resolve.',
-    },
-    {
-      title: 'Equipes locais de verdade',
-      description: 'Cada unidade tem gente da cidade, que conhece a rua, o clima e o jeito de lá.',
-    },
-    {
-      title: 'Relacionamentos de década',
-      description: 'Boa parte dos nossos condomínios está conosco há mais de dez anos, e renova.',
-    },
-  ],
-}
+  // `#historia`, `_reference/semog.html:275-328` — 8 cartões datados, pin +
+  // scrub horizontal via `TimelinePinned`.
+  const semogTimeline: Omit<TimelineBlock, 'id' | 'blockName'> = {
+    blockType: 'timeline',
+    eyebrow: 'Nossa história',
+    title: 'De 1991 até aqui.',
+    text: 'Três décadas e meia de crescimento contínuo, sempre com os pés no Nordeste.',
+    items: [
+      {
+        date: '1991',
+        title: 'Fundação no Recife',
+        text: 'A Semog nasce em Pernambuco com uma convicção: condomínio bem administrado se prova com números.',
+      },
+      {
+        date: '2000',
+        title: 'Liderança regional',
+        text: 'A carteira de condomínios se multiplica e a Semog se consolida como referência no estado.',
+      },
+      {
+        date: '2010',
+        title: 'Expansão pela Paraíba',
+        text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e a mesma governança da matriz.',
+      },
+      {
+        date: '2018',
+        title: 'Norte no mapa',
+        text: 'A filial de Belém do Pará leva o método Semog para além do Nordeste.',
+      },
+      {
+        date: '2019',
+        title: 'Pioneirismo em IA',
+        text: 'Criamos o primeiro chatbot do mercado de administradoras de condomínios do Brasil.',
+      },
+      {
+        date: '2023',
+        title: 'Prestação de contas digital',
+        text: 'Lançamos a prestação de contas 100% digital, com documentos, gráficos e assinatura digital.',
+      },
+      {
+        date: '2025',
+        title: 'Semog Garante',
+        text: 'Com a G5 Partners, criamos o produto que zera a inadimplência por 1% da arrecadação.',
+      },
+      {
+        date: 'Hoje',
+        title: 'Líder do Nordeste',
+        text: 'Mais de 700 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',
+        now: true,
+      },
+    ],
+  }
 
-const semogCities: Omit<CitiesBlock, 'id' | 'blockName'> = {
-  blockType: 'cities',
-  eyebrow: 'Presença',
-  title: 'Da fundação no Recife à expansão pelo Norte.',
-  items: [
-    { city: 'Recife', uf: 'PE', role: 'Matriz' },
-    { city: 'João Pessoa', uf: 'PB', role: 'Filial' },
-    { city: 'Campina Grande', uf: 'PB', role: 'Filial' },
-    { city: 'Belém', uf: 'PA', role: 'Filial' },
-  ],
-}
+  // `.values-sec` `#valores`, `_reference/semog.html:330-349` — hover-rows;
+  // o `PillarsBlock` não tem campo de título de seção, então o h2 "O que
+  // não abrimos mão." não tem onde entrar (ver nota no relatório da task).
+  const semogValores: Omit<PillarsBlock, 'id' | 'blockName'> = {
+    blockType: 'pillars',
+    items: [
+      {
+        title: 'Transparência',
+        text: 'Cada centavo do condomínio é rastreável. Prestação de contas aberta, documentos públicos para os condôminos e nada embaixo do tapete.',
+      },
+      {
+        title: 'Retidão',
+        text: 'Fazemos o certo mesmo quando ninguém está olhando. É assim há 35 anos, e é por isso que síndicos renovam com a gente.',
+      },
+      {
+        title: 'Dinâmica',
+        text: 'Condomínio não pode esperar. Respostas rápidas, processos digitais e uma equipe que resolve no primeiro contato.',
+      },
+    ],
+  }
 
-const semogCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
-  blockType: 'ctaBand',
-  title: 'Venha conhecer a Semog por dentro.',
-  text: 'Converse com a nossa equipe e receba uma proposta sob medida para o seu condomínio.',
-  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  // `.founders` `#socios`, `_reference/semog.html:352-385`.
+  const semogSocios: Omit<SociosBlock, 'id' | 'blockName'> = {
+    blockType: 'socios',
+    eyebrow: 'Empresa humana',
+    title: 'Tecnologia na operação. Gente na relação.',
+    text: 'Investimos pesado em tecnologia para que sobre tempo para o que importa: ouvir. Na Semog, síndico e condômino falam com quem decide.',
+    items: [
+      {
+        title: 'Canal direto com os sócios',
+        text: 'Sem camadas, sem protocolo, sem "vou verificar e retorno". Quem atende resolve.',
+      },
+      {
+        title: 'Equipes locais de verdade',
+        text: 'Cada unidade tem gente da cidade, que conhece a rua, o clima e o jeito de lá.',
+      },
+      {
+        title: 'Relacionamentos de década',
+        text: 'Boa parte dos nossos condomínios está conosco há mais de dez anos, e renova.',
+      },
+    ],
+    image: equipeId,
+    caption: 'Acesso fácil aos sócios. Regra da casa desde 1991.',
+  }
+
+  // `.final-cta`, `_reference/semog.html:388-399` — `variant:'centered'`,
+  // igual ao final-cta da home (não a banda `--grad-band`).
+  const semogCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+    blockType: 'ctaBand',
+    variant: 'centered',
+    title: 'Venha conhecer a Semog por dentro.',
+    text: 'Converse com a nossa equipe e receba uma proposta sob medida para o seu condomínio.',
+    cta: { label: 'Solicitar proposta', href: '/proposta' },
+  }
+
+  await upsertPage(payload, {
+    title: 'A Semog',
+    slug: 'semog',
+    layout: [
+      semogHero,
+      semogManifesto,
+      semogStats,
+      semogTimeline,
+      semogValores,
+      semogSocios,
+      semogCtaBand,
+    ],
+  })
 }
 
 // ===== "Soluções" (slug `solucoes`), fiel a `_reference/solucoes.html` =====
 
-const solucoesHero: Omit<HeroBlock, 'id' | 'blockName'> = {
-  blockType: 'hero',
-  headline: 'Tudo que um condomínio precisa. E o que nenhum outro oferece.',
-  subhead:
-    'Gestão financeira, contábil, jurídica e de pessoas, com a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
-}
+async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const [
+    residencialId,
+    comercialId,
+    associacoesId,
+    prestacaoContasId,
+    semogOneId,
+    garanteVideoId,
+    garantePosterId,
+  ] = await Promise.all([
+    getMediaId(payload, 'residencial.webp'),
+    getMediaId(payload, 'comercial.webp'),
+    getMediaId(payload, 'associacoes.webp'),
+    getMediaId(payload, 'prestacao-contas.webp'),
+    getMediaId(payload, 'semog-one.webp'),
+    getMediaId(payload, 'garante.mp4'),
+    getMediaId(payload, 'garante.webp'),
+  ])
 
-const solucoesServicos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
-  blockType: 'featureGrid',
-  eyebrow: 'Soluções',
-  title: 'Administração completa para condomínios residenciais, comerciais e associações.',
-  features: [
-    {
-      title: 'Condomínios Residenciais',
-      description:
-        'O prédio funciona, o morador nem percebe. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
-    },
-    {
-      title: 'Condomínios Comerciais',
-      description:
-        'Eficiência que valoriza o metro quadrado: rateios impecáveis, relatórios gerenciais e fornecedores sob controle para o conselho aprovar com confiança.',
-    },
-    {
-      title: 'Associações',
-      description:
-        'Governança para comunidades inteiras. Estruturamos estatutos, contribuições e conselhos para loteamentos, associações de moradores e clubes.',
-    },
-  ],
-}
+  // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo `residencial.webp`
+  // do `.bg` (reaproveitado também na vertical "Residenciais" logo abaixo,
+  // igual ao ref, que usa esse arquivo duas vezes).
+  const solucoesHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+    blockType: 'hero',
+    headline: 'Tudo que um condomínio precisa. E o que nenhum outro oferece.',
+    subhead:
+      'Gestão financeira, contábil, jurídica e de pessoas, com a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
+    poster: residencialId,
+  }
 
-const solucoesApp: Omit<AppShowcaseBlock, 'id' | 'blockName'> = {
-  blockType: 'appShowcase',
-  eyebrow: 'Aplicativo',
-  title: 'Um aplicativo que o morador usa de verdade.',
-  text: 'Nada de portal que ninguém acessa. O app da Semog concentra o dia a dia do condomínio em uma interface simples, no bolso de cada morador.',
-  features: [
-    { title: 'Boletos e segunda via', description: 'Histórico completo e pagamento na hora.' },
-    { title: 'Reservas', description: 'Salão de festas, churrasqueira e quadra.' },
-    { title: 'Assembleias e votações', description: 'Participação e voto de onde estiver.' },
-    { title: 'Avisos', description: 'Comunicados da administração em tempo real.' },
-    { title: 'Ocorrências', description: 'Registro e acompanhamento transparente.' },
-    { title: 'Documentos', description: 'Convenção, atas e regulamentos sempre à mão.' },
-  ],
-}
+  // As 3 verticais `#residenciais`/`#comerciais`/`#associacoes`
+  // (`_reference/solucoes.html:411-484`) — não existe bloco de split
+  // alternado com `.svc-tags` + tratamento full-bleed de `.assoc` (ver nota
+  // no relatório da task). `SolucoesBentoBlock` reaproveitado (mesmo bloco/
+  // fotos da home) como a melhor aproximação disponível: fotos reais e
+  // título/texto fiéis, mas perde o kicker, as tags de serviço (7/6 pills) e
+  // o tratamento full-bleed das Associações. `eyebrow`/`title` são uma
+  // síntese: o ref não tem um cabeçalho comum às 3 seções.
+  const solucoesVerticais: Omit<SolucoesBentoBlock, 'id' | 'blockName'> = {
+    blockType: 'solucoesBento',
+    eyebrow: 'Soluções',
+    title: 'Administração completa para condomínios residenciais, comerciais e associações.',
+    cards: [
+      {
+        image: residencialId,
+        tag: 'Condomínios Residenciais',
+        title: 'O prédio funciona. O morador nem percebe.',
+        text: 'Assumimos toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
+        tall: true,
+      },
+      {
+        image: comercialId,
+        tag: 'Condomínios Comerciais',
+        title: 'Eficiência que valoriza o metro quadrado.',
+        text: 'Edifícios corporativos e centros empresariais exigem previsibilidade de custos, rateios impecáveis e fornecedores sob controle. A Semog entrega relatórios gerenciais que o conselho entende e aprova.',
+      },
+      {
+        image: associacoesId,
+        tag: 'Associações',
+        title: 'Governança para comunidades inteiras.',
+        text: 'Loteamentos, associações de moradores e clubes têm regras próprias, receitas próprias e desafios próprios. Estruturamos estatutos, contribuições e conselhos que funcionam.',
+        href: '/proposta',
+      },
+    ],
+  }
 
-const solucoesGarante: Omit<GaranteBlock, 'id' | 'blockName'> = {
-  blockType: 'garante',
-  eyebrow: 'Semog Garante',
-  title: 'Inadimplência zero.',
-  text: 'O único produto do mercado que garante 100% da arrecadação do condomínio, todos os meses. Uma parceria Semog + G5 Partners.',
-  features: [
-    {
-      title: 'O condomínio recebe tudo',
-      description: 'Todo mês, 100% da arrecadação prevista entra no caixa, com ou sem atrasos.',
-    },
-    {
-      title: 'A cobrança vira problema nosso',
+  // `.benefits .bento` (sem id), `_reference/solucoes.html:487-520` —
+  // mantido como `RegistrosBlock` (já era a aproximação existente, fiel o
+  // bastante no conteúdo: 24h / acesso direto aos sócios / 35 anos /
+  // equipes locais / 100% digital), só reposicionado para o lugar certo no
+  // fluxo (entre as verticais e a Prestação de contas). Não fazia parte da
+  // lista de blocos novos desta wave, por isso não virou um bento de
+  // verdade com números gigantes — ver nota no relatório da task.
+  const solucoesRegistros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
+    blockType: 'registros',
+    title: 'O que muda quando a Semog assume.',
+    items: [
+      { label: 'Resposta em 24h' },
+      { label: 'Acesso direto aos sócios' },
+      { label: '35 anos de mercado' },
+      { label: 'Equipes locais em 4 cidades' },
+      { label: '100% digital' },
+    ],
+  }
+
+  // `#prestacao`, `_reference/solucoes.html:522-555`.
+  const solucoesPrestacao: Omit<PrestacaoBlock, 'id' | 'blockName'> = {
+    blockType: 'prestacao',
+    title: 'A prestação de contas que nenhuma outra administradora tem.',
+    text: 'Desenvolvida pela Semog, ela transforma o balancete em algo que qualquer condômino entende e confia.',
+    image: prestacaoContasId,
+    list: [
+      {
+        title: 'Todos os documentos',
+        text: 'Notas, comprovantes e extratos anexados a cada lançamento.',
+      },
+      {
+        title: 'Gráficos claros',
+        text: 'Receita, despesa e evolução do fundo de reserva em visual simples.',
+      },
+      {
+        title: 'Assinatura digital',
+        text: 'Aprovação do síndico e do conselho com validade jurídica.',
+      },
+      {
+        title: 'Sempre disponível',
+        text: 'O condômino consulta quando quiser, sem pedir a ninguém.',
+      },
+    ],
+  }
+
+  // `#tecnologia`, `_reference/solucoes.html:645-691`.
+  const solucoesTecnologia: Omit<TecnologiaRoadmapBlock, 'id' | 'blockName'> = {
+    blockType: 'tecnologiaRoadmap',
+    title: 'Software de dono, não de prateleira.',
+    text: 'A Semog tem equipe de desenvolvimento própria desde a década passada. Em 2019, criamos o primeiro chatbot do setor. Hoje, toda a operação roda no nosso ERP.',
+    intro: {
+      image: semogOneId,
+      name: 'Semog One',
       description:
-        'A Semog e a G5 Partners assumem a negociação com condôminos em atraso, com respeito e dentro da lei.',
+        'O ERP que construímos para o nosso jeito de administrar: financeiro, cobrança, assembleias, documentos e atendimento em uma única plataforma, evoluindo toda semana.',
+      tags: [
+        { label: 'Financeiro e cobrança' },
+        { label: 'Prestação de contas digital' },
+        { label: 'Assembleias' },
+        { label: 'Atendimento com IA' },
+        { label: 'Integração com o app' },
+      ],
     },
-    {
-      title: 'O orçamento vira certeza',
-      description:
-        'Sem buracos no fluxo de caixa: obras, manutenção e melhorias saem do papel no prazo.',
-    },
-    {
-      title: 'O síndico dorme tranquilo',
-      description:
-        'Sem constrangimento com vizinhos e sem assembleia tensa por causa de devedores.',
-    },
-  ],
-  cta: { label: 'Solicitar proposta', href: '/proposta' },
-  note: '1% da arrecadação. Sem taxa de adesão, sem letra miúda.',
-}
+    roadmapLabel: 'Roadmap 2026',
+    steps: [
+      {
+        title: 'Gestão de Manutenções',
+        text: 'Preventivas programadas, chamados e histórico por equipamento.',
+        status: 'Em desenvolvimento',
+      },
+      {
+        title: 'Gestão de Contratos',
+        text: 'Fornecedores, vigências e reajustes monitorados automaticamente.',
+        status: 'Previsto para 2026',
+      },
+      {
+        title: 'Chatbot de atendimento',
+        text: 'Pioneiro no setor desde 2019, em evolução contínua.',
+        status: 'No ar',
+        live: true,
+      },
+    ],
+  }
 
-const solucoesRegistros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
-  blockType: 'registros',
-  title: 'O que muda quando a Semog assume.',
-  items: [
-    { label: 'Resposta em 24h' },
-    { label: 'Acesso direto aos sócios' },
-    { label: '35 anos de mercado' },
-    { label: 'Equipes locais em 4 cidades' },
-    { label: '100% digital' },
-  ],
-}
+  // `#beneficios` (Clube de benefícios), `_reference/solucoes.html:693-724`.
+  const solucoesClube: Omit<ClubeBeneficiosBlock, 'id' | 'blockName'> = {
+    blockType: 'clubeBeneficios',
+    title: 'Ser Semog também vale fora do boleto.',
+    text: 'Condomínios e moradores Semog têm acesso a um clube de vantagens negociado pela nossa escala de 700 condomínios.',
+    items: [
+      {
+        title: 'Internet mais barata',
+        text: 'Planos coletivos negociados com provedores parceiros para o condomínio inteiro.',
+      },
+      {
+        title: 'Desconto com fornecedores',
+        text: 'Rede homologada de manutenção, limpeza, jardinagem e segurança com preço de escala.',
+      },
+      {
+        title: 'Seguros em condições especiais',
+        text: 'Seguro obrigatório e coberturas adicionais com corretoras parceiras.',
+      },
+      {
+        title: 'Vantagens para moradores',
+        text: 'Convênios com farmácias, academias e serviços locais em cada cidade Semog.',
+      },
+    ],
+    note: 'O catálogo completo de parceiros é atualizado mensalmente e divulgado no aplicativo Semog.',
+  }
 
-const solucoesFaq: Omit<FaqBlock, 'id' | 'blockName'> = {
-  blockType: 'faq',
-  title: 'Perguntas frequentes.',
-  items: [
-    {
-      question: 'O que a Semog administra?',
-      answer:
-        'Condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. A gestão cobre financeiro, contabilidade, jurídico, pessoal, assembleias, manutenção e seguros.',
-    },
-    {
-      question: 'Como funciona o Semog Garante?',
-      answer:
-        'Em parceria com a G5 Partners, garantimos 100% da arrecadação prevista do condomínio, todos os meses, mesmo com condôminos em atraso. A cobrança fica por nossa conta e o custo é de 1% da arrecadação.',
-    },
-    {
-      question: 'Como funciona a prestação de contas digital?',
-      answer:
-        'É 100% digital: cada lançamento traz documentos e comprovantes anexados, os números viram gráficos fáceis de ler e a aprovação acontece com assinatura digital de validade jurídica. Qualquer condômino consulta a qualquer hora.',
-    },
-    {
-      question: 'Em quais cidades a Semog atua?',
-      answer:
-        'Matriz em Recife (PE) e filiais em João Pessoa (PB), Campina Grande (PB) e Belém (PA), com equipes locais em cada unidade.',
-    },
-    {
-      question: 'Como migrar meu condomínio para a Semog?',
-      answer:
-        'Nossa equipe conduz a transição de ponta a ponta: auditoria de documentos, comunicação aos condôminos e migração dos dados, sem interromper a operação do condomínio.',
-    },
-  ],
-}
+  // `#garante`, `_reference/solucoes.html:557-616` — banda com vídeo, mesmo
+  // padrão `.g-band-home` da home, ANTES do App (corrigindo a ordem vs. o
+  // seed anterior). Em modo banda (`video`/`poster` preenchidos) o
+  // `GaranteBlock` não renderiza `features`/`note` (só eyebrow/título/
+  // texto/cta/priceChip) — mantidos aqui mesmo assim, para não perder o
+  // conteúdo editorial dos 4 `.g-step` (fica disponível assim que o
+  // Component ganhar suporte a exibi-los também no modo banda).
+  const solucoesGarante: Omit<GaranteBlock, 'id' | 'blockName'> = {
+    blockType: 'garante',
+    eyebrow: 'Semog Garante',
+    title: 'Inadimplência zero.',
+    text: 'O único produto do mercado que garante 100% da arrecadação do condomínio, todos os meses. Uma parceria Semog + G5 Partners.',
+    video: garanteVideoId,
+    poster: garantePosterId,
+    features: [
+      {
+        title: 'O condomínio recebe tudo',
+        description: 'Todo mês, 100% da arrecadação prevista entra no caixa, com ou sem atrasos.',
+      },
+      {
+        title: 'A cobrança vira problema nosso',
+        description:
+          'A Semog e a G5 Partners assumem a negociação com condôminos em atraso, com respeito e dentro da lei.',
+      },
+      {
+        title: 'O orçamento vira certeza',
+        description:
+          'Sem buracos no fluxo de caixa: obras, manutenção e melhorias saem do papel no prazo.',
+      },
+      {
+        title: 'O síndico dorme tranquilo',
+        description:
+          'Sem constrangimento com vizinhos e sem assembleia tensa por causa de devedores.',
+      },
+    ],
+    cta: { label: 'Solicitar proposta', href: '/proposta' },
+    priceChip: { value: '1%', label: 'da arrecadação. Sem taxa de adesão, sem letra miúda.' },
+    note: '1% da arrecadação. Sem taxa de adesão, sem letra miúda.',
+  }
 
-const solucoesCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
-  blockType: 'ctaBand',
-  title: 'Pronto para uma gestão sem surpresas?',
-  text: 'Conte como é o seu condomínio e receba uma proposta em até 24 horas úteis.',
-  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  // `#aplicativo`, `_reference/solucoes.html:618-642` — `AppShowcaseBlock`
+  // não tem campo `image` (o Component sempre renderiza um placeholder "app
+  // screenshot"): `app-phone.webp` não pode ser religado sem alterar o
+  // bloco, fora do escopo desta task (ver nota no relatório).
+  const solucoesApp: Omit<AppShowcaseBlock, 'id' | 'blockName'> = {
+    blockType: 'appShowcase',
+    eyebrow: 'Aplicativo',
+    title: 'Um aplicativo que o morador usa de verdade.',
+    text: 'Nada de portal que ninguém acessa. O app da Semog concentra o dia a dia do condomínio em uma interface simples, no bolso de cada morador.',
+    features: [
+      { title: 'Boletos e segunda via', description: 'Histórico completo e pagamento na hora.' },
+      { title: 'Reservas', description: 'Salão de festas, churrasqueira e quadra.' },
+      { title: 'Assembleias e votações', description: 'Participação e voto de onde estiver.' },
+      { title: 'Avisos', description: 'Comunicados da administração em tempo real.' },
+      { title: 'Ocorrências', description: 'Registro e acompanhamento transparente.' },
+      { title: 'Documentos', description: 'Convenção, atas e regulamentos sempre à mão.' },
+    ],
+  }
+
+  const solucoesFaq: Omit<FaqBlock, 'id' | 'blockName'> = {
+    blockType: 'faq',
+    title: 'Perguntas frequentes.',
+    items: [
+      {
+        question: 'O que a Semog administra?',
+        answer:
+          'Condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. A gestão cobre financeiro, contabilidade, jurídico, pessoal, assembleias, manutenção e seguros.',
+      },
+      {
+        question: 'Como funciona o Semog Garante?',
+        answer:
+          'Em parceria com a G5 Partners, garantimos 100% da arrecadação prevista do condomínio, todos os meses, mesmo com condôminos em atraso. A cobrança fica por nossa conta e o custo é de 1% da arrecadação.',
+      },
+      {
+        question: 'Como funciona a prestação de contas digital?',
+        answer:
+          'É 100% digital: cada lançamento traz documentos e comprovantes anexados, os números viram gráficos fáceis de ler e a aprovação acontece com assinatura digital de validade jurídica. Qualquer condômino consulta a qualquer hora.',
+      },
+      {
+        question: 'Em quais cidades a Semog atua?',
+        answer:
+          'Matriz em Recife (PE) e filiais em João Pessoa (PB), Campina Grande (PB) e Belém (PA), com equipes locais em cada unidade.',
+      },
+      {
+        question: 'Como migrar meu condomínio para a Semog?',
+        answer:
+          'Nossa equipe conduz a transição de ponta a ponta: auditoria de documentos, comunicação aos condôminos e migração dos dados, sem interromper a operação do condomínio.',
+      },
+    ],
+  }
+
+  const solucoesCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+    blockType: 'ctaBand',
+    variant: 'centered',
+    title: 'Pronto para uma gestão sem surpresas?',
+    text: 'Conte como é o seu condomínio e receba uma proposta em até 24 horas úteis.',
+    cta: { label: 'Solicitar proposta', href: '/proposta' },
+  }
+
+  await upsertPage(payload, {
+    title: 'Soluções',
+    slug: 'solucoes',
+    layout: [
+      solucoesHero,
+      solucoesVerticais,
+      solucoesRegistros,
+      solucoesPrestacao,
+      solucoesTecnologia,
+      solucoesClube,
+      solucoesGarante,
+      solucoesApp,
+      solucoesFaq,
+      solucoesCtaBand,
+    ],
+  })
 }
 
 // ===== "Administração de condomínios" (slug `administracao-de-condominios`),
@@ -1256,33 +1510,9 @@ async function seedPages() {
     layout: [termosHero, termosRichText],
   })
 
-  await upsertPage(payload, {
-    title: 'A Semog',
-    slug: 'semog',
-    layout: [
-      semogHero,
-      semogManifesto,
-      semogStats,
-      semogValores,
-      semogSocios,
-      semogCities,
-      semogCtaBand,
-    ],
-  })
+  await seedSemogPage(payload)
 
-  await upsertPage(payload, {
-    title: 'Soluções',
-    slug: 'solucoes',
-    layout: [
-      solucoesHero,
-      solucoesServicos,
-      solucoesApp,
-      solucoesGarante,
-      solucoesRegistros,
-      solucoesFaq,
-      solucoesCtaBand,
-    ],
-  })
+  await seedSolucoesPage(payload)
 
   await upsertPage(payload, {
     title: 'Administração de condomínios',
