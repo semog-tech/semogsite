@@ -8,6 +8,7 @@ import type {
   ContactInfoBlock,
   CTABandBlock,
   CustoChecklistBlock,
+  DevQuoteBlock,
   FaqBlock,
   FeatureGridBlock,
   FormEmbedBlock,
@@ -18,9 +19,9 @@ import type {
   PillarsBlock,
   PrestacaoBlock,
   PriceMomentBlock,
+  ProcessoTimelineBlock,
   RegistrosBlock,
   RichTextBlock,
-  ShowcaseBlock,
   SociosBlock,
   SolutionSplitBlock,
   StatsBlock,
@@ -85,13 +86,19 @@ import { getMediaId } from './lib/media'
  *   (`.faq` em `--bg-deep`, as 4 perguntas do FAQPage schema.org) + CTABand
  *   `variant:'centered'` final.
  * - "Incorporadoras" (slug `incorporadoras`), fiel a
- *   `_reference/incorporadoras.html`: Hero + FeatureGrid (os 4 cards de
- *   `.why-grid`/"O que a sua incorporadora ganha") + Showcase (os 5 passos
- *   de `.proc-list`/"Como trabalhamos", com o parágrafo de `.argument` como
- *   texto de apoio, já que a página não tem um bloco dedicado só para essa
- *   seção intermediária) + Registros (versão condensada das `.tags` de cada
- *   passo, como faixa "O que está incluído na implantação") + CTABand
- *   final.
+ *   `_reference/incorporadoras.html`, ordem exata do ref: Hero (`.page-hero`
+ *   80dvh, `incorporadoras.webp`) + WordsSection `variant:'argument'`
+ *   (`.argument`, o parágrafo-manifesto + `sub`) + ProcessoTimeline (bloco
+ *   novo — `.proc-list`, timeline vertical com linha viva, dots numerados,
+ *   ícones SVG e `.tags` por etapa, "Como trabalhamos") + FeatureGrid
+ *   `variant:'dark' light white columns:'2' stagger` (`.why-grid.sec-light
+ *   white`, os 4 cards de "O que a sua incorporadora ganha", com glifo SVG)
+ *   + DevQuote (bloco novo — `.dev-quote`, blockquote scrub + cite) +
+ *   CTABand `variant:'centered' buttonVariant:'primary'` final (o
+ *   `.final-cta` deste ref usa `.btn-primary`, não `.btn-white` como as
+ *   outras páginas). Sem a faixa `Registros` que o seed antigo inseria —
+ *   não existe no ref (ver `.superpowers/sdd/audit-servicos.md`, seção
+ *   `/incorporadoras`, linha "[CMS-only] Registros").
  * - "Contato" (slug `contato`), fiel a `_reference/contato.html`: Hero +
  *   FormEmbed (`formType: 'contato'` — form real de RHF/Zod/Turnstile, Plano
  *   4b Task 5) + ContactInfo (as 4 unidades de `.unit`). O `_reference` não
@@ -1244,95 +1251,185 @@ async function seedGarantePage(payload: Awaited<ReturnType<typeof getPayload>>) 
 }
 
 // ===== "Incorporadoras" (slug `incorporadoras`), fiel a
-// `_reference/incorporadoras.html` =====
+// `_reference/incorporadoras.html`: Hero (`.page-hero` 80dvh, opacidade
+// 0.55, `incorporadoras.webp`) + WordsSection `variant:'argument'`
+// (`.argument`) + ProcessoTimeline (`.proc-list`, timeline vertical, bloco
+// novo) + FeatureGrid (`.why-grid.sec-light.white`, glifo SVG, 2 colunas,
+// stagger) + DevQuote (`.dev-quote`, bloco novo) + CTABand `centered` com
+// `buttonVariant:'primary'` (o `.final-cta` deste ref usa `.btn-primary`,
+// não `.btn-white`). Ordem exata do ref; sem a faixa `Registros` que o seed
+// antigo inseria (não existe no ref). =====
 
-const incorporadorasHero: Omit<HeroBlock, 'id' | 'blockName'> = {
-  blockType: 'hero',
-  headline: 'O condomínio nasce bem antes das chaves.',
-  subhead:
-    'A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente e a sua marca.',
-  ctas: [{ label: 'Solicitar proposta', href: '/proposta' }],
-}
+async function seedIncorporadorasPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const incorporadorasPosterId = await getMediaId(payload, 'incorporadoras.webp')
 
-const incorporadorasGanhos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
-  blockType: 'featureGrid',
-  title: 'O que a sua incorporadora ganha.',
-  features: [
-    {
-      title: 'Reputação protegida',
-      description:
-        'Condomínio bem implantado significa comprador satisfeito falando bem do empreendimento nas redes e para amigos. O melhor marketing do próximo lançamento.',
-    },
-    {
-      title: 'Time liberado para construir',
-      description:
-        'Sua equipe de engenharia e relacionamento para de responder sobre taxa de condomínio e volta a fazer o que sabe: entregar obra.',
-    },
-    {
-      title: 'Números desde o dia zero',
-      description:
-        'Previsão orçamentária auditável e prestação de contas digital desde a instalação. O conselho do condomínio nasce confiando na gestão.',
-    },
-    {
-      title: 'Um parceiro em quatro praças',
-      description:
-        'Lançou em Recife, João Pessoa, Campina Grande ou Belém? A mesma Semog implanta, com equipe local e padrão único de qualidade.',
-    },
-  ],
-}
+  // `.page-hero`, `_reference/incorporadoras.html:50-70`: números próprios
+  // desta página (80dvh, opacidade 0.55, `background-position: center`,
+  // gradiente com parada intermediária a 45% — mesmo padrão dos 4 campos
+  // `pageHero*` dedicados em `Hero/config.ts`, já usados por
+  // `/administracao-de-condominios`).
+  const incorporadorasHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+    blockType: 'hero',
+    headline: 'O condomínio nasce bem antes das chaves.',
+    subhead:
+      'A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente e a sua marca.',
+    poster: incorporadorasPosterId,
+    pageHeroOverlay: true,
+    pageHeroMinHeight: '80dvh',
+    pageHeroPosterOpacity: 0.55,
+    pageHeroBgPosition: 'center',
+    pageHeroGradient:
+      'linear-gradient(180deg, rgba(5,8,26,0.5) 0%, rgba(10,16,46,0.3) 45%, var(--color-navy-900) 100%)',
+    ctas: [{ label: 'Solicitar proposta', href: '/proposta' }],
+  }
 
-const incorporadorasProcesso: Omit<ShowcaseBlock, 'id' | 'blockName'> = {
-  blockType: 'showcase',
-  eyebrow: 'Como trabalhamos',
-  title: 'Da planta à primeira assembleia.',
-  text: 'A experiência do comprador não termina na escritura: os primeiros doze meses do condomínio definem como a sua marca será lembrada. Com 35 anos de implantações, a Semog garante que a vida no empreendimento comece tão bem quanto a obra terminou.',
-  features: [
-    {
-      title: 'Previsão orçamentária ainda na planta',
-      description:
-        'Calculamos a taxa condominial realista antes do lançamento, evitando a armadilha da taxa promocional que explode no segundo ano. Sua equipe de vendas divulga um número que se sustenta.',
-    },
-    {
-      title: 'Convenção e regimento sob medida',
-      description:
-        'Elaboramos convenção, regimento interno e estrutura jurídica adequados ao perfil do empreendimento, prontos para registro e alinhados ao memorial de incorporação.',
-    },
-    {
-      title: 'Assembleia de instalação conduzida',
-      description:
-        'Organizamos e conduzimos a assembleia que dá vida jurídica ao condomínio: eleição do síndico, aprovação da previsão e posse da administração, sem tumulto e com ata impecável.',
-    },
-    {
-      title: 'Entrega das unidades organizada',
-      description:
-        'Estruturamos o calendário de vistorias e entrega de chaves junto à sua equipe, com contratação de pessoal, implantação de portaria e áreas comuns operando desde o primeiro morador.',
-    },
-    {
-      title: 'Pós-obra sem atrito',
-      description:
-        'Fazemos a ponte entre condomínio e construtora na fase de garantias: chamados técnicos documentados, prazos monitorados e comunicação que evita o desgaste público da sua marca.',
-    },
-  ],
-  cta: { label: 'Solicitar proposta', href: '/proposta' },
-}
+  // `.argument`, `_reference/incorporadoras.html:72-79,204-216` — o
+  // parágrafo-manifesto (`text`, scrub via `Words`) + `sub` (2º parágrafo,
+  // `Reveal` simples). `<em>` do ref descartado (texto puro), mesma
+  // limitação documentada em `WordsSection/config.ts`.
+  const incorporadorasArgumento: Omit<WordsSectionBlock, 'id' | 'blockName'> = {
+    blockType: 'wordsSection',
+    variant: 'argument',
+    text: 'A experiência do comprador não termina na escritura. Os primeiros doze meses do condomínio definem como a sua marca será lembrada.',
+    sub: 'Condomínio recém-entregue com taxa mal calculada, assembleia tumultuada e áreas comuns sem manutenção vira reclamação pública contra a incorporadora. Com 35 anos de implantações, a Semog garante que a vida no empreendimento comece tão bem quanto a obra terminou.',
+  }
 
-const incorporadorasRegistros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
-  blockType: 'registros',
-  title: 'O que está incluído na implantação.',
-  items: [
-    { label: 'Estudo de custos e benchmark regional' },
-    { label: 'Assessoria jurídica e registro em cartório' },
-    { label: 'Condução profissional de assembleia' },
-    { label: 'Implantação de equipe e portaria' },
-    { label: 'Gestão de garantias pós-obra' },
-  ],
-}
+  // `.process.sec-light`, `_reference/incorporadoras.html:81-107,218-278` —
+  // timeline vertical dos 5 passos (bloco novo, ver `ProcessoTimeline/
+  // config.ts`). `iconSvg` de cada item é o markup verbatim do ref
+  // (viewBox 24x24).
+  const incorporadorasProcesso: Omit<ProcessoTimelineBlock, 'id' | 'blockName'> = {
+    blockType: 'processoTimeline',
+    eyebrow: 'Como trabalhamos',
+    title: 'Da planta à primeira assembleia.',
+    items: [
+      {
+        iconSvg: '<path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/>',
+        title: 'Previsão orçamentária ainda na planta',
+        text: 'Calculamos a taxa condominial realista antes do lançamento, evitando a armadilha da taxa promocional que explode no segundo ano. Sua equipe de vendas divulga um número que se sustenta.',
+        tags: [
+          { label: 'Estudo de custos' },
+          { label: 'Dimensionamento de equipe' },
+          { label: 'Benchmark regional' },
+        ],
+      },
+      {
+        iconSvg:
+          '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>',
+        title: 'Convenção e regimento sob medida',
+        text: 'Elaboramos convenção, regimento interno e estrutura jurídica adequados ao perfil do empreendimento, prontos para registro e alinhados ao memorial de incorporação.',
+        tags: [{ label: 'Assessoria jurídica' }, { label: 'Registro em cartório' }],
+      },
+      {
+        iconSvg:
+          '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+        title: 'Assembleia de instalação conduzida',
+        text: 'Organizamos e conduzimos a assembleia que dá vida jurídica ao condomínio: eleição do síndico, aprovação da previsão e posse da administração, sem tumulto e com ata impecável.',
+        tags: [
+          { label: 'Convocação legal' },
+          { label: 'Condução profissional' },
+          { label: 'CNPJ do condomínio' },
+        ],
+      },
+      {
+        iconSvg:
+          '<path d="M21 10H3M16 2v4M8 2v4M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/>',
+        title: 'Entrega das unidades organizada',
+        text: 'Estruturamos o calendário de vistorias e entrega de chaves junto à sua equipe, com contratação de pessoal, implantação de portaria e áreas comuns operando desde o primeiro morador.',
+        tags: [
+          { label: 'Vistorias' },
+          { label: 'Implantação de equipe' },
+          { label: 'Manual do morador' },
+        ],
+      },
+      {
+        iconSvg:
+          '<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/>',
+        title: 'Pós-obra sem atrito',
+        text: 'Fazemos a ponte entre condomínio e construtora na fase de garantias: chamados técnicos documentados, prazos monitorados e comunicação que evita o desgaste público da sua marca.',
+        tags: [
+          { label: 'Gestão de garantias' },
+          { label: 'Mediação técnica' },
+          { label: 'Relatórios à incorporadora' },
+        ],
+      },
+    ],
+  }
 
-const incorporadorasCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
-  blockType: 'ctaBand',
-  title: 'Tem lançamento no radar?',
-  text: 'Envolva a Semog ainda na planta e lance com a taxa certa, a convenção certa e a operação pronta.',
-  cta: { label: 'Solicitar proposta', href: '/proposta' },
+  // `.why-grid.sec-light.white`, `_reference/incorporadoras.html:109-122,
+  // 280-309` — os 4 cards de "O que a sua incorporadora ganha" (mesmo
+  // `.why-card` do variant `dark`, dentro de `Section light white`, 2
+  // colunas, glifo SVG nu, entrada em grupo — ver doc dos campos em
+  // `FeatureGrid/config.ts`).
+  const incorporadorasGanhos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
+    blockType: 'featureGrid',
+    light: true,
+    white: true,
+    columns: '2',
+    stagger: true,
+    title: 'O que a sua incorporadora ganha.',
+    titleAccent: 'ganha.',
+    features: [
+      {
+        iconSvg: '<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6Z"/>',
+        title: 'Reputação protegida',
+        description:
+          'Condomínio bem implantado significa comprador satisfeito falando bem do empreendimento nas redes e para amigos. O melhor marketing do próximo lançamento.',
+      },
+      {
+        iconSvg: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+        title: 'Time liberado para construir',
+        description:
+          'Sua equipe de engenharia e relacionamento para de responder sobre taxa de condomínio e volta a fazer o que sabe: entregar obra.',
+      },
+      {
+        iconSvg: '<path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/>',
+        title: 'Números desde o dia zero',
+        description:
+          'Previsão orçamentária auditável e prestação de contas digital desde a instalação. O conselho do condomínio nasce confiando na gestão.',
+      },
+      {
+        iconSvg:
+          '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+        title: 'Um parceiro em quatro praças',
+        description:
+          'Lançou em Recife, João Pessoa, Campina Grande ou Belém? A mesma Semog implanta, com equipe local e padrão único de qualidade.',
+      },
+    ],
+  }
+
+  // `.dev-quote`, `_reference/incorporadoras.html:125-136,311-317` (bloco
+  // novo, ver `DevQuote/config.ts`). `<em>` do ref descartado (texto puro).
+  const incorporadorasQuote: Omit<DevQuoteBlock, 'id' | 'blockName'> = {
+    blockType: 'devQuote',
+    quote: 'Entregar a obra é metade. A Semog entrega a convivência.',
+    cite: 'Filosofia do time de implantação Semog',
+  }
+
+  // `.final-cta`, `_reference/incorporadoras.html:138-140,319-331` — CTA
+  // final centrado com `.btn-primary` (não `.btn-white` como
+  // home/garante/administracao — daí `buttonVariant:'primary'`).
+  const incorporadorasCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
+    blockType: 'ctaBand',
+    variant: 'centered',
+    buttonVariant: 'primary',
+    title: 'Tem lançamento no radar?',
+    text: 'Envolva a Semog ainda na planta e lance com a taxa certa, a convenção certa e a operação pronta.',
+    cta: { label: 'Solicitar proposta', href: '/proposta' },
+  }
+
+  await upsertPage(payload, {
+    title: 'Para Incorporadoras',
+    slug: 'incorporadoras',
+    layout: [
+      incorporadorasHero,
+      incorporadorasArgumento,
+      incorporadorasProcesso,
+      incorporadorasGanhos,
+      incorporadorasQuote,
+      incorporadorasCtaBand,
+    ],
+  })
 }
 
 // ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` =====
@@ -1730,17 +1827,7 @@ async function seedPages() {
 
   await seedGarantePage(payload)
 
-  await upsertPage(payload, {
-    title: 'Para Incorporadoras',
-    slug: 'incorporadoras',
-    layout: [
-      incorporadorasHero,
-      incorporadorasGanhos,
-      incorporadorasProcesso,
-      incorporadorasRegistros,
-      incorporadorasCtaBand,
-    ],
-  })
+  await seedIncorporadorasPage(payload)
 
   await upsertPage(payload, {
     title: 'Contato',
