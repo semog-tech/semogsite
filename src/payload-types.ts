@@ -390,6 +390,8 @@ export interface GaranteBlock {
   eyebrow?: string | null;
   title: string;
   text?: string | null;
+  video?: (number | null) | Media;
+  poster?: (number | null) | Media;
   features?:
     | {
         title: string;
@@ -400,6 +402,13 @@ export interface GaranteBlock {
   cta?: {
     label?: string | null;
     href?: string | null;
+  };
+  /**
+   * Chip de vidro "1%" da banda com vídeo (`.pct-chip`), ex.: valor "1%" + legenda.
+   */
+  priceChip?: {
+    value?: string | null;
+    label?: string | null;
   };
   note?: string | null;
   id?: string | null;
@@ -1161,6 +1170,8 @@ export interface GaranteBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   text?: T;
+  video?: T;
+  poster?: T;
   features?:
     | T
     | {
@@ -1173,6 +1184,12 @@ export interface GaranteBlockSelect<T extends boolean = true> {
     | {
         label?: T;
         href?: T;
+      };
+  priceChip?:
+    | T
+    | {
+        value?: T;
+        label?: T;
       };
   note?: T;
   id?: T;

@@ -1093,6 +1093,74 @@
     }
   }
 
+  /* ---------- Banda Garante com vídeo (full-bleed + chip "1%") — fiel a
+     `.g-band-home` de `_reference/index.html:297-331` (estilo inline do
+     próprio index.html, não semog.css) ----------
+     src/blocks/Garante renderiza esta variante só quando `video`/`poster`
+     está preenchido; sem mídia, o bloco segue como a banda `--grad-band` +
+     steps (uso em `/garante`, inalterado). `var(--navy-950)`→
+     `--color-navy-950`, `var(--ice-300)`→`--color-ice-300`,
+     `var(--silver-100)`→`--color-silver-100`. Vídeo/overlay em z-index
+     próprio (1/2), conteúdo em z-[3] via Tailwind no Component (mesmo
+     padrão do Hero — sem regra `.g-band-home .inner` aqui). */
+  .g-band-home {
+    position: relative;
+    overflow: hidden;
+    min-height: 78dvh;
+    display: flex;
+    align-items: flex-end;
+    padding-block: 0 clamp(3rem, 5vw, 4.5rem);
+    background: var(--color-navy-950);
+  }
+  .g-band-home::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.3) 0%, transparent 45%, rgba(5, 8, 26, 0.78) 100%);
+  }
+  .g-band-home .tag {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ice-300);
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .g-band-home h2 {
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    max-width: 15ch;
+    margin-bottom: 1.4rem;
+    text-shadow: 0 2px 40px rgba(5, 8, 26, 0.5);
+  }
+  .g-band-home .row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .g-band-home .pct-chip {
+    border-radius: 16px;
+    padding: 1rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+  .g-band-home .pct-chip .n {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 3.6vw, 3rem);
+    line-height: 1;
+  }
+  .g-band-home .pct-chip small {
+    color: var(--color-silver-100);
+    font-size: 0.88rem;
+    max-width: 17ch;
+    line-height: 1.4;
+  }
+
   /* ---------- Quote humana (citação gigante + parallax) — fiel a `.human`
      de `_reference/index.html:383-409` + responsivo `:438` ----------
      src/blocks/HumanQuote usa `Words` no blockquote e `Parallax` na foto;
