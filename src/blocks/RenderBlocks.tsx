@@ -3,6 +3,7 @@ import type { Page } from '@/payload-types'
 import { AppShowcaseBlock } from './AppShowcase/Component'
 import { BairrosBlock } from './Bairros/Component'
 import { BenefitsBlock } from './Benefits/Component'
+import { BlogFeaturedBlock } from './BlogFeatured/Component'
 import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
 import { ClubeBeneficiosBlock } from './ClubeBeneficios/Component'
@@ -17,6 +18,7 @@ import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
+import { NewsletterBlock } from './Newsletter/Component'
 import { PartnerSplitBlock } from './PartnerSplit/Component'
 import { PillarsBlock } from './Pillars/Component'
 import { PrestacaoBlock } from './Prestacao/Component'
@@ -64,6 +66,8 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   custoChecklist: CustoChecklistBlock,
   richText: RichTextBlock,
   blogList: BlogListBlock,
+  blogFeatured: BlogFeaturedBlock,
+  newsletter: NewsletterBlock,
   showcase: ShowcaseBlock,
   benefits: BenefitsBlock,
   contactInfo: ContactInfoBlock,

@@ -25,6 +25,15 @@ export const Posts: CollectionConfig = {
     { name: 'excerpt', type: 'textarea' },
     { name: 'content', type: 'richText' },
     { name: 'category', type: 'relationship', relationTo: 'categories' },
+    {
+      name: 'readingTime',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Minutos de leitura estimados — alimenta o "meta" dos cards do blog (ex.: "Equipe Semog · 8 min"), fiel a `_reference/blog.html` (`.featured .meta`/`.post .meta`).',
+      },
+    },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
   ],
 }

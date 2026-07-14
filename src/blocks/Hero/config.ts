@@ -67,7 +67,24 @@ export const heroBlock: Block = {
         'linear-gradient(180deg, rgba(5,8,26,0.55) 0%, rgba(10,16,46,0.3) 50%, var(--color-navy-900) 100%)',
       admin: {
         description:
-          'Só com `pageHeroOverlay`. CSS `background` completo de `.page-hero::after` do ref — cada página tem paradas/cores próprias (ex. `/administracao-de-condominios`: `linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)`).',
+          'Só com `pageHeroOverlay`. Sem `poster`: este é o `background` COMPLETO do próprio `.page-hero` (ex. `_reference/blog.html:40-44`, radial-gradient + `var(--grad-hero)`, sem imagem nenhuma). Com `poster`: é o `background` de `.page-hero::after`, um gradiente escuro por cima da imagem (ex. `/administracao-de-condominios`: `linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)`).',
+      },
+    },
+    {
+      name: 'pageHeroPaddingBottom',
+      type: 'text',
+      defaultValue: 'clamp(3rem, 6vw, 4.5rem)',
+      admin: {
+        description:
+          'Só com `pageHeroOverlay`. `padding-block` (segundo valor) do `.page-hero` do ref — a maioria das páginas usa `clamp(3rem, 6vw, 4.5rem)` (o default aqui), mas `/blog` e `/contato` usam `clamp(2.5rem, 5vw, 4rem)` (`_reference/blog.html:43`).',
+      },
+    },
+    {
+      name: 'pageHeroHeadlineMaxWidth',
+      type: 'text',
+      admin: {
+        description:
+          'Só com `pageHeroOverlay`. `max-width` do `h1` (ex.: `16ch` em `/blog` e `/solucoes`, `15ch` em `/contato`, `17ch` nas landings de cidade — `.page-hero h1` do ref). Deixe em branco para manter o `max-w-4xl` genérico atual.',
       },
     },
     {

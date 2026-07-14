@@ -219,6 +219,8 @@ export interface Page {
         | CustoChecklistBlock
         | RichTextBlock
         | BlogListBlock
+        | BlogFeaturedBlock
+        | NewsletterBlock
         | ShowcaseBlock
         | BenefitsBlock
         | ContactInfoBlock
@@ -275,9 +277,17 @@ export interface HeroBlock {
    */
   pageHeroBgPosition?: string | null;
   /**
-   * Só com `pageHeroOverlay`. CSS `background` completo de `.page-hero::after` do ref — cada página tem paradas/cores próprias (ex. `/administracao-de-condominios`: `linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)`).
+   * Só com `pageHeroOverlay`. Sem `poster`: este é o `background` COMPLETO do próprio `.page-hero` (ex. `_reference/blog.html:40-44`, radial-gradient + `var(--grad-hero)`, sem imagem nenhuma). Com `poster`: é o `background` de `.page-hero::after`, um gradiente escuro por cima da imagem (ex. `/administracao-de-condominios`: `linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)`).
    */
   pageHeroGradient?: string | null;
+  /**
+   * Só com `pageHeroOverlay`. `padding-block` (segundo valor) do `.page-hero` do ref — a maioria das páginas usa `clamp(3rem, 6vw, 4.5rem)` (o default aqui), mas `/blog` e `/contato` usam `clamp(2.5rem, 5vw, 4rem)` (`_reference/blog.html:43`).
+   */
+  pageHeroPaddingBottom?: string | null;
+  /**
+   * Só com `pageHeroOverlay`. `max-width` do `h1` (ex.: `16ch` em `/blog` e `/solucoes`, `15ch` em `/contato`, `17ch` nas landings de cidade — `.page-hero h1` do ref). Deixe em branco para manter o `max-w-4xl` genérico atual.
+   */
+  pageHeroHeadlineMaxWidth?: string | null;
   ctas?:
     | {
         label: string;
@@ -889,9 +899,101 @@ export interface BlogListBlock {
    * Quantidade de posts a exibir (padrão 6).
    */
   limit?: number | null;
+  /**
+   * Post a excluir da grade — usar o mesmo post do campo "post" de um bloco BlogFeatured logo acima, para não duplicá-lo entre o destaque e a grade. Opcional.
+   */
+  excludePost?: (number | null) | Post;
+  /**
+   * Zera o padding-top da seção (mesmo padrão de `Faq.tightTop`/`Pillars.tightTop`) — usar quando este bloco vem logo após um BlogFeatured, pra que os dois pareçam uma única seção clara contínua, fiel a `_reference/blog.html:153-226` (uma só `<section class="sec-light">` para destaque + grade).
+   */
+  tightTop?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'blogList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  heroImage?: (number | null) | Media;
+  excerpt?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  category?: (number | null) | Category;
+  /**
+   * Minutos de leitura estimados — alimenta o "meta" dos cards do blog (ex.: "Equipe Semog · 8 min"), fiel a `_reference/blog.html` (`.featured .meta`/`.post .meta`).
+   */
+  readingTime?: number | null;
+  publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogFeaturedBlock".
+ */
+export interface BlogFeaturedBlock {
+  /**
+   * Post exibido em destaque (card grande, 2 colunas). Dica: exclua este mesmo post da grade abaixo via o campo "excludePost" do bloco BlogList, para não duplicar.
+   */
+  post: number | Post;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'blogFeatured';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterBlock".
+ */
+export interface NewsletterBlock {
+  title: string;
+  text?: string | null;
+  placeholder?: string | null;
+  buttonLabel?: string | null;
+  /**
+   * Mensagem exibida no lugar do formulário após o "envio" (client-side, sem backend real — fiel ao `onsubmit` inline de `_reference/blog.html:233`).
+   */
+  successMessage?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsletter';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1121,56 +1223,6 @@ export interface BairrosBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'bairros';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  slug: string;
-  heroImage?: (number | null) | Media;
-  excerpt?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  category?: (number | null) | Category;
-  publishedAt?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1485,6 +1537,8 @@ export interface PagesSelect<T extends boolean = true> {
         custoChecklist?: T | CustoChecklistBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
+        blogFeatured?: T | BlogFeaturedBlockSelect<T>;
+        newsletter?: T | NewsletterBlockSelect<T>;
         showcase?: T | ShowcaseBlockSelect<T>;
         benefits?: T | BenefitsBlockSelect<T>;
         contactInfo?: T | ContactInfoBlockSelect<T>;
@@ -1524,6 +1578,8 @@ export interface HeroBlockSelect<T extends boolean = true> {
   pageHeroPosterOpacity?: T;
   pageHeroBgPosition?: T;
   pageHeroGradient?: T;
+  pageHeroPaddingBottom?: T;
+  pageHeroHeadlineMaxWidth?: T;
   ctas?:
     | T
     | {
@@ -2035,6 +2091,30 @@ export interface RichTextBlockSelect<T extends boolean = true> {
 export interface BlogListBlockSelect<T extends boolean = true> {
   title?: T;
   limit?: T;
+  excludePost?: T;
+  tightTop?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlogFeaturedBlock_select".
+ */
+export interface BlogFeaturedBlockSelect<T extends boolean = true> {
+  post?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterBlock_select".
+ */
+export interface NewsletterBlockSelect<T extends boolean = true> {
+  title?: T;
+  text?: T;
+  placeholder?: T;
+  buttonLabel?: T;
+  successMessage?: T;
   id?: T;
   blockName?: T;
 }
@@ -2238,6 +2318,7 @@ export interface PostsSelect<T extends boolean = true> {
   excerpt?: T;
   content?: T;
   category?: T;
+  readingTime?: T;
   publishedAt?: T;
   meta?:
     | T

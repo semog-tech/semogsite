@@ -1,5 +1,5 @@
 'use client'
-import { type ElementType, type Ref, useEffect, useRef } from 'react'
+import { type CSSProperties, type ElementType, type Ref, useEffect, useRef } from 'react'
 
 const CHAR_DELAY = 30
 const START = 200
@@ -15,10 +15,12 @@ export function Chars({
   children,
   as: Tag = 'h1',
   className,
+  style,
 }: {
   children: string
   as?: ElementType
   className?: string
+  style?: CSSProperties
 }) {
   const ref = useRef<HTMLElement>(null)
 
@@ -64,7 +66,7 @@ export function Chars({
   }, [children])
 
   return (
-    <Tag ref={ref as Ref<HTMLElement>} data-chars className={className}>
+    <Tag ref={ref as Ref<HTMLElement>} data-chars className={className} style={style}>
       {children}
     </Tag>
   )

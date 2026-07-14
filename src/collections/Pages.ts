@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { appShowcaseBlock } from '@/blocks/AppShowcase/config'
 import { bairrosBlock } from '@/blocks/Bairros/config'
 import { benefitsBlock } from '@/blocks/Benefits/config'
+import { blogFeaturedBlock } from '@/blocks/BlogFeatured/config'
 import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
 import { clubeBeneficiosBlock } from '@/blocks/ClubeBeneficios/config'
@@ -16,6 +17,7 @@ import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { humanQuoteBlock } from '@/blocks/HumanQuote/config'
+import { newsletterBlock } from '@/blocks/Newsletter/config'
 import { partnerSplitBlock } from '@/blocks/PartnerSplit/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
 import { prestacaoBlock } from '@/blocks/Prestacao/config'
@@ -92,6 +94,8 @@ export const Pages: CollectionConfig = {
         custoChecklistBlock,
         richTextBlock,
         blogListBlock,
+        blogFeaturedBlock,
+        newsletterBlock,
         showcaseBlock,
         benefitsBlock,
         contactInfoBlock,

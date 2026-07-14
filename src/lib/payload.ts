@@ -28,14 +28,20 @@ export const getPageBySlug = cache(async (slug: string): Promise<Page | null> =>
 
 /**
  * Posts publicados mais recentes, para o bloco `BlogList` — `depth: 1`
- * resolve `category` (usada nos cards) sem popular `heroImage` além do id
- * (ainda não usado, S3 fica para depois).
+ * resolve `category` e `heroImage` (usados no card: categoria + imagem de
+ * capa). `excludeId` deixa de fora um post específico (o post em destaque do
+ * bloco `BlogFeatured` logo acima na página `/blog`, pra não duplicar —
+ * fiel a `_reference/blog.html`, que tem 1 destaque + 6 da grade, nunca o
+ * mesmo post nos dois lugares).
  */
-export const getRecentPosts = cache(async (limit = 6): Promise<Post[]> => {
+export const getRecentPosts = cache(async (limit = 6, excludeId?: number): Promise<Post[]> => {
   const payload = await getPayloadClient()
   const res = await payload.find({
     collection: 'posts',
-    where: { _status: { equals: 'published' } },
+    where: {
+      _status: { equals: 'published' },
+      ...(excludeId ? { id: { not_equals: excludeId } } : {}),
+    },
     sort: '-publishedAt',
     limit,
     depth: 1,
