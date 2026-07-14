@@ -294,4 +294,192 @@
       transform: translateX(-50%);
     }
   }
+
+  /* ---------- Liquid Glass (aprox. web) — fiel a semog.css:204-232 ----------
+     Material da pílula de nav (.nav-inner). Sob prefers-reduced-transparency
+     cai para um fundo sólido sem blur. */
+  .liquid-glass {
+    background: rgba(5, 8, 26, 0.4);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.1) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.1) 80%,
+      rgba(255, 255, 255, 0.3) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .liquid-glass {
+      background: rgba(5, 8, 26, 0.92);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  /* ---------- Nav (pílula flutuante liquid-glass) — fiel a semog.css:234-286 + 481-486 ----------
+     Ilha client src/components/layout/Nav.tsx: toggle .is-scrolled no scroll
+     (semog.js:19-27) e burger + trava de scroll do body (semog.js:31-47). */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 1.1rem clamp(1.25rem, 4vw, 3rem) 0;
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s ease;
+  }
+  .nav-inner {
+    width: 100%;
+    max-width: calc(var(--container-site) - 2 * clamp(1.25rem, 4vw, 3rem));
+    margin-inline: auto;
+    padding: 0.55rem 0.65rem 0.55rem 1.4rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    transition: background 0.35s ease;
+  }
+  .nav.is-scrolled .nav-inner {
+    background: rgba(5, 8, 26, 0.62);
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .nav-logo img {
+    height: 22px;
+    width: auto;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-links a {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-2);
+    transition: color 0.25s ease;
+    position: relative;
+    padding-block: 4px;
+  }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-links a:hover,
+  .nav-links a[aria-current="page"] {
+    color: var(--text);
+  }
+  .nav-links a:hover::after,
+  .nav-links a[aria-current="page"]::after {
+    width: 100%;
+  }
+  .nav-cta {
+    flex-shrink: 0;
+  }
+  .nav-burger {
+    display: none;
+    background: none;
+    border: 0;
+    padding: 10px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .nav-burger span {
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+  .nav-mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(5, 8, 26, 0.96);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.4rem;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.35s ease,
+      visibility 0.35s;
+  }
+  .nav-mobile.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .nav-mobile a {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  .nav-mobile .btn {
+    margin-top: 1rem;
+  }
+  @media (max-width: 1024px) {
+    .nav-links {
+      gap: 1.4rem;
+    }
+  }
+  @media (max-width: 860px) {
+    .nav-links {
+      display: none;
+    }
+    .nav-inner .nav-cta {
+      display: none;
+    }
+    .nav-burger {
+      display: flex;
+    }
+  }
 }
