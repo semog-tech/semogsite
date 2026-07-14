@@ -18,6 +18,14 @@ export const ctaBandBlock: Block = {
       defaultValue: 'band',
     },
     { name: 'title', type: 'text', required: true },
+    {
+      name: 'titleAccent',
+      type: 'text',
+      admin: {
+        description:
+          'Trecho final de `title` a destacar em gradiente, ex.: "pela líder." em "Seu condomínio administrado pela líder." (`<span class="gx-ice">`, `_reference/administracao-de-condominios.html:380`). Só no variant `centered` — mesmo padrão de `Benefits.titleAccent`/`FeatureGrid.titleAccent`.',
+      },
+    },
     { name: 'text', type: 'textarea' },
     {
       name: 'cta',

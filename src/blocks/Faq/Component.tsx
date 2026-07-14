@@ -13,13 +13,14 @@ import type { FaqBlock as FaqBlockType } from '@/payload-types'
  * `isLast` decide a borda inferior via índice (não `last:`) porque cada
  * `<details>` é envolvido por um wrapper do `Reveal`, o que quebraria a
  * relação de irmãos exigida por `:last-child`. Cada pergunta entra via
- * `Reveal`.
+ * `Reveal`. `tightTop` zera o padding-top (ver doc do campo em
+ * `Faq/config.ts`).
  */
-export function FaqBlock({ eyebrow, title, items }: FaqBlockType) {
+export function FaqBlock({ eyebrow, title, white, tightTop, items }: FaqBlockType) {
   if (!items || items.length === 0) return null
 
   return (
-    <Section light>
+    <Section light white={!!white} className={tightTop ? '!pt-0' : ''}>
       <Container>
         {(eyebrow || title) && (
           <div className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">

@@ -1,8 +1,22 @@
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
 import type { CTABandBlock as CTABandBlockType } from '@/payload-types'
+
+/** Título com o trecho final em `.gx-ice` — mesmo padrão de `Benefits`'s `BentoTitle`. */
+function CenteredTitle({ title, accent }: { title: string; accent?: string | null }) {
+  if (accent && title.endsWith(accent)) {
+    return (
+      <Reveal as="h2">
+        {title.slice(0, -accent.length)}
+        <GradientText variant="ice">{accent}</GradientText>
+      </Reveal>
+    )
+  }
+  return <Reveal as="h2">{title}</Reveal>
+}
 
 /**
  * Faixa de CTA com duas variantes (`variant`, default `band`):
@@ -18,12 +32,12 @@ import type { CTABandBlock as CTABandBlockType } from '@/payload-types'
  *   `data-reveal`/`data-reveal-delay` no ref) e o botão branco magnético
  *   (`.btn-white ... data-magnetic`).
  */
-export function CTABandBlock({ title, text, cta, variant }: CTABandBlockType) {
+export function CTABandBlock({ title, titleAccent, text, cta, variant }: CTABandBlockType) {
   if (variant === 'centered') {
     return (
       <section className="final-cta">
         <Container className="relative z-[2]">
-          <Reveal as="h2">{title}</Reveal>
+          <CenteredTitle title={title} accent={titleAccent} />
           {text && (
             <Reveal as="p" delay={0.1}>
               {text}
