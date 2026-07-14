@@ -11,6 +11,7 @@ import { FeatureGridBlock } from './FeatureGrid/Component'
 import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
+import { PillarsBlock } from './Pillars/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
@@ -26,6 +27,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   stats: StatsBlock,
   valuesMarquee: ValuesMarqueeBlock,
   wordsSection: WordsSectionBlock,
+  pillars: PillarsBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,

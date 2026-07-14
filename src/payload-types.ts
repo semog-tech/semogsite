@@ -198,6 +198,7 @@ export interface Page {
         | StatsBlock
         | ValuesMarqueeBlock
         | WordsSectionBlock
+        | PillarsBlock
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
@@ -296,6 +297,21 @@ export interface WordsSectionBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'wordsSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PillarsBlock".
+ */
+export interface PillarsBlock {
+  items: {
+    glyph?: string | null;
+    title: string;
+    text: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pillars';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -906,6 +922,7 @@ export interface PagesSelect<T extends boolean = true> {
         stats?: T | StatsBlockSelect<T>;
         valuesMarquee?: T | ValuesMarqueeBlockSelect<T>;
         wordsSection?: T | WordsSectionBlockSelect<T>;
+        pillars?: T | PillarsBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
@@ -990,6 +1007,22 @@ export interface ValuesMarqueeBlockSelect<T extends boolean = true> {
 export interface WordsSectionBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   text?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PillarsBlock_select".
+ */
+export interface PillarsBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        glyph?: T;
+        title?: T;
+        text?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

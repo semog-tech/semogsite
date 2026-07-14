@@ -726,4 +726,76 @@
     max-width: 30ch;
     margin: 0;
   }
+
+  /* ---------- Pilares (rows interativas) — fiel a `.pillar-row` de
+     `_reference/index.html:172-195` + `:431-432`, overrides claros em
+     `semog.css:165-177` ----------
+     src/blocks/Pillars renderiza `.pillar-row` via `Reveal`. Hover muda
+     padding-left/cor do h3/rotação do glyph. `var(--ice-400)`→`--color-ice-400`,
+     `var(--r-pill)`→`--radius-pill`, `var(--navy-500)`→`--color-navy-500`. */
+  .pillar-row {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2rem;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    padding: clamp(1.8rem, 3.4vw, 2.8rem) 0.6rem;
+    position: relative;
+    transition:
+      background 0.45s ease,
+      padding-left 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pillar-row:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+  .pillar-row:hover {
+    background: rgba(173, 213, 235, 0.035);
+    padding-left: 1.6rem;
+  }
+  .pillar-row h3 {
+    font-size: clamp(1.8rem, 3.6vw, 3rem);
+    margin: 0;
+    transition: color 0.35s ease;
+  }
+  .pillar-row:hover h3 {
+    color: var(--color-ice-400);
+  }
+  .pillar-row p {
+    color: var(--text-2);
+    max-width: 44ch;
+    margin: 0;
+    font-size: 1rem;
+  }
+  .pillar-row .glyph {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      background 0.35s ease;
+    flex-shrink: 0;
+  }
+  .pillar-row:hover .glyph {
+    transform: rotate(-8deg) scale(1.08);
+    background: rgba(173, 213, 235, 0.08);
+  }
+  .sec-light .pillar-row:hover {
+    background: rgba(27, 45, 112, 0.045);
+  }
+  .sec-light .pillar-row:hover h3 {
+    color: var(--color-navy-500);
+  }
+  @media (max-width: 860px) {
+    .pillar-row {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+    .pillar-row .glyph {
+      display: none;
+    }
+  }
 }

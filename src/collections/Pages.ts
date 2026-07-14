@@ -10,6 +10,7 @@ import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
+import { pillarsBlock } from '@/blocks/Pillars/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
@@ -54,6 +55,7 @@ export const Pages: CollectionConfig = {
         statsBlock,
         valuesMarqueeBlock,
         wordsSectionBlock,
+        pillarsBlock,
         featureGridBlock,
         garanteBlock,
         citiesBlock,
