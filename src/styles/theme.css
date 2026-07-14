@@ -336,6 +336,47 @@
     }
   }
 
+  /* ---------- Hero grid + tagbox (coluna de vidro) — fiel a `.hero-grid`/
+     `.hero-tagbox`/`.hero-tagcol` de `_reference/index.html:102-117` (estilo
+     inline do próprio index.html, não semog.css) ----------
+     src/blocks/Hero só renderiza `.hero-grid` quando o campo `tag` está
+     preenchido; sem `tag`, subhead/CTAs seguem em 1 coluna (sem este grid).
+     `var(--silver-100)`→`--color-silver-100`. */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: end;
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: 1.3fr 0.7fr;
+    }
+    .hero-tagcol {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+  }
+  .hero-tagbox {
+    border-radius: 16px;
+    padding: 0.9rem 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    color: var(--color-silver-100);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  @media (max-width: 680px) {
+    .hero-tagbox {
+      white-space: normal;
+      font-size: 0.98rem;
+      padding: 0.75rem 1.2rem;
+      margin-right: 64px;
+    }
+  }
+
   /* ---------- Nav (pílula flutuante liquid-glass) — fiel a semog.css:234-286 + 481-486 ----------
      Ilha client src/components/layout/Nav.tsx: toggle .is-scrolled no scroll
      (semog.js:19-27) e burger + trava de scroll do body (semog.js:31-47). */

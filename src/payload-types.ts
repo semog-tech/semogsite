@@ -239,6 +239,10 @@ export interface HeroBlock {
   eyebrow?: string | null;
   headline: string;
   subhead?: string | null;
+  /**
+   * Coluna de vidro à direita do hero (`.hero-tagbox`), ex.: "Condomínios. Métricas. Organização." Opcional — sem valor, o layout fica de 1 coluna como antes.
+   */
+  tag?: string | null;
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
   ctas?:
@@ -1020,6 +1024,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   headline?: T;
   subhead?: T;
+  tag?: T;
   video?: T;
   poster?: T;
   ctas?:

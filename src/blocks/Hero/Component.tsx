@@ -22,11 +22,45 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * escalonado via `Fade` (`data-fade` + `data-fade-delay`, semog.js:88-93 —
  * lead 800ms, CTAs 1200ms como no ref `_reference/index.html:494-503`). CTAs
  * via `Button` (primary já é magnético).
+ *
+ * Quando `tag` está preenchido, lead+CTAs entram na coluna esquerda de um
+ * `.hero-grid` de 2 colunas e a coluna direita (`.hero-tagcol`) recebe o chip
+ * de vidro `.hero-tagbox` (fade 1400ms, como `_reference/index.html:505-506`).
+ * Sem `tag`, o layout permanece de 1 coluna (comportamento anterior).
  */
-export function HeroBlock({ eyebrow, headline, subhead, video, poster, ctas }: HeroBlockType) {
+export function HeroBlock({ eyebrow, headline, subhead, tag, video, poster, ctas }: HeroBlockType) {
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
+
+  const subheadAndCtas = (
+    <>
+      {subhead && (
+        <Fade
+          as="p"
+          delay={800}
+          className="mb-[1.6rem] max-w-[52ch] text-lead text-silver-100 [text-shadow:0_1px_24px_rgba(5,8,26,0.5)]"
+        >
+          {subhead}
+        </Fade>
+      )}
+      {ctas && ctas.length > 0 && (
+        <Fade delay={1200} className="flex flex-wrap gap-4">
+          {ctas.map((cta) => (
+            <Button
+              key={cta.id ?? cta.label}
+              href={cta.href}
+              variant={cta.variant ?? 'primary'}
+              size="lg"
+              withArrow
+            >
+              {cta.label}
+            </Button>
+          ))}
+        </Fade>
+      )}
+    </>
+  )
 
   return (
     <Section className="flex min-h-dvh flex-col overflow-hidden !py-0 bg-navy-950">
@@ -63,29 +97,17 @@ export function HeroBlock({ eyebrow, headline, subhead, video, poster, ctas }: H
         >
           {headline}
         </Chars>
-        {subhead && (
-          <Fade
-            as="p"
-            delay={800}
-            className="mb-[1.6rem] max-w-[52ch] text-lead text-silver-100 [text-shadow:0_1px_24px_rgba(5,8,26,0.5)]"
-          >
-            {subhead}
-          </Fade>
-        )}
-        {ctas && ctas.length > 0 && (
-          <Fade delay={1200} className="flex flex-wrap gap-4">
-            {ctas.map((cta) => (
-              <Button
-                key={cta.id ?? cta.label}
-                href={cta.href}
-                variant={cta.variant ?? 'primary'}
-                size="lg"
-                withArrow
-              >
-                {cta.label}
-              </Button>
-            ))}
-          </Fade>
+        {tag ? (
+          <div className="hero-grid">
+            <div>{subheadAndCtas}</div>
+            <div className="hero-tagcol">
+              <Fade delay={1400} duration={1000}>
+                <div className="hero-tagbox liquid-glass">{tag}</div>
+              </Fade>
+            </div>
+          </div>
+        ) : (
+          subheadAndCtas
         )}
       </Container>
     </Section>
