@@ -196,6 +196,7 @@ export interface Page {
     | (
         | HeroBlock
         | StatsBlock
+        | ValuesMarqueeBlock
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
@@ -266,6 +267,23 @@ export interface StatsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ValuesMarqueeBlock".
+ */
+export interface ValuesMarqueeBlock {
+  /**
+   * Valores exibidos na faixa (ex.: TRANSPARÊNCIA, RETIDÃO, DINÂMICA).
+   */
+  items: string[];
+  /**
+   * Divisor entre os valores. Default "/".
+   */
+  separator?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'valuesMarquee';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -874,6 +892,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
+        valuesMarquee?: T | ValuesMarqueeBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
@@ -938,6 +957,16 @@ export interface StatsBlockSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ValuesMarqueeBlock_select".
+ */
+export interface ValuesMarqueeBlockSelect<T extends boolean = true> {
+  items?: T;
+  separator?: T;
   id?: T;
   blockName?: T;
 }

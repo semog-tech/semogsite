@@ -16,12 +16,14 @@ import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
+import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
 
 type Block = NonNullable<Page['layout']>[number]
 // biome-ignore lint/suspicious/noExplicitAny: cada componente valida seu próprio bloco
 const map: Record<string, (props: any) => React.ReactNode> = {
   hero: HeroBlock,
   stats: StatsBlock,
+  valuesMarquee: ValuesMarqueeBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,

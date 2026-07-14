@@ -15,6 +15,7 @@ import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
+import { valuesMarqueeBlock } from '@/blocks/ValuesMarquee/config'
 import { revalidatePage } from '@/lib/revalidate'
 
 export const Pages: CollectionConfig = {
@@ -50,6 +51,7 @@ export const Pages: CollectionConfig = {
       blocks: [
         heroBlock,
         statsBlock,
+        valuesMarqueeBlock,
         featureGridBlock,
         garanteBlock,
         citiesBlock,

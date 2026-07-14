@@ -689,4 +689,24 @@
       opacity: 1;
     }
   }
+
+  /* ---------- Faixa de valores (marquee único da home) — fiel a `.values-strip`
+     de `_reference/index.html:541-548` + `:153-159` ----------
+     src/blocks/ValuesMarquee envolve o `.marquee` (src/motion/Marquee.tsx) numa
+     faixa com borda em cima/embaixo e fundo `bg-deep`; tipografia display. */
+  .values-strip {
+    padding-block: 1.8rem;
+    border-block: 1px solid var(--line);
+    background: var(--bg-deep);
+  }
+  .values-strip .marquee-track span {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 4rem;
+  }
 }
