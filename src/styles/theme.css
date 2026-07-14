@@ -798,4 +798,110 @@
       display: none;
     }
   }
+
+  /* ---------- Soluções (bento 1 alto + 2 empilhados) — fiel a `.solutions`
+     de `_reference/index.html:197-227` + responsivo `:426-427` ----------
+     src/blocks/SolucoesBento renderiza `.sol-grid > .sol-card.tall + .sol-col`
+     via `Reveal`; zoom da imagem e giro do "go" só em CSS (`:hover`).
+     `var(--r-card)`→`--radius-card`, `var(--r-pill)`→`--radius-pill`,
+     `var(--ice-300/400)`→`--color-ice-300/400`, `var(--navy-900)`→
+     `--color-navy-900`. */
+  .solutions {
+    background: var(--bg-deep);
+  }
+  .sol-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: 1.6rem;
+  }
+  .sol-col {
+    display: grid;
+    gap: 1.6rem;
+    grid-template-rows: 1fr 1fr;
+  }
+  .sol-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .sol-card.tall {
+    min-height: 640px;
+  }
+  .sol-card .card-img {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .sol-card .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sol-card:hover .card-img img {
+    transform: scale(1.06);
+  }
+  .sol-card .card-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(5, 8, 26, 0.08) 30%,
+      rgba(5, 8, 26, 0.66) 68%,
+      rgba(5, 8, 26, 0.95) 100%
+    );
+  }
+  .sol-card .sol-body {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 2rem 2.2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .sol-card h3 {
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+  }
+  .sol-card p {
+    color: var(--text-2);
+    font-size: 0.94rem;
+    max-width: 40ch;
+    margin: 0;
+  }
+  .sol-card .go {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-ice-300);
+    transition:
+      background 0.35s ease,
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.35s ease;
+  }
+  .sol-card:hover .go {
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+    transform: rotate(-45deg);
+  }
+  @media (max-width: 1024px) {
+    .sol-grid {
+      grid-template-columns: 1fr;
+    }
+    .sol-card.tall {
+      min-height: 460px;
+    }
+  }
 }

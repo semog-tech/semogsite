@@ -15,6 +15,7 @@ import { PillarsBlock } from './Pillars/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
+import { SolucoesBentoBlock } from './SolucoesBento/Component'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
@@ -28,6 +29,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   valuesMarquee: ValuesMarqueeBlock,
   wordsSection: WordsSectionBlock,
   pillars: PillarsBlock,
+  solucoesBento: SolucoesBentoBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,

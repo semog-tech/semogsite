@@ -14,6 +14,7 @@ import { pillarsBlock } from '@/blocks/Pillars/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
+import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
 import { valuesMarqueeBlock } from '@/blocks/ValuesMarquee/config'
@@ -56,6 +57,7 @@ export const Pages: CollectionConfig = {
         valuesMarqueeBlock,
         wordsSectionBlock,
         pillarsBlock,
+        solucoesBentoBlock,
         featureGridBlock,
         garanteBlock,
         citiesBlock,

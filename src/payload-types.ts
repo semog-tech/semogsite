@@ -199,6 +199,7 @@ export interface Page {
         | ValuesMarqueeBlock
         | WordsSectionBlock
         | PillarsBlock
+        | SolucoesBentoBlock
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
@@ -312,6 +313,29 @@ export interface PillarsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'pillars';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SolucoesBentoBlock".
+ */
+export interface SolucoesBentoBlock {
+  eyebrow?: string | null;
+  title: string;
+  cards: {
+    image: number | Media;
+    tag?: string | null;
+    title: string;
+    text: string;
+    href?: string | null;
+    /**
+     * Ocupa o card alto (coluna larga) do bento.
+     */
+    tall?: boolean | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'solucoesBento';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -923,6 +947,7 @@ export interface PagesSelect<T extends boolean = true> {
         valuesMarquee?: T | ValuesMarqueeBlockSelect<T>;
         wordsSection?: T | WordsSectionBlockSelect<T>;
         pillars?: T | PillarsBlockSelect<T>;
+        solucoesBento?: T | SolucoesBentoBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
@@ -1021,6 +1046,27 @@ export interface PillarsBlockSelect<T extends boolean = true> {
         glyph?: T;
         title?: T;
         text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SolucoesBentoBlock_select".
+ */
+export interface SolucoesBentoBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  cards?:
+    | T
+    | {
+        image?: T;
+        tag?: T;
+        title?: T;
+        text?: T;
+        href?: T;
+        tall?: T;
         id?: T;
       };
   id?: T;
