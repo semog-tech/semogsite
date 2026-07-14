@@ -1,33 +1,52 @@
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { AppShowcaseBlock as AppShowcaseBlockType } from '@/payload-types'
+import type { AppShowcaseBlock as AppShowcaseBlockType, Media } from '@/payload-types'
 
 /**
- * Seção do aplicativo, fiel a `.app-band`/`.app-grid`/`.app-feats` de
- * `_reference/solucoes.html:618-642`: à esquerda, o print do app
- * (`.app-media`, `max-width:400px`, centralizado) — aqui um placeholder
- * com borda + gradiente sutil e legenda, já que `app-phone.webp` entra
- * depois, com S3; à direita, eyebrow + título + texto de apoio + grade
- * 2 colunas de features com borda superior (`.app-feats div`), e CTA
- * opcional. Seção clara (`sec-light`), fiel ao `.app-band.sec-light` do
- * ref.
+ * Seção do aplicativo, fiel a `.app-band`/`.app-grid`/`.app-media`/
+ * `.app-feats` de `_reference/solucoes.html:618-642`: à esquerda, o print
+ * do app (`.app-media` — `max-width:400px`, centralizado, `rounded-card`/
+ * `border-line`/`shadow-card`; sem `object-fit` forçado, já que o ref não
+ * recorta a imagem, só limita a largura — o `<img>` mantém a proporção
+ * natural via o reset global `img{max-width:100%}`, `src/styles/theme.css`);
+ * à direita, eyebrow + título + texto de apoio + grade 2 colunas de
+ * features com borda superior (`.app-feats div`), e CTA opcional. Sem
+ * `image` (bloco reutilizável pelo admin em qualquer página), a coluna de
+ * mídia some e o texto ocupa a largura toda — mesmo padrão de `MediaCol`
+ * em `SolutionSplit/Component.tsx`. Seção clara (`sec-light`), fiel ao
+ * `.app-band.sec-light` do ref.
  */
-export function AppShowcaseBlock({ eyebrow, title, text, features, cta }: AppShowcaseBlockType) {
+export function AppShowcaseBlock({
+  eyebrow,
+  title,
+  text,
+  image,
+  features,
+  cta,
+}: AppShowcaseBlockType) {
+  const media = image && typeof image === 'object' ? (image as Media) : undefined
+
   return (
     <Section light>
-      <Container className="grid grid-cols-1 items-center gap-[clamp(2.5rem,6vw,5rem)] lg:grid-cols-[0.85fr_1.15fr]">
-        <Reveal dir="left" className="mx-auto w-full max-w-[400px]">
-          <div className="relative aspect-[9/18] w-full overflow-hidden rounded-card border border-line bg-[image:var(--grad-ice)] shadow-card">
-            <div className="absolute inset-0 flex items-center justify-center bg-navy-950/55">
-              <span className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-silver-100">
-                app screenshot
-              </span>
-            </div>
-          </div>
-        </Reveal>
+      <Container
+        className={
+          media
+            ? 'grid grid-cols-1 items-center gap-[clamp(2.5rem,6vw,5rem)] lg:grid-cols-[0.85fr_1.15fr]'
+            : undefined
+        }
+      >
+        {media && (
+          <Reveal
+            dir="left"
+            className="w-full max-w-[400px] justify-self-center overflow-hidden rounded-card border border-line shadow-card"
+          >
+            <ImageMedia resource={media} sizes="(min-width: 400px) 400px, 100vw" />
+          </Reveal>
+        )}
 
         <div>
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}

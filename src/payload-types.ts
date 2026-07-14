@@ -630,6 +630,7 @@ export interface AppShowcaseBlock {
   eyebrow?: string | null;
   title: string;
   text?: string | null;
+  image?: (number | null) | Media;
   features?:
     | {
         title: string;
@@ -1570,6 +1571,7 @@ export interface AppShowcaseBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   text?: T;
+  image?: T;
   features?:
     | T
     | {

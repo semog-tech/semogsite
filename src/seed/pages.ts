@@ -53,7 +53,7 @@ import { getMediaId } from './lib/media'
  *   locais (`blog-lazer.webp`)/100% digital, `:487-520`) + Prestacao
  *   (`#prestacao`, `prestacao-contas.webp`) + Garante em banda com vídeo
  *   (`garante.mp4`/`garante.webp` + chip "1%", `:557-616`) + AppShowcase
- *   (seção do aplicativo, `:618-642`) + TecnologiaRoadmap (`#tecnologia`,
+ *   (seção do aplicativo, `app-phone.webp`, `:618-642`) + TecnologiaRoadmap (`#tecnologia`,
  *   Semog One `semog-one.webp` + roadmap 2026, `:645-691`) + ClubeBeneficios
  *   (`#beneficios`, `:693-724`) + Faq (as 5 perguntas do FAQPage schema.org
  *   do `_reference`) + CTABand `variant:'centered'` final. Ordem exata do
@@ -508,6 +508,7 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     garanteVideoId,
     garantePosterId,
     blogLazerId,
+    appPhoneId,
   ] = await Promise.all([
     getMediaId(payload, 'residencial.webp'),
     getMediaId(payload, 'comercial.webp'),
@@ -517,6 +518,7 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     getMediaId(payload, 'garante.mp4'),
     getMediaId(payload, 'garante.webp'),
     getMediaId(payload, 'blog-lazer.webp'),
+    getMediaId(payload, 'app-phone.webp'),
   ])
 
   // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo `residencial.webp`
@@ -600,7 +602,8 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
       },
       {
         title: 'Acesso direto aos sócios',
-        description: 'Nenhuma administradora do porte da Semog oferece isso. Aqui, é regra da casa.',
+        description:
+          'Nenhuma administradora do porte da Semog oferece isso. Aqui, é regra da casa.',
       },
       {
         value: '35',
@@ -751,15 +754,14 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     note: '1% da arrecadação. Sem taxa de adesão, sem letra miúda.',
   }
 
-  // `#aplicativo`, `_reference/solucoes.html:618-642` — `AppShowcaseBlock`
-  // não tem campo `image` (o Component sempre renderiza um placeholder "app
-  // screenshot"): `app-phone.webp` não pode ser religado sem alterar o
-  // bloco, fora do escopo desta task (ver nota no relatório).
+  // `#aplicativo`, `_reference/solucoes.html:618-642` — `.app-media` com
+  // `app-phone.webp`.
   const solucoesApp: Omit<AppShowcaseBlock, 'id' | 'blockName'> = {
     blockType: 'appShowcase',
     eyebrow: 'Aplicativo',
     title: 'Um aplicativo que o morador usa de verdade.',
     text: 'Nada de portal que ninguém acessa. O app da Semog concentra o dia a dia do condomínio em uma interface simples, no bolso de cada morador.',
+    image: appPhoneId,
     features: [
       { title: 'Boletos e segunda via', description: 'Histórico completo e pagamento na hora.' },
       { title: 'Reservas', description: 'Salão de festas, churrasqueira e quadra.' },
