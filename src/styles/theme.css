@@ -263,4 +263,15 @@
     opacity: 1;
     transform: translateX(0);
   }
+
+  /* ---------- Fade com atraso (hero) — fiel a semog.css:511-517 ----------
+     src/motion/Fade.tsx marca o elemento com [data-fade] e adiciona is-in
+     via setTimeout(delay) (semog.js:88-93). */
+  [data-fade] {
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  [data-fade].is-in {
+    opacity: 1;
+  }
 }
