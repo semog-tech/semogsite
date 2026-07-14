@@ -2040,4 +2040,77 @@
       grid-column: span 1;
     }
   }
+
+  /* ---------- Quanto custa (prosa + checklist grad-band) — fiel a `.cost`
+     de `_reference/administracao-de-condominios.html:128-152` (estilo
+     inline da própria página, não semog.css) ----------
+     src/blocks/CustoChecklist renderiza `<section class="cost sec-light
+     white">` fora do `Section` genérico (mesmo motivo do `WordsSection`/
+     `CTABand` `variant:'centered'` acima — `padding-block` bespoke, não o
+     clamp genérico de `Section`); `.wrap`/`.prose`/`.cost-card` só em CSS.
+     `var(--r-card)`→`--radius-card`, `var(--ice-400)`→`--color-ice-400`;
+     `var(--line-strong)`/`var(--text-2)`/`var(--grad-band)` já existem
+     como CSS vars soltas (mesmo padrão usado por `.pillar-row`/`.svc-tags`
+     acima) e re-resolvem certo dentro de `.sec-light.white` (ver o
+     comentário grande sobre a indireção `--color-*` no `.sec-light` do
+     `@layer base`, no topo do arquivo). */
+  .cost {
+    padding-block: clamp(5rem, 9vw, 8rem);
+  }
+  .cost .wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .cost h2 {
+    max-width: 16ch;
+  }
+  .cost .prose p {
+    color: var(--text-2);
+    max-width: 52ch;
+  }
+  .cost-card {
+    background: var(--grad-band);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line-strong);
+    padding: clamp(2rem, 4vw, 3rem);
+    color: #edf1fa;
+  }
+  .cost-card .top {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ice-400);
+    display: block;
+    margin-bottom: 1.4rem;
+  }
+  .cost-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cost-card li {
+    border-top: 1px solid rgba(173, 213, 235, 0.14);
+    padding: 0.9rem 0.2rem;
+    color: #d9e0f2;
+    font-size: 0.96rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+  .cost-card li::before {
+    content: "";
+    width: 14px;
+    height: 2px;
+    flex-shrink: 0;
+    transform: translateY(-4px);
+    background: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .cost .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
 }

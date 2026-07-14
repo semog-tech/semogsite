@@ -216,6 +216,7 @@ export interface Page {
         | TestimonialsBlock
         | FaqBlock
         | CTABandBlock
+        | CustoChecklistBlock
         | RichTextBlock
         | BlogListBlock
         | ShowcaseBlock
@@ -252,9 +253,25 @@ export interface HeroBlock {
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
   /**
-   * Ativa o tratamento `.page-hero` do ref (ex.: `_reference/solucoes.html:87-107`): altura reduzida (74dvh), a imagem de `poster` com opacidade 0.5 e um gradiente `::after` escuro por cima para dar contraste ao texto. Só tem efeito sem `video` (o hero com vídeo, ex. home, não muda). Sem isso marcado, o herói mantém o comportamento atual (100dvh, sem overlay). Os valores exatos (74dvh, opacidade, paradas do gradiente) são os de `/solucoes` — se outra página precisar deste tratamento com números diferentes do ref dela, este campo precisa virar configurável por instância.
+   * Ativa o tratamento `.page-hero` do ref (ex.: `_reference/solucoes.html:87-107`): altura reduzida, a imagem de `poster` com opacidade reduzida e um gradiente `::after` escuro por cima para dar contraste ao texto. Só tem efeito sem `video` (o hero com vídeo, ex. home, não muda). Sem isso marcado, o herói mantém o comportamento atual (100dvh, sem overlay). Os 4 campos abaixo (`pageHeroMinHeight`/`pageHeroPosterOpacity`/`pageHeroBgPosition`/`pageHeroGradient`) controlam os números exatos — cada `.page-hero` do ref tem seus próprios valores (ex.: `/solucoes` = 74dvh/0.5/"center 65%"; `/administracao-de-condominios` = 88dvh/0.85/"center 40%"); os defaults abaixo são os de `/solucoes`, primeira página a usar este campo.
    */
   pageHeroOverlay?: boolean | null;
+  /**
+   * Só com `pageHeroOverlay`. `min-height` do `.page-hero` do ref (ex.: `74dvh` em `/solucoes`, `88dvh` em `/administracao-de-condominios`).
+   */
+  pageHeroMinHeight?: string | null;
+  /**
+   * Só com `pageHeroOverlay`. Opacidade de `.page-hero .bg` do ref (ex.: `0.5` em `/solucoes`, `0.85` em `/administracao-de-condominios`).
+   */
+  pageHeroPosterOpacity?: number | null;
+  /**
+   * Só com `pageHeroOverlay`. `background-position` de `.page-hero .bg` do ref (ex.: `center 65%` em `/solucoes`, `center 40%` em `/administracao-de-condominios`).
+   */
+  pageHeroBgPosition?: string | null;
+  /**
+   * Só com `pageHeroOverlay`. CSS `background` completo de `.page-hero::after` do ref — cada página tem paradas/cores próprias (ex. `/administracao-de-condominios`: `linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)`).
+   */
+  pageHeroGradient?: string | null;
   ctas?:
     | {
         label: string;
@@ -320,6 +337,11 @@ export interface WordsSectionBlock {
  * via the `definition` "PillarsBlock".
  */
 export interface PillarsBlock {
+  eyebrow?: string | null;
+  /**
+   * Zera o padding-top da seção (`.pillars { padding-top: 0 }` do ref, usado na Home/`semog`). Desmarque quando a página reutilizando este bloco não tem esse zero (ex. `.method` de `/administracao-de-condominios`).
+   */
+  tightTop?: boolean | null;
   items: {
     glyph?: string | null;
     title: string;
@@ -436,11 +458,23 @@ export interface ProdutosGridBlock {
  * via the `definition` "FeatureGridBlock".
  */
 export interface FeatureGridBlock {
+  variant?: ('dark' | 'light') | null;
   eyebrow?: string | null;
   title?: string | null;
+  /**
+   * Trecho final de `title` a destacar em gradiente, ex.: "em um só contrato." em "Tudo que o condomínio precisa, em um só contrato." Usa `.gx` no variant claro e `.gx-ice` no escuro (mesmo padrão de `Benefits.titleAccent`).
+   */
+  titleAccent?: string | null;
   features?:
     | {
+        /**
+         * Glifo/emoji livre — só é renderizado no variant escuro (sem `iconSvg`).
+         */
         icon?: string | null;
+        /**
+         * Markup interno do ícone (paths/circles/rects, SEM a tag <svg> em volta), ex.: `<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`. Só é renderizado no variant claro, dentro do badge `.ic` (viewBox 24x24, stroke branco).
+         */
+        iconSvg?: string | null;
         title: string;
         description: string;
         id?: string | null;
@@ -676,6 +710,11 @@ export interface TestimonialsBlock {
 export interface FaqBlock {
   eyebrow?: string | null;
   title?: string | null;
+  white?: boolean | null;
+  /**
+   * Zera o padding-top da seção (`.faq { padding-top: 0 }`, só na família `administracao-de-condominios*` — a seção cola no `.cost`/checklist anterior). `solucoes`/`garante` não têm esse override.
+   */
+  tightTop?: boolean | null;
   items?:
     | {
         question: string;
@@ -694,6 +733,10 @@ export interface FaqBlock {
 export interface CTABandBlock {
   variant?: ('band' | 'centered') | null;
   title: string;
+  /**
+   * Trecho final de `title` a destacar em gradiente, ex.: "pela líder." em "Seu condomínio administrado pela líder." (`<span class="gx-ice">`, `_reference/administracao-de-condominios.html:380`). Só no variant `centered` — mesmo padrão de `Benefits.titleAccent`/`FeatureGrid.titleAccent`.
+   */
+  titleAccent?: string | null;
   text?: string | null;
   cta: {
     label: string;
@@ -702,6 +745,36 @@ export interface CTABandBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'ctaBand';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CustoChecklistBlock".
+ */
+export interface CustoChecklistBlock {
+  title: string;
+  /**
+   * Trecho final de `title` a destacar em gradiente `.gx`, ex.: "administradora?" em "Quanto custa uma administradora?"
+   */
+  titleAccent?: string | null;
+  paragraphs: {
+    text: string;
+    id?: string | null;
+  }[];
+  cta: {
+    label: string;
+    href: string;
+  };
+  /**
+   * Rótulo acima da lista (`.cost-card .top`), ex.: "O que avaliar antes de contratar".
+   */
+  checklistLabel: string;
+  checklist: {
+    text: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'custoChecklist';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1190,6 +1263,7 @@ export interface PagesSelect<T extends boolean = true> {
         testimonials?: T | TestimonialsBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
         ctaBand?: T | CTABandBlockSelect<T>;
+        custoChecklist?: T | CustoChecklistBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         blogList?: T | BlogListBlockSelect<T>;
         showcase?: T | ShowcaseBlockSelect<T>;
@@ -1221,6 +1295,10 @@ export interface HeroBlockSelect<T extends boolean = true> {
   video?: T;
   poster?: T;
   pageHeroOverlay?: T;
+  pageHeroMinHeight?: T;
+  pageHeroPosterOpacity?: T;
+  pageHeroBgPosition?: T;
+  pageHeroGradient?: T;
   ctas?:
     | T
     | {
@@ -1276,6 +1354,8 @@ export interface WordsSectionBlockSelect<T extends boolean = true> {
  * via the `definition` "PillarsBlock_select".
  */
 export interface PillarsBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  tightTop?: T;
   items?:
     | T
     | {
@@ -1382,12 +1462,15 @@ export interface ProdutosGridBlockSelect<T extends boolean = true> {
  * via the `definition` "FeatureGridBlock_select".
  */
 export interface FeatureGridBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   title?: T;
+  titleAccent?: T;
   features?:
     | T
     | {
         icon?: T;
+        iconSvg?: T;
         title?: T;
         description?: T;
         id?: T;
@@ -1618,6 +1701,8 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
 export interface FaqBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
+  white?: T;
+  tightTop?: T;
   items?:
     | T
     | {
@@ -1635,12 +1720,42 @@ export interface FaqBlockSelect<T extends boolean = true> {
 export interface CTABandBlockSelect<T extends boolean = true> {
   variant?: T;
   title?: T;
+  titleAccent?: T;
   text?: T;
   cta?:
     | T
     | {
         label?: T;
         href?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CustoChecklistBlock_select".
+ */
+export interface CustoChecklistBlockSelect<T extends boolean = true> {
+  title?: T;
+  titleAccent?: T;
+  paragraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  checklistLabel?: T;
+  checklist?:
+    | T
+    | {
+        text?: T;
+        id?: T;
       };
   id?: T;
   blockName?: T;

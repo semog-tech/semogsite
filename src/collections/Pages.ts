@@ -6,6 +6,7 @@ import { citiesBlock } from '@/blocks/Cities/config'
 import { clubeBeneficiosBlock } from '@/blocks/ClubeBeneficios/config'
 import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
+import { custoChecklistBlock } from '@/blocks/CustoChecklist/config'
 import { faqBlock } from '@/blocks/Faq/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { formEmbedBlock } from '@/blocks/FormEmbed/config'
@@ -82,6 +83,7 @@ export const Pages: CollectionConfig = {
         testimonialsBlock,
         faqBlock,
         ctaBandBlock,
+        custoChecklistBlock,
         richTextBlock,
         blogListBlock,
         showcaseBlock,
