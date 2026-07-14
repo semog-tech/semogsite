@@ -207,6 +207,7 @@ export interface Page {
         | CitiesBlock
         | HumanQuoteBlock
         | PrestacaoBlock
+        | TecnologiaRoadmapBlock
         | RegistrosBlock
         | AppShowcaseBlock
         | TestimonialsBlock
@@ -491,6 +492,43 @@ export interface PrestacaoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'prestacao';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TecnologiaRoadmapBlock".
+ */
+export interface TecnologiaRoadmapBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  intro: {
+    /**
+     * Opcional. Ex.: semog-one.webp (monitor com o ERP).
+     */
+    image?: (number | null) | Media;
+    name: string;
+    description: string;
+    tags?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  roadmapLabel?: string | null;
+  steps: {
+    title: string;
+    text: string;
+    status: string;
+    /**
+     * Destaca o status como "no ar" (`.status.live`).
+     */
+    live?: boolean | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'tecnologiaRoadmap';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1049,6 +1087,7 @@ export interface PagesSelect<T extends boolean = true> {
         cities?: T | CitiesBlockSelect<T>;
         humanQuote?: T | HumanQuoteBlockSelect<T>;
         prestacao?: T | PrestacaoBlockSelect<T>;
+        tecnologiaRoadmap?: T | TecnologiaRoadmapBlockSelect<T>;
         registros?: T | RegistrosBlockSelect<T>;
         appShowcase?: T | AppShowcaseBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
@@ -1310,6 +1349,40 @@ export interface PrestacaoBlockSelect<T extends boolean = true> {
         icon?: T;
         title?: T;
         text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TecnologiaRoadmapBlock_select".
+ */
+export interface TecnologiaRoadmapBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  intro?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        description?: T;
+        tags?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+      };
+  roadmapLabel?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        text?: T;
+        status?: T;
+        live?: T;
         id?: T;
       };
   id?: T;

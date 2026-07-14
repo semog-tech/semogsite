@@ -20,6 +20,7 @@ import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
 import { SolucoesBentoBlock } from './SolucoesBento/Component'
 import { StatsBlock } from './Stats/Component'
+import { TecnologiaRoadmapBlock } from './TecnologiaRoadmap/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { TimelineBlock } from './Timeline/Component'
 import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
@@ -41,6 +42,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   cities: CitiesBlock,
   humanQuote: HumanQuoteBlock,
   prestacao: PrestacaoBlock,
+  tecnologiaRoadmap: TecnologiaRoadmapBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,

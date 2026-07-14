@@ -19,6 +19,7 @@ import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
 import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
 import { statsBlock } from '@/blocks/Stats/config'
+import { tecnologiaRoadmapBlock } from '@/blocks/TecnologiaRoadmap/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
 import { timelineBlock } from '@/blocks/Timeline/config'
 import { valuesMarqueeBlock } from '@/blocks/ValuesMarquee/config'
@@ -69,6 +70,7 @@ export const Pages: CollectionConfig = {
         citiesBlock,
         humanQuoteBlock,
         prestacaoBlock,
+        tecnologiaRoadmapBlock,
         registrosBlock,
         appShowcaseBlock,
         testimonialsBlock,

@@ -1516,4 +1516,157 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ---------- Tecnologia própria (Semog One + roadmap) — fiel a
+     `_reference/solucoes.html:260-322` (`.tech`/`.tech-grid`/`.one-card`/
+     `.one-tags`/`.road*`) ----------
+     src/blocks/TecnologiaRoadmap renderiza `.tech-grid` (`.one-card`
+     `Reveal dir="left"` + `.road` `Reveal dir="right"`) via
+     `Section`/`Container`. `.one-card.has-media`/`.one-media` são adição
+     nossa (ver `config.ts`): o ref não tem imagem nessa seção, mas
+     `semog-one.webp` existe como asset não-ligado (`guia.html:106`) — sem
+     mídia, `.one-card` renderiza igual ao ref. `var(--r-card)`→
+     `--radius-card`, `var(--r-pill)`→`--radius-pill`, `var(--ice-500)`→
+     `--color-ice-500`, `var(--silver-100)`→`--color-silver-100`,
+     `var(--ice-300)`→`--color-ice-300`. */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: stretch;
+  }
+  .one-card {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line-strong);
+    background:
+      radial-gradient(90% 90% at 10% 0%, rgba(173, 213, 235, 0.12) 0%, transparent 55%),
+      var(--grad-band);
+    padding: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .one-card.has-media {
+    flex-direction: row;
+    align-items: center;
+  }
+  .one-card .one-media {
+    flex: 0 0 38%;
+    align-self: stretch;
+    border-radius: calc(var(--radius-card) - 6px);
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    position: relative;
+  }
+  .one-card .one-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .one-card .one-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    min-width: 0;
+  }
+  .one-card .one-logo {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+    letter-spacing: -0.02em;
+  }
+  .one-card p {
+    color: var(--text-2);
+    max-width: 44ch;
+    margin: 0;
+  }
+  .one-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .one-tags span {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 1rem;
+    font-size: 0.84rem;
+    color: var(--color-silver-100);
+    background: rgba(5, 8, 26, 0.3);
+  }
+  .road {
+    display: flex;
+    flex-direction: column;
+  }
+  .road-head {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ice-500);
+    border-top: 1px solid var(--line);
+    padding-top: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+  .road-item {
+    border-top: 1px solid var(--line);
+    padding: 1.3rem 0.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    transition:
+      background 0.4s ease,
+      padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .road-item:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .road-item:hover {
+    background: rgba(173, 213, 235, 0.035);
+    padding-left: 1rem;
+  }
+  .road-item strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.15rem;
+    display: block;
+  }
+  .road-item small {
+    color: var(--text-2);
+    font-size: 0.88rem;
+  }
+  .road-item .status {
+    flex-shrink: 0;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ice-300);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.9rem;
+    white-space: nowrap;
+  }
+  .road-item .status.live {
+    background: rgba(173, 213, 235, 0.14);
+  }
+  @media (max-width: 1024px) {
+    .tech-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .one-card.has-media {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .one-card .one-media {
+      flex-basis: auto;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+    }
+  }
 }
