@@ -709,4 +709,21 @@
     align-items: center;
     gap: 4rem;
   }
+
+  /* ---------- Manifesto (revelação palavra a palavra) — fiel a `.manifesto`
+     de `_reference/index.html:551-555` + `:161-168` ----------
+     src/blocks/WordsSection usa `Words` (src/motion/Words.tsx), que injeta os
+     `.wd` e o `.sr-only`. Padding-block próprio (maior que o das seções). */
+  .manifesto {
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+  .manifesto p {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.8vw, 3.1rem);
+    line-height: 1.22;
+    letter-spacing: -0.02em;
+    max-width: 30ch;
+    margin: 0;
+  }
 }

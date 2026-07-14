@@ -197,6 +197,7 @@ export interface Page {
         | HeroBlock
         | StatsBlock
         | ValuesMarqueeBlock
+        | WordsSectionBlock
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
@@ -284,6 +285,17 @@ export interface ValuesMarqueeBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'valuesMarquee';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WordsSectionBlock".
+ */
+export interface WordsSectionBlock {
+  eyebrow?: string | null;
+  text: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'wordsSection';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -893,6 +905,7 @@ export interface PagesSelect<T extends boolean = true> {
         hero?: T | HeroBlockSelect<T>;
         stats?: T | StatsBlockSelect<T>;
         valuesMarquee?: T | ValuesMarqueeBlockSelect<T>;
+        wordsSection?: T | WordsSectionBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
@@ -967,6 +980,16 @@ export interface StatsBlockSelect<T extends boolean = true> {
 export interface ValuesMarqueeBlockSelect<T extends boolean = true> {
   items?: T;
   separator?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WordsSectionBlock_select".
+ */
+export interface WordsSectionBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  text?: T;
   id?: T;
   blockName?: T;
 }
