@@ -68,8 +68,26 @@ export function TimelinePinned({
     })
     // Fiel ao ref (semog.html:496): recalcula a distância depois que
     // imagens/fontes terminam de carregar e o layout assenta.
+    //
+    // BUG (confirmado via instrumentação): este efeito roda depois que a
+    // hidratação do React comita, o que em builds de produção/localhost
+    // pode acontecer DEPOIS do evento `load` da própria janela já ter
+    // disparado (medido: listener registrado ~15ms após `load`). Um
+    // `window.addEventListener('load', ...)` puro nesse caso nunca dispara
+    // — o refresh de segurança do ref é perdido e start/end do pin ficam
+    // presos na medição de mount, sem reagir a qualquer reflow que só se
+    // resolva depois (imagens sem dimensão reservada, fontes, etc.).
+    // `Preloader.tsx` já resolve exatamente essa mesma corrida assim: checar
+    // `document.readyState` antes de escutar. Reaplicamos o mesmo padrão
+    // aqui e ainda somamos um refresh em `document.fonts.ready` (o `load`
+    // sozinho não cobre troca de webfont que termine depois dele).
     const onLoad = () => ScrollTrigger.refresh()
-    window.addEventListener('load', onLoad)
+    if (document.readyState === 'complete') {
+      requestAnimationFrame(onLoad)
+    } else {
+      window.addEventListener('load', onLoad, { once: true })
+    }
+    document.fonts.ready.then(onLoad).catch(() => {})
 
     return () => {
       window.removeEventListener('load', onLoad)
