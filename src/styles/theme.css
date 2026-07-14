@@ -1785,4 +1785,259 @@
       order: -1;
     }
   }
+
+  /* ---------- Verticais (split alternado + associações full-bleed) — fiel a
+     `_reference/solucoes.html:108-142` (`.vertical`/`.split`/`.split-media`/
+     `.svc-tags`/`.assoc`/`.assoc-body`) + responsivo `:354-361` +
+     `.link-arrow` base de `semog.css:323-329`/`:147` ----------
+     src/blocks/SolutionSplit renderiza uma `<section class="vertical
+     sec-light">` por item: variante `split` (texto + `.split-media`,
+     alternando lado via `reversed`) ou `assoc` (full-bleed com overlay).
+     `var(--r-card)`→`--radius-card`, `var(--r-pill)`→`--radius-pill`,
+     `var(--navy-500)`→`--color-navy-500`, `var(--ice-400/300)`→
+     `--color-ice-400/300`, `var(--accent)`→`--color-accent` (troca sozinho
+     dentro de `.sec-light`, ver @layer base), `var(--line-strong)`/
+     `var(--line)`/`var(--text)`/`var(--text-2)`/`var(--shadow-card)` já
+     existem como CSS vars soltas. */
+  .vertical {
+    border-top: 1px solid var(--line);
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 6vw, 5.5rem);
+    align-items: center;
+  }
+  .split-media {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .split-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .split .kicker {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-navy-500);
+    display: block;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+  .svc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+  }
+  .svc-tags span {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 1rem;
+    font-size: 0.86rem;
+    color: var(--text-2);
+    background: rgba(173, 213, 235, 0.04);
+    transition:
+      border-color 0.3s ease,
+      color 0.3s ease;
+  }
+  .svc-tags span:hover {
+    border-color: var(--color-ice-400);
+    color: var(--text);
+  }
+  .sec-light .svc-tags span {
+    background: rgba(27, 45, 112, 0.04);
+  }
+  .assoc {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    min-height: 420px;
+    display: flex;
+    align-items: flex-end;
+    border: 1px solid var(--line);
+  }
+  .assoc img {
+    object-fit: cover;
+  }
+  .assoc::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(5, 8, 26, 0.9) 0%, rgba(5, 8, 26, 0.55) 55%, rgba(5, 8, 26, 0.15) 100%);
+  }
+  .assoc-body {
+    position: relative;
+    z-index: 2;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    max-width: 560px;
+  }
+  .assoc-body .kicker {
+    color: var(--color-ice-400);
+  }
+  .assoc-body h2 {
+    color: #edf1fa;
+  }
+  .assoc-body p {
+    color: #c5cde4 !important;
+  }
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    font-size: 0.98rem;
+  }
+  .link-arrow .arr {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-arrow:hover .arr {
+    transform: translateX(5px);
+  }
+  .assoc-body .link-arrow {
+    color: var(--color-ice-300);
+  }
+  @media (max-width: 860px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+    .split-media {
+      order: -1;
+    }
+  }
+
+  /* ---------- Benefícios (bento 5 células) — fiel a
+     `_reference/solucoes.html:144-187` (`.benefits`/`.bento`/`.cell`) +
+     responsivo `:352` e `:357-358` ----------
+     src/blocks/Benefits renderiza esta variante quando `variant: 'bento'`
+     (`Stagger` > 5 `.cell.c{1..5}`, na ordem do ref: c1 24h / c2 acesso
+     direto (fundo `--grad-band`) / c3 35 anos / c4 equipes locais (foto) /
+     c5 100% digital). `.sec-light .bento .cell` (fundo branco) já vem do
+     `@layer base` (semog.css:153-164). `var(--r-card)`→`--radius-card`,
+     `var(--line)`/`var(--line-strong)`/`var(--text-2)`/`var(--grad-band)`
+     já existem como CSS vars soltas. */
+  .bento {
+    display: grid;
+    gap: 1.4rem;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: minmax(180px, auto);
+  }
+  .bento .cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.8rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.045), rgba(173, 213, 235, 0.01));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease;
+  }
+  .bento .cell:hover {
+    transform: translateY(-5px);
+    border-color: var(--line-strong);
+  }
+  .bento .cell h3 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .bento .cell p {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .bento .c1 {
+    grid-column: span 3;
+  }
+  .bento .c2 {
+    grid-column: span 3;
+    background-image: linear-gradient(160deg, rgba(27, 45, 112, 0.85), rgba(88, 149, 189, 0.4));
+  }
+  .bento .c3 {
+    grid-column: span 2;
+  }
+  .bento .c4 {
+    grid-column: span 2;
+    position: relative;
+  }
+  .bento .c4 img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+  }
+  .bento .c4 h3,
+  .bento .c4 p {
+    position: relative;
+    z-index: 2;
+  }
+  .bento .c4::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 20%, rgba(5, 8, 26, 0.9));
+  }
+  .bento .c5 {
+    grid-column: span 2;
+  }
+  .bento .cell .num {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 2.4rem;
+    line-height: 1;
+    background: linear-gradient(100deg, #1b2d70 0%, #3b54be 52%, #5895bd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sec-light .bento .c2 {
+    background: var(--grad-band);
+    border-color: rgba(173, 213, 235, 0.28);
+    box-shadow: 0 20px 55px -28px rgba(16, 26, 72, 0.4);
+  }
+  .bento .c2 h3 {
+    color: #edf1fa;
+  }
+  .bento .c2 p {
+    color: #b4bdd9 !important;
+  }
+  .bento .c4 h3 {
+    color: #edf1fa;
+  }
+  .bento .c4 p {
+    color: #c5cde4 !important;
+  }
+  @media (max-width: 1024px) {
+    .bento .c1,
+    .bento .c2,
+    .bento .c3,
+    .bento .c4,
+    .bento .c5 {
+      grid-column: span 3;
+    }
+  }
+  @media (max-width: 860px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .bento .c1,
+    .bento .c2,
+    .bento .c3,
+    .bento .c4,
+    .bento .c5 {
+      grid-column: span 1;
+    }
+  }
 }

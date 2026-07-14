@@ -21,6 +21,7 @@ import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
 import { SociosBlock } from './Socios/Component'
 import { SolucoesBentoBlock } from './SolucoesBento/Component'
+import { SolutionSplitBlock } from './SolutionSplit/Component'
 import { StatsBlock } from './Stats/Component'
 import { TecnologiaRoadmapBlock } from './TecnologiaRoadmap/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
@@ -38,6 +39,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   pillars: PillarsBlock,
   timeline: TimelineBlock,
   solucoesBento: SolucoesBentoBlock,
+  solutionSplit: SolutionSplitBlock,
   produtosGrid: ProdutosGridBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,

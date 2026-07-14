@@ -20,6 +20,7 @@ import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
 import { sociosBlock } from '@/blocks/Socios/config'
 import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
+import { solutionSplitBlock } from '@/blocks/SolutionSplit/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { tecnologiaRoadmapBlock } from '@/blocks/TecnologiaRoadmap/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
@@ -66,6 +67,7 @@ export const Pages: CollectionConfig = {
         pillarsBlock,
         timelineBlock,
         solucoesBentoBlock,
+        solutionSplitBlock,
         produtosGridBlock,
         featureGridBlock,
         garanteBlock,

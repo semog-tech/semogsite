@@ -201,6 +201,7 @@ export interface Page {
         | PillarsBlock
         | TimelineBlock
         | SolucoesBentoBlock
+        | SolutionSplitBlock
         | ProdutosGridBlock
         | FeatureGridBlock
         | GaranteBlock
@@ -370,6 +371,41 @@ export interface SolucoesBentoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'solucoesBento';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SolutionSplitBlock".
+ */
+export interface SolutionSplitBlock {
+  items: {
+    variant?: ('split' | 'assoc') | null;
+    kicker?: string | null;
+    title: string;
+    text?: string | null;
+    /**
+     * Pills de serviços incluídos (.svc-tags) — só na variante split.
+     */
+    tags?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    image: number | Media;
+    /**
+     * Inverte o lado: imagem à esquerda, texto à direita. Só na variante split.
+     */
+    reversed?: boolean | null;
+    /**
+     * Link-arrow do .assoc-body — só na variante full-bleed.
+     */
+    ctaLabel?: string | null;
+    ctaHref?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'solutionSplit';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -729,12 +765,25 @@ export interface ShowcaseBlock {
  * via the `definition` "BenefitsBlock".
  */
 export interface BenefitsBlock {
+  variant?: ('grid' | 'bento') | null;
   eyebrow?: string | null;
   title?: string | null;
+  /**
+   * Trecho final de `title` a destacar em gradiente (.gx), ex.: "Semog assume." em "O que muda quando a Semog assume." Só no variant bento.
+   */
+  titleAccent?: string | null;
   items?:
     | {
         title: string;
         description: string;
+        /**
+         * Número gigante da célula (.num), ex.: "24h". Só no variant bento.
+         */
+        value?: string | null;
+        /**
+         * Foto de fundo da célula (c4). Só no variant bento.
+         */
+        image?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1121,6 +1170,7 @@ export interface PagesSelect<T extends boolean = true> {
         pillars?: T | PillarsBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
         solucoesBento?: T | SolucoesBentoBlockSelect<T>;
+        solutionSplit?: T | SolutionSplitBlockSelect<T>;
         produtosGrid?: T | ProdutosGridBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
@@ -1268,6 +1318,33 @@ export interface SolucoesBentoBlockSelect<T extends boolean = true> {
         text?: T;
         href?: T;
         tall?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SolutionSplitBlock_select".
+ */
+export interface SolutionSplitBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        variant?: T;
+        kicker?: T;
+        title?: T;
+        text?: T;
+        tags?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        image?: T;
+        reversed?: T;
+        ctaLabel?: T;
+        ctaHref?: T;
         id?: T;
       };
   id?: T;
@@ -1610,13 +1687,17 @@ export interface ShowcaseBlockSelect<T extends boolean = true> {
  * via the `definition` "BenefitsBlock_select".
  */
 export interface BenefitsBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   title?: T;
+  titleAccent?: T;
   items?:
     | T
     | {
         title?: T;
         description?: T;
+        value?: T;
+        image?: T;
         id?: T;
       };
   id?: T;
