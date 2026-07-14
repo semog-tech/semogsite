@@ -12,6 +12,7 @@ import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { humanQuoteBlock } from '@/blocks/HumanQuote/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
+import { prestacaoBlock } from '@/blocks/Prestacao/config'
 import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
@@ -67,6 +68,7 @@ export const Pages: CollectionConfig = {
         garanteBlock,
         citiesBlock,
         humanQuoteBlock,
+        prestacaoBlock,
         registrosBlock,
         appShowcaseBlock,
         testimonialsBlock,

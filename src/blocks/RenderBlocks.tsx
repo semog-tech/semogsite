@@ -13,6 +13,7 @@ import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
 import { PillarsBlock } from './Pillars/Component'
+import { PrestacaoBlock } from './Prestacao/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
@@ -39,6 +40,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   garante: GaranteBlock,
   cities: CitiesBlock,
   humanQuote: HumanQuoteBlock,
+  prestacao: PrestacaoBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,

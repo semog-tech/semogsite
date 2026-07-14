@@ -1464,4 +1464,56 @@
     border-color: rgba(173, 213, 235, 0.45);
     box-shadow: var(--shadow-glow);
   }
+
+  /* ---------- Prestação de contas (showcase + grade de ícones) — fiel a
+     `_reference/solucoes.html:188-207` (`.prestacao`/`.showcase`/
+     `.prest-grid`) + responsivo `:350-361` ----------
+     src/blocks/Prestacao renderiza `.showcase` (Reveal dir="scale") e
+     `.prest-grid` (Stagger) via `Section`/`Container`, então não repete
+     `position:relative`/padding aqui. `var(--r-card)`→`--radius-card`;
+     `var(--line-strong)`/`var(--line)`/`var(--text-2)`/`var(--shadow-glow)`
+     já existem como CSS vars soltas (mesmo padrão do bloco Timeline acima). */
+  .prestacao .showcase {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow-glow);
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+  .prestacao .showcase img {
+    width: 100%;
+  }
+  .prest-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.4rem;
+    margin-top: 1.4rem;
+  }
+  .prest-grid .cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.6rem;
+  }
+  .prest-grid .cell h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+  }
+  .prest-grid .cell p {
+    font-size: 0.88rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .prest-grid .cell svg {
+    margin-bottom: 0.9rem;
+  }
+  @media (max-width: 1024px) {
+    .prest-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 860px) {
+    .prest-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }

@@ -206,6 +206,7 @@ export interface Page {
         | GaranteBlock
         | CitiesBlock
         | HumanQuoteBlock
+        | PrestacaoBlock
         | RegistrosBlock
         | AppShowcaseBlock
         | TestimonialsBlock
@@ -471,6 +472,25 @@ export interface HumanQuoteBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'humanQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrestacaoBlock".
+ */
+export interface PrestacaoBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  image: number | Media;
+  list: {
+    icon?: string | null;
+    title: string;
+    text: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'prestacao';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1028,6 +1048,7 @@ export interface PagesSelect<T extends boolean = true> {
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
         humanQuote?: T | HumanQuoteBlockSelect<T>;
+        prestacao?: T | PrestacaoBlockSelect<T>;
         registros?: T | RegistrosBlockSelect<T>;
         appShowcase?: T | AppShowcaseBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
@@ -1271,6 +1292,26 @@ export interface HumanQuoteBlockSelect<T extends boolean = true> {
   author?: T;
   image?: T;
   caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PrestacaoBlock_select".
+ */
+export interface PrestacaoBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  image?: T;
+  list?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        text?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
