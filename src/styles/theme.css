@@ -1709,4 +1709,80 @@
       gap: 1.6rem;
     }
   }
+
+  /* ---------- Sócios / Empresa humana — fiel a `_reference/semog.html:
+     147-181` (`.founders`/`.founders-grid`/`.f-feats`/`.founders-media`)
+     ----------
+     src/blocks/Socios renderiza `.founders-grid` (`Reveal dir="left"` /
+     `dir="right"`) via `Section light white`/`Container`. `var(--r-card)`→
+     `--radius-card`, `var(--silver-100)`→`--color-silver-100`. */
+  .founders-grid {
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .founders-grid h2 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    max-width: 15ch;
+  }
+  .f-feats {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2.2rem;
+  }
+  .f-feats > div {
+    border-top: 1px solid var(--line);
+    padding: 1.2rem 0.4rem;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 1.5rem;
+    transition:
+      background 0.4s ease,
+      padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .f-feats > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .f-feats > div:hover {
+    background: rgba(173, 213, 235, 0.035);
+    padding-left: 1rem;
+  }
+  .f-feats strong {
+    font-size: 1.02rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+  .f-feats span {
+    font-size: 0.92rem;
+    color: var(--text-2);
+  }
+  .sec-light .f-feats > div:hover {
+    background: rgba(27, 45, 112, 0.045);
+  }
+  .founders-media {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-card);
+    position: relative;
+  }
+  .founders-media .cap {
+    position: absolute;
+    left: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 2;
+    border-radius: 12px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.86rem;
+    color: var(--color-silver-100);
+  }
+  @media (max-width: 860px) {
+    .founders-grid {
+      grid-template-columns: 1fr;
+    }
+    .founders-media {
+      order: -1;
+    }
+  }
 }

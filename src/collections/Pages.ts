@@ -18,6 +18,7 @@ import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
+import { sociosBlock } from '@/blocks/Socios/config'
 import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { tecnologiaRoadmapBlock } from '@/blocks/TecnologiaRoadmap/config'
@@ -73,6 +74,7 @@ export const Pages: CollectionConfig = {
         prestacaoBlock,
         tecnologiaRoadmapBlock,
         clubeBeneficiosBlock,
+        sociosBlock,
         registrosBlock,
         appShowcaseBlock,
         testimonialsBlock,

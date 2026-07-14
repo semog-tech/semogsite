@@ -19,6 +19,7 @@ import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
+import { SociosBlock } from './Socios/Component'
 import { SolucoesBentoBlock } from './SolucoesBento/Component'
 import { StatsBlock } from './Stats/Component'
 import { TecnologiaRoadmapBlock } from './TecnologiaRoadmap/Component'
@@ -45,6 +46,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   prestacao: PrestacaoBlock,
   tecnologiaRoadmap: TecnologiaRoadmapBlock,
   clubeBeneficios: ClubeBeneficiosBlock,
+  socios: SociosBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,
