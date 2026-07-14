@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { Magnetic } from '@/motion/Magnetic'
 
 type Variant = 'primary' | 'ghost' | 'white' | 'glass'
 type Size = 'md' | 'lg' | 'sm'
@@ -34,6 +35,11 @@ const variants: Record<Variant, string> = {
  * Fiel a semog.css:288-330 (.btn/.btn-primary/.btn-ghost/.btn-lg/.btn-sm/.arr)
  * e :519-530 (.btn-white/.btn-glass). Renderiza `<a>` quando `href` é passado,
  * senão `<button type="button">`.
+ *
+ * `magnetic` embrulha o elemento renderizado com `Magnetic` (semog.js:199-211
+ * — `[data-magnetic]`, só liga em `pointer: fine` fora de reduced-motion;
+ * `Magnetic` já é `'use client'` e no-op em SSR/ponteiro grosso). Default:
+ * `true` para `variant="primary"`, `false` nos demais.
  */
 export function Button({
   children,
@@ -45,6 +51,7 @@ export function Button({
   className = '',
   type = 'button',
   disabled,
+  magnetic,
 }: {
   children: ReactNode
   variant?: Variant
@@ -56,6 +63,8 @@ export function Button({
   /** Só se aplica ao `<button>` (sem `href`) — ex.: `submit` num `<form>` de RHF. */
   type?: 'button' | 'submit'
   disabled?: boolean
+  /** Embrulha com `Magnetic`. Default: `true` em `variant="primary"`, `false` nos demais. */
+  magnetic?: boolean
 }) {
   const cls = `${base} ${sizes[size]} ${variants[variant]} ${disabled ? 'pointer-events-none opacity-50' : ''} ${className}`
   const inner = (
@@ -71,8 +80,9 @@ export function Button({
       )}
     </>
   )
-  if (href) {
-    return isInternalHref(href) ? (
+  const isMagnetic = magnetic ?? variant === 'primary'
+  const element = href ? (
+    isInternalHref(href) ? (
       <Link href={href} className={cls}>
         {inner}
       </Link>
@@ -81,10 +91,10 @@ export function Button({
         {inner}
       </a>
     )
-  }
-  return (
+  ) : (
     <button className={cls} onClick={onClick} type={type} disabled={disabled}>
       {inner}
     </button>
   )
+  return isMagnetic ? <Magnetic className="inline-block">{element}</Magnetic> : element
 }
