@@ -35,5 +35,15 @@ export const ctaBandBlock: Block = {
         { name: 'href', type: 'text', required: true },
       ],
     },
+    {
+      name: 'buttonVariant',
+      type: 'select',
+      options: ['white', 'primary'],
+      defaultValue: 'white',
+      admin: {
+        description:
+          'Só no variant `centered`. O `.final-cta` de `_reference/index.html`/`garante.html`/`administracao-de-condominios.html` sempre usa `.btn-white`, mas `_reference/incorporadoras.html:325` usa `.btn-primary` — daí este campo, default `white` para preservar o comportamento das 3 páginas já seedadas.',
+      },
+    },
   ],
 }

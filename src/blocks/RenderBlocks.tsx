@@ -9,6 +9,7 @@ import { CompareBlock } from './Compare/Component'
 import { ContactInfoBlock } from './ContactInfo/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { CustoChecklistBlock } from './CustoChecklist/Component'
+import { DevQuoteBlock } from './DevQuote/Component'
 import { FaqBlock } from './Faq/Component'
 import { FeatureGridBlock } from './FeatureGrid/Component'
 import { FormEmbedBlock } from './FormEmbed/Component'
@@ -19,6 +20,7 @@ import { PartnerSplitBlock } from './PartnerSplit/Component'
 import { PillarsBlock } from './Pillars/Component'
 import { PrestacaoBlock } from './Prestacao/Component'
 import { PriceMomentBlock } from './PriceMoment/Component'
+import { ProcessoTimelineBlock } from './ProcessoTimeline/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
@@ -68,6 +70,8 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   priceMoment: PriceMomentBlock,
   compare: CompareBlock,
   partnerSplit: PartnerSplitBlock,
+  devQuote: DevQuoteBlock,
+  processoTimeline: ProcessoTimelineBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

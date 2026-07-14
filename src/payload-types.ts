@@ -226,6 +226,8 @@ export interface Page {
         | PriceMomentBlock
         | CompareBlock
         | PartnerSplitBlock
+        | DevQuoteBlock
+        | ProcessoTimelineBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -337,9 +339,13 @@ export interface ValuesMarqueeBlock {
  * via the `definition` "WordsSectionBlock".
  */
 export interface WordsSectionBlock {
-  variant?: ('manifesto' | 'problem') | null;
+  variant?: ('manifesto' | 'problem' | 'argument') | null;
   eyebrow?: string | null;
   text: string;
+  /**
+   * Parágrafo de apoio abaixo de `text` (`.argument .sub`), revelado em bloco via `Reveal` (sem scrub). Só usado pelo variant `argument` — ignorado nas outras 2.
+   */
+  sub?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'wordsSection';
@@ -477,20 +483,36 @@ export interface ProdutosGridBlock {
  */
 export interface FeatureGridBlock {
   variant?: ('dark' | 'light') | null;
+  /**
+   * Só com `variant:"dark"` (o variant `light` já é sempre claro). Envolve o grid em `Section light`, fiel a `.why-grid.sec-light` de `_reference/incorporadoras.html`.
+   */
+  light?: boolean | null;
+  /**
+   * Só com `light` ativo — troca `.sec-light` por `.sec-light white`.
+   */
+  white?: boolean | null;
+  /**
+   * `2` reproduz `.why-grid` (2 colunas); `3` é o grid genérico padrão.
+   */
+  columns?: ('2' | '3') | null;
+  /**
+   * Só com `variant:"dark"` (o variant `light` já sempre usa `Stagger`). Troca a entrada por card (`Reveal`) por entrada em grupo (`data-stagger` no ref).
+   */
+  stagger?: boolean | null;
   eyebrow?: string | null;
   title?: string | null;
   /**
-   * Trecho final de `title` a destacar em gradiente, ex.: "em um só contrato." em "Tudo que o condomínio precisa, em um só contrato." Usa `.gx` no variant claro e `.gx-ice` no escuro (mesmo padrão de `Benefits.titleAccent`).
+   * Trecho final de `title` a destacar em gradiente, ex.: "em um só contrato." em "Tudo que o condomínio precisa, em um só contrato." Usa `.gx` quando a seção renderiza clara (variant `light` OU `light:true`) e `.gx-ice` quando escura (mesmo padrão de `Benefits.titleAccent`).
    */
   titleAccent?: string | null;
   features?:
     | {
         /**
-         * Glifo/emoji livre — só é renderizado no variant escuro (sem `iconSvg`).
+         * Glifo/emoji livre — só é renderizado no variant escuro, e só quando `iconSvg` não está preenchido.
          */
         icon?: string | null;
         /**
-         * Markup interno do ícone (paths/circles/rects, SEM a tag <svg> em volta), ex.: `<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`. Só é renderizado no variant claro, dentro do badge `.ic` (viewBox 24x24, stroke branco).
+         * Markup interno do ícone (paths/circles/rects, SEM a tag <svg> em volta), ex.: `<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`. No variant claro, renderiza dentro do badge `.ic` (viewBox 24x24, stroke branco, 22x22). No variant escuro, renderiza como glifo nu `.glyph` (viewBox 24x24, stroke ice-400, 34x34) — fiel a `_reference/incorporadoras.html`'s `.why-card .glyph` — e tem prioridade sobre `icon`.
          */
         iconSvg?: string | null;
         title: string;
@@ -764,6 +786,10 @@ export interface CTABandBlock {
     label: string;
     href: string;
   };
+  /**
+   * Só no variant `centered`. O `.final-cta` de `_reference/index.html`/`garante.html`/`administracao-de-condominios.html` sempre usa `.btn-white`, mas `_reference/incorporadoras.html:325` usa `.btn-primary` — daí este campo, default `white` para preservar o comportamento das 3 páginas já seedadas.
+   */
+  buttonVariant?: ('white' | 'primary') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'ctaBand';
@@ -978,6 +1004,46 @@ export interface PartnerSplitBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'partnerSplit';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DevQuoteBlock".
+ */
+export interface DevQuoteBlock {
+  /**
+   * Texto puro do blockquote. O ref tem um trecho final em `<em>` (cor ice) — mesma limitação já documentada em `WordsSection`/`PartnerSplit`: sem contrapartida em texto puro, o destaque é descartado.
+   */
+  quote: string;
+  cite?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'devQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessoTimelineBlock".
+ */
+export interface ProcessoTimelineBlock {
+  eyebrow?: string | null;
+  title: string;
+  items: {
+    /**
+     * Markup interno do ícone do dot (paths/circles/rects, SEM a tag <svg> em volta), viewBox 24x24, ex.: `<path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/>`. Renderizado stroke ice-400 (#ADD5EB), 22x22, dentro do dot gradiente.
+     */
+    iconSvg: string;
+    title: string;
+    text: string;
+    tags?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'processoTimeline';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1349,6 +1415,8 @@ export interface PagesSelect<T extends boolean = true> {
         priceMoment?: T | PriceMomentBlockSelect<T>;
         compare?: T | CompareBlockSelect<T>;
         partnerSplit?: T | PartnerSplitBlockSelect<T>;
+        devQuote?: T | DevQuoteBlockSelect<T>;
+        processoTimeline?: T | ProcessoTimelineBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -1433,6 +1501,7 @@ export interface WordsSectionBlockSelect<T extends boolean = true> {
   variant?: T;
   eyebrow?: T;
   text?: T;
+  sub?: T;
   id?: T;
   blockName?: T;
 }
@@ -1553,6 +1622,10 @@ export interface ProdutosGridBlockSelect<T extends boolean = true> {
  */
 export interface FeatureGridBlockSelect<T extends boolean = true> {
   variant?: T;
+  light?: T;
+  white?: T;
+  columns?: T;
+  stagger?: T;
   eyebrow?: T;
   title?: T;
   titleAccent?: T;
@@ -1819,6 +1892,7 @@ export interface CTABandBlockSelect<T extends boolean = true> {
         label?: T;
         href?: T;
       };
+  buttonVariant?: T;
   id?: T;
   blockName?: T;
 }
@@ -1998,6 +2072,40 @@ export interface PartnerSplitBlockSelect<T extends boolean = true> {
   title?: T;
   text?: T;
   highlight?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DevQuoteBlock_select".
+ */
+export interface DevQuoteBlockSelect<T extends boolean = true> {
+  quote?: T;
+  cite?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessoTimelineBlock_select".
+ */
+export interface ProcessoTimelineBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  items?:
+    | T
+    | {
+        iconSvg?: T;
+        title?: T;
+        text?: T;
+        tags?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

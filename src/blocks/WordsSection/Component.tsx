@@ -1,7 +1,14 @@
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
+import { Reveal } from '@/motion/reveal'
 import { Words } from '@/motion/Words'
 import type { WordsSectionBlock as WordsSectionBlockType } from '@/payload-types'
+
+const SECTION_CLASS = {
+  manifesto: 'manifesto',
+  problem: 'g-problem',
+  argument: 'argument',
+} as const
 
 /**
  * Fiel à `.manifesto` de `_reference/index.html:551-555`: seção com o
@@ -12,15 +19,26 @@ import type { WordsSectionBlock as WordsSectionBlockType } from '@/payload-types
  *
  * `variant: 'problem'` troca `.manifesto` por `.g-problem` — ver doc do
  * campo em `WordsSection/config.ts`.
+ *
+ * `variant: 'argument'` troca `.manifesto` por `.argument` e renderiza um 2º
+ * parágrafo (`sub`, via `Reveal` simples — sem scrub) abaixo do `Words`.
+ * Como a seção passa a ter 2 `<p>`, cada um recebe sua própria classe
+ * (`.big`/`.sub`) em vez do seletor de tag `p` usado pelas outras variantes.
  */
-export function WordsSectionBlock({ eyebrow, text, variant }: WordsSectionBlockType) {
+export function WordsSectionBlock({ eyebrow, text, sub, variant }: WordsSectionBlockType) {
   if (!text) return null
+  const isArgument = variant === 'argument'
 
   return (
-    <section className={variant === 'problem' ? 'g-problem' : 'manifesto'}>
+    <section className={SECTION_CLASS[variant ?? 'manifesto']}>
       <Container>
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-        <Words>{text}</Words>
+        <Words className={isArgument ? 'big' : undefined}>{text}</Words>
+        {isArgument && sub && (
+          <Reveal as="p" className="sub">
+            {sub}
+          </Reveal>
+        )}
       </Container>
     </section>
   )

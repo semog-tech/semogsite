@@ -67,17 +67,43 @@ function LightCard({ feature }: { feature: Feature }) {
   )
 }
 
-/** `.why-card` de `_reference/incorporadoras.html`: card ice-tint sobre navy. */
+/**
+ * `.why-card` de `_reference/incorporadoras.html`: card ice-tint (as
+ * classes Tailwind `border-line`/`text-fg-2` resolvem via CSS custom
+ * property — dentro de `Section light` viram os valores claros do
+ * `.sec-light`, sem precisar de props extras aqui). `iconSvg` (quando
+ * presente) renderiza como o glifo NU 34x34 de `.why-card .glyph`, tendo
+ * prioridade sobre `icon` (glifo texto/pílula, comportamento antigo,
+ * preservado para as páginas de cidade que só usam `icon`).
+ */
 function DarkCard({ feature }: { feature: Feature }) {
   return (
     <div className="h-full rounded-card border border-line bg-[linear-gradient(180deg,rgba(173,213,235,0.045),rgba(173,213,235,0.01))] p-[2.2rem] transition-[transform,border-color] duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[5px] hover:border-line-strong">
-      {feature.icon && (
-        <span
-          aria-hidden="true"
-          className="mb-[1.4rem] inline-flex h-12 w-12 items-center justify-center rounded-pill border border-line-strong text-lg text-accent"
-        >
-          {feature.icon}
+      {feature.iconSvg ? (
+        <span aria-hidden="true" className="mb-[1.4rem] inline-flex">
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#ADD5EB"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: markup vem do CMS (seed/admin Payload), não de input de usuário final
+            dangerouslySetInnerHTML={{ __html: feature.iconSvg }}
+          />
         </span>
+      ) : (
+        feature.icon && (
+          <span
+            aria-hidden="true"
+            className="mb-[1.4rem] inline-flex h-12 w-12 items-center justify-center rounded-pill border border-line-strong text-lg text-accent"
+          >
+            {feature.icon}
+          </span>
+        )
       )}
       <h3 className="text-[1.3rem]">{feature.title}</h3>
       <p className="m-0 text-[0.98rem] text-fg-2">{feature.description}</p>
@@ -88,12 +114,19 @@ function DarkCard({ feature }: { feature: Feature }) {
 /**
  * Grid de cards, duas variantes (`variant`, default `dark`):
  *
- * - `dark` — fiel ao padrão `.why-card` de `_reference/incorporadoras.html`,
- *   cada card entra via `Reveal` individual (comportamento inalterado).
+ * - `dark` — fiel ao padrão `.why-card` de `_reference/incorporadoras.html`.
+ *   Sem `light`/`stagger`, comportamento inalterado (cards sobre fundo
+ *   escuro, entrada por `Reveal` individual — usado pelas landings de
+ *   cidade). Com `light`/`stagger` (ex.: "Por que Semog" do próprio
+ *   `/incorporadoras`, `.why-grid.sec-light.white`), o mesmo `DarkCard`
+ *   passa a renderizar dentro de `Section light`, com `columns:'2'` e
+ *   entrada em grupo via `Stagger`.
  * - `light` — fiel a `.svc.sec-light` > `.svc-grid` de
  *   `_reference/administracao-de-condominios.html:230-286`: `Section light`
  *   (sem `white` — o ref não usa `.white` nesta seção) e a grade inteira
- *   entra via `Stagger` (`data-stagger` no ref, não reveals individuais).
+ *   entra via `Stagger` (`data-stagger` no ref, não reveals individuais) —
+ *   `light`/`white`/`columns`/`stagger` não têm efeito aqui, já que este
+ *   variant sempre foi claro/3-col/stagger.
  *
  * Cabeçalho (`eyebrow`+`title`) entra via `Reveal`, fiel aos `data-reveal`
  * de `.frame-head`/`.sec-head` do ref (o header antes não tinha reveal
@@ -101,33 +134,49 @@ function DarkCard({ feature }: { feature: Feature }) {
  */
 export function FeatureGridBlock({
   variant,
+  light,
+  white,
+  columns,
+  stagger,
   eyebrow,
   title,
   titleAccent,
   features,
 }: FeatureGridBlockType) {
   if (!features || features.length === 0) return null
-  const isLight = variant === 'light'
+  const isLightVariant = variant === 'light'
+  const sectionLight = isLightVariant || !!light
+  const useStagger = isLightVariant || !!stagger
+  const gridCols =
+    columns === '2'
+      ? 'grid grid-cols-1 gap-[1.4rem] sm:grid-cols-2'
+      : 'grid grid-cols-1 gap-[1.4rem] sm:grid-cols-2 lg:grid-cols-3'
+  const renderCard = (feature: Feature) =>
+    isLightVariant ? (
+      <LightCard key={feature.id ?? feature.title} feature={feature} />
+    ) : (
+      <DarkCard key={feature.id ?? feature.title} feature={feature} />
+    )
 
   return (
-    <Section light={isLight}>
+    <Section light={sectionLight} white={isLightVariant ? false : !!white}>
       <Container>
         {(eyebrow || title) && (
           <Reveal className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">
             {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
             {title && (
-              <GridTitle title={title} accent={titleAccent} variant={isLight ? 'light' : 'dark'} />
+              <GridTitle
+                title={title}
+                accent={titleAccent}
+                variant={sectionLight ? 'light' : 'dark'}
+              />
             )}
           </Reveal>
         )}
-        {isLight ? (
-          <Stagger className="grid grid-cols-1 gap-[1.4rem] sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <LightCard key={feature.id ?? feature.title} feature={feature} />
-            ))}
-          </Stagger>
+        {useStagger ? (
+          <Stagger className={gridCols}>{features.map(renderCard)}</Stagger>
         ) : (
-          <div className="grid grid-cols-1 gap-[1.4rem] sm:grid-cols-2 lg:grid-cols-3">
+          <div className={gridCols}>
             {features.map((feature, i) => (
               <Reveal key={feature.id ?? feature.title} delay={i * 0.06}>
                 <DarkCard feature={feature} />

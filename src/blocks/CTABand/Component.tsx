@@ -32,7 +32,14 @@ function CenteredTitle({ title, accent }: { title: string; accent?: string | nul
  *   `data-reveal`/`data-reveal-delay` no ref) e o botão branco magnético
  *   (`.btn-white ... data-magnetic`).
  */
-export function CTABandBlock({ title, titleAccent, text, cta, variant }: CTABandBlockType) {
+export function CTABandBlock({
+  title,
+  titleAccent,
+  text,
+  cta,
+  variant,
+  buttonVariant,
+}: CTABandBlockType) {
   if (variant === 'centered') {
     return (
       <section className="final-cta">
@@ -44,7 +51,7 @@ export function CTABandBlock({ title, titleAccent, text, cta, variant }: CTABand
             </Reveal>
           )}
           <Reveal delay={0.2}>
-            <Button href={cta.href} variant="white" size="lg" withArrow magnetic>
+            <Button href={cta.href} variant={buttonVariant ?? 'white'} size="lg" withArrow magnetic>
               {cta.label}
             </Button>
           </Reveal>

@@ -8,6 +8,7 @@ import { compareBlock } from '@/blocks/Compare/config'
 import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { custoChecklistBlock } from '@/blocks/CustoChecklist/config'
+import { devQuoteBlock } from '@/blocks/DevQuote/config'
 import { faqBlock } from '@/blocks/Faq/config'
 import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { formEmbedBlock } from '@/blocks/FormEmbed/config'
@@ -18,6 +19,7 @@ import { partnerSplitBlock } from '@/blocks/PartnerSplit/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
 import { prestacaoBlock } from '@/blocks/Prestacao/config'
 import { priceMomentBlock } from '@/blocks/PriceMoment/config'
+import { processoTimelineBlock } from '@/blocks/ProcessoTimeline/config'
 import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
@@ -96,6 +98,8 @@ export const Pages: CollectionConfig = {
         priceMomentBlock,
         compareBlock,
         partnerSplitBlock,
+        devQuoteBlock,
+        processoTimelineBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

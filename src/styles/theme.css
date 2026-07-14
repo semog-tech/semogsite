@@ -2348,4 +2348,148 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ---------- Argumento (manifesto + sub) — fiel a `.argument` de
+     `_reference/incorporadoras.html:72-79,204-216` (estilo inline da própria
+     página) ----------
+     src/blocks/WordsSection com `variant:'argument'` adiciona um 2º
+     parágrafo (`sub`, ausente em `manifesto`/`problem`) abaixo do `Words` —
+     por isso os 2 parágrafos precisam de classes próprias (`.big`/`.sub`) em
+     vez do seletor de tag `p` usado pelas outras 2 variantes. Sem
+     padding-block próprio no ref (usa o `--section` genérico do site, que
+     este codebase não porta como regra solta `section{}` — por isso
+     replicado aqui como valor literal, idêntico a `--section` do
+     `@layer base`/semog.css:61). O `<em>` do ref (`.argument .big em`) não
+     tem contrapartida em texto puro — mesma limitação já documentada no
+     `manifesto`/`g-problem`. */
+  .argument {
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+  .argument .big {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+    line-height: 1.25;
+    max-width: 28ch;
+    margin: 0;
+  }
+  .argument .sub {
+    color: var(--text-2);
+    max-width: 60ch;
+    font-size: 1.08rem;
+    margin-top: 1.4rem;
+  }
+
+  /* ---------- Processo (timeline vertical) — fiel a `.proc-list`/
+     `.proc-item` de `_reference/incorporadoras.html:81-107,218-278` (estilo
+     inline da própria página) ----------
+     src/blocks/ProcessoTimeline renderiza `.proc-list` > N `.proc-item`
+     (dot gradiente + ícone SVG + h3/p + `.tags`) dentro de `Section light`
+     (`.process.sec-light` do ref — `.process` em si não tem regras, só o
+     wrapper `sec-light` importa, por isso não portado). `var(--r-pill)`→
+     `--radius-pill`, `var(--ice-400)`→`--color-ice-400`; `var(--line)`/
+     `var(--text-2)`/`var(--text-3)` já são CSS vars soltas (mesmo padrão de
+     `.g-partner` acima) e re-resolvem certo dentro de `.sec-light`. */
+  .proc-list {
+    position: relative;
+    margin-top: 1rem;
+  }
+  .proc-list::before {
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--color-ice-400), var(--line) 80%);
+    opacity: 0.4;
+  }
+  .proc-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 1.6rem;
+    padding: 2rem 0;
+    position: relative;
+  }
+  .proc-item .dot {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, #1b2d70, #3b54be);
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+  .proc-item .dot svg {
+    width: 22px;
+    height: 22px;
+  }
+  .proc-item h3 {
+    font-size: 1.4rem;
+    margin: 0.6rem 0 0.4rem;
+  }
+  .proc-item p {
+    color: var(--text-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+  .proc-item .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .proc-item .tags span {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.8rem;
+  }
+  @media (max-width: 860px) {
+    .proc-item {
+      grid-template-columns: 44px 1fr;
+      gap: 1.1rem;
+    }
+    .proc-item .dot {
+      width: 44px;
+      height: 44px;
+    }
+    .proc-list::before {
+      left: 21px;
+    }
+  }
+
+  /* ---------- Quote de desenvolvedor (banda depoimento) — fiel a
+     `.dev-quote` de `_reference/incorporadoras.html:125-136,311-317` (estilo
+     inline da própria página) ----------
+     src/blocks/DevQuote renderiza blockquote (scrub palavra-a-palavra via
+     `Words`) + cite dentro de um `<section>` puro — `.dev-quote` não
+     sobrescreve `padding-block` no ref (usa o `--section` genérico, mesmo
+     caso de `.argument` acima). `var(--ice-400)`→`--color-ice-400`. O
+     `<em>` do ref (`.dev-quote blockquote em`) não tem contrapartida em
+     texto puro — mesma limitação documentada em `.argument`/`manifesto`/
+     `g-problem`. */
+  .dev-quote {
+    padding-block: clamp(5rem, 10vw, 9rem);
+    background: var(--grad-band);
+    border-block: 1px solid var(--line);
+    text-align: center;
+  }
+  .dev-quote blockquote {
+    margin: 0 auto 1.4rem;
+    max-width: 26ch;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 3.6vw, 3rem);
+    line-height: 1.2;
+  }
+  .dev-quote cite {
+    font-style: normal;
+    color: var(--text-3);
+    font-size: 0.95rem;
+  }
 }
