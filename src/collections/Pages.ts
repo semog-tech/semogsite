@@ -3,6 +3,7 @@ import { appShowcaseBlock } from '@/blocks/AppShowcase/config'
 import { benefitsBlock } from '@/blocks/Benefits/config'
 import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
+import { clubeBeneficiosBlock } from '@/blocks/ClubeBeneficios/config'
 import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { faqBlock } from '@/blocks/Faq/config'
@@ -71,6 +72,7 @@ export const Pages: CollectionConfig = {
         humanQuoteBlock,
         prestacaoBlock,
         tecnologiaRoadmapBlock,
+        clubeBeneficiosBlock,
         registrosBlock,
         appShowcaseBlock,
         testimonialsBlock,

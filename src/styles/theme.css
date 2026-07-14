@@ -1669,4 +1669,44 @@
       aspect-ratio: 16 / 10;
     }
   }
+
+  /* ---------- Clube de benefícios — fiel a `_reference/solucoes.html:
+     308-322` (`.club`/`.club-grid`/`.club-note`) ----------
+     src/blocks/ClubeBeneficios renderiza `.club-grid` (`Stagger`) e
+     `.club-note` (`Reveal`) via `Section light white`/`Container`. */
+  .club-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .club-grid > div {
+    border-left: 1px solid var(--line);
+    padding: 0.4rem 1.5rem 0;
+  }
+  .club-grid h3 {
+    font-size: 1.1rem;
+    margin: 0.9rem 0 0.4rem;
+  }
+  .club-grid p {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .club-note {
+    margin-top: 2.5rem;
+    color: var(--text-3);
+    font-size: 0.9rem;
+    max-width: 60ch;
+  }
+  @media (max-width: 1024px) {
+    .club-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem 0;
+    }
+  }
+  @media (max-width: 560px) {
+    .club-grid {
+      grid-template-columns: 1fr;
+      gap: 1.6rem;
+    }
+  }
 }

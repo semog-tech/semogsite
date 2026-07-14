@@ -4,6 +4,7 @@ import { AppShowcaseBlock } from './AppShowcase/Component'
 import { BenefitsBlock } from './Benefits/Component'
 import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
+import { ClubeBeneficiosBlock } from './ClubeBeneficios/Component'
 import { ContactInfoBlock } from './ContactInfo/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { FaqBlock } from './Faq/Component'
@@ -43,6 +44,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   humanQuote: HumanQuoteBlock,
   prestacao: PrestacaoBlock,
   tecnologiaRoadmap: TecnologiaRoadmapBlock,
+  clubeBeneficios: ClubeBeneficiosBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,

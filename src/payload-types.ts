@@ -208,6 +208,7 @@ export interface Page {
         | HumanQuoteBlock
         | PrestacaoBlock
         | TecnologiaRoadmapBlock
+        | ClubeBeneficiosBlock
         | RegistrosBlock
         | AppShowcaseBlock
         | TestimonialsBlock
@@ -529,6 +530,25 @@ export interface TecnologiaRoadmapBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'tecnologiaRoadmap';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClubeBeneficiosBlock".
+ */
+export interface ClubeBeneficiosBlock {
+  eyebrow?: string | null;
+  title: string;
+  text?: string | null;
+  items: {
+    icon?: string | null;
+    title: string;
+    text: string;
+    id?: string | null;
+  }[];
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'clubeBeneficios';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1088,6 +1108,7 @@ export interface PagesSelect<T extends boolean = true> {
         humanQuote?: T | HumanQuoteBlockSelect<T>;
         prestacao?: T | PrestacaoBlockSelect<T>;
         tecnologiaRoadmap?: T | TecnologiaRoadmapBlockSelect<T>;
+        clubeBeneficios?: T | ClubeBeneficiosBlockSelect<T>;
         registros?: T | RegistrosBlockSelect<T>;
         appShowcase?: T | AppShowcaseBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
@@ -1385,6 +1406,26 @@ export interface TecnologiaRoadmapBlockSelect<T extends boolean = true> {
         live?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClubeBeneficiosBlock_select".
+ */
+export interface ClubeBeneficiosBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        text?: T;
+        id?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }
