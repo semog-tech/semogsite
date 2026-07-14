@@ -25,8 +25,26 @@ const headerData: Omit<Header, 'id' | 'updatedAt' | 'createdAt'> = {
   cta: { label: 'Solicitar proposta', href: '/proposta' },
 }
 
+// Rodapé fiel a `_reference/index.html`: banda foot-cta (slogan + CTA), grid de
+// 4 colunas (a 1ª — marca+blurb — é renderizada pelo FooterServer; aqui vão as
+// 3 colunas de links: Institucional, Soluções, Onde estamos) e links legais.
 const footerData: Omit<Footer, 'id' | 'updatedAt' | 'createdAt'> = {
+  footCta: {
+    slogan: 'Preocupe-se apenas',
+    sloganEm: 'em morar.',
+    cta: { label: 'Solicitar proposta', href: '/proposta' },
+  },
   columns: [
+    {
+      title: 'Institucional',
+      links: [
+        { label: 'A Semog', href: '/semog' },
+        { label: 'Soluções', href: '/solucoes' },
+        { label: 'Incorporadoras', href: '/incorporadoras' },
+        { label: 'Blog', href: '/blog' },
+        { label: 'Contato', href: '/contato' },
+      ],
+    },
     {
       title: 'Soluções',
       links: [
@@ -39,22 +57,18 @@ const footerData: Omit<Footer, 'id' | 'updatedAt' | 'createdAt'> = {
       ],
     },
     {
-      title: 'Empresa',
+      title: 'Onde estamos',
       links: [
-        { label: 'A Semog', href: '/semog' },
-        { label: 'Soluções', href: '/solucoes' },
-        { label: 'Incorporadoras', href: '/incorporadoras' },
-        { label: 'Blog', href: '/blog' },
-        { label: 'Contato', href: '/contato' },
+        { label: 'Recife · Matriz', href: '/administradora-de-condominios-recife' },
+        { label: 'João Pessoa', href: '/administradora-de-condominios-joao-pessoa' },
+        { label: 'Campina Grande', href: '/administradora-de-condominios-campina-grande' },
+        { label: 'Belém', href: '/administradora-de-condominios-belem' },
       ],
     },
-    {
-      title: 'Legal',
-      links: [
-        { label: 'Privacidade', href: '/privacidade' },
-        { label: 'Termos de uso', href: '/termos' },
-      ],
-    },
+  ],
+  legalLinks: [
+    { label: 'Privacidade', href: '/privacidade' },
+    { label: 'Termos de uso', href: '/termos' },
   ],
   bottomText: '© 2026 Semog Administradora de Condomínios · Desde 1991',
 }

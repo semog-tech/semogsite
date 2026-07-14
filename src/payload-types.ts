@@ -1406,6 +1406,14 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  footCta?: {
+    slogan?: string | null;
+    sloganEm?: string | null;
+    cta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+  };
   columns?:
     | {
         title: string;
@@ -1416,6 +1424,13 @@ export interface Footer {
               id?: string | null;
             }[]
           | null;
+        id?: string | null;
+      }[]
+    | null;
+  legalLinks?:
+    | {
+        label: string;
+        href: string;
         id?: string | null;
       }[]
     | null;
@@ -1489,6 +1504,18 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  footCta?:
+    | T
+    | {
+        slogan?: T;
+        sloganEm?: T;
+        cta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+      };
   columns?:
     | T
     | {
@@ -1500,6 +1527,13 @@ export interface FooterSelect<T extends boolean = true> {
               href?: T;
               id?: T;
             };
+        id?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
         id?: T;
       };
   bottomText?: T;

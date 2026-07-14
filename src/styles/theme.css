@@ -482,4 +482,113 @@
       display: flex;
     }
   }
+
+  /* ---------- Footer (banda foot-cta + grid de 4 colunas + footer-bottom) — fiel a semog.css:380-422 + 487-490 ----------
+     src/components/layout/FooterServer.tsx (server). */
+  .footer {
+    background: linear-gradient(180deg, var(--color-navy-900) 0%, var(--color-navy-950) 30%);
+    border-top: 1px solid var(--line);
+    padding: 0 0 2.2rem;
+  }
+  .foot-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: clamp(3rem, 6vw, 5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .foot-cta .slog {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0;
+    max-width: 18ch;
+  }
+  .foot-cta .slog em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+    gap: 3rem;
+    padding: clamp(2.5rem, 5vw, 4rem) 0;
+  }
+  .footer h4 {
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 1.2rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+  }
+  .footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .footer li a {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    transition:
+      color 0.25s ease,
+      padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .footer li a:hover {
+    color: var(--color-ice-400);
+    padding-left: 6px;
+  }
+  .footer-brand img {
+    height: 24px;
+    width: auto;
+    margin-bottom: 1.4rem;
+    display: block;
+  }
+  .footer-brand p {
+    color: var(--text-2);
+    font-size: 0.92rem;
+    max-width: 36ch;
+    margin: 0 0 0.6em;
+  }
+  .footer-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--text-3);
+    font-size: 0.85rem;
+  }
+  .footer-bottom .legal {
+    display: flex;
+    gap: 1.6rem;
+  }
+  .footer-bottom a {
+    color: var(--text-3);
+    transition: color 0.25s ease;
+  }
+  .footer-bottom a:hover {
+    color: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }
