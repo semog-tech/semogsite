@@ -10,6 +10,7 @@ import { featureGridBlock } from '@/blocks/FeatureGrid/config'
 import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
+import { humanQuoteBlock } from '@/blocks/HumanQuote/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
 import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
 import { registrosBlock } from '@/blocks/Registros/config'
@@ -63,6 +64,7 @@ export const Pages: CollectionConfig = {
         featureGridBlock,
         garanteBlock,
         citiesBlock,
+        humanQuoteBlock,
         registrosBlock,
         appShowcaseBlock,
         testimonialsBlock,

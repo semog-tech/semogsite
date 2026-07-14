@@ -1051,4 +1051,57 @@
       height: 200px;
     }
   }
+
+  /* ---------- Quote humana (citação gigante + parallax) — fiel a `.human`
+     de `_reference/index.html:383-409` + responsivo `:438` ----------
+     src/blocks/HumanQuote usa `Words` no blockquote e `Parallax` na foto;
+     `.human-media` é o contêiner `overflow:hidden` exigido pelo `Parallax`
+     (o wrapper do `Parallax`, não a `img`, recebe o sobre-tamanho — ver
+     comentário no Component). */
+  .human {
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+  .human blockquote {
+    margin: 0 auto;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.14;
+    letter-spacing: -0.03em;
+    max-width: 22ch;
+    text-align: center;
+  }
+  .human cite {
+    display: block;
+    text-align: center;
+    font-style: normal;
+    color: var(--text-3);
+    font-size: 0.9rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 2rem;
+  }
+  .human-media {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    aspect-ratio: 21 / 9;
+    position: relative;
+  }
+  .human-media .cap {
+    position: absolute;
+    left: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 2;
+    border-radius: 12px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.88rem;
+    color: var(--color-silver-100);
+  }
+  @media (max-width: 860px) {
+    .human-media {
+      aspect-ratio: 4 / 3;
+    }
+  }
 }

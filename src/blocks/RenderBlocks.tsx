@@ -11,6 +11,7 @@ import { FeatureGridBlock } from './FeatureGrid/Component'
 import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
+import { HumanQuoteBlock } from './HumanQuote/Component'
 import { PillarsBlock } from './Pillars/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
@@ -35,6 +36,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,
+  humanQuote: HumanQuoteBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
   testimonials: TestimonialsBlock,

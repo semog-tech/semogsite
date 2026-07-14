@@ -204,6 +204,7 @@ export interface Page {
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
+        | HumanQuoteBlock
         | RegistrosBlock
         | AppShowcaseBlock
         | TestimonialsBlock
@@ -419,6 +420,19 @@ export interface CitiesBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'cities';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HumanQuoteBlock".
+ */
+export interface HumanQuoteBlock {
+  quote: string;
+  author?: string | null;
+  image: number | Media;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'humanQuote';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -973,6 +987,7 @@ export interface PagesSelect<T extends boolean = true> {
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
+        humanQuote?: T | HumanQuoteBlockSelect<T>;
         registros?: T | RegistrosBlockSelect<T>;
         appShowcase?: T | AppShowcaseBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
@@ -1173,6 +1188,18 @@ export interface CitiesBlockSelect<T extends boolean = true> {
         role?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HumanQuoteBlock_select".
+ */
+export interface HumanQuoteBlockSelect<T extends boolean = true> {
+  quote?: T;
+  author?: T;
+  image?: T;
+  caption?: T;
   id?: T;
   blockName?: T;
 }
