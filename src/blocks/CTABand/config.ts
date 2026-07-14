@@ -1,13 +1,22 @@
 import type { Block } from 'payload'
 
 /**
- * Faixa de CTA com fundo em `--grad-band`, fiel ao padrão `.newsletter` /
- * `.g-band` visto em `_reference` (título + texto de apoio + um botão).
+ * Faixa de CTA, com duas variantes escolhidas por `variant`:
+ * - `band` (default) — fundo em `--grad-band`, fiel ao padrão `.newsletter`/
+ *   `.g-band` visto em `_reference` (título + texto de apoio + um botão).
+ * - `centered` — fiel a `.final-cta` de `_reference/index.html:759-770`: CTA
+ *   final da home, centralizado, com glow radial e botão magnético.
  */
 export const ctaBandBlock: Block = {
   slug: 'ctaBand',
   interfaceName: 'CTABandBlock',
   fields: [
+    {
+      name: 'variant',
+      type: 'select',
+      options: ['band', 'centered'],
+      defaultValue: 'band',
+    },
     { name: 'title', type: 'text', required: true },
     { name: 'text', type: 'textarea' },
     {

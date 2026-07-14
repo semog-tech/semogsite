@@ -529,6 +529,7 @@ export interface FaqBlock {
  * via the `definition` "CTABandBlock".
  */
 export interface CTABandBlock {
+  variant?: ('band' | 'centered') | null;
   title: string;
   text?: string | null;
   cta: {
@@ -1306,6 +1307,7 @@ export interface FaqBlockSelect<T extends boolean = true> {
  * via the `definition` "CTABandBlock_select".
  */
 export interface CTABandBlockSelect<T extends boolean = true> {
+  variant?: T;
   title?: T;
   text?: T;
   cta?:

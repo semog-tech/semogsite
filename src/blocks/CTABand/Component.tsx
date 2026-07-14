@@ -1,15 +1,44 @@
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
+import { Reveal } from '@/motion/reveal'
 import type { CTABandBlock as CTABandBlockType } from '@/payload-types'
 
 /**
- * Faixa de CTA fiel ao padrão `.newsletter`/`.g-band` de `_reference`: fundo
- * `--grad-band` (aplicado via arbitrary value, já que o token só existe como
- * CSS var em `theme.css`, sem utilitário `bg-*` gerado), texto centralizado,
- * um único `Button`.
+ * Faixa de CTA com duas variantes (`variant`, default `band`):
+ *
+ * - `band` — fiel ao padrão `.newsletter`/`.g-band` de `_reference`: fundo
+ *   `--grad-band` (arbitrary value, já que o token só existe como CSS var em
+ *   `theme.css`, sem utilitário `bg-*` gerado), texto centralizado, um único
+ *   `Button`. Comportamento inalterado desde a Task 3b/1.
+ * - `centered` — fiel a `.final-cta` de `_reference/index.html:759-770`: CTA
+ *   final da home. `<section>` puro (não `Section`, que força `py-*` — mesmo
+ *   padrão do Hero/HumanQuote) com o glow radial `::before` portado pra
+ *   `theme.css`, h2/p/botão em `Reveal` escalonado (0/0.1/0.2, como
+ *   `data-reveal`/`data-reveal-delay` no ref) e o botão branco magnético
+ *   (`.btn-white ... data-magnetic`).
  */
-export function CTABandBlock({ title, text, cta }: CTABandBlockType) {
+export function CTABandBlock({ title, text, cta, variant }: CTABandBlockType) {
+  if (variant === 'centered') {
+    return (
+      <section className="final-cta">
+        <Container className="relative z-[2]">
+          <Reveal as="h2">{title}</Reveal>
+          {text && (
+            <Reveal as="p" delay={0.1}>
+              {text}
+            </Reveal>
+          )}
+          <Reveal delay={0.2}>
+            <Button href={cta.href} variant="white" size="lg" withArrow magnetic>
+              {cta.label}
+            </Button>
+          </Reveal>
+        </Container>
+      </section>
+    )
+  }
+
   return (
     <Section className="border-y border-line bg-[image:var(--grad-band)] text-center">
       <Container>
