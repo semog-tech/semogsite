@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
-import { SplitHeadline } from '@/motion/SplitHeadline'
+import { Chars } from '@/motion/Chars'
+import { Fade } from '@/motion/Fade'
 import type { HeroBlock as HeroBlockType, Media } from '@/payload-types'
 
 function mediaUrl(resource?: number | Media | null): string | undefined {
@@ -16,8 +17,11 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * `Section` full-bleed (padding-block zerado via `!py-0`, já que o próprio
  * ref sobrescreve `section{padding-block:var(--section)}` com uma regra mais
  * específica), vídeo de fundo com `poster`, ou — sem vídeo — a imagem de
- * `poster` via `ImageMedia` cobrindo o fundo. Headline via `SplitHeadline`,
- * CTAs via `Button`.
+ * `poster` via `ImageMedia` cobrindo o fundo. Headline por caractere via
+ * `Chars` (`data-chars`, semog.js:49-87); eyebrow/lead/CTAs entram com fade
+ * escalonado via `Fade` (`data-fade` + `data-fade-delay`, semog.js:88-93 —
+ * lead 800ms, CTAs 1200ms como no ref `_reference/index.html:494-503`). CTAs
+ * via `Button` (primary já é magnético).
  */
 export function HeroBlock({ eyebrow, headline, subhead, video, poster, ctas }: HeroBlockType) {
   const videoUrl = mediaUrl(video)
@@ -48,20 +52,28 @@ export function HeroBlock({ eyebrow, headline, subhead, video, poster, ctas }: H
         )
       )}
       <Container className="relative z-[2] flex flex-1 flex-col justify-end pt-[110px] pb-[clamp(3rem,5vw,4.5rem)]">
-        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-        <SplitHeadline
+        {eyebrow && (
+          <Fade delay={600}>
+            <Eyebrow>{eyebrow}</Eyebrow>
+          </Fade>
+        )}
+        <Chars
           as="h1"
           className="mb-[1.4rem] max-w-4xl text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]"
         >
           {headline}
-        </SplitHeadline>
+        </Chars>
         {subhead && (
-          <p className="mb-[1.6rem] max-w-[52ch] text-lead text-silver-100 [text-shadow:0_1px_24px_rgba(5,8,26,0.5)]">
+          <Fade
+            as="p"
+            delay={800}
+            className="mb-[1.6rem] max-w-[52ch] text-lead text-silver-100 [text-shadow:0_1px_24px_rgba(5,8,26,0.5)]"
+          >
             {subhead}
-          </p>
+          </Fade>
         )}
         {ctas && ctas.length > 0 && (
-          <div className="flex flex-wrap gap-4">
+          <Fade delay={1200} className="flex flex-wrap gap-4">
             {ctas.map((cta) => (
               <Button
                 key={cta.id ?? cta.label}
@@ -73,7 +85,7 @@ export function HeroBlock({ eyebrow, headline, subhead, video, poster, ctas }: H
                 {cta.label}
               </Button>
             ))}
-          </div>
+          </Fade>
         )}
       </Container>
     </Section>
