@@ -27,11 +27,30 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * `.hero-grid` de 2 colunas e a coluna direita (`.hero-tagcol`) recebe o chip
  * de vidro `.hero-tagbox` (fade 1400ms, como `_reference/index.html:505-506`).
  * Sem `tag`, o layout permanece de 1 coluna (comportamento anterior).
+ *
+ * `pageHeroOverlay` (sem efeito com `video`) troca o tratamento acima pelo
+ * `.page-hero`/`.page-hero .bg`/`.page-hero::after` de
+ * `_reference/solucoes.html:87-107`: 74dvh em vez de 100dvh, `poster` a
+ * 0.5 de opacidade e recortado em `center 65%`, e um gradiente escuro por
+ * cima (`rgba(5,8,26,.55)` → `rgba(10,16,46,.3)` → `--color-navy-900`
+ * opaco) para dar contraste ao texto — verbatim do ref, sem overlay algum
+ * o fundo ficava claro demais. Ver a doc do campo em `Hero/config.ts` para
+ * o porquê dos valores serem fixos (específicos de `/solucoes`).
  */
-export function HeroBlock({ eyebrow, headline, subhead, tag, video, poster, ctas }: HeroBlockType) {
+export function HeroBlock({
+  eyebrow,
+  headline,
+  subhead,
+  tag,
+  video,
+  poster,
+  pageHeroOverlay,
+  ctas,
+}: HeroBlockType) {
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
+  const isPageHero = !videoUrl && !!pageHeroOverlay && !!posterMedia
 
   const subheadAndCtas = (
     <>
@@ -63,7 +82,13 @@ export function HeroBlock({ eyebrow, headline, subhead, tag, video, poster, ctas
   )
 
   return (
-    <Section className="flex min-h-dvh flex-col overflow-hidden !py-0 bg-navy-950">
+    <Section
+      className={
+        isPageHero
+          ? 'flex min-h-[74dvh] flex-col overflow-hidden !py-0 bg-navy-950'
+          : 'flex min-h-dvh flex-col overflow-hidden !py-0 bg-navy-950'
+      }
+    >
       {videoUrl ? (
         <video
           autoPlay
@@ -81,11 +106,27 @@ export function HeroBlock({ eyebrow, headline, subhead, tag, video, poster, ctas
             resource={posterMedia}
             fill
             priority
-            className="absolute inset-0 z-[1] object-cover"
+            className={
+              isPageHero
+                ? 'absolute inset-0 z-[1] object-cover object-[center_65%] opacity-50'
+                : 'absolute inset-0 z-[1] object-cover'
+            }
           />
         )
       )}
-      <Container className="relative z-[2] flex flex-1 flex-col justify-end pt-[110px] pb-[clamp(3rem,5vw,4.5rem)]">
+      {isPageHero && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-[2] bg-[linear-gradient(180deg,rgba(5,8,26,0.55)_0%,rgba(10,16,46,0.3)_50%,var(--color-navy-900)_100%)]"
+        />
+      )}
+      <Container
+        className={
+          isPageHero
+            ? 'relative z-[3] flex flex-1 flex-col justify-end pt-[110px] pb-[clamp(3rem,6vw,4.5rem)]'
+            : 'relative z-[3] flex flex-1 flex-col justify-end pt-[110px] pb-[clamp(3rem,5vw,4.5rem)]'
+        }
+      >
         {eyebrow && (
           <Fade delay={600}>
             <Eyebrow>{eyebrow}</Eyebrow>

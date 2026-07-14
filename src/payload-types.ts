@@ -251,6 +251,10 @@ export interface HeroBlock {
   tag?: string | null;
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
+  /**
+   * Ativa o tratamento `.page-hero` do ref (ex.: `_reference/solucoes.html:87-107`): altura reduzida (74dvh), a imagem de `poster` com opacidade 0.5 e um gradiente `::after` escuro por cima para dar contraste ao texto. Só tem efeito sem `video` (o hero com vídeo, ex. home, não muda). Sem isso marcado, o herói mantém o comportamento atual (100dvh, sem overlay). Os valores exatos (74dvh, opacidade, paradas do gradiente) são os de `/solucoes` — se outra página precisar deste tratamento com números diferentes do ref dela, este campo precisa virar configurável por instância.
+   */
+  pageHeroOverlay?: boolean | null;
   ctas?:
     | {
         label: string;
@@ -1216,6 +1220,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
   tag?: T;
   video?: T;
   poster?: T;
+  pageHeroOverlay?: T;
   ctas?:
     | T
     | {

@@ -25,6 +25,15 @@ export const heroBlock: Block = {
     { name: 'video', type: 'upload', relationTo: 'media' },
     { name: 'poster', type: 'upload', relationTo: 'media' },
     {
+      name: 'pageHeroOverlay',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Ativa o tratamento `.page-hero` do ref (ex.: `_reference/solucoes.html:87-107`): altura reduzida (74dvh), a imagem de `poster` com opacidade 0.5 e um gradiente `::after` escuro por cima para dar contraste ao texto. Só tem efeito sem `video` (o hero com vídeo, ex. home, não muda). Sem isso marcado, o herói mantém o comportamento atual (100dvh, sem overlay). Os valores exatos (74dvh, opacidade, paradas do gradiente) são os de `/solucoes` — se outra página precisar deste tratamento com números diferentes do ref dela, este campo precisa virar configurável por instância.',
+      },
+    },
+    {
       name: 'ctas',
       type: 'array',
       fields: [

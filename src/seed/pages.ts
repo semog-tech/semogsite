@@ -523,13 +523,16 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
 
   // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo `residencial.webp`
   // do `.bg` (reaproveitado também na vertical "Residenciais" logo abaixo,
-  // igual ao ref, que usa esse arquivo duas vezes).
+  // igual ao ref, que usa esse arquivo duas vezes). `pageHeroOverlay` liga o
+  // tratamento `.page-hero`/`.bg`/`::after` (74dvh, opacidade 0.5, gradiente
+  // escuro) fiel a `_reference/solucoes.html:87-107`.
   const solucoesHero: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
     headline: 'Tudo que um condomínio precisa. E o que nenhum outro oferece.',
     subhead:
       'Gestão financeira, contábil, jurídica e de pessoas, com a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
     poster: residencialId,
+    pageHeroOverlay: true,
   }
 
   // As 3 verticais `#residenciais`/`#comerciais`/`#associacoes`, fiel a
