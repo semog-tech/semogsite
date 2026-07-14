@@ -18,7 +18,7 @@ import type {
   RichTextBlock,
   ShowcaseBlock,
   SociosBlock,
-  SolucoesBentoBlock,
+  SolutionSplitBlock,
   StatsBlock,
   TecnologiaRoadmapBlock,
   TestimonialsBlock,
@@ -45,15 +45,19 @@ import { getMediaId } from './lib/media'
  *   CTABand `variant:'centered'` final. Sem Cities: `_reference/semog.html`
  *   não tem grid de "Presença" — isso é contado só pela Timeline.
  * - "Soluções" (slug `solucoes`), fiel a `_reference/solucoes.html`: Hero
- *   (poster `residencial.webp`) + SolucoesBento (as 3 verticais
- *   residencial/comercial/associações, com foto real cada) + Registros
- *   (faixa de selos da seção "Por que Semog") + Prestacao (`#prestacao`,
- *   `prestacao-contas.webp`) + TecnologiaRoadmap (`#tecnologia`, Semog One
- *   `semog-one.webp` + roadmap 2026) + ClubeBeneficios (`#beneficios`) +
- *   Garante em banda com vídeo (`garante.mp4`/`garante.webp` + chip "1%"),
- *   ANTES do App (ordem corrigida vs. o seed anterior) + AppShowcase (seção
- *   do aplicativo) + Faq (as 5 perguntas do FAQPage schema.org do
- *   `_reference`) + CTABand `variant:'centered'` final.
+ *   (poster `residencial.webp`) + SolutionSplit (as 3 verticais
+ *   residencial/comercial/associações — `.vertical.sec-light` `.split`
+ *   alternado com `.svc-tags`, associações em `.assoc` full-bleed,
+ *   `_reference/solucoes.html:411-484`) + Benefits `variant:'bento'` (o
+ *   `.benefits.bento` de 5 células — 24h/acesso direto/35 anos/equipes
+ *   locais (`blog-lazer.webp`)/100% digital, `:487-520`) + Prestacao
+ *   (`#prestacao`, `prestacao-contas.webp`) + Garante em banda com vídeo
+ *   (`garante.mp4`/`garante.webp` + chip "1%", `:557-616`) + AppShowcase
+ *   (seção do aplicativo, `:618-642`) + TecnologiaRoadmap (`#tecnologia`,
+ *   Semog One `semog-one.webp` + roadmap 2026, `:645-691`) + ClubeBeneficios
+ *   (`#beneficios`, `:693-724`) + Faq (as 5 perguntas do FAQPage schema.org
+ *   do `_reference`) + CTABand `variant:'centered'` final. Ordem exata do
+ *   ref: garante+app vêm ANTES de tecnologia+clube.
  * - "Administração de condomínios" (slug `administracao-de-condominios`),
  *   fiel a `_reference/administracao-de-condominios.html`: Hero + FeatureGrid
  *   (a grade `.svc-grid` de 9 serviços, seção "O que fazemos") + Showcase
@@ -503,6 +507,7 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     semogOneId,
     garanteVideoId,
     garantePosterId,
+    blogLazerId,
   ] = await Promise.all([
     getMediaId(payload, 'residencial.webp'),
     getMediaId(payload, 'comercial.webp'),
@@ -511,6 +516,7 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     getMediaId(payload, 'semog-one.webp'),
     getMediaId(payload, 'garante.mp4'),
     getMediaId(payload, 'garante.webp'),
+    getMediaId(payload, 'blog-lazer.webp'),
   ])
 
   // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo `residencial.webp`
@@ -524,58 +530,93 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     poster: residencialId,
   }
 
-  // As 3 verticais `#residenciais`/`#comerciais`/`#associacoes`
-  // (`_reference/solucoes.html:411-484`) — não existe bloco de split
-  // alternado com `.svc-tags` + tratamento full-bleed de `.assoc` (ver nota
-  // no relatório da task). `SolucoesBentoBlock` reaproveitado (mesmo bloco/
-  // fotos da home) como a melhor aproximação disponível: fotos reais e
-  // título/texto fiéis, mas perde o kicker, as tags de serviço (7/6 pills) e
-  // o tratamento full-bleed das Associações. `eyebrow`/`title` são uma
-  // síntese: o ref não tem um cabeçalho comum às 3 seções.
-  const solucoesVerticais: Omit<SolucoesBentoBlock, 'id' | 'blockName'> = {
-    blockType: 'solucoesBento',
-    eyebrow: 'Soluções',
-    title: 'Administração completa para condomínios residenciais, comerciais e associações.',
-    cards: [
+  // As 3 verticais `#residenciais`/`#comerciais`/`#associacoes`, fiel a
+  // `_reference/solucoes.html:411-484`: residenciais e comerciais em
+  // `.split` alternado (comerciais com `reversed: true` — imagem primeiro,
+  // igual ao ref), associações em `.assoc` full-bleed (`variant: 'assoc'`).
+  const solucoesVerticais: Omit<SolutionSplitBlock, 'id' | 'blockName'> = {
+    blockType: 'solutionSplit',
+    items: [
       {
-        image: residencialId,
-        tag: 'Condomínios Residenciais',
+        variant: 'split',
+        kicker: 'Condomínios Residenciais',
         title: 'O prédio funciona. O morador nem percebe.',
         text: 'Assumimos toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
-        tall: true,
+        tags: [
+          { label: 'Gestão financeira' },
+          { label: 'Cobrança e boletos' },
+          { label: 'Folha e RH do condomínio' },
+          { label: 'Assessoria jurídica' },
+          { label: 'Assembleias' },
+          { label: 'Manutenção preventiva' },
+          { label: 'Seguros obrigatórios' },
+        ],
+        image: residencialId,
+        reversed: false,
       },
       {
-        image: comercialId,
-        tag: 'Condomínios Comerciais',
+        variant: 'split',
+        kicker: 'Condomínios Comerciais',
         title: 'Eficiência que valoriza o metro quadrado.',
         text: 'Edifícios corporativos e centros empresariais exigem previsibilidade de custos, rateios impecáveis e fornecedores sob controle. A Semog entrega relatórios gerenciais que o conselho entende e aprova.',
+        tags: [
+          { label: 'Rateios e provisões' },
+          { label: 'Gestão de contratos' },
+          { label: 'Relatórios gerenciais' },
+          { label: 'Compliance condominial' },
+          { label: 'Gestão de facilities' },
+          { label: 'Previsão orçamentária' },
+        ],
+        image: comercialId,
+        reversed: true,
       },
       {
-        image: associacoesId,
-        tag: 'Associações',
+        variant: 'assoc',
+        kicker: 'Associações',
         title: 'Governança para comunidades inteiras.',
         text: 'Loteamentos, associações de moradores e clubes têm regras próprias, receitas próprias e desafios próprios. Estruturamos estatutos, contribuições e conselhos que funcionam.',
-        href: '/proposta',
+        image: associacoesId,
+        ctaLabel: 'Solicitar proposta',
+        ctaHref: '/proposta',
       },
     ],
   }
 
-  // `.benefits .bento` (sem id), `_reference/solucoes.html:487-520` —
-  // mantido como `RegistrosBlock` (já era a aproximação existente, fiel o
-  // bastante no conteúdo: 24h / acesso direto aos sócios / 35 anos /
-  // equipes locais / 100% digital), só reposicionado para o lugar certo no
-  // fluxo (entre as verticais e a Prestação de contas). Não fazia parte da
-  // lista de blocos novos desta wave, por isso não virou um bento de
-  // verdade com números gigantes — ver nota no relatório da task.
-  const solucoesRegistros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
-    blockType: 'registros',
+  // `.benefits.sec-light.white` > `.bento` (sem id), fiel a
+  // `_reference/solucoes.html:487-520`: 5 células na ordem exata do ref —
+  // c1 24h / c2 acesso direto aos sócios / c3 35 anos / c4 equipes locais
+  // (`blog-lazer.webp`) / c5 100% digital.
+  const solucoesBenefits: Omit<BenefitsBlock, 'id' | 'blockName'> = {
+    blockType: 'benefits',
+    variant: 'bento',
+    eyebrow: 'Por que Semog',
     title: 'O que muda quando a Semog assume.',
+    titleAccent: 'Semog assume.',
     items: [
-      { label: 'Resposta em 24h' },
-      { label: 'Acesso direto aos sócios' },
-      { label: '35 anos de mercado' },
-      { label: 'Equipes locais em 4 cidades' },
-      { label: '100% digital' },
+      {
+        value: '24h',
+        title: 'Resposta em um dia útil',
+        description: 'Demandas de síndicos e condôminos com prazo de resposta definido e cumprido.',
+      },
+      {
+        title: 'Acesso direto aos sócios',
+        description: 'Nenhuma administradora do porte da Semog oferece isso. Aqui, é regra da casa.',
+      },
+      {
+        value: '35',
+        title: 'Anos de mercado',
+        description: 'Solidez comprovada desde 1991.',
+      },
+      {
+        title: 'Equipes locais',
+        description: 'Presença física em quatro cidades.',
+        image: blogLazerId,
+      },
+      {
+        value: '100%',
+        title: 'Digital de verdade',
+        description: 'Do boleto à assembleia, tudo online.',
+      },
     ],
   }
 
@@ -775,12 +816,12 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     layout: [
       solucoesHero,
       solucoesVerticais,
-      solucoesRegistros,
+      solucoesBenefits,
       solucoesPrestacao,
-      solucoesTecnologia,
-      solucoesClube,
       solucoesGarante,
       solucoesApp,
+      solucoesTecnologia,
+      solucoesClube,
       solucoesFaq,
       solucoesCtaBand,
     ],
