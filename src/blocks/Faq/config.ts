@@ -26,6 +26,15 @@ export const faqBlock: Block = {
       },
     },
     {
+      name: 'dark',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Fundo `--bg-deep` escuro em vez de `.sec-light`, fiel a `<section class="faq" style="background:var(--bg-deep)">` de `_reference/garante.html:395` (ao contrário do `.faq.sec-light` claro de `/solucoes`/`administracao-de-condominios`). Sem efeito se `white` também estiver marcado.',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       fields: [

@@ -5,6 +5,7 @@ import { BenefitsBlock } from './Benefits/Component'
 import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
 import { ClubeBeneficiosBlock } from './ClubeBeneficios/Component'
+import { CompareBlock } from './Compare/Component'
 import { ContactInfoBlock } from './ContactInfo/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { CustoChecklistBlock } from './CustoChecklist/Component'
@@ -14,8 +15,10 @@ import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
+import { PartnerSplitBlock } from './PartnerSplit/Component'
 import { PillarsBlock } from './Pillars/Component'
 import { PrestacaoBlock } from './Prestacao/Component'
+import { PriceMomentBlock } from './PriceMoment/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
@@ -62,6 +65,9 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   benefits: BenefitsBlock,
   contactInfo: ContactInfoBlock,
   formEmbed: FormEmbedBlock,
+  priceMoment: PriceMomentBlock,
+  compare: CompareBlock,
+  partnerSplit: PartnerSplitBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

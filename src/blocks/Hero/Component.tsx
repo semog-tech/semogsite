@@ -28,6 +28,19 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * de vidro `.hero-tagbox` (fade 1400ms, como `_reference/index.html:505-506`).
  * Sem `tag`, o layout permanece de 1 coluna (comportamento anterior).
  *
+ * `priceChip` (só com `video`) reproduz o hero `.g-hero`/`.g-price` de
+ * `_reference/garante.html:59-104` (estilo inline da própria página): liga a
+ * classe `g-hero` (overlay `::after` em gradiente, distinto do `.hero` sem
+ * overlay da home) e troca subhead/CTAs para dentro de uma `.row` — docked à
+ * esquerda — ao lado do chip de vidro `.g-price` (valor em `--grad-ice` +
+ * legenda), docked à direita. Também troca o `h1` para o clamp maior de
+ * `.g-hero h1` (`clamp(3rem,8.5vw,7.5rem)`, `max-width:12ch`,
+ * `letter-spacing:-0.02em`) — bem maior que o `.hero h1` genérico da home
+ * (`clamp(2.6rem,6.4vw,5.8rem)`), por isso quebra em 2 linhas num headline
+ * curto como "Inadimplência zero.". Sem `priceChip`, o hero de vídeo mantém
+ * o comportamento anterior (subhead/CTAs empilhados, sem overlay, `h1`
+ * genérico).
+ *
  * `pageHeroOverlay` (sem efeito com `video`) troca o tratamento acima pelo
  * `.page-hero`/`.page-hero .bg`/`.page-hero::after` do ref (ex.:
  * `_reference/solucoes.html:87-107`, `_reference/administracao-de-
@@ -52,6 +65,7 @@ export function HeroBlock({
   pageHeroBgPosition,
   pageHeroGradient,
   ctas,
+  priceChip,
 }: HeroBlockType) {
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
@@ -93,9 +107,11 @@ export function HeroBlock({
     </>
   )
 
+  const hasPriceChip = !!videoUrl && !!priceChip?.value
+
   return (
     <Section
-      className="flex flex-col overflow-hidden !py-0 bg-navy-950"
+      className={`flex flex-col overflow-hidden !py-0 bg-navy-950 ${hasPriceChip ? 'g-hero' : ''}`}
       style={isPageHero ? { minHeight } : { minHeight: '100dvh' }}
     >
       {videoUrl ? (
@@ -141,11 +157,23 @@ export function HeroBlock({
         )}
         <Chars
           as="h1"
-          className="mb-[1.4rem] max-w-4xl text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]"
+          className={
+            hasPriceChip
+              ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-[-0.02em] [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
+              : 'mb-[1.4rem] max-w-4xl text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
+          }
         >
           {headline}
         </Chars>
-        {tag ? (
+        {hasPriceChip ? (
+          <div className="row">
+            <div>{subheadAndCtas}</div>
+            <Fade delay={1500} duration={1000} className="g-price liquid-glass">
+              <span className="n">{priceChip?.value}</span>
+              {priceChip?.label && <small>{priceChip.label}</small>}
+            </Fade>
+          </div>
+        ) : tag ? (
           <div className="hero-grid">
             <div>{subheadAndCtas}</div>
             <div className="hero-tagcol">

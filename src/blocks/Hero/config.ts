@@ -84,5 +84,17 @@ export const heroBlock: Block = {
         },
       ],
     },
+    {
+      name: 'priceChip',
+      type: 'group',
+      admin: {
+        description:
+          'Chip de vidro "1%" do hero de vídeo (`.g-price`), fiel a `_reference/garante.html:94-104` (estilo inline da própria página — distinto do `.pct-chip` do bloco `Garante`, que é o da banda `.g-band-home`). Só tem efeito com `video` preenchido: liga o overlay `::after` (`.g-hero`) e troca o layout de subhead/CTAs para a `.row` (docked à esquerda) + o chip (docked à direita), no lugar do empilhamento padrão. Deixe em branco para o hero de vídeo sem chip (ex.: home).',
+      },
+      fields: [
+        { name: 'value', type: 'text' },
+        { name: 'label', type: 'text' },
+      ],
+    },
   ],
 }

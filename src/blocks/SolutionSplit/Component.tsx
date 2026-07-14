@@ -80,9 +80,7 @@ function AssocItem({ item }: { item: Item }) {
     <Section light className="vertical">
       <Container>
         <Reveal dir="scale" className="assoc">
-          {image && (
-            <ImageMedia resource={image} fill sizes="(min-width: 1024px) 1120px, 100vw" />
-          )}
+          {image && <ImageMedia resource={image} fill sizes="(min-width: 1024px) 1120px, 100vw" />}
           <div className="assoc-body">
             {item.kicker && <span className="kicker">{item.kicker}</span>}
             <h2 className="text-[clamp(1.7rem,3.2vw,2.6rem)]">{item.title}</h2>

@@ -4,6 +4,7 @@ import { benefitsBlock } from '@/blocks/Benefits/config'
 import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
 import { clubeBeneficiosBlock } from '@/blocks/ClubeBeneficios/config'
+import { compareBlock } from '@/blocks/Compare/config'
 import { contactInfoBlock } from '@/blocks/ContactInfo/config'
 import { ctaBandBlock } from '@/blocks/CTABand/config'
 import { custoChecklistBlock } from '@/blocks/CustoChecklist/config'
@@ -13,8 +14,10 @@ import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { humanQuoteBlock } from '@/blocks/HumanQuote/config'
+import { partnerSplitBlock } from '@/blocks/PartnerSplit/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
 import { prestacaoBlock } from '@/blocks/Prestacao/config'
+import { priceMomentBlock } from '@/blocks/PriceMoment/config'
 import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
@@ -90,6 +93,9 @@ export const Pages: CollectionConfig = {
         benefitsBlock,
         contactInfoBlock,
         formEmbedBlock,
+        priceMomentBlock,
+        compareBlock,
+        partnerSplitBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

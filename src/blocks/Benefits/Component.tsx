@@ -36,9 +36,7 @@ function BentoCell({ item, index }: { item: Item; index: number }) {
   const image = item.image && typeof item.image === 'object' ? (item.image as Media) : undefined
   return (
     <div className={`cell c${(index % 5) + 1}`}>
-      {image && (
-        <ImageMedia resource={image} fill sizes="(min-width: 1024px) 33vw, 100vw" />
-      )}
+      {image && <ImageMedia resource={image} fill sizes="(min-width: 1024px) 33vw, 100vw" />}
       {item.value && <span className="num">{item.value}</span>}
       <h3>{item.title}</h3>
       <p>{item.description}</p>

@@ -12,13 +12,22 @@ import type { PillarsBlock as PillarsBlockType } from '@/payload-types'
  * `.pillars { padding-top: 0 }` do ref (a seção cola na anterior); o
  * padding-bottom vem sempre da `Section`. O `glyph`, quando presente, fica à
  * esquerda do título. `eyebrow`, quando presente, entra via `Reveal` acima
- * das rows (ver doc do campo em `Pillars/config.ts`).
+ * das rows (ver doc do campo em `Pillars/config.ts`). `light`/`white` ligam
+ * `.sec-light`/`.sec-light.white` na `Section`; `compact` soma a classe
+ * `compact` em cada `.pillar-row` (tipografia menor, fiel a `.g-step`).
  */
-export function PillarsBlock({ eyebrow, tightTop, items }: PillarsBlockType) {
+export function PillarsBlock({
+  eyebrow,
+  tightTop,
+  light,
+  white,
+  compact,
+  items,
+}: PillarsBlockType) {
   if (!items || items.length === 0) return null
 
   return (
-    <Section className={tightTop === false ? '' : '!pt-0'}>
+    <Section light={!!light} white={!!white} className={tightTop === false ? '' : '!pt-0'}>
       <Container>
         {eyebrow && (
           <Reveal className="mb-[clamp(2.5rem,5vw,4rem)]">
@@ -26,7 +35,10 @@ export function PillarsBlock({ eyebrow, tightTop, items }: PillarsBlockType) {
           </Reveal>
         )}
         {items.map((item) => (
-          <Reveal key={item.id ?? item.title} className="pillar-row">
+          <Reveal
+            key={item.id ?? item.title}
+            className={compact ? 'pillar-row compact' : 'pillar-row'}
+          >
             {item.glyph ? (
               <div className="flex items-center gap-4">
                 <div className="glyph">{item.glyph}</div>

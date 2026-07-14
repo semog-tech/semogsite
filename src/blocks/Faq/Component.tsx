@@ -14,13 +14,19 @@ import type { FaqBlock as FaqBlockType } from '@/payload-types'
  * `<details>` é envolvido por um wrapper do `Reveal`, o que quebraria a
  * relação de irmãos exigida por `:last-child`. Cada pergunta entra via
  * `Reveal`. `tightTop` zera o padding-top (ver doc do campo em
- * `Faq/config.ts`).
+ * `Faq/config.ts`). `dark` (sem `white`) troca `.sec-light` pelo fundo
+ * `--bg-deep` escuro do `.faq` de `/garante`.
  */
-export function FaqBlock({ eyebrow, title, white, tightTop, items }: FaqBlockType) {
+export function FaqBlock({ eyebrow, title, white, tightTop, dark, items }: FaqBlockType) {
   if (!items || items.length === 0) return null
+  const isDark = !!dark && !white
 
   return (
-    <Section light white={!!white} className={tightTop ? '!pt-0' : ''}>
+    <Section
+      light={!isDark}
+      white={!!white}
+      className={`${tightTop ? '!pt-0' : ''} ${isDark ? 'bg-bg-deep' : ''}`}
+    >
       <Container>
         {(eyebrow || title) && (
           <div className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">

@@ -377,6 +377,54 @@
     }
   }
 
+  /* ---------- Hero de vídeo com chip "1%" (.g-hero / .g-price) — fiel a
+     `_reference/garante.html:59-104` (estilo inline da própria página)
+     ----------
+     src/blocks/Hero aplica a classe `g-hero` (overlay `::after`) e troca
+     subhead/CTAs por `.row` (docked à esquerda) + `.g-price` (docked à
+     direita) só quando `priceChip.value` está preenchido — variante
+     exclusiva do hero de vídeo de `/garante` (a home usa vídeo sem chip,
+     sem overlay, comportamento inalterado). `--grad-ice` já existe como CSS
+     var solta; `var(--silver-100)`→`--color-silver-100`. */
+  .g-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.25) 0%, transparent 40%, rgba(5, 8, 26, 0.72) 100%);
+  }
+  .g-hero .row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .g-price {
+    border-radius: 16px;
+    padding: 1.1rem 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .g-price .n {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    line-height: 1;
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .g-price small {
+    color: var(--color-silver-100);
+    font-size: 0.9rem;
+    max-width: 18ch;
+    line-height: 1.4;
+  }
+
   /* ---------- Nav (pílula flutuante liquid-glass) — fiel a semog.css:234-286 + 481-486 ----------
      Ilha client src/components/layout/Nav.tsx: toggle .is-scrolled no scroll
      (semog.js:19-27) e burger + trava de scroll do body (semog.js:31-47). */
@@ -751,6 +799,26 @@
     gap: 4rem;
   }
 
+  /* ---------- Ticker (marquee curto, /garante) — fiel a `.g-ticker` de
+     `_reference/garante.html:105-112` (estilo inline da própria página)
+     ----------
+     src/blocks/ValuesMarquee com `variant:'ticker'` troca `.values-strip`
+     por `.g-ticker` — mesmo `Marquee`, padding/tipografia próprios. */
+  .g-ticker {
+    padding-block: 1.6rem;
+    border-block: 1px solid var(--line);
+    background: var(--bg-deep);
+  }
+  .g-ticker .marquee-track span {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    display: inline-flex;
+    gap: 4rem;
+  }
+
   /* ---------- Manifesto (revelação palavra a palavra) — fiel a `.manifesto`
      de `_reference/index.html:551-555` + `:161-168` ----------
      src/blocks/WordsSection usa `Words` (src/motion/Words.tsx), que injeta os
@@ -766,6 +834,62 @@
     letter-spacing: -0.02em;
     max-width: 30ch;
     margin: 0;
+  }
+
+  /* ---------- O problema (manifesto compacto, /garante) — fiel a
+     `.g-problem` de `_reference/garante.html:114-120` (estilo inline da
+     própria página) ----------
+     src/blocks/WordsSection com `variant:'problem'` troca `.manifesto` por
+     `.g-problem` — mesmo `Words`, padding/tipografia levemente menores. */
+  .g-problem {
+    padding-block: clamp(6rem, 11vw, 9rem);
+  }
+  .g-problem p {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.6vw, 3rem);
+    line-height: 1.24;
+    max-width: 30ch;
+    margin: 0;
+  }
+
+  /* ---------- "1%" gigante (momento tipográfico) — fiel a `.g-one` de
+     `_reference/garante.html:143-165` (estilo inline da própria página)
+     ----------
+     src/blocks/PriceMoment renderiza `.huge` (`Reveal dir="scale"`), `.sub`
+     e `.fine`. `var(--navy-900)`→`--color-navy-900`; `--grad-ice` já existe
+     como CSS var solta. */
+  .g-one {
+    text-align: center;
+    padding-block: clamp(6rem, 12vw, 11rem);
+    background:
+      radial-gradient(60% 60% at 50% 45%, rgba(42, 63, 150, 0.5) 0%, transparent 65%),
+      var(--color-navy-900);
+    overflow: hidden;
+  }
+  .g-one .huge {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(8rem, 26vw, 22rem);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+  }
+  .g-one .sub {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text);
+    font-size: clamp(1.3rem, 2.6vw, 2rem);
+    margin-top: 1.6rem;
+  }
+  .g-one .fine {
+    color: var(--text-2);
+    max-width: 44ch;
+    margin: 1rem auto 0;
   }
 
   /* ---------- Pilares (rows interativas) — fiel a `.pillar-row` de
@@ -829,6 +953,14 @@
   }
   .sec-light .pillar-row:hover h3 {
     color: var(--color-navy-500);
+  }
+  /* `compact`, fiel a `.g-step h3`/`p` de `_reference/garante.html:139,141`
+     (estilo inline da própria página) — usado por `.g-how`/"Como funciona". */
+  .pillar-row.compact h3 {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+  }
+  .pillar-row.compact p {
+    max-width: 48ch;
   }
   @media (max-width: 860px) {
     .pillar-row {
@@ -2110,6 +2242,109 @@
   }
   @media (max-width: 860px) {
     .cost .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Antes/depois (comparação 2 cartões) — fiel a `.cmp-grid`/
+     `.cmp-col` de `_reference/garante.html:167-195` (estilo inline da
+     própria página) ----------
+     src/blocks/Compare renderiza `.cmp-grid` > 2x `.cmp-col` dentro de
+     `Section light white` (`.g-compare sec-light white` do ref) — a 2ª
+     coluna (`.after`) é sempre "Com o Garante" (fundo `--grad-band` +
+     `--shadow-glow`, já CSS vars soltas, mesmo padrão de `.cost-card`
+     acima). `var(--r-card)`→`--radius-card`, `var(--silver-500)`→
+     `--color-silver-500`, `var(--ice-300)`→`--color-ice-300`,
+     `var(--ice-400)`→`--color-ice-400`. */
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
+  }
+  .cmp-col {
+    border-radius: var(--radius-card);
+    padding: clamp(1.8rem, 4vw, 3rem);
+    border: 1px solid rgba(16, 26, 72, 0.08);
+    background: #fff;
+    box-shadow: 0 18px 45px -26px rgba(16, 26, 72, 0.2);
+  }
+  .cmp-col.after {
+    background: var(--grad-band);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-glow);
+  }
+  .cmp-col .cmp-tag {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    display: block;
+    margin-bottom: 1.6rem;
+  }
+  .cmp-col.after .cmp-tag {
+    color: var(--color-ice-300);
+  }
+  .cmp-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cmp-col li {
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 0.2rem;
+    color: var(--text-2);
+    font-size: 1rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+  .cmp-col li::before {
+    content: "";
+    width: 14px;
+    height: 2px;
+    flex-shrink: 0;
+    transform: translateY(-4px);
+    background: var(--color-silver-500);
+  }
+  .cmp-col.after li {
+    color: #d9e0f2;
+    border-top-color: rgba(173, 213, 235, 0.16);
+  }
+  .cmp-col.after li::before {
+    background: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .cmp-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- G5 Partners (split de texto puro) — fiel a `.g-partner` de
+     `_reference/garante.html:197-201` (estilo inline da própria página)
+     ----------
+     src/blocks/PartnerSplit renderiza `.wrap` (2 colunas de texto, sem
+     imagem — família `.split`/`SolutionSplit` sempre tem mídia, por isso um
+     bloco novo) dentro de `Section light` (`.g-partner sec-light` do ref). */
+  .g-partner {
+    border-top: 1px solid var(--line);
+  }
+  .g-partner .wrap {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .g-partner h2 {
+    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+    max-width: 14ch;
+  }
+  .g-partner p {
+    color: var(--text-2);
+    max-width: 52ch;
+  }
+  @media (max-width: 860px) {
+    .g-partner .wrap {
       grid-template-columns: 1fr;
     }
   }

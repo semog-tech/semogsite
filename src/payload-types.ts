@@ -223,6 +223,9 @@ export interface Page {
         | BenefitsBlock
         | ContactInfoBlock
         | FormEmbedBlock
+        | PriceMomentBlock
+        | CompareBlock
+        | PartnerSplitBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -280,6 +283,13 @@ export interface HeroBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Chip de vidro "1%" do hero de vídeo (`.g-price`), fiel a `_reference/garante.html:94-104` (estilo inline da própria página — distinto do `.pct-chip` do bloco `Garante`, que é o da banda `.g-band-home`). Só tem efeito com `video` preenchido: liga o overlay `::after` (`.g-hero`) e troca o layout de subhead/CTAs para a `.row` (docked à esquerda) + o chip (docked à direita), no lugar do empilhamento padrão. Deixe em branco para o hero de vídeo sem chip (ex.: home).
+   */
+  priceChip?: {
+    value?: string | null;
+    label?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -309,6 +319,7 @@ export interface StatsBlock {
  * via the `definition` "ValuesMarqueeBlock".
  */
 export interface ValuesMarqueeBlock {
+  variant?: ('values' | 'ticker') | null;
   /**
    * Valores exibidos na faixa (ex.: TRANSPARÊNCIA, RETIDÃO, DINÂMICA).
    */
@@ -326,6 +337,7 @@ export interface ValuesMarqueeBlock {
  * via the `definition` "WordsSectionBlock".
  */
 export interface WordsSectionBlock {
+  variant?: ('manifesto' | 'problem') | null;
   eyebrow?: string | null;
   text: string;
   id?: string | null;
@@ -339,9 +351,15 @@ export interface WordsSectionBlock {
 export interface PillarsBlock {
   eyebrow?: string | null;
   /**
-   * Zera o padding-top da seção (`.pillars { padding-top: 0 }` do ref, usado na Home/`semog`). Desmarque quando a página reutilizando este bloco não tem esse zero (ex. `.method` de `/administracao-de-condominios`).
+   * Zera o padding-top da seção (`.pillars { padding-top: 0 }` do ref, usado na Home/`semog`). Desmarque quando a página reutilizando este bloco não tem esse zero (ex. `.method` de `/administracao-de-condominios`, `.g-how` de `/garante`).
    */
   tightTop?: boolean | null;
+  light?: boolean | null;
+  white?: boolean | null;
+  /**
+   * Tipografia levemente menor (`h3`/`p`), fiel a `.g-step` de `/garante` (vs `.pillar-row` padrão da Home).
+   */
+  compact?: boolean | null;
   items: {
     glyph?: string | null;
     title: string;
@@ -715,6 +733,10 @@ export interface FaqBlock {
    * Zera o padding-top da seção (`.faq { padding-top: 0 }`, só na família `administracao-de-condominios*` — a seção cola no `.cost`/checklist anterior). `solucoes`/`garante` não têm esse override.
    */
   tightTop?: boolean | null;
+  /**
+   * Fundo `--bg-deep` escuro em vez de `.sec-light`, fiel a `<section class="faq" style="background:var(--bg-deep)">` de `_reference/garante.html:395` (ao contrário do `.faq.sec-light` claro de `/solucoes`/`administracao-de-condominios`). Sem efeito se `white` também estiver marcado.
+   */
+  dark?: boolean | null;
   items?:
     | {
         question: string;
@@ -902,6 +924,60 @@ export interface FormEmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'formEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceMomentBlock".
+ */
+export interface PriceMomentBlock {
+  /**
+   * Número gigante em gradiente (`.huge`), ex.: "1%".
+   */
+  value: string;
+  sub?: string | null;
+  fine?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'priceMoment';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CompareBlock".
+ */
+export interface CompareBlock {
+  title: string;
+  before: {
+    tag: string;
+    items: {
+      text: string;
+      id?: string | null;
+    }[];
+  };
+  after: {
+    tag: string;
+    items: {
+      text: string;
+      id?: string | null;
+    }[];
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'compare';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PartnerSplitBlock".
+ */
+export interface PartnerSplitBlock {
+  title: string;
+  text: string;
+  /**
+   * Trecho de `text` a destacar em `<strong>` navy-500, ex.: "G5 Partners" (`<strong style="color:var(--navy-500);">`, `_reference/garante.html:384`).
+   */
+  highlight?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'partnerSplit';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1270,6 +1346,9 @@ export interface PagesSelect<T extends boolean = true> {
         benefits?: T | BenefitsBlockSelect<T>;
         contactInfo?: T | ContactInfoBlockSelect<T>;
         formEmbed?: T | FormEmbedBlockSelect<T>;
+        priceMoment?: T | PriceMomentBlockSelect<T>;
+        compare?: T | CompareBlockSelect<T>;
+        partnerSplit?: T | PartnerSplitBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -1307,6 +1386,12 @@ export interface HeroBlockSelect<T extends boolean = true> {
         variant?: T;
         id?: T;
       };
+  priceChip?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1334,6 +1419,7 @@ export interface StatsBlockSelect<T extends boolean = true> {
  * via the `definition` "ValuesMarqueeBlock_select".
  */
 export interface ValuesMarqueeBlockSelect<T extends boolean = true> {
+  variant?: T;
   items?: T;
   separator?: T;
   id?: T;
@@ -1344,6 +1430,7 @@ export interface ValuesMarqueeBlockSelect<T extends boolean = true> {
  * via the `definition` "WordsSectionBlock_select".
  */
 export interface WordsSectionBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   text?: T;
   id?: T;
@@ -1356,6 +1443,9 @@ export interface WordsSectionBlockSelect<T extends boolean = true> {
 export interface PillarsBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   tightTop?: T;
+  light?: T;
+  white?: T;
+  compact?: T;
   items?:
     | T
     | {
@@ -1703,6 +1793,7 @@ export interface FaqBlockSelect<T extends boolean = true> {
   title?: T;
   white?: T;
   tightTop?: T;
+  dark?: T;
   items?:
     | T
     | {
@@ -1854,6 +1945,59 @@ export interface FormEmbedBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   text?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceMomentBlock_select".
+ */
+export interface PriceMomentBlockSelect<T extends boolean = true> {
+  value?: T;
+  sub?: T;
+  fine?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CompareBlock_select".
+ */
+export interface CompareBlockSelect<T extends boolean = true> {
+  title?: T;
+  before?:
+    | T
+    | {
+        tag?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  after?:
+    | T
+    | {
+        tag?: T;
+        items?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PartnerSplitBlock_select".
+ */
+export interface PartnerSplitBlockSelect<T extends boolean = true> {
+  title?: T;
+  text?: T;
+  highlight?: T;
   id?: T;
   blockName?: T;
 }

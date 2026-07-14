@@ -47,7 +47,9 @@ export const benefitsBlock: Block = {
         {
           name: 'value',
           type: 'text',
-          admin: { description: 'Número gigante da célula (.num), ex.: "24h". Só no variant bento.' },
+          admin: {
+            description: 'Número gigante da célula (.num), ex.: "24h". Só no variant bento.',
+          },
         },
         {
           name: 'image',

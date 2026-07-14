@@ -9,12 +9,15 @@ import type { WordsSectionBlock as WordsSectionBlockType } from '@/payload-types
  * revelado palavra a palavra por `Words` (`src/motion/Words.tsx` —
  * scrub palavra-a-palavra no scroll, com fallback reduced-motion). O `Words`
  * já injeta um `.sr-only` com o texto completo para leitores de tela.
+ *
+ * `variant: 'problem'` troca `.manifesto` por `.g-problem` — ver doc do
+ * campo em `WordsSection/config.ts`.
  */
-export function WordsSectionBlock({ eyebrow, text }: WordsSectionBlockType) {
+export function WordsSectionBlock({ eyebrow, text, variant }: WordsSectionBlockType) {
   if (!text) return null
 
   return (
-    <section className="manifesto">
+    <section className={variant === 'problem' ? 'g-problem' : 'manifesto'}>
       <Container>
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
         <Words>{text}</Words>
