@@ -274,4 +274,24 @@
   [data-fade].is-in {
     opacity: 1;
   }
+
+  /* ---------- Marquee (faixa infinita) — fiel a semog.css:432-434 ----------
+     src/motion/Marquee.tsx renderiza .marquee > .marquee-track com os itens
+     duplicados; roda sempre (semog.js:11-14, semog.css:435). */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+  .marquee-track {
+    display: inline-flex;
+    gap: 0;
+    will-change: transform;
+    animation: marquee 20s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
