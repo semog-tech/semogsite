@@ -1380,4 +1380,88 @@
     margin-bottom: 2.6rem;
     color: var(--text-2);
   }
+
+  /* ---------- Timeline horizontal (pin + scrub) — fiel a
+     `_reference/semog.html:86-131` (`.timeline-wrap`/`.tl-*`) ----------
+     src/motion/TimelinePinned.tsx pina `.timeline-wrap` (o próprio wrap que
+     renderiza) e desliza `.tl-track` no scroll; src/blocks/Timeline monta
+     `head`/`children`. `var(--bg-deep)`/`var(--line)`/`var(--gutter)`/
+     `var(--r-card)`/`var(--font-display)`/`var(--grad-ice)`/`var(--text-2)`
+     já existem como CSS vars soltas (`@layer base`/`@theme`, mesmo padrão
+     usado por `.solutions`/`.pillar-row` acima); `var(--gutter)` e
+     `var(--section)` do ref não têm token dedicado — reproduzidos como os
+     mesmos clamps literais usados por `Container`/`Section`. */
+  .timeline-wrap {
+    background: var(--bg-deep);
+    overflow: hidden;
+    padding-block: 0;
+    border-block: 1px solid var(--line);
+  }
+  @media (min-width: 861px) {
+    .timeline-wrap {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: clamp(2rem, 4vh, 4rem);
+    }
+    .timeline-head {
+      padding-top: 90px;
+    }
+  }
+  @media (max-width: 860px) {
+    .timeline-head {
+      padding-top: clamp(5rem, 10vw, 9rem);
+    }
+  }
+  .tl-viewport {
+    position: relative;
+  }
+  .tl-track {
+    display: flex;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: 0.5rem clamp(1.25rem, 4vw, 3rem) 2rem;
+    align-items: stretch;
+    width: max-content;
+  }
+  @media (max-width: 860px) {
+    .tl-track {
+      padding-bottom: clamp(5rem, 10vw, 9rem);
+    }
+  }
+  .tl-item {
+    width: clamp(280px, 30vw, 400px);
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2.2rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.01));
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+  .tl-item .year {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  .tl-item h3 {
+    font-size: 1.25rem;
+    margin: 0.4rem 0 0.2rem;
+  }
+  .tl-item p {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .tl-item.now {
+    border-color: rgba(173, 213, 235, 0.45);
+    box-shadow: var(--shadow-glow);
+  }
 }

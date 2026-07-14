@@ -199,6 +199,7 @@ export interface Page {
         | ValuesMarqueeBlock
         | WordsSectionBlock
         | PillarsBlock
+        | TimelineBlock
         | SolucoesBentoBlock
         | ProdutosGridBlock
         | FeatureGridBlock
@@ -319,6 +320,29 @@ export interface PillarsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'pillars';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock".
+ */
+export interface TimelineBlock {
+  eyebrow?: string | null;
+  title?: string | null;
+  text?: string | null;
+  items: {
+    date: string;
+    title: string;
+    text: string;
+    image?: (number | null) | Media;
+    /**
+     * Marca o cartão atual (glow), equivalente a .tl-item.now no ref.
+     */
+    now?: boolean | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'timeline';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -997,6 +1021,7 @@ export interface PagesSelect<T extends boolean = true> {
         valuesMarquee?: T | ValuesMarqueeBlockSelect<T>;
         wordsSection?: T | WordsSectionBlockSelect<T>;
         pillars?: T | PillarsBlockSelect<T>;
+        timeline?: T | TimelineBlockSelect<T>;
         solucoesBento?: T | SolucoesBentoBlockSelect<T>;
         produtosGrid?: T | ProdutosGridBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
@@ -1099,6 +1124,27 @@ export interface PillarsBlockSelect<T extends boolean = true> {
         glyph?: T;
         title?: T;
         text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock_select".
+ */
+export interface TimelineBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        date?: T;
+        title?: T;
+        text?: T;
+        image?: T;
+        now?: T;
         id?: T;
       };
   id?: T;

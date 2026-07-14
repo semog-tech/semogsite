@@ -20,6 +20,7 @@ import { ShowcaseBlock } from './Showcase/Component'
 import { SolucoesBentoBlock } from './SolucoesBento/Component'
 import { StatsBlock } from './Stats/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
+import { TimelineBlock } from './Timeline/Component'
 import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
 import { WordsSectionBlock } from './WordsSection/Component'
 
@@ -31,6 +32,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   valuesMarquee: ValuesMarqueeBlock,
   wordsSection: WordsSectionBlock,
   pillars: PillarsBlock,
+  timeline: TimelineBlock,
   solucoesBento: SolucoesBentoBlock,
   produtosGrid: ProdutosGridBlock,
   featureGrid: FeatureGridBlock,

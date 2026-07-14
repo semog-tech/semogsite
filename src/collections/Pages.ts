@@ -19,6 +19,7 @@ import { showcaseBlock } from '@/blocks/Showcase/config'
 import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
 import { statsBlock } from '@/blocks/Stats/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
+import { timelineBlock } from '@/blocks/Timeline/config'
 import { valuesMarqueeBlock } from '@/blocks/ValuesMarquee/config'
 import { wordsSectionBlock } from '@/blocks/WordsSection/config'
 import { revalidatePage } from '@/lib/revalidate'
@@ -59,6 +60,7 @@ export const Pages: CollectionConfig = {
         valuesMarqueeBlock,
         wordsSectionBlock,
         pillarsBlock,
+        timelineBlock,
         solucoesBentoBlock,
         produtosGridBlock,
         featureGridBlock,
