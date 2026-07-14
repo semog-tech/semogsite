@@ -200,6 +200,7 @@ export interface Page {
         | WordsSectionBlock
         | PillarsBlock
         | SolucoesBentoBlock
+        | ProdutosGridBlock
         | FeatureGridBlock
         | GaranteBlock
         | CitiesBlock
@@ -336,6 +337,26 @@ export interface SolucoesBentoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'solucoesBento';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProdutosGridBlock".
+ */
+export interface ProdutosGridBlock {
+  eyebrow?: string | null;
+  title: string;
+  cards: {
+    image: number | Media;
+    theme: 'on-white' | 'on-navy' | 'on-deep';
+    tag?: string | null;
+    title: string;
+    text: string;
+    href?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'produtosGrid';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -948,6 +969,7 @@ export interface PagesSelect<T extends boolean = true> {
         wordsSection?: T | WordsSectionBlockSelect<T>;
         pillars?: T | PillarsBlockSelect<T>;
         solucoesBento?: T | SolucoesBentoBlockSelect<T>;
+        produtosGrid?: T | ProdutosGridBlockSelect<T>;
         featureGrid?: T | FeatureGridBlockSelect<T>;
         garante?: T | GaranteBlockSelect<T>;
         cities?: T | CitiesBlockSelect<T>;
@@ -1067,6 +1089,27 @@ export interface SolucoesBentoBlockSelect<T extends boolean = true> {
         text?: T;
         href?: T;
         tall?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProdutosGridBlock_select".
+ */
+export interface ProdutosGridBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  cards?:
+    | T
+    | {
+        image?: T;
+        theme?: T;
+        tag?: T;
+        title?: T;
+        text?: T;
+        href?: T;
         id?: T;
       };
   id?: T;

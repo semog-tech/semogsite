@@ -12,6 +12,7 @@ import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { PillarsBlock } from './Pillars/Component'
+import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { ShowcaseBlock } from './Showcase/Component'
@@ -30,6 +31,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   wordsSection: WordsSectionBlock,
   pillars: PillarsBlock,
   solucoesBento: SolucoesBentoBlock,
+  produtosGrid: ProdutosGridBlock,
   featureGrid: FeatureGridBlock,
   garante: GaranteBlock,
   cities: CitiesBlock,
