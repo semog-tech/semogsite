@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import type {
   AppShowcaseBlock,
+  BairrosBlock,
   BenefitsBlock,
   ClubeBeneficiosBlock,
   CompareBlock,
@@ -116,18 +117,21 @@ import { getMediaId } from './lib/media'
  *   `ContactInfo` que fica abaixo do form em "Contato").
  * - Quatro landings de cidade (slugs
  *   `administradora-de-condominios-{recife,joao-pessoa,campina-grande,
- *   belem}`), fiéis a `_reference/administradora-de-condominios-*.html`:
- *   as quatro páginas compartilham a mesma composição, montada por
- *   `seedCityLanding`, só variando o conteúdo por cidade — Hero (a tag da
- *   unidade + o headline/lead de `.page-hero`) + FeatureGrid (os 7
- *   serviços de `.svc-rows`, sob o h2 "Gestão feita por quem conhece
- *   <cidade>") + Testimonials (os dois `.depo-card` de "Quem já é Semog em
- *   <cidade>") + Registros (as credenciais de `.creds`/`.badges`) +
- *   ContactInfo (o cartão `.unit-card` da unidade, um item só) + CTABand
- *   final. Ficam de fora, por não fazerem parte da composição desta task:
- *   os números (`.mini-stats`, já cobertos por "A Semog"), os bairros
- *   atendidos (`.hood-pills`), a banda do Semog Garante (`.g-band`, já
- *   coberta pela página "Semog Garante") e o FAQ local (`.faq`).
+ *   belem}`), fiéis a `_reference/administradora-de-condominios-*.html`: as
+ *   quatro páginas compartilham um único template — `<head>`/`<style>`/
+ *   nav/footer byte-idênticos, confirmado em
+ *   `.superpowers/sdd/audit-cidades.md` — montado por `seedCityLanding`, só
+ *   variando o conteúdo por cidade, nas 9 seções do ref, na ordem exata:
+ *   Hero (`poster` = foto da cidade via `pageHeroOverlay`) + Stats (as 4
+ *   `.mini-stats`, idênticas nas 4 páginas) + ContactInfo `variant:'card'`
+ *   (o `.unit-card` rico — foto, chip Matriz/Filial, `dl` de contato, 2
+ *   ações) + Bairros (bloco novo — os `.hood-pills`) + FeatureGrid
+ *   `variant:'rows'` (a lista `.svc-rows` com intro + badges "EXCLUSIVA"/
+ *   "1% AO MÊS") + Garante (a banda split `.g-band`, via o grupo `pct`) +
+ *   Testimonials (os dois `.depo-card`) + Registros `light:true` (as
+ *   credenciais `.creds`, claras porque o ref aninha dentro da mesma
+ *   `.depo.sec-light`) + Faq `tightTop:true` (as 4 perguntas de `.faq`) +
+ *   CTABand `variant:'centered'` final.
  *
  * Prova, junto com `home.ts`/`posts.ts`, que a rota catch-all
  * `[[...slug]]` serve qualquer página de CMS por slug.
@@ -1574,7 +1578,11 @@ async function upsertPage(
 }
 
 // ===== Landings de cidade (Recife, João Pessoa, Campina Grande, Belém),
-// fiéis a `_reference/administradora-de-condominios-*.html` =====
+// fiéis a `_reference/administradora-de-condominios-*.html` — as 4 páginas
+// são um único template (`<head>`/`<style>`/nav/footer byte-idênticos,
+// confirmado em `.superpowers/sdd/audit-cidades.md`), 9 seções na ordem do
+// ref: Hero → Números → Unidade → Bairros → Serviços → Banda Garante →
+// Depoimentos+Creds → FAQ → CTA final. =====
 
 type CityLandingTestimonial = { quote: string; author: string; role: string }
 
@@ -1585,79 +1593,167 @@ type CityLandingInput = {
   uf: string
   ufFull: string
   heroSubhead: string
+  /** Filename já semeado por `pnpm seed:media` (ver `MEDIA_ASSETS`). */
+  cityPhotoFilename: string
   neighborhood: string
-  address: string
+  /** 1ª linha do endereço (`<dd>`), ex.: "Av. Conselheiro Aguiar, 1000 · Sala 501". */
+  addressMain: string
+  /** 2ª linha do endereço (`<small>`), ex.: "Boa Viagem · Recife/PE · CEP 51011-000". */
+  addressDetail: string
   phone: string
+  /** Dígitos puros, usado no link `wa.me` (CTA "Chamar no WhatsApp"). */
   whatsapp: string
+  /** Telefone formatado da linha "WhatsApp" do `dl`, ex.: "(81) 9 9999-9999". */
+  whatsappDisplay: string
+  /** Href do CTA "Como chegar", ex.: "https://maps.google.com/?q=Semog+recife". */
+  mapsHref: string
+  /** `.hood-pills` — bairros de forte presença. */
+  neighborhoodPills: string[]
+  /** `.hood .note` — "Também atendemos ...", reaproveitado na 2ª pergunta do FAQ. */
+  alsoServedNote: string
+  /** Parágrafo de apresentação de `.svc-sec` (`FeatureGrid.intro`). */
+  servicosIntro: string
   testimonials: [CityLandingTestimonial, CityLandingTestimonial]
 }
 
-// Os 7 itens de `.svc-rows` são idênticos nas quatro páginas do
-// `_reference` — só o parágrafo de apresentação acima muda por cidade, e
-// esse parágrafo não tem um campo correspondente no FeatureGrid (que só
-// tem eyebrow/title + cards), então vira só o `title` do bloco.
+/** Horário fiel ao `dl` `.unit-rows` — idêntico nas 4 landings do ref. */
+const CITY_HOURS = 'Segunda a sexta, das 8h às 18h'
+
+/**
+ * Junta uma lista ao estilo PT-BR "A, B e C" — fiel ao `.hood-pills`/FAQ
+ * "com forte presença em X, Y e Z" do ref (ao contrário do "Também
+ * atendemos ..." de `alsoServedNote`, que o próprio ref junta só com
+ * vírgulas, sem "e" — por isso não usa este helper, fica como texto literal).
+ */
+function joinPt(items: string[]): string {
+  if (items.length <= 1) return items.join('')
+  return `${items.slice(0, -1).join(', ')} e ${items[items.length - 1]}`
+}
+
+// Os 7 itens de `.svc-rows` são idênticos nas quatro páginas do `_reference`
+// — só o parágrafo de apresentação (`servicosIntro`, acima) muda por
+// cidade. `badge` reproduz os 2 selos inline do ref ("EXCLUSIVA"/"1% AO MÊS",
+// `_reference/administradora-de-condominios-recife.html:368,373`).
 const cityServicos: NonNullable<FeatureGridBlock['features']> = [
-  {
-    title: 'Gestão financeira e cobrança',
-    description:
-      'Boletos, contas a pagar e fluxo de caixa sob controle, com régua de cobrança profissional.',
-  },
-  {
-    title: 'Prestação de contas 100% digital',
-    description:
-      'Documentos anexados a cada lançamento e aprovação por assinatura digital — exclusiva no mercado.',
-  },
-  {
-    title: 'Folha e RH dos funcionários',
-    description:
-      'Folha, férias, encargos e rotinas trabalhistas do condomínio, sem risco para o síndico.',
-  },
-  {
-    title: 'Assessoria jurídica condominial',
-    description:
-      'Convenção, regimento, notificações e suporte em conflitos, com advogados especializados.',
-  },
-  {
-    title: 'Assembleias presenciais e digitais',
-    description:
-      'Convocação, condução, ata e votação pelo aplicativo, no formato que o condomínio escolher.',
-  },
-  {
-    title: 'Aplicativo para moradores e síndicos',
-    description: 'Boletos, reservas, avisos e ocorrências, tudo no bolso do morador e do síndico.',
-  },
-  {
-    title: 'Semog Garante: inadimplência zero',
-    description: '1% da arrecadação garante 100% do caixa do condomínio, todos os meses.',
-  },
+  { title: 'Gestão financeira e cobrança' },
+  { title: 'Prestação de contas 100% digital', badge: 'EXCLUSIVA' },
+  { title: 'Folha e RH dos funcionários' },
+  { title: 'Assessoria jurídica condominial' },
+  { title: 'Assembleias presenciais e digitais' },
+  { title: 'Aplicativo para moradores e síndicos' },
+  { title: 'Semog Garante: inadimplência zero', badge: '1% AO MÊS' },
 ]
+
+// `.mini-stats` — 4 números idênticos nas quatro páginas do `_reference`
+// (`_reference/administradora-de-condominios-recife.html:301-310`).
+const cityStats: NonNullable<StatsBlock['items']> = [
+  { value: 35, label: 'Anos de mercado' },
+  { value: 700, prefix: '+', label: 'Condomínios' },
+  { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
+  { value: 100, prefix: '+', label: 'Especialistas' },
+]
+
+// Q3/Q4 do FAQ são byte-idênticas nas 4 páginas do `_reference` (só o nome
+// da cidade muda na pergunta de Q3, nunca na resposta; Q4 nem isso).
+const CITY_FAQ_QUANTO_CUSTA_ANSWER =
+  'Depende do porte do condomínio e dos serviços. Envie os dados do seu condomínio e receba uma proposta personalizada em até 24 horas úteis, sem compromisso.'
+const CITY_FAQ_TROCA_QUESTION = 'Como funciona a troca de administradora?'
+const CITY_FAQ_TROCA_ANSWER =
+  'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.'
 
 async function seedCityLanding(
   payload: Awaited<ReturnType<typeof getPayload>>,
   input: CityLandingInput,
 ) {
+  const cityPhotoId = await getMediaId(payload, input.cityPhotoFilename)
+  const chip = `${input.role} · ${input.uf}`
+
+  // `.page-hero`, fiel a `_reference/administradora-de-condominios-recife.html:65-91,284-298`.
   const hero: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
     eyebrow: `Semog ${input.city} · ${input.role} · ${input.ufFull}`,
     headline: `Administradora de condomínios em ${input.city}.`,
     subhead: input.heroSubhead,
+    poster: cityPhotoId,
+    pageHeroOverlay: true,
+    pageHeroMinHeight: '86dvh',
+    pageHeroPosterOpacity: 0.5,
+    pageHeroBgPosition: 'center 35%',
+    pageHeroGradient:
+      'linear-gradient(180deg, rgba(5,8,26,0.5) 0%, rgba(10,16,46,0.3) 50%, var(--color-navy-950) 100%)',
     ctas: [{ label: 'Solicitar proposta', href: '/proposta', variant: 'white' }],
   }
 
-  const servicos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
-    blockType: 'featureGrid',
-    title: `Gestão feita por quem conhece ${input.city}.`,
-    features: cityServicos,
+  // `.mini-stats-sec`, fiel a `_reference/administradora-de-condominios-recife.html:300-310`.
+  const stats: Omit<StatsBlock, 'id' | 'blockName'> = {
+    blockType: 'stats',
+    items: cityStats,
   }
 
+  // `.unit-sec` (cartão rico), fiel a `_reference/administradora-de-condominios-recife.html:110-140,312-338`.
+  const contactInfo: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
+    blockType: 'contactInfo',
+    variant: 'card',
+    eyebrow: `Nossa unidade em ${input.city}`,
+    title: `De portas abertas em ${input.neighborhood}.`,
+    titleAccent: `em ${input.neighborhood}.`,
+    items: [
+      {
+        city: input.city,
+        uf: input.uf,
+        address: input.addressMain,
+        addressDetail: input.addressDetail,
+        phone: input.phone,
+        whatsappDisplay: input.whatsappDisplay,
+        hours: CITY_HOURS,
+        chip,
+        photo: cityPhotoId,
+        mapsHref: input.mapsHref,
+      },
+    ],
+    whatsapp: input.whatsapp,
+  }
+
+  // `.hood` (bloco novo), fiel a `_reference/administradora-de-condominios-recife.html:142-156,340-356`.
+  const bairros: Omit<BairrosBlock, 'id' | 'blockName'> = {
+    blockType: 'bairros',
+    title: `Bairros com condomínios Semog em ${input.city}`,
+    items: input.neighborhoodPills.map((label) => ({ label })),
+    note: input.alsoServedNote,
+  }
+
+  // `.svc-sec` (variant rows), fiel a `_reference/administradora-de-condominios-recife.html:158-174,358-380`.
+  const servicos: Omit<FeatureGridBlock, 'id' | 'blockName'> = {
+    blockType: 'featureGrid',
+    variant: 'rows',
+    title: `Gestão feita por quem conhece ${input.city}.`,
+    titleAccent: `conhece ${input.city}.`,
+    intro: input.servicosIntro,
+    features: cityServicos,
+    moreLink: { label: 'Ver o serviço completo', href: '/administracao-de-condominios' },
+  }
+
+  // `.g-band` (Garante split), fiel a `_reference/administradora-de-condominios-recife.html:176-190,382-402`.
+  const garanteBand: Omit<GaranteBlock, 'id' | 'blockName'> = {
+    blockType: 'garante',
+    title: `Inadimplência zero também em ${input.city}.`,
+    text: 'O Semog Garante assegura a arrecadação integral do condomínio em contrato. A cobrança é problema nosso, nunca do síndico.',
+    cta: { label: 'Conhecer o Semog Garante', href: '/garante' },
+    pct: { value: '1%', label: 'da arrecadação. Só isso.' },
+  }
+
+  // `.depo`, fiel a `_reference/administradora-de-condominios-recife.html:404-419`.
   const depoimentos: Omit<TestimonialsBlock, 'id' | 'blockName'> = {
     blockType: 'testimonials',
     eyebrow: `Quem já é Semog em ${input.city}`,
     items: input.testimonials,
   }
 
+  // `.creds`, fiel a `_reference/administradora-de-condominios-recife.html:420-429`. `light`
+  // (sem `white`) porque o ref aninha `.creds` dentro da mesma `.depo.sec-light` acima.
   const registros: Omit<RegistrosBlock, 'id' | 'blockName'> = {
     blockType: 'registros',
+    light: true,
     title:
       'A Semog é registrada nos órgãos do setor e associada às entidades do mercado condominial. Documentação disponível para consulta na unidade.',
     items: [
@@ -1668,24 +1764,35 @@ async function seedCityLanding(
     ],
   }
 
-  const contactInfo: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
-    blockType: 'contactInfo',
-    eyebrow: `Nossa unidade em ${input.city}`,
-    title: `De portas abertas em ${input.neighborhood}.`,
+  // `.faq`, fiel a `_reference/administradora-de-condominios-recife.html:227-235,434-457`.
+  // `tightTop` zera o padding-top — a seção cola no `.creds` acima, como no ref.
+  const faq: Omit<FaqBlock, 'id' | 'blockName'> = {
+    blockType: 'faq',
+    title: `Perguntas de quem busca administradora em ${input.city}.`,
+    tightTop: true,
     items: [
       {
-        city: input.city,
-        uf: `${input.uf} · ${input.role}`,
-        address: input.address,
-        phone: input.phone,
+        question: `Qual a melhor administradora de condomínios de ${input.city}?`,
+        answer: `Com 35 anos de mercado, mais de 700 condomínios e 70 mil clientes, a Semog é a administradora líder do Nordeste, com ${input.role.toLowerCase()} em ${input.neighborhood} e a única prestação de contas 100% digital do mercado.`,
       },
+      {
+        question: 'Quais bairros vocês atendem?',
+        answer: `Toda a cidade, com forte presença em ${joinPt(input.neighborhoodPills)}. ${input.alsoServedNote}`,
+      },
+      {
+        question: `Quanto custa uma administradora em ${input.city}?`,
+        answer: CITY_FAQ_QUANTO_CUSTA_ANSWER,
+      },
+      { question: CITY_FAQ_TROCA_QUESTION, answer: CITY_FAQ_TROCA_ANSWER },
     ],
-    whatsapp: input.whatsapp,
   }
 
+  // `.final-cta`, fiel a `_reference/administradora-de-condominios-recife.html:459-471`.
   const ctaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
     blockType: 'ctaBand',
+    variant: 'centered',
     title: `Seu condomínio em ${input.city} merece a líder.`,
+    titleAccent: 'a líder.',
     text: `Fale com a Semog ${input.city} e receba uma proposta sob medida em até 24 horas úteis.`,
     cta: { label: 'Solicitar proposta', href: '/proposta' },
   }
@@ -1693,7 +1800,18 @@ async function seedCityLanding(
   await upsertPage(payload, {
     title: `Administradora de Condomínios em ${input.city}`,
     slug: input.slug,
-    layout: [hero, servicos, depoimentos, registros, contactInfo, ctaBand],
+    layout: [
+      hero,
+      stats,
+      contactInfo,
+      bairros,
+      servicos,
+      garanteBand,
+      depoimentos,
+      registros,
+      faq,
+      ctaBand,
+    ],
   })
 }
 
@@ -1705,10 +1823,28 @@ const recifeCityLanding: CityLandingInput = {
   ufFull: 'Pernambuco',
   heroSubhead:
     'A líder do Nordeste nasceu aqui. Matriz em Recife, 35 anos de mercado e mais de 700 condomínios sob gestão.',
+  cityPhotoFilename: 'recife.webp',
   neighborhood: 'Boa Viagem',
-  address: 'Av. Conselheiro Aguiar, 1000 · Sala 501, Boa Viagem · Recife/PE · CEP 51011-000',
+  addressMain: 'Av. Conselheiro Aguiar, 1000 · Sala 501',
+  addressDetail: 'Boa Viagem · Recife/PE · CEP 51011-000',
   phone: '(81) 0000-0000',
   whatsapp: '5581999999999',
+  whatsappDisplay: '(81) 9 9999-9999',
+  mapsHref: 'https://maps.google.com/?q=Semog+recife',
+  neighborhoodPills: [
+    'Boa Viagem',
+    'Casa Forte',
+    'Espinheiro',
+    'Graças',
+    'Pina',
+    'Madalena',
+    'Torre',
+    'Parnamirim',
+  ],
+  alsoServedNote:
+    'Também atendemos Olinda, Jaboatão dos Guararapes, Paulista, Região Metropolitana do Recife.',
+  servicosIntro:
+    'Desde 1991, administramos condomínios em Recife e em toda a Região Metropolitana. Nossa matriz fica na cidade, com atendimento presencial e equipe completa de contabilidade, jurídico, RH e relacionamento.',
   testimonials: [
     {
       quote:
@@ -1732,10 +1868,26 @@ const joaoPessoaCityLanding: CityLandingInput = {
   ufFull: 'Paraíba',
   heroSubhead:
     'A administradora líder do Nordeste, com filial e equipe local em João Pessoa para cuidar do seu condomínio de perto.',
+  cityPhotoFilename: 'joao-pessoa.webp',
   neighborhood: 'Tambaú',
-  address: 'Av. Epitácio Pessoa, 500 · Sala 302, Tambaú · João Pessoa/PB · CEP 58039-000',
+  addressMain: 'Av. Epitácio Pessoa, 500 · Sala 302',
+  addressDetail: 'Tambaú · João Pessoa/PB · CEP 58039-000',
   phone: '(83) 0000-0000',
   whatsapp: '5583999999999',
+  whatsappDisplay: '(83) 9 9999-9999',
+  mapsHref: 'https://maps.google.com/?q=Semog+joao+pessoa',
+  neighborhoodPills: [
+    'Manaíra',
+    'Tambaú',
+    'Cabo Branco',
+    'Bessa',
+    'Altiplano',
+    'Bancários',
+    'Intermares',
+  ],
+  alsoServedNote: 'Também atendemos Cabedelo, Bayeux, Santa Rita, Grande João Pessoa.',
+  servicosIntro:
+    'A filial de João Pessoa atende a orla e toda a Grande João Pessoa com equipe da cidade e o mesmo padrão de governança da matriz: prestação de contas digital, aplicativo completo e acesso direto aos sócios.',
   testimonials: [
     {
       quote:
@@ -1759,10 +1911,18 @@ const campinaGrandeCityLanding: CityLandingInput = {
   ufFull: 'Paraíba',
   heroSubhead:
     'A administradora líder do Nordeste, com filial e equipe local em Campina Grande para cuidar do seu condomínio de perto.',
+  cityPhotoFilename: 'campina-grande.webp',
   neighborhood: 'Centro',
-  address: 'Rua Maciel Pinheiro, 200 · Sala 104, Centro · Campina Grande/PB · CEP 58400-000',
+  addressMain: 'Rua Maciel Pinheiro, 200 · Sala 104',
+  addressDetail: 'Centro · Campina Grande/PB · CEP 58400-000',
   phone: '(83) 0000-0000',
   whatsapp: '5583999999999',
+  whatsappDisplay: '(83) 9 9999-9999',
+  mapsHref: 'https://maps.google.com/?q=Semog+campina+grande',
+  neighborhoodPills: ['Catolé', 'Mirante', 'Alto Branco', 'Centro', 'Bela Vista', 'Prata'],
+  alsoServedNote: 'Também atendemos Queimadas, Lagoa Seca.',
+  servicosIntro:
+    'Nossa filial de Campina Grande une o conhecimento da Rainha da Borborema à estrutura da líder do Nordeste: tecnologia própria, prestação de contas digital e uma equipe que resolve na primeira ligação.',
   testimonials: [
     {
       quote:
@@ -1786,10 +1946,18 @@ const belemCityLanding: CityLandingInput = {
   ufFull: 'Pará',
   heroSubhead:
     'O método da líder do Nordeste, com filial e equipe local em Belém do Pará para cuidar do seu condomínio de perto.',
+  cityPhotoFilename: 'belem.webp',
   neighborhood: 'Umarizal',
-  address: 'Av. Visconde de Souza Franco, 300 · Sala 205, Umarizal · Belém/PA · CEP 66053-000',
+  addressMain: 'Av. Visconde de Souza Franco, 300 · Sala 205',
+  addressDetail: 'Umarizal · Belém/PA · CEP 66053-000',
   phone: '(91) 0000-0000',
   whatsapp: '5591999999999',
+  whatsappDisplay: '(91) 9 9999-9999',
+  mapsHref: 'https://maps.google.com/?q=Semog+belem',
+  neighborhoodPills: ['Umarizal', 'Nazaré', 'Batista Campos', 'Marco', 'Reduto', 'São Brás'],
+  alsoServedNote: 'Também atendemos Ananindeua, Marituba, Região Metropolitana de Belém.',
+  servicosIntro:
+    'Em Belém, a Semog leva ao Norte o método construído em 35 anos: prestação de contas 100% digital, aplicativo completo, Semog Garante e uma equipe paraense com autonomia de verdade.',
   testimonials: [
     {
       quote: 'Primeira administradora que respondeu chamado de manutenção no mesmo dia.',
