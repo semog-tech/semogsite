@@ -1161,6 +1161,138 @@
     line-height: 1.4;
   }
 
+  /* ---------- Presença (accordion de cidades) — fiel a `.cities-acc`/
+     `.city-panel` de `_reference/index.html:335-381` (estilo inline do
+     próprio index.html) + override sempre-claro `semog.css:183-186` +
+     responsivo `:434-437` ----------
+     src/blocks/Cities/CitiesAccordion (ilha client) alterna `.is-open` no
+     hover/toque; o CSS só cuida do layout/transição. `var(--r-card)`→
+     `--radius-card`, `var(--ice-400)`→`--color-ice-400`. */
+  .cities-acc {
+    display: flex;
+    gap: 0.8rem;
+    height: clamp(420px, 60vh, 560px);
+  }
+  .city-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+    flex: 1;
+    transition: flex 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    min-width: 0;
+    /* reset do UA stylesheet — `.city-panel` agora é um <button> nativo
+       (a11y, Task 8), não mais o `<a>` do ref. */
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: none;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+  }
+  .cities-acc .city-panel.is-open {
+    flex: 3.2;
+  }
+  .city-panel img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .city-panel.is-open img {
+    transform: scale(1.03);
+  }
+  .city-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.12) 40%, rgba(5, 8, 26, 0.9) 100%);
+  }
+  .city-panel .ci {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .city-panel .role {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.5s ease 0.15s,
+      transform 0.5s ease 0.15s;
+  }
+  .city-panel h3 {
+    margin: 0;
+    font-size: clamp(1.2rem, 2.2vw, 2rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: font-size 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .city-panel:not(.is-open) h3 {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+  .city-panel .uf {
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.5s ease 0.22s,
+      transform 0.5s ease 0.22s;
+  }
+  .city-panel.is-open .role,
+  .city-panel.is-open .uf {
+    opacity: 1;
+    transform: none;
+  }
+  .city-panel.hq {
+    outline: 1px solid rgba(173, 213, 235, 0.35);
+    outline-offset: -1px;
+  }
+  /* Painéis de cidade ficam sobre foto escura — texto sempre claro,
+     independente da seção (`Cities` usa `Section light`), fiel a
+     `semog.css:183-186`. */
+  .city-panel h3 {
+    color: #edf1fa !important;
+  }
+  .city-panel .uf {
+    color: #c5cde4 !important;
+  }
+  .city-panel .role {
+    color: var(--color-ice-400) !important;
+  }
+  @media (max-width: 860px) {
+    .cities-acc {
+      flex-direction: column;
+      height: auto;
+    }
+    .city-panel {
+      min-height: 110px;
+    }
+    .cities-acc .city-panel.is-open {
+      flex: 1;
+      min-height: 300px;
+    }
+    .city-panel h3 {
+      white-space: normal;
+    }
+  }
+
   /* ---------- Quote humana (citação gigante + parallax) — fiel a `.human`
      de `_reference/index.html:383-409` + responsivo `:438` ----------
      src/blocks/HumanQuote usa `Words` no blockquote e `Parallax` na foto;

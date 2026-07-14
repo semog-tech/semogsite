@@ -427,6 +427,7 @@ export interface CitiesBlock {
         city: string;
         uf: string;
         role?: string | null;
+        image?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -1208,6 +1209,7 @@ export interface CitiesBlockSelect<T extends boolean = true> {
         city?: T;
         uf?: T;
         role?: T;
+        image?: T;
         id?: T;
       };
   id?: T;
