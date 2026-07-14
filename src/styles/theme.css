@@ -245,4 +245,22 @@
     white-space: nowrap;
     border-width: 0;
   }
+
+  /* ---------- Animação por caractere (hero) — fiel a semog.css:500-509 ----------
+     src/motion/Chars.tsx marca o elemento com [data-chars] e injeta um
+     span.ch por caractere com --d (delay) inline; is-in é adicionado após
+     2x requestAnimationFrame (semog.js:83-85). */
+  [data-chars] .ch {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-18px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s ease;
+    transition-delay: var(--d, 0ms);
+  }
+  [data-chars].is-in .ch {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
