@@ -1,7 +1,10 @@
 import type React from 'react'
 import { CookieBanner } from '@/components/consent/CookieBanner'
 import { FooterServer } from '@/components/layout/FooterServer'
+import { Grain } from '@/components/layout/Grain'
 import { HeaderServer } from '@/components/layout/HeaderServer'
+import { Preloader } from '@/components/layout/Preloader'
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
 import { ConsentProvider } from '@/providers/ConsentProvider'
 import { clash, satoshi } from '../../fonts'
 import { LenisProvider } from '../../motion/LenisProvider'
@@ -21,6 +24,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <a href="#conteudo" className="skip-link">
           Pular para o conteúdo
         </a>
+        <Preloader />
+        <Grain />
         <ConsentProvider>
           <LenisProvider>
             <HeaderServer />
@@ -29,6 +34,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           </LenisProvider>
           <CookieBanner />
         </ConsentProvider>
+        <WhatsAppFloat />
       </body>
     </html>
   )
