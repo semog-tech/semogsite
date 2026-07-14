@@ -4,6 +4,8 @@ import type {
   AppShowcaseBlock,
   BairrosBlock,
   BenefitsBlock,
+  BlogFeaturedBlock,
+  BlogListBlock,
   ClubeBeneficiosBlock,
   CompareBlock,
   ContactInfoBlock,
@@ -15,6 +17,7 @@ import type {
   FormEmbedBlock,
   GaranteBlock,
   HeroBlock,
+  NewsletterBlock,
   Page,
   PartnerSplitBlock,
   PillarsBlock,
@@ -1436,6 +1439,84 @@ async function seedIncorporadorasPage(payload: Awaited<ReturnType<typeof getPayl
   })
 }
 
+// ===== "Blog" (slug `blog`), fiel a `_reference/blog.html` =====
+//
+// Depende de `pnpm seed:posts` já ter rodado (`src/seed/posts.ts` cria as 6
+// categorias + 7 posts, incluindo o post "Previsão orçamentária..." que vira
+// o destaque aqui). Sem ele, `payload.find` abaixo não acha o post e a
+// função lança — mensagem de erro aponta pra rodar `seed:posts` primeiro,
+// mesmo padrão de `getMediaId`.
+
+const BLOG_FEATURED_SLUG = 'previsao-orcamentaria-guia-sindico'
+
+async function findPostIdBySlug(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  slug: string,
+): Promise<number> {
+  const res = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  })
+  const doc = res.docs[0]
+  if (!doc) {
+    throw new Error(`post não encontrado: ${slug} (rodou pnpm seed:posts?)`)
+  }
+  return doc.id
+}
+
+async function seedBlogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const featuredPostId = await findPostIdBySlug(payload, BLOG_FEATURED_SLUG)
+
+  // `.page-hero` de `_reference/blog.html:37-46`: SEM `poster` — só o
+  // gradiente (`radial-gradient` + `var(--grad-hero)`) como `background` do
+  // próprio hero, 46dvh (não os 74-88dvh das páginas com foto), h1 sozinho
+  // (sem eyebrow/subhead/CTAs, que não existem no ref — ver `Hero/config.ts`
+  // pro modo sem `poster`).
+  const blogHero: Omit<HeroBlock, 'id' | 'blockName'> = {
+    blockType: 'hero',
+    headline: 'Quem administra 700 condomínios tem muito a ensinar.',
+    pageHeroOverlay: true,
+    pageHeroMinHeight: '46dvh',
+    pageHeroPaddingBottom: 'clamp(2.5rem, 5vw, 4rem)',
+    pageHeroHeadlineMaxWidth: '16ch',
+    pageHeroGradient:
+      'radial-gradient(80% 70% at 15% 0%, rgba(42,63,150,0.45) 0%, transparent 55%), var(--grad-hero)',
+  }
+
+  const blogFeatured: Omit<BlogFeaturedBlock, 'id' | 'blockName'> = {
+    blockType: 'blogFeatured',
+    post: featuredPostId,
+  }
+
+  // `tightTop` cola esta grade na mesma seção clara do destaque acima (ver
+  // doc do campo em `BlogList/config.ts`); `excludePost` tira o próprio
+  // destaque da grade — 6 cards, os mesmos 6 de `_reference/blog.html:
+  // 169-224`.
+  const blogList: Omit<BlogListBlock, 'id' | 'blockName'> = {
+    blockType: 'blogList',
+    limit: 6,
+    excludePost: featuredPostId,
+    tightTop: true,
+  }
+
+  const blogNewsletter: Omit<NewsletterBlock, 'id' | 'blockName'> = {
+    blockType: 'newsletter',
+    title: 'Receba o essencial da gestão condominial.',
+    text: 'Um e-mail por mês, direto da equipe que administra 700 condomínios. Sem spam.',
+    placeholder: 'Seu melhor e-mail',
+    buttonLabel: 'Assinar',
+    successMessage: 'Inscrição recebida. Até o próximo e-mail!',
+  }
+
+  await upsertPage(payload, {
+    title: 'Blog',
+    slug: 'blog',
+    layout: [blogHero, blogFeatured, blogList, blogNewsletter],
+  })
+}
+
 // ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` =====
 //
 // NOTA: `_reference/contato.html` não tem `<form>` — só atalhos (WhatsApp,
@@ -1996,6 +2077,8 @@ async function seedPages() {
   await seedGarantePage(payload)
 
   await seedIncorporadorasPage(payload)
+
+  await seedBlogPage(payload)
 
   await upsertPage(payload, {
     title: 'Contato',
