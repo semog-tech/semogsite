@@ -10,12 +10,17 @@ import type { RegistrosBlock as RegistrosBlockType } from '@/payload-types'
  * direita — sem imagens, apenas badges com borda. Padding compacto
  * (`!py-*`, mesmo recurso do `HeroBlock`) e borda nas duas bordas, para
  * funcionar como uma faixa de confiança entre blocos, sem competir com eles.
+ * `light`/`white` — ver doc do campo em `Registros/config.ts`.
  */
-export function RegistrosBlock({ title, items }: RegistrosBlockType) {
+export function RegistrosBlock({ title, light, white, items }: RegistrosBlockType) {
   if (!items || items.length === 0) return null
 
   return (
-    <Section className="!py-[clamp(2.2rem,4.5vw,3.6rem)] border-y border-line">
+    <Section
+      light={!!light}
+      white={!!white}
+      className="!py-[clamp(2.2rem,4.5vw,3.6rem)] border-y border-line"
+    >
       <Container className="flex flex-wrap items-center justify-between gap-6">
         {title && <p className="m-0 max-w-[52ch] text-[0.9rem] text-fg-3">{title}</p>}
         <Stagger className="flex flex-wrap items-center gap-3">

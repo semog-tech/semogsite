@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { appShowcaseBlock } from '@/blocks/AppShowcase/config'
+import { bairrosBlock } from '@/blocks/Bairros/config'
 import { benefitsBlock } from '@/blocks/Benefits/config'
 import { blogListBlock } from '@/blocks/BlogList/config'
 import { citiesBlock } from '@/blocks/Cities/config'
@@ -100,6 +101,7 @@ export const Pages: CollectionConfig = {
         partnerSplitBlock,
         devQuoteBlock,
         processoTimelineBlock,
+        bairrosBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

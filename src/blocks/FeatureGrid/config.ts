@@ -1,7 +1,7 @@
 import type { Block } from 'payload'
 
 /**
- * Grid de cards, duas variantes escolhidas por `variant`:
+ * Grid de cards, três variantes escolhidas por `variant`:
  *
  * - `dark` (default) — fiel ao padrão `.why-card` visto em
  *   `_reference/incorporadoras.html`: cards ice-tint (gradiente quase
@@ -14,6 +14,14 @@ import type { Block } from 'payload'
  *   define `.svc-card` com sombra/borda próprias) sobre seção clara, ícone
  *   em badge quadrado com gradiente da marca. `features[].iconSvg` carrega
  *   o SVG inline de verdade (9 ícones distintos no ref).
+ * - `rows` — fiel a `.svc-sec`/`.svc-rows` das landings de cidade (ex.:
+ *   `_reference/administradora-de-condominios-recife.html:158-174,358-380`):
+ *   NÃO é grade de cards — coluna esquerda com `title`/`titleAccent` (h2
+ *   sticky) + `intro` (parágrafo de apresentação, campo exclusivo desta
+ *   variante), coluna direita com a lista plana `.svc-rows` (`features[].title`
+ *   em negrito + `features[].badge` opcional, ex.: "EXCLUSIVA"/"1% AO MÊS")
+ *   e `moreLink` opcional ao fim (`.svc-more`, "Ver o serviço completo →").
+ *   `features[].description` não é usado nesta variante.
  *
  * `light`/`white`/`columns`/`stagger` são independentes de `variant` e
  * servem o caso `_reference/incorporadoras.html:109-122,280-309` ("Por que
@@ -44,6 +52,7 @@ export const featureGridBlock: Block = {
       options: [
         { label: 'Escuro (ice-tint sobre navy)', value: 'dark' },
         { label: 'Claro (.svc-card branco sobre sec-light)', value: 'light' },
+        { label: 'Linhas (.svc-rows, landings de cidade)', value: 'rows' },
       ],
     },
     {
@@ -88,6 +97,26 @@ export const featureGridBlock: Block = {
       },
     },
     {
+      name: 'intro',
+      type: 'textarea',
+      admin: {
+        description:
+          'Só com `variant:"rows"`. Parágrafo de apresentação abaixo do `title`, ex.: "Desde 1991, administramos condomínios em Recife..." (`_reference/administradora-de-condominios-recife.html:364`).',
+      },
+    },
+    {
+      name: 'moreLink',
+      type: 'group',
+      admin: {
+        description:
+          'Só com `variant:"rows"`. Link ao fim da lista (`.svc-more`), ex.: "Ver o serviço completo" → `/administracao-de-condominios`.',
+      },
+      fields: [
+        { name: 'label', type: 'text' },
+        { name: 'href', type: 'text' },
+      ],
+    },
+    {
       name: 'features',
       type: 'array',
       fields: [
@@ -108,7 +137,22 @@ export const featureGridBlock: Block = {
           },
         },
         { name: 'title', type: 'text', required: true },
-        { name: 'description', type: 'textarea', required: true },
+        {
+          name: 'description',
+          type: 'textarea',
+          admin: {
+            description:
+              'Não usado no `variant:"rows"` (a linha só tem `title` + `badge` opcional).',
+          },
+        },
+        {
+          name: 'badge',
+          type: 'text',
+          admin: {
+            description:
+              'Só com `variant:"rows"`. Selo inline ao lado do título da linha, ex.: "EXCLUSIVA"/"1% AO MÊS" (`_reference/administradora-de-condominios-recife.html:368,373`).',
+          },
+        },
       ],
     },
   ],

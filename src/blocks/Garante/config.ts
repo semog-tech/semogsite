@@ -13,6 +13,13 @@ import type { Block } from 'payload'
  * falta dele, `poster`) está preenchido, o Component troca para essa banda
  * de vídeo com o chip "1%" — os campos de `features`/`note` (steps) do uso
  * em `/garante` continuam existindo e funcionando sem vídeo.
+ *
+ * `pct` (sem `video`/`poster`) alimenta a variante split de 2 colunas
+ * `.g-band` das landings de cidade (ex.:
+ * `_reference/administradora-de-condominios-recife.html:176-190,382-402`):
+ * h2+p+CTA à esquerda, porcentagem tipográfica gigante à direita — distinta
+ * do chip de vidro `.pct-chip` da variante de vídeo e da grade de `features`
+ * (steps) do uso padrão em `/garante`.
  */
 export const garanteBlock: Block = {
   slug: 'garante',
@@ -52,5 +59,17 @@ export const garanteBlock: Block = {
       ],
     },
     { name: 'note', type: 'text' },
+    {
+      name: 'pct',
+      type: 'group',
+      admin: {
+        description:
+          'Só sem `video`/`poster`. Porcentagem tipográfica gigante da variante split `.g-band` das landings de cidade (`.pct`/`.pct-l`), ex.: valor "1%" + legenda "da arrecadação. Só isso."',
+      },
+      fields: [
+        { name: 'value', type: 'text' },
+        { name: 'label', type: 'text' },
+      ],
+    },
   ],
 }

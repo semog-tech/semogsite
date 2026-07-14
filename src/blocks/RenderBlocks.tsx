@@ -1,6 +1,7 @@
 import type React from 'react'
 import type { Page } from '@/payload-types'
 import { AppShowcaseBlock } from './AppShowcase/Component'
+import { BairrosBlock } from './Bairros/Component'
 import { BenefitsBlock } from './Benefits/Component'
 import { BlogListBlock } from './BlogList/Component'
 import { CitiesBlock } from './Cities/Component'
@@ -72,6 +73,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   partnerSplit: PartnerSplitBlock,
   devQuote: DevQuoteBlock,
   processoTimeline: ProcessoTimelineBlock,
+  bairros: BairrosBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

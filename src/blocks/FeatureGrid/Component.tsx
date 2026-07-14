@@ -112,25 +112,108 @@ function DarkCard({ feature }: { feature: Feature }) {
 }
 
 /**
- * Grid de cards, duas variantes (`variant`, default `dark`):
+ * `.svc-rows` fiel a `_reference/administradora-de-condominios-recife.html:
+ * 366-377`: uma linha por serviço (`title` em negrito + `badge` opcional,
+ * ex.: "EXCLUSIVA"), hover desloca padding e escurece fundo/texto — CSS
+ * ported em `theme.css` (`.svc-rows > div`), não dá pra expressar a
+ * transição de 2 easings distintos (background/padding-left) como utility
+ * Tailwind arbitrária.
+ */
+function ServiceRow({ feature }: { feature: Feature }) {
+  return (
+    <div>
+      <strong>{feature.title}</strong>
+      {feature.badge && (
+        <span className="text-[0.82rem] font-semibold text-accent">{feature.badge}</span>
+      )}
+    </div>
+  )
+}
+
+/**
+ * `.svc-sec` fiel a `_reference/administradora-de-condominios-recife.html:
+ * 158-174,358-380`: coluna esquerda (h2 sticky + `intro`) em `Reveal`,
+ * coluna direita (`.svc-rows`) em outro `Reveal` (`delay=0.12`, mesmo
+ * `data-reveal-delay="0.12"` do ref — reveal do grupo, não por linha).
+ * `padding-block`/`border-top` do `<section>` aplicados via `style`/
+ * className diretamente aqui (valor bespoke, mesmo escape hatch do
+ * `.cost`/`.g-partner`, ver `theme.css`).
+ */
+function RowsVariant({
+  eyebrow,
+  title,
+  titleAccent,
+  intro,
+  features,
+  moreLink,
+}: {
+  eyebrow?: string | null
+  title?: string | null
+  titleAccent?: string | null
+  intro?: string | null
+  features: Feature[]
+  moreLink?: { label?: string | null; href?: string | null } | null
+}) {
+  return (
+    <Section
+      light
+      className="svc-sec border-t border-line"
+      style={{ paddingBlock: 'clamp(4rem,8vw,7rem)' }}
+    >
+      <Container>
+        <div className="wrap">
+          <Reveal>
+            <div>
+              {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+              {title && <GridTitle title={title} accent={titleAccent} variant="light" />}
+              {intro && <p className="mt-4 max-w-[44ch] text-fg-2">{intro}</p>}
+            </div>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <div className="svc-rows">
+              {features.map((feature) => (
+                <ServiceRow key={feature.id ?? feature.title} feature={feature} />
+              ))}
+              {moreLink?.label && moreLink?.href && (
+                <div className="svc-more">
+                  <a className="link-arrow" href={moreLink.href}>
+                    {moreLink.label}
+                    <span className="arr" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </div>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </Container>
+    </Section>
+  )
+}
+
+/**
+ * Grid de cards, três variantes (`variant`, default `dark`):
  *
  * - `dark` — fiel ao padrão `.why-card` de `_reference/incorporadoras.html`.
  *   Sem `light`/`stagger`, comportamento inalterado (cards sobre fundo
- *   escuro, entrada por `Reveal` individual — usado pelas landings de
- *   cidade). Com `light`/`stagger` (ex.: "Por que Semog" do próprio
- *   `/incorporadoras`, `.why-grid.sec-light.white`), o mesmo `DarkCard`
- *   passa a renderizar dentro de `Section light`, com `columns:'2'` e
- *   entrada em grupo via `Stagger`.
+ *   escuro, entrada por `Reveal` individual). Com `light`/`stagger` (ex.:
+ *   "Por que Semog" do próprio `/incorporadoras`, `.why-grid.sec-light.white`),
+ *   o mesmo `DarkCard` passa a renderizar dentro de `Section light`, com
+ *   `columns:'2'` e entrada em grupo via `Stagger`.
  * - `light` — fiel a `.svc.sec-light` > `.svc-grid` de
  *   `_reference/administracao-de-condominios.html:230-286`: `Section light`
  *   (sem `white` — o ref não usa `.white` nesta seção) e a grade inteira
  *   entra via `Stagger` (`data-stagger` no ref, não reveals individuais) —
  *   `light`/`white`/`columns`/`stagger` não têm efeito aqui, já que este
  *   variant sempre foi claro/3-col/stagger.
+ * - `rows` — fiel a `.svc-sec`/`.svc-rows` das landings de cidade (ver
+ *   `RowsVariant` acima) — NÃO é grade de cards, é lista vertical plana com
+ *   coluna de intro sticky ao lado.
  *
  * Cabeçalho (`eyebrow`+`title`) entra via `Reveal`, fiel aos `data-reveal`
  * de `.frame-head`/`.sec-head` do ref (o header antes não tinha reveal
- * algum — motion adicionada nesta revisão, vale para as duas variantes).
+ * algum — motion adicionada nesta revisão, vale para as três variantes).
  */
 export function FeatureGridBlock({
   variant,
@@ -141,9 +224,25 @@ export function FeatureGridBlock({
   eyebrow,
   title,
   titleAccent,
+  intro,
+  moreLink,
   features,
 }: FeatureGridBlockType) {
   if (!features || features.length === 0) return null
+
+  if (variant === 'rows') {
+    return (
+      <RowsVariant
+        eyebrow={eyebrow}
+        title={title}
+        titleAccent={titleAccent}
+        intro={intro}
+        features={features}
+        moreLink={moreLink}
+      />
+    )
+  }
+
   const isLightVariant = variant === 'light'
   const sectionLight = isLightVariant || !!light
   const useStagger = isLightVariant || !!stagger

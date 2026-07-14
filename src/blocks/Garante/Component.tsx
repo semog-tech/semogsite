@@ -12,8 +12,8 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
 }
 
 /**
- * Bloco de destaque "Semog Garante". Dois usos, escolhidos pela presença de
- * `video`/`poster`:
+ * Bloco de destaque "Semog Garante". Três usos, escolhidos pela presença de
+ * `video`/`poster`/`pct`:
  *
  * 1. **Banda com vídeo** (home) — fiel a `.g-band-home` de
  *    `_reference/index.html:678-698`: `<section>` puro (não `Section`, que
@@ -22,10 +22,16 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  *    (`::after` portado pra `theme.css`), eyebrow como `.tag`, título, texto
  *    opcional, e uma `.row` com o CTA (branco, magnético, como no ref) +
  *    `priceChip` em chip de vidro (`.pct-chip liquid-glass`).
- * 2. **Banda `--grad-band` + steps** (demais páginas, ex. `/garante`) —
- *    fundo `--grad-band`, eyebrow + título + texto centralizados, grade de
- *    diferenciais ("Como funciona", `.g-step`) via `Stagger`, CTA + nota de
- *    preço. Comportamento inalterado desde a Task 3b/1.
+ * 2. **Banda split `.g-band`** (sem `video`/`poster`, com `pct`) — fiel às
+ *    landings de cidade (ex.:
+ *    `_reference/administradora-de-condominios-recife.html:176-190,382-402`):
+ *    `Section` escura (o ref não usa `.sec-light` aqui) com fundo radial +
+ *    `--grad-band` via `style`, `.wrap` de 2 colunas — h2+p+CTA à esquerda
+ *    (`dir="left"`), `pct` tipográfico gigante à direita (`dir="right"`).
+ * 3. **Banda `--grad-band` + steps** (demais páginas, ex. `/garante`, sem
+ *    `pct`) — fundo `--grad-band`, eyebrow + título + texto centralizados,
+ *    grade de diferenciais ("Como funciona", `.g-step`) via `Stagger`, CTA +
+ *    nota de preço. Comportamento inalterado desde a Task 3b/1.
  */
 export function GaranteBlock({
   eyebrow,
@@ -37,10 +43,44 @@ export function GaranteBlock({
   cta,
   note,
   priceChip,
+  pct,
 }: GaranteBlockType) {
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
+
+  if (!videoUrl && !posterMedia && pct?.value) {
+    return (
+      <Section
+        className="g-band border-y border-line"
+        style={{
+          background:
+            'radial-gradient(70% 90% at 85% 20%, rgba(173,213,235,0.14) 0%, transparent 55%), var(--grad-band)',
+        }}
+      >
+        <Container>
+          <div className="wrap">
+            <Reveal dir="left">
+              {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+              <h2>{title}</h2>
+              {text && <p>{text}</p>}
+              {cta?.label && cta?.href && (
+                <div className="mt-[1.8rem]">
+                  <Button href={cta.href} variant="primary" withArrow magnetic>
+                    {cta.label}
+                  </Button>
+                </div>
+              )}
+            </Reveal>
+            <Reveal dir="right">
+              <span className="pct gx-ice">{pct.value}</span>
+              {pct.label && <p className="pct-l">{pct.label}</p>}
+            </Reveal>
+          </div>
+        </Container>
+      </Section>
+    )
+  }
 
   if (videoUrl || posterMedia) {
     return (

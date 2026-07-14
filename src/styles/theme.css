@@ -2492,4 +2492,249 @@
     color: var(--text-3);
     font-size: 0.95rem;
   }
+
+  /* ---------- Unidade (cartão rico com foto) — fiel a `.unit-card` de
+     `_reference/administradora-de-condominios-recife.html:110-140` (estilo
+     inline da própria página, idêntico nas 4 landings de cidade)
+     ----------
+     src/blocks/ContactInfo com `variant:'card'` renderiza este cartão
+     (foto + chip + dl de contato + ações) em vez da grade compacta usada em
+     `/contato`. `var(--r-card)`→`--radius-card`; `var(--line)`/`var(--text)`/
+     `var(--text-2)`/`var(--text-3)` já existem como CSS vars soltas. */
+  .unit-card {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(16, 26, 72, 0.08);
+    box-shadow: 0 28px 70px -32px rgba(16, 26, 72, 0.35);
+  }
+  .unit-card .photo {
+    position: relative;
+    min-height: 380px;
+  }
+  .unit-card .photo .chip {
+    position: absolute;
+    left: 1.2rem;
+    top: 1.2rem;
+    z-index: 2;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #edf1fa;
+  }
+  .unit-card .info {
+    padding: clamp(1.8rem, 4vw, 2.8rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .unit-card h2 {
+    font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+    margin-bottom: 1.4rem;
+  }
+  .unit-rows {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.6rem;
+  }
+  .unit-rows > div {
+    border-top: 1px solid var(--line);
+    padding: 0.9rem 0.2rem;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+  .unit-rows > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .unit-rows dt {
+    color: var(--text-3);
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+  .unit-rows dd {
+    margin: 0;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .unit-rows dd small {
+    display: block;
+    color: var(--text-2);
+    font-weight: 400;
+  }
+  .unit-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  @media (max-width: 900px) {
+    .unit-card {
+      grid-template-columns: 1fr;
+    }
+    .unit-card .photo {
+      min-height: 240px;
+    }
+  }
+
+  /* ---------- Bairros (pills) — fiel a `.hood`/`.hood-pills` de
+     `_reference/administradora-de-condominios-recife.html:142-156` (estilo
+     inline da própria página, idêntico nas 4 landings de cidade)
+     ----------
+     src/blocks/Bairros (bloco novo) renderiza `<section class="hood
+     sec-light white">` — sem correspondente antes desta task (nenhum bloco
+     do inventário modelava lista de pills). `var(--r-pill)`→`--radius-pill`;
+     `var(--line-strong)`/`var(--text-2)`/`var(--text-3)`/`var(--navy-500)`→
+     `--color-navy-500` já existem/mapeiam para vars soltas. */
+  .hood h3 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-navy-500);
+    font-family: var(--font-body);
+    margin-bottom: 1.2rem;
+  }
+  .hood-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .hood-pills span {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--text-2);
+    background: #fff;
+    transition:
+      border-color 0.3s ease,
+      color 0.3s ease,
+      transform 0.3s ease;
+  }
+  .hood-pills span:hover {
+    border-color: var(--color-navy-500);
+    color: var(--text);
+    transform: translateY(-2px);
+  }
+  .hood .note {
+    color: var(--text-3);
+    font-size: 0.88rem;
+    margin-top: 1.2rem;
+  }
+
+  /* ---------- Serviços (lista vertical + intro) — fiel a `.svc-sec`/
+     `.svc-rows` de `_reference/administradora-de-condominios-recife.html:
+     158-174` (estilo inline da própria página, idêntico nas 4 landings de
+     cidade) ----------
+     src/blocks/FeatureGrid com `variant:'rows'` troca a grade de cards
+     pelas linhas planas do ref: coluna esquerda com h2 sticky + `intro`,
+     coluna direita com `.svc-rows` (título em negrito + `badge` opcional,
+     ex.: "EXCLUSIVA"/"1% AO MÊS"). `padding-block`/`border-top` do próprio
+     `<section>` aplicados via `style`/className diretamente no Component
+     (mesmo motivo do `.cost`/`.g-partner` acima — valor bespoke, não o
+     clamp genérico de `Section`). */
+  .svc-sec .wrap {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .svc-sec h2 {
+    max-width: 15ch;
+    position: sticky;
+    top: 110px;
+  }
+  .svc-rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .svc-rows > div {
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 0.4rem;
+    color: var(--text-2);
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    transition:
+      background 0.35s ease,
+      padding-left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .svc-rows > div:hover {
+    background: rgba(27, 45, 112, 0.045);
+    padding-left: 1rem;
+    color: var(--text);
+  }
+  .svc-rows > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .svc-rows strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text);
+  }
+  .svc-more {
+    margin-top: 1.6rem;
+  }
+  @media (max-width: 900px) {
+    .svc-sec .wrap {
+      grid-template-columns: 1fr;
+    }
+    .svc-sec h2 {
+      position: static;
+    }
+  }
+
+  /* ---------- Banda Garante (split 2 colunas + "%" gigante) — fiel a
+     `.g-band` de `_reference/administradora-de-condominios-recife.html:
+     176-190` (estilo inline da própria página, idêntico nas 4 landings de
+     cidade) ----------
+     src/blocks/Garante com o grupo `pct` preenchido (e sem `video`/`poster`)
+     troca a banda `--grad-band` de steps pela versão split desta família de
+     páginas: h2+p+CTA à esquerda (`dir="left"`), porcentagem tipográfica
+     gigante à direita (`dir="right"`) — distinta do `.pct-chip` de vidro
+     usado na home/`.g-band-home`. `var(--text-2)`/`var(--font-display)`/
+     `var(--grad-band)` já existem como CSS vars soltas. */
+  .g-band .wrap {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .g-band h2 {
+    font-size: clamp(1.9rem, 3.8vw, 3rem);
+    max-width: 16ch;
+  }
+  .g-band p {
+    color: var(--text-2);
+    max-width: 46ch;
+  }
+  .g-band .pct {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(4rem, 9vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    display: block;
+    text-align: center;
+  }
+  .g-band .pct-l {
+    text-align: center;
+    color: var(--text-2);
+    margin-top: 0.8rem;
+  }
+  @media (max-width: 900px) {
+    .g-band .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
 }

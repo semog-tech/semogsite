@@ -1,20 +1,121 @@
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
+import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
-import { Stagger } from '@/motion/reveal'
-import type { ContactInfoBlock as ContactInfoBlockType } from '@/payload-types'
+import { Reveal, Stagger } from '@/motion/reveal'
+import type { ContactInfoBlock as ContactInfoBlockType, Media } from '@/payload-types'
+
+/** Título com o trecho final em `.gx` — mesmo padrão de `FeatureGrid`'s `GridTitle`. */
+function CardTitle({ title, accent }: { title: string; accent?: string | null }) {
+  if (accent && title.endsWith(accent)) {
+    return (
+      <h2>
+        {title.slice(0, -accent.length)}
+        <GradientText variant="brand">{accent}</GradientText>
+      </h2>
+    )
+  }
+  return <h2>{title}</h2>
+}
 
 /**
- * Cartões de unidade fiel à seção "Unidades" (`.unit`,
- * `_reference/contato.html:270-338`): UF + cidade + endereço + telefone por
- * card — sem foto (as fotos `recife.webp`/`joao-pessoa.webp` etc. do ref
- * entram depois, com S3). `whatsapp` opcional liga um botão de contato
- * rápido para `https://wa.me/<whatsapp>`, mesmo número do
- * `.quick-card`/`.wa-float` do ref.
+ * Duas variantes (`variant`, default `grid`):
+ *
+ * - `grid` — cartões compactos fiel à seção "Unidades" (`.unit`,
+ *   `_reference/contato.html:270-338`), sem foto. Comportamento inalterado.
+ * - `card` — o cartão rico `.unit-sec`/`.unit-card` das landings de cidade
+ *   (ex.: `_reference/administradora-de-condominios-recife.html:110-140,
+ *   312-338`): `Section light white` (`.unit-sec.sec-light.white`) com
+ *   `padding-block` bespoke via `style` (mesmo escape hatch do `pageHero*`
+ *   do `Hero` — o ref usa `clamp(4rem,8vw,7rem)`, diferente do clamp
+ *   genérico de `Section`), frame-head (`Eyebrow`, mesma substituição
+ *   sitewide de `.frame-lbl` já usada em `Socios`/`Testimonials`/etc.) +
+ *   `.unit-card` (foto + chip de vidro + `dl` de contato + 2 ações) em
+ *   `Reveal` separado (2 `data-reveal` distintos no ref). Usa só
+ *   `items[0]` — o ref sempre mostra 1 unidade nesse padrão.
  */
-export function ContactInfoBlock({ eyebrow, title, items, whatsapp }: ContactInfoBlockType) {
+export function ContactInfoBlock({
+  variant,
+  eyebrow,
+  title,
+  titleAccent,
+  items,
+  whatsapp,
+}: ContactInfoBlockType) {
   if (!items || items.length === 0) return null
+
+  if (variant === 'card') {
+    const item = items[0]
+    const photo = item.photo && typeof item.photo === 'object' ? (item.photo as Media) : undefined
+    return (
+      <Section light white className="unit-sec" style={{ paddingBlock: 'clamp(4rem,8vw,7rem)' }}>
+        <Container>
+          {eyebrow && (
+            <Reveal className="mb-[clamp(2.5rem,6vw,4.5rem)]">
+              <Eyebrow>{eyebrow}</Eyebrow>
+            </Reveal>
+          )}
+          <Reveal>
+            <div className="unit-card">
+              <div className="photo">
+                {photo && (
+                  <ImageMedia
+                    resource={photo}
+                    fill
+                    className="absolute inset-0 object-cover"
+                    sizes="(min-width: 900px) 45vw, 100vw"
+                  />
+                )}
+                {item.chip && <span className="chip liquid-glass">{item.chip}</span>}
+              </div>
+              <div className="info">
+                {title && <CardTitle title={title} accent={titleAccent} />}
+                <dl className="unit-rows">
+                  <div>
+                    <dt>Endereço</dt>
+                    <dd>
+                      {item.address}
+                      {item.addressDetail && <small>{item.addressDetail}</small>}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Telefone</dt>
+                    <dd>{item.phone}</dd>
+                  </div>
+                  {item.whatsappDisplay && (
+                    <div>
+                      <dt>WhatsApp</dt>
+                      <dd>{item.whatsappDisplay}</dd>
+                    </div>
+                  )}
+                  {item.hours && (
+                    <div>
+                      <dt>Horário</dt>
+                      <dd>{item.hours}</dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="unit-actions">
+                  {item.mapsHref && (
+                    <Button href={item.mapsHref} variant="primary" withArrow>
+                      Como chegar
+                    </Button>
+                  )}
+                  {whatsapp && (
+                    <Button href={`https://wa.me/${whatsapp}`} variant="ghost">
+                      Chamar no WhatsApp
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+    )
+  }
 
   return (
     <Section>

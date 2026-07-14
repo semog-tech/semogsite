@@ -228,6 +228,7 @@ export interface Page {
         | PartnerSplitBlock
         | DevQuoteBlock
         | ProcessoTimelineBlock
+        | BairrosBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -482,7 +483,7 @@ export interface ProdutosGridBlock {
  * via the `definition` "FeatureGridBlock".
  */
 export interface FeatureGridBlock {
-  variant?: ('dark' | 'light') | null;
+  variant?: ('dark' | 'light' | 'rows') | null;
   /**
    * Só com `variant:"dark"` (o variant `light` já é sempre claro). Envolve o grid em `Section light`, fiel a `.why-grid.sec-light` de `_reference/incorporadoras.html`.
    */
@@ -505,6 +506,17 @@ export interface FeatureGridBlock {
    * Trecho final de `title` a destacar em gradiente, ex.: "em um só contrato." em "Tudo que o condomínio precisa, em um só contrato." Usa `.gx` quando a seção renderiza clara (variant `light` OU `light:true`) e `.gx-ice` quando escura (mesmo padrão de `Benefits.titleAccent`).
    */
   titleAccent?: string | null;
+  /**
+   * Só com `variant:"rows"`. Parágrafo de apresentação abaixo do `title`, ex.: "Desde 1991, administramos condomínios em Recife..." (`_reference/administradora-de-condominios-recife.html:364`).
+   */
+  intro?: string | null;
+  /**
+   * Só com `variant:"rows"`. Link ao fim da lista (`.svc-more`), ex.: "Ver o serviço completo" → `/administracao-de-condominios`.
+   */
+  moreLink?: {
+    label?: string | null;
+    href?: string | null;
+  };
   features?:
     | {
         /**
@@ -516,7 +528,14 @@ export interface FeatureGridBlock {
          */
         iconSvg?: string | null;
         title: string;
-        description: string;
+        /**
+         * Não usado no `variant:"rows"` (a linha só tem `title` + `badge` opcional).
+         */
+        description?: string | null;
+        /**
+         * Só com `variant:"rows"`. Selo inline ao lado do título da linha, ex.: "EXCLUSIVA"/"1% AO MÊS" (`_reference/administradora-de-condominios-recife.html:368,373`).
+         */
+        badge?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -553,6 +572,13 @@ export interface GaranteBlock {
     label?: string | null;
   };
   note?: string | null;
+  /**
+   * Só sem `video`/`poster`. Porcentagem tipográfica gigante da variante split `.g-band` das landings de cidade (`.pct`/`.pct-l`), ex.: valor "1%" + legenda "da arrecadação. Só isso."
+   */
+  pct?: {
+    value?: string | null;
+    label?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'garante';
@@ -690,6 +716,11 @@ export interface SociosBlock {
  */
 export interface RegistrosBlock {
   title?: string | null;
+  light?: boolean | null;
+  /**
+   * Só com `light` ativo — troca `.sec-light` por `.sec-light white`.
+   */
+  white?: boolean | null;
   items?:
     | {
         label: string;
@@ -922,14 +953,40 @@ export interface BenefitsBlock {
  * via the `definition` "ContactInfoBlock".
  */
 export interface ContactInfoBlock {
+  variant?: ('grid' | 'card') | null;
   eyebrow?: string | null;
   title?: string | null;
+  /**
+   * Só na variante `card`. Trecho final de `title` a destacar em `.gx`, ex.: "em Boa Viagem." em "De portas abertas em Boa Viagem." (`_reference/administradora-de-condominios-recife.html:324`) — mesmo padrão de `FeatureGrid.titleAccent`.
+   */
+  titleAccent?: string | null;
   items?:
     | {
         city: string;
         uf: string;
         address: string;
         phone: string;
+        photo?: (number | null) | Media;
+        /**
+         * Só na variante `card`. Selo sobre a foto (`.chip liquid-glass`), ex.: "Matriz · PE"/"Filial · PB".
+         */
+        chip?: string | null;
+        /**
+         * Só na variante `card`. Segunda linha do endereço (`<small>` dentro de `<dd>`), ex.: "Boa Viagem · Recife/PE · CEP 51011-000" — `address` vira só a 1ª linha ("Av. Conselheiro Aguiar, 1000 · Sala 501").
+         */
+        addressDetail?: string | null;
+        /**
+         * Só na variante `card`. Telefone formatado da linha "WhatsApp" do `dl` (ex.: "(81) 9 9999-9999") — distinto do `whatsapp` do bloco (dígitos, usado no link `wa.me`).
+         */
+        whatsappDisplay?: string | null;
+        /**
+         * Só na variante `card`. Linha "Horário" do `dl`, ex.: "Segunda a sexta, das 8h às 18h".
+         */
+        hours?: string | null;
+        /**
+         * Só na variante `card`. Link do CTA "Como chegar" (`.unit-actions .btn-primary`), ex.: "https://maps.google.com/?q=Semog+recife".
+         */
+        mapsHref?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1044,6 +1101,26 @@ export interface ProcessoTimelineBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'processoTimeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BairrosBlock".
+ */
+export interface BairrosBlock {
+  title: string;
+  items?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Nota de apoio abaixo dos pills, ex.: "Também atendemos Olinda, Jaboatão dos Guararapes, Paulista, Região Metropolitana do Recife." (`.hood .note` do ref).
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'bairros';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1417,6 +1494,7 @@ export interface PagesSelect<T extends boolean = true> {
         partnerSplit?: T | PartnerSplitBlockSelect<T>;
         devQuote?: T | DevQuoteBlockSelect<T>;
         processoTimeline?: T | ProcessoTimelineBlockSelect<T>;
+        bairros?: T | BairrosBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -1629,6 +1707,13 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   titleAccent?: T;
+  intro?: T;
+  moreLink?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
   features?:
     | T
     | {
@@ -1636,6 +1721,7 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
         iconSvg?: T;
         title?: T;
         description?: T;
+        badge?: T;
         id?: T;
       };
   id?: T;
@@ -1671,6 +1757,12 @@ export interface GaranteBlockSelect<T extends boolean = true> {
         label?: T;
       };
   note?: T;
+  pct?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1805,6 +1897,8 @@ export interface SociosBlockSelect<T extends boolean = true> {
  */
 export interface RegistrosBlockSelect<T extends boolean = true> {
   title?: T;
+  light?: T;
+  white?: T;
   items?:
     | T
     | {
@@ -1995,8 +2089,10 @@ export interface BenefitsBlockSelect<T extends boolean = true> {
  * via the `definition` "ContactInfoBlock_select".
  */
 export interface ContactInfoBlockSelect<T extends boolean = true> {
+  variant?: T;
   eyebrow?: T;
   title?: T;
+  titleAccent?: T;
   items?:
     | T
     | {
@@ -2004,6 +2100,12 @@ export interface ContactInfoBlockSelect<T extends boolean = true> {
         uf?: T;
         address?: T;
         phone?: T;
+        photo?: T;
+        chip?: T;
+        addressDetail?: T;
+        whatsappDisplay?: T;
+        hours?: T;
+        mapsHref?: T;
         id?: T;
       };
   whatsapp?: T;
@@ -2106,6 +2208,22 @@ export interface ProcessoTimelineBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BairrosBlock_select".
+ */
+export interface BairrosBlockSelect<T extends boolean = true> {
+  title?: T;
+  items?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }
