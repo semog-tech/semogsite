@@ -1,13 +1,8 @@
-import { Button } from '@/components/ui/Button'
-import { Container } from '@/components/ui/Container'
 import { getPayloadClient } from '@/lib/payload'
 import type { Footer } from '@/payload-types'
+import { FooterView } from './FooterView'
 
 const DEFAULT_BOTTOM_TEXT = '© 2026 Semog Administradora de Condomínios · Desde 1991'
-
-/** Blurb fixo da marca (semog.css: `.footer-brand p`) — texto de `_reference/index.html`. */
-const BRAND_BLURB =
-  'Administradora de condomínios líder do Nordeste. Desde 1991 cuidando de comunidades com transparência, retidão e dinâmica.'
 
 /**
  * Fallbacks espelhando `_reference/index.html` (footer) — usados quando o
@@ -69,10 +64,11 @@ async function getFooterGlobal(): Promise<Footer | null> {
 }
 
 /**
- * Server component do rodapé — fiel a `_reference/index.html` e
- * `semog.css:380-422`: banda `.foot-cta` (slogan com `<em>` destacado + CTA),
- * grid de 4 colunas (marca+blurb + 3 colunas de links) e `.footer-bottom`
- * (copyright + links legais em linha). Nunca lança: cai nos fallbacks acima
+ * Server component do rodapé — busca o global `footer` (com fallback, ver
+ * acima) e resolve os dados; `FooterView` (ilha client, `use client`) é quem
+ * escolhe o markup (`.footer` completo — `_reference/index.html`/
+ * `semog.css:380-422` — ou só `.footer-bottom` nas páginas legais, ver doc
+ * do componente) pelo pathname atual. Nunca lança: cai nos fallbacks acima
  * na ausência de DB ou conteúdo.
  */
 export async function FooterServer() {
@@ -81,53 +77,13 @@ export async function FooterServer() {
   const columns = footer?.columns?.length ? footer.columns : FALLBACK_COLUMNS
   const legalLinks = footer?.legalLinks?.length ? footer.legalLinks : FALLBACK_LEGAL
   const bottomText = footer?.bottomText || DEFAULT_BOTTOM_TEXT
-  const cta = footCta?.cta
 
   return (
-    <footer className="footer">
-      <Container>
-        <div className="foot-cta">
-          <p className="slog">
-            {footCta?.slogan} <em>{footCta?.sloganEm}</em>
-          </p>
-          {cta?.label && cta?.href && (
-            <Button href={cta.href} variant="white" size="lg" withArrow magnetic>
-              {cta.label}
-            </Button>
-          )}
-        </div>
-
-        <div className="footer-grid">
-          <div className="footer-brand">
-            {/* biome-ignore lint/performance/noImgElement: sem next/image (localPatterns não cobre /public fora de /api/media) */}
-            <img src="/semog-logo-light.svg" alt="Semog" width={160} height={24} />
-            <p>{BRAND_BLURB}</p>
-          </div>
-          {columns.map((col) => (
-            <div key={col.id ?? col.title}>
-              <h4>{col.title}</h4>
-              <ul>
-                {col.links?.map((link) => (
-                  <li key={link.id ?? link.href}>
-                    <a href={link.href}>{link.label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="footer-bottom">
-          <span>{bottomText}</span>
-          <nav className="legal" aria-label="Legal">
-            {legalLinks.map((link) => (
-              <a key={link.id ?? link.href} href={link.href}>
-                {link.label}
-              </a>
-            ))}
-          </nav>
-        </div>
-      </Container>
-    </footer>
+    <FooterView
+      footCta={footCta}
+      columns={columns}
+      legalLinks={legalLinks}
+      bottomText={bottomText}
+    />
   )
 }
