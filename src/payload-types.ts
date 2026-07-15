@@ -231,6 +231,9 @@ export interface Page {
         | DevQuoteBlock
         | ProcessoTimelineBlock
         | BairrosBlock
+        | QuickLinksBlock
+        | SelfServeBlock
+        | TrustPanelBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -1055,7 +1058,7 @@ export interface BenefitsBlock {
  * via the `definition` "ContactInfoBlock".
  */
 export interface ContactInfoBlock {
-  variant?: ('grid' | 'card') | null;
+  variant?: ('grid' | 'card' | 'units') | null;
   eyebrow?: string | null;
   title?: string | null;
   /**
@@ -1070,7 +1073,7 @@ export interface ContactInfoBlock {
         phone: string;
         photo?: (number | null) | Media;
         /**
-         * Só na variante `card`. Selo sobre a foto (`.chip liquid-glass`), ex.: "Matriz · PE"/"Filial · PB".
+         * Nas variantes `card`/`units`. Em `card`, selo sobre a foto (`.chip liquid-glass`), ex.: "Matriz · PE". Em `units`, texto puro acima do título (`.unit .role`, ex.: "Matriz · Pernambuco" — sem abreviar UF, fiel a `_reference/contato.html:281,296,311,326`).
          */
         chip?: string | null;
         /**
@@ -1078,15 +1081,15 @@ export interface ContactInfoBlock {
          */
         addressDetail?: string | null;
         /**
-         * Só na variante `card`. Telefone formatado da linha "WhatsApp" do `dl` (ex.: "(81) 9 9999-9999") — distinto do `whatsapp` do bloco (dígitos, usado no link `wa.me`).
+         * Nas variantes `card`/`units`. Telefone formatado da linha "WhatsApp" do `dl` (ex.: "(81) 9 9999-9999") — distinto do `whatsapp` do bloco (dígitos, usado no link `wa.me`).
          */
         whatsappDisplay?: string | null;
         /**
-         * Só na variante `card`. Linha "Horário" do `dl`, ex.: "Segunda a sexta, das 8h às 18h".
+         * Nas variantes `card`/`units`. Linha "Horário" do `dl`, ex.: "Segunda a sexta, das 8h às 18h".
          */
         hours?: string | null;
         /**
-         * Só na variante `card`. Link do CTA "Como chegar" (`.unit-actions .btn-primary`), ex.: "https://maps.google.com/?q=Semog+recife".
+         * Nas variantes `card`/`units`. Link do CTA ("Como chegar" em `card`, "Ver no mapa" em `units`), ex.: "https://maps.google.com/?q=Semog+recife".
          */
         mapsHref?: string | null;
         id?: string | null;
@@ -1223,6 +1226,110 @@ export interface BairrosBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'bairros';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuickLinksBlock".
+ */
+export interface QuickLinksBlock {
+  /**
+   * O ref sempre mostra exatamente 3 atalhos (WhatsApp/e-mail/proposta) — `.quick-grid` é uma grade fixa de 3 colunas.
+   */
+  items?:
+    | {
+        /**
+         * Glifo de vidro do card (`.quick-card .ic`), fiel aos 3 SVGs inline de `_reference/contato.html:212,218,224` (WhatsApp/envelope/documento com check).
+         */
+        icon: 'whatsapp' | 'email' | 'document';
+        title: string;
+        description: string;
+        /**
+         * Linha em destaque no fim do card (`.quick-card .val`), ex.: "(81) 9 9999-9999" ou "Solicitar proposta →".
+         */
+        value: string;
+        href: string;
+        /**
+         * Abre em nova aba (`target="_blank" rel="noopener"`) — o card de WhatsApp do ref usa isso, e-mail (`mailto:`) e o link interno pra `/proposta` não.
+         */
+        external?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quickLinks';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SelfServeBlock".
+ */
+export interface SelfServeBlock {
+  title: string;
+  /**
+   * Trecho final de `title` a destacar em `.gx`, ex.: "sem esperar." em "Resolva fácil, sem esperar." (`_reference/contato.html:237`) — mesmo padrão de `FeatureGrid.titleAccent`.
+   */
+  titleAccent?: string | null;
+  text?: string | null;
+  items?:
+    | {
+        title: string;
+        description: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Nota de apoio abaixo da grade (`.ss-note`), ex.: "Precisa de outra coisa? O time responde no WhatsApp em horário comercial." (`_reference/contato.html:266`).
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'selfServe';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrustPanelBlock".
+ */
+export interface TrustPanelBlock {
+  /**
+   * Fundo do cartão de estatísticas (`.hero-card`), escurecido por um overlay — `hero-towers.webp` no ref.
+   */
+  photo?: (number | null) | Media;
+  /**
+   * Os 4 números do `.trust-stats` (35 / +700 / +70 mil / 4). Números fixos, sem animação de contador — o ref não anima aqui (diferente do `Stats`/`.stats-grid` da home).
+   */
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Citação sobre o Semog Garante (`.trust-quote`), ex.: "Com o Semog Garante, a inadimplência do seu condomínio cai a zero."
+   */
+  quote: string;
+  /**
+   * Trecho final de `quote` a destacar (`.trust-quote em`, cor sólida `--ice-400`, sem itálico), ex.: "cai a zero."
+   */
+  quoteAccent?: string | null;
+  quoteText: string;
+  whatsappTitle: string;
+  /**
+   * Texto antes do número, ex.: "Chame no WhatsApp:"
+   */
+  whatsappText?: string | null;
+  /**
+   * Dígitos puros, usado no link `https://wa.me/<whatsapp>`.
+   */
+  whatsapp: string;
+  /**
+   * Telefone formatado, ex.: "(81) 9 9999-9999".
+   */
+  whatsappDisplay: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'trustPanel';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1549,6 +1656,9 @@ export interface PagesSelect<T extends boolean = true> {
         devQuote?: T | DevQuoteBlockSelect<T>;
         processoTimeline?: T | ProcessoTimelineBlockSelect<T>;
         bairros?: T | BairrosBlockSelect<T>;
+        quickLinks?: T | QuickLinksBlockSelect<T>;
+        selfServe?: T | SelfServeBlockSelect<T>;
+        trustPanel?: T | TrustPanelBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -2304,6 +2414,68 @@ export interface BairrosBlockSelect<T extends boolean = true> {
         id?: T;
       };
   note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuickLinksBlock_select".
+ */
+export interface QuickLinksBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        value?: T;
+        href?: T;
+        external?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SelfServeBlock_select".
+ */
+export interface SelfServeBlockSelect<T extends boolean = true> {
+  title?: T;
+  titleAccent?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        href?: T;
+        id?: T;
+      };
+  note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrustPanelBlock_select".
+ */
+export interface TrustPanelBlockSelect<T extends boolean = true> {
+  photo?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  quote?: T;
+  quoteAccent?: T;
+  quoteText?: T;
+  whatsappTitle?: T;
+  whatsappText?: T;
+  whatsapp?: T;
+  whatsappDisplay?: T;
   id?: T;
   blockName?: T;
 }

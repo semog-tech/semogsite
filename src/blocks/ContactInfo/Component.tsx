@@ -7,6 +7,8 @@ import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
 import type { ContactInfoBlock as ContactInfoBlockType, Media } from '@/payload-types'
 
+type ContactInfoItem = NonNullable<ContactInfoBlockType['items']>[number]
+
 /** Título com o trecho final em `.gx` — mesmo padrão de `FeatureGrid`'s `GridTitle`. */
 function CardTitle({ title, accent }: { title: string; accent?: string | null }) {
   if (accent && title.endsWith(accent)) {
@@ -36,6 +38,91 @@ function CardTitle({ title, accent }: { title: string; accent?: string | null })
  *   `Reveal` separado (2 `data-reveal` distintos no ref). Usa só
  *   `items[0]` — o ref sempre mostra 1 unidade nesse padrão.
  */
+/**
+ * Uma unidade (`<article class="unit">`), fiel a `_reference/contato.html:
+ * 278-336`: foto de um lado (`.uimg`, `nth-child(even)` inverte a ordem via
+ * CSS em `theme.css`) + corpo do outro (`.ubody`: `.role` + `h3` + `dl` de
+ * contato + um único CTA "Ver no mapa"). Usa `as="article"` no `Reveal`
+ * (`_reference/contato.html:278` — `data-reveal` no próprio `<article>`, sem
+ * o truque de link esticado do `BlogFeatured`/`SelfServe` porque o CTA aqui
+ * já é um `<a>` de verdade dentro do card, não o card inteiro).
+ */
+function UnitCard({ item }: { item: ContactInfoItem }) {
+  const photo = item.photo && typeof item.photo === 'object' ? (item.photo as Media) : undefined
+  return (
+    <Reveal as="article" className="unit">
+      <div className="uimg">
+        {photo && (
+          <ImageMedia
+            resource={photo}
+            fill
+            className="absolute inset-0 object-cover"
+            sizes="(min-width: 860px) 45vw, 100vw"
+          />
+        )}
+      </div>
+      <div className="ubody">
+        {item.chip && <span className="role">{item.chip}</span>}
+        <h3>{item.city}</h3>
+        <dl>
+          <dt>Endereço</dt>
+          <dd>{item.address}</dd>
+          <dt>Telefone</dt>
+          <dd>{item.phone}</dd>
+          {item.whatsappDisplay && (
+            <>
+              <dt>WhatsApp</dt>
+              <dd>{item.whatsappDisplay}</dd>
+            </>
+          )}
+          {item.hours && (
+            <>
+              <dt>Horário</dt>
+              <dd>{item.hours}</dd>
+            </>
+          )}
+        </dl>
+        {item.mapsHref && (
+          <Button href={item.mapsHref} variant="ghost" size="sm">
+            Ver no mapa
+          </Button>
+        )}
+      </div>
+    </Reveal>
+  )
+}
+
+/**
+ * Lista de unidades (`.units`), fiel a `_reference/contato.html:271-338`:
+ * `Section` com `bg-deep` (`.units{background:var(--bg-deep)}`, estilo
+ * inline da própria página) + cabeçalho padrão (`eyebrow`/`title`, mesmo
+ * `.sec-head` do resto do site) + um `UnitCard` por item, direto como filho
+ * de `Container` — a alternância par/ímpar do ref depende de `.unit` ser
+ * irmão direto (`nth-child(even)`), por isso nada de wrapper extra aqui.
+ */
+function UnitsVariant({
+  eyebrow,
+  title,
+  items,
+}: Pick<ContactInfoBlockType, 'eyebrow' | 'title' | 'items'>) {
+  if (!items || items.length === 0) return null
+  return (
+    <Section className="units">
+      <Container>
+        {(eyebrow || title) && (
+          <div className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">
+            {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+            {title && <h2 className="text-h2">{title}</h2>}
+          </div>
+        )}
+        {items.map((item) => (
+          <UnitCard key={item.id ?? item.city} item={item} />
+        ))}
+      </Container>
+    </Section>
+  )
+}
+
 export function ContactInfoBlock({
   variant,
   eyebrow,
@@ -45,6 +132,10 @@ export function ContactInfoBlock({
   whatsapp,
 }: ContactInfoBlockType) {
   if (!items || items.length === 0) return null
+
+  if (variant === 'units') {
+    return <UnitsVariant eyebrow={eyebrow} title={title} items={items} />
+  }
 
   if (variant === 'card') {
     const item = items[0]

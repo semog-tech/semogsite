@@ -25,8 +25,10 @@ import { PrestacaoBlock } from './Prestacao/Component'
 import { PriceMomentBlock } from './PriceMoment/Component'
 import { ProcessoTimelineBlock } from './ProcessoTimeline/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
+import { QuickLinksBlock } from './QuickLinks/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
+import { SelfServeBlock } from './SelfServe/Component'
 import { ShowcaseBlock } from './Showcase/Component'
 import { SociosBlock } from './Socios/Component'
 import { SolucoesBentoBlock } from './SolucoesBento/Component'
@@ -35,6 +37,7 @@ import { StatsBlock } from './Stats/Component'
 import { TecnologiaRoadmapBlock } from './TecnologiaRoadmap/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { TimelineBlock } from './Timeline/Component'
+import { TrustPanelBlock } from './TrustPanel/Component'
 import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
 import { WordsSectionBlock } from './WordsSection/Component'
 
@@ -78,6 +81,9 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   devQuote: DevQuoteBlock,
   processoTimeline: ProcessoTimelineBlock,
   bairros: BairrosBlock,
+  quickLinks: QuickLinksBlock,
+  selfServe: SelfServeBlock,
+  trustPanel: TrustPanelBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

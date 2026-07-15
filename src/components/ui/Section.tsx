@@ -16,12 +16,15 @@ export function Section({
   white,
   className = '',
   style,
+  ariaLabel,
 }: {
   children: ReactNode
   light?: boolean
   white?: boolean
   className?: string
   style?: CSSProperties
+  /** `aria-label` do `<section>` — ex.: `.quick`/`.selfserve` de `_reference/contato.html:208,234`. */
+  ariaLabel?: string
 }) {
   const cls = [
     'relative py-[clamp(5rem,10vw,9rem)]',
@@ -31,7 +34,7 @@ export function Section({
     .filter(Boolean)
     .join(' ')
   return (
-    <section className={cls} style={style}>
+    <section className={cls} style={style} aria-label={ariaLabel}>
       {children}
     </section>
   )

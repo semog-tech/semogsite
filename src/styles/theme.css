@@ -2954,4 +2954,319 @@
       flex-direction: column;
     }
   }
+
+  /* ---------- Contato: atendimento rápido (`.quick`/`.quick-card`) — fiel a
+     `_reference/contato.html:208-231` + CSS em `_reference/contato.html:
+     89-109` (estilo inline da própria página) ----------
+     src/blocks/QuickLinks (bloco novo) renderiza `Section` + `Stagger
+     className="quick-grid"` (`data-stagger` no ref) > 3 `<a class="quick-card">`
+     diretos (sem wrapper — `Stagger` anima os filhos diretos do container, e
+     cada card já é um `<a>` de verdade, sem precisar do truque de link
+     esticado). O ref só tem UMA propriedade em `.quick` (`padding-top`
+     reduzido) — reproduzida como `!pt-[clamp(2.5rem,5vw,4rem)]` direto no
+     `className` do `Section` (mesmo truque de `BlogFeatured`), por isso não
+     vira uma regra `.quick{}` aqui (seria morta: o `!important` do
+     Tailwind sempre ganharia). `var(--line)`/`var(--ice-400)`→
+     `--color-ice-400` (o ícone usa gradiente fixo, sem token — mesmo valor
+     bruto do ref); `var(--r-card)`→`--radius-card`; `var(--text-2)`/
+     `var(--ice-300)`→`--color-ice-300`. */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+  }
+  .quick-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.015));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease;
+  }
+  .quick-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-ice-400);
+  }
+  .quick-card .ic {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2a3f96, #5895bd);
+    box-shadow: 0 10px 24px -10px rgba(88, 149, 189, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.9rem;
+  }
+  .quick-card h3 {
+    font-size: 1.15rem;
+    margin: 0;
+  }
+  .quick-card p {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    margin: 0;
+    flex: 1;
+  }
+  .quick-card .val {
+    color: var(--color-ice-300);
+    font-weight: 600;
+    font-size: 1.02rem;
+    margin-top: 0.6rem;
+  }
+  @media (max-width: 1024px) {
+    .quick-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Contato: resolva fácil (`.selfserve`/`.ss-card`) — fiel a
+     `_reference/contato.html:233-268` + CSS em `_reference/contato.html:
+     110-133` (estilo inline da própria página) ----------
+     src/blocks/SelfServe (bloco novo) renderiza `Section light white
+     className="selfserve"` (`.selfserve.sec-light.white`) + cabeçalho
+     padrão + `.ss-grid` > `Reveal className="ss-card"` (`data-reveal` por
+     card no ref) — cada `Reveal` vira um `<div>` (não repassa `href`, mesma
+     limitação documentada em `BlogFeatured`), com um `<a>` esticado
+     absoluto por cima (por isso `.ss-card` ganhou `position:relative`, sem
+     equivalente no ref, mesmo padrão de `.featured`/`.pimg`). `var(--line)`/
+     `var(--text-2)`/`var(--text-3)`→ já soltas; `var(--r-card)`→
+     `--radius-card`; `var(--ice-400)`→`--color-ice-400`; `var(--navy-600)`/
+     `var(--navy-500)`→`--color-navy-600`/`--color-navy-500`;
+     `var(--r-pill)`→`--radius-pill`. */
+  .selfserve {
+    margin-top: 0;
+  }
+  .ss-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+  }
+  .ss-card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.6rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.045), rgba(173, 213, 235, 0.01));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease;
+  }
+  .ss-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-ice-400);
+  }
+  .ss-card strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.06rem;
+    display: block;
+  }
+  .ss-card small {
+    color: var(--text-2);
+    font-size: 0.85rem;
+  }
+  .ss-card .go {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-pill);
+    background: var(--color-navy-600);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px -12px rgba(27, 45, 112, 0.55);
+    transition:
+      background 0.3s ease,
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ss-card:hover .go {
+    background: var(--color-navy-500);
+    transform: rotate(-45deg);
+  }
+  .ss-note {
+    margin-top: 1.6rem;
+    color: var(--text-3);
+    font-size: 0.88rem;
+  }
+  @media (max-width: 1024px) {
+    .ss-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .ss-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Contato: unidades em lista (`.units`/`.unit`) — fiel a
+     `_reference/contato.html:271-338` + CSS em `_reference/contato.html:
+     135-160` (estilo inline da própria página) ----------
+     src/blocks/ContactInfo com `variant:'units'` renderiza `Section
+     className="units"` + um `Reveal as="article" className="unit"` por
+     item, direto como filho de `Container` (a alternância `nth-child(even)`
+     abaixo depende disso). `var(--line)`/`var(--text-2)`/`var(--text-3)`→
+     já soltas; `var(--r-card)`→`--radius-card`; `var(--ice-400)`→
+     `--color-ice-400`; `var(--bg-deep)`→ já solta. */
+  .units {
+    background: var(--bg-deep);
+  }
+  .unit {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    margin-bottom: 1.6rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.035), rgba(173, 213, 235, 0.01));
+    scroll-margin-top: 90px;
+  }
+  .unit:last-child {
+    margin-bottom: 0;
+  }
+  .unit:nth-child(even) .uimg {
+    order: 2;
+  }
+  .unit .uimg {
+    position: relative;
+    min-height: 300px;
+  }
+  .unit .uimg img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .unit .ubody {
+    padding: clamp(1.8rem, 4vw, 2.8rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .unit .role {
+    color: var(--color-ice-400);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .unit h3 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    margin: 0.4rem 0 1.2rem;
+  }
+  .unit dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+  }
+  .unit dt {
+    color: var(--text-3);
+  }
+  .unit dd {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .unit .ubody .btn {
+    margin-top: 1.6rem;
+    align-self: flex-start;
+  }
+  @media (max-width: 860px) {
+    .unit {
+      grid-template-columns: 1fr;
+    }
+    .unit:nth-child(even) .uimg {
+      order: 0;
+    }
+    .unit .uimg {
+      min-height: 220px;
+    }
+  }
+
+  /* ---------- Proposta: painel de confiança (`.trust-card`/`.trust-stats`/
+     `.trust-quote`) — fiel a `_reference/proposta.html:260-290` + CSS em
+     `_reference/proposta.html:89-110` (estilo inline da própria página)
+     ----------
+     src/blocks/TrustPanel (bloco novo) renderiza os 3 `.trust-card` do ref
+     (hero-card com foto+stats / citação / WhatsApp). O ref embrulha os 3
+     num `<aside class="trust-panel">` `position:sticky`, ao lado do form,
+     dentro do MESMO grid de 2 colunas de `.prop-grid` — como cada bloco do
+     CMS é sua própria `<section>` empilhada (mesma limitação já documentada
+     em `FormEmbed`, que também não reproduz esse grid), aqui os 3 cards
+     viram uma faixa de 3 colunas (`.trust-panel-band`, classe nova, sem
+     equivalente no ref) em vez de uma coluna estreita fixa ao lado do form
+     — `.trust-panel` continua portada verbatim (inclusive `position:sticky`)
+     para quem reaproveitar o bloco num layout que realmente tenha 2
+     colunas. `var(--line)`/`var(--line-strong)`/`var(--text-2)`→ já soltas;
+     `var(--r-card)`→`--radius-card`; `var(--ice-400)`→`--color-ice-400`. */
+  .trust-panel {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+  .trust-panel-band {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+  }
+  .trust-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.8rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.015));
+  }
+  .trust-card.hero-card {
+    border-color: var(--line-strong);
+  }
+  .trust-card h3 {
+    font-size: 1.15rem;
+  }
+  .trust-card p {
+    color: var(--text-2);
+    font-size: 0.93rem;
+    margin: 0;
+  }
+  .trust-stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+  }
+  .trust-quote {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0 0 0.8rem;
+  }
+  .trust-quote em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  @media (max-width: 1024px) {
+    .trust-panel {
+      position: static;
+    }
+    .trust-panel-band {
+      grid-template-columns: 1fr;
+    }
+  }
 }

@@ -24,8 +24,10 @@ import { prestacaoBlock } from '@/blocks/Prestacao/config'
 import { priceMomentBlock } from '@/blocks/PriceMoment/config'
 import { processoTimelineBlock } from '@/blocks/ProcessoTimeline/config'
 import { produtosGridBlock } from '@/blocks/ProdutosGrid/config'
+import { quickLinksBlock } from '@/blocks/QuickLinks/config'
 import { registrosBlock } from '@/blocks/Registros/config'
 import { richTextBlock } from '@/blocks/RichText/config'
+import { selfServeBlock } from '@/blocks/SelfServe/config'
 import { showcaseBlock } from '@/blocks/Showcase/config'
 import { sociosBlock } from '@/blocks/Socios/config'
 import { solucoesBentoBlock } from '@/blocks/SolucoesBento/config'
@@ -34,6 +36,7 @@ import { statsBlock } from '@/blocks/Stats/config'
 import { tecnologiaRoadmapBlock } from '@/blocks/TecnologiaRoadmap/config'
 import { testimonialsBlock } from '@/blocks/Testimonials/config'
 import { timelineBlock } from '@/blocks/Timeline/config'
+import { trustPanelBlock } from '@/blocks/TrustPanel/config'
 import { valuesMarqueeBlock } from '@/blocks/ValuesMarquee/config'
 import { wordsSectionBlock } from '@/blocks/WordsSection/config'
 import { revalidatePage } from '@/lib/revalidate'
@@ -106,6 +109,9 @@ export const Pages: CollectionConfig = {
         devQuoteBlock,
         processoTimelineBlock,
         bairrosBlock,
+        quickLinksBlock,
+        selfServeBlock,
+        trustPanelBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },
