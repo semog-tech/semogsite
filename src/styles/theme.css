@@ -3269,4 +3269,54 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ---------- Páginas legais (`.legal-hero`/`.legal-body`) — fiel ao CSS
+     inline (idêntico) de `_reference/privacidade.html:19-29` e
+     `_reference/termos.html:19-29` ----------
+     src/blocks/LegalHero (bloco novo) renderiza `.legal-hero` (h1 + `.upd`,
+     SEM `Chars`/`Fade` — o ref não anima esta seção); src/blocks/RichText
+     com `legal:true` renderiza `.legal-body` > `Container` > `.wrap`
+     (medida de leitura de 760px). Portado verbatim, sem indireção var→token:
+     `var(--line)`/`var(--text-2)`/`var(--text-3)` já são as CSS vars soltas
+     usadas em todo o resto deste arquivo (ex. `.quick-card`/`.trust-card`
+     acima). */
+  .legal-hero {
+    padding: 150px 0 clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .legal-hero h1 {
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+    max-width: 18ch;
+  }
+  .legal-hero .upd {
+    color: var(--text-3);
+    font-size: 0.9rem;
+  }
+  .legal-body {
+    padding-block: clamp(3rem, 6vw, 5rem);
+  }
+  .legal-body .wrap {
+    max-width: 760px;
+  }
+  .legal-body h2 {
+    font-size: 1.4rem;
+    margin-top: 2.6rem;
+  }
+  .legal-body p,
+  .legal-body li {
+    color: var(--text-2);
+  }
+  /* O ref não reseta `ul` (só `.nav-links`/`.footer ul`/`.feature-list`
+     zeram list-style/margin/padding — `semog.css:251,406,453`), então
+     `.legal-body ul` herda o UA stylesheet padrão (`list-style:disc`,
+     `margin-block:1em`). O Preflight do Tailwind zera os três globalmente
+     (`ul{list-style:none;margin:0;padding:0}`) — sem restaurá-los aqui, a
+     lista renderiza sem marcador e sem respiro vertical, ao contrário do
+     ref. `padding-left:1.3rem` já era o único valor que o ref sobrescrevia
+     explicitamente. */
+  .legal-body ul {
+    list-style: disc;
+    margin-block: 1em;
+    padding-left: 1.3rem;
+  }
 }

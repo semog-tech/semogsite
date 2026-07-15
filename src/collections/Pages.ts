@@ -17,6 +17,7 @@ import { formEmbedBlock } from '@/blocks/FormEmbed/config'
 import { garanteBlock } from '@/blocks/Garante/config'
 import { heroBlock } from '@/blocks/Hero/config'
 import { humanQuoteBlock } from '@/blocks/HumanQuote/config'
+import { legalHeroBlock } from '@/blocks/LegalHero/config'
 import { newsletterBlock } from '@/blocks/Newsletter/config'
 import { partnerSplitBlock } from '@/blocks/PartnerSplit/config'
 import { pillarsBlock } from '@/blocks/Pillars/config'
@@ -112,6 +113,7 @@ export const Pages: CollectionConfig = {
         quickLinksBlock,
         selfServeBlock,
         trustPanelBlock,
+        legalHeroBlock,
       ],
     },
     { name: 'publishedAt', type: 'date', admin: { position: 'sidebar' } },

@@ -234,6 +234,7 @@ export interface Page {
         | QuickLinksBlock
         | SelfServeBlock
         | TrustPanelBlock
+        | LegalHeroBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -888,6 +889,10 @@ export interface RichTextBlock {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Tratamento `.legal-body` (medida 760px, `h2` compacto, texto em `--text-2`) usado em `/privacidade` e `/termos`. Sem isso marcado, o bloco renderiza como hoje (`Container` sem seção própria).
+   */
+  legal?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'richText';
@@ -1333,6 +1338,20 @@ export interface TrustPanelBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LegalHeroBlock".
+ */
+export interface LegalHeroBlock {
+  headline: string;
+  /**
+   * Linha `.upd` abaixo do título, ex.: "Última atualização: julho de 2026 · Documento em revisão pelo jurídico da Semog".
+   */
+  updatedText?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'legalHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
 export interface Form {
@@ -1659,6 +1678,7 @@ export interface PagesSelect<T extends boolean = true> {
         quickLinks?: T | QuickLinksBlockSelect<T>;
         selfServe?: T | SelfServeBlockSelect<T>;
         trustPanel?: T | TrustPanelBlockSelect<T>;
+        legalHero?: T | LegalHeroBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -2191,6 +2211,7 @@ export interface CustoChecklistBlockSelect<T extends boolean = true> {
  */
 export interface RichTextBlockSelect<T extends boolean = true> {
   content?: T;
+  legal?: T;
   id?: T;
   blockName?: T;
 }
@@ -2476,6 +2497,16 @@ export interface TrustPanelBlockSelect<T extends boolean = true> {
   whatsappText?: T;
   whatsapp?: T;
   whatsappDisplay?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LegalHeroBlock_select".
+ */
+export interface LegalHeroBlockSelect<T extends boolean = true> {
+  headline?: T;
+  updatedText?: T;
   id?: T;
   blockName?: T;
 }

@@ -18,6 +18,7 @@ import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
+import { LegalHeroBlock } from './LegalHero/Component'
 import { NewsletterBlock } from './Newsletter/Component'
 import { PartnerSplitBlock } from './PartnerSplit/Component'
 import { PillarsBlock } from './Pillars/Component'
@@ -84,6 +85,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   quickLinks: QuickLinksBlock,
   selfServe: SelfServeBlock,
   trustPanel: TrustPanelBlock,
+  legalHero: LegalHeroBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {
