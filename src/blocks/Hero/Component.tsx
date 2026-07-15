@@ -56,9 +56,16 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * nem o `div` de overlay são renderizados, e `pageHeroGradient` vira
  * diretamente o `background` do próprio `Section` (o gradiente É o fundo,
  * não uma camada por cima de foto). `pageHeroPaddingBottom` reproduz o 2º
- * valor de `padding-block` do `.page-hero` (varia por página);
- * `pageHeroHeadlineMaxWidth` reproduz `.page-hero h1{max-width}` — ambos
- * opcionais, sem efeito fora de `pageHeroOverlay`.
+ * valor de `padding-block` do `.page-hero` (varia por página, sem efeito
+ * fora de `pageHeroOverlay`).
+ *
+ * `pageHeroHeadlineMaxWidth` (quando preenchido) vira `max-width` inline do
+ * `h1` em QUALQUER hero — não só `pageHeroOverlay` — fiel ao `ch` próprio de
+ * `.hero h1`/`.page-hero h1` do ref por página (a classe fixa `max-w-4xl`
+ * que existia aqui pro hero genérico foi removida: `.hero h1` da home não
+ * tem `max-width` nenhum no ref, só `font-size`/`letter-spacing`). O hero
+ * com `priceChip` já tem seu `max-w-[12ch]` fiel a `.g-hero h1` hardcoded
+ * abaixo — nunca precisa do campo.
  */
 export function HeroBlock({
   eyebrow,
@@ -180,13 +187,9 @@ export function HeroBlock({
           className={
             hasPriceChip
               ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-[-0.02em] [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
-              : 'mb-[1.4rem] max-w-4xl text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
+              : 'mb-[1.4rem] text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
           }
-          style={
-            isPageHero && pageHeroHeadlineMaxWidth
-              ? { maxWidth: pageHeroHeadlineMaxWidth }
-              : undefined
-          }
+          style={pageHeroHeadlineMaxWidth ? { maxWidth: pageHeroHeadlineMaxWidth } : undefined}
         >
           {headline}
         </Chars>

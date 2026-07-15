@@ -289,7 +289,7 @@ export interface HeroBlock {
    */
   pageHeroPaddingBottom?: string | null;
   /**
-   * Só com `pageHeroOverlay`. `max-width` do `h1` (ex.: `16ch` em `/blog` e `/solucoes`, `15ch` em `/contato`, `17ch` nas landings de cidade — `.page-hero h1` do ref). Deixe em branco para manter o `max-w-4xl` genérico atual.
+   * `max-width` do `h1`, fiel ao `ch` de cada `.hero h1`/`.page-hero h1` do ref (ex.: `16ch` em `/blog`, `/solucoes` e `/administracao-de-condominios`, `15ch` em `/contato` e `/incorporadoras`, `14ch` em `/semog`, `17ch` nas landings de cidade). Funciona em qualquer hero, não só com `pageHeroOverlay`. Deixe em branco para não aplicar nenhum `max-width` (caso do `.hero h1` genérico da home, que no ref não tem `max-width` — só `font-size`).
    */
   pageHeroHeadlineMaxWidth?: string | null;
   ctas?:

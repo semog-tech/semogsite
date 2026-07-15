@@ -382,8 +382,15 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
     getMediaId(payload, 'equipe.webp'),
   ])
 
-  // `.page-hero`, `_reference/semog.html:236-245` — só imagem de fundo
-  // (`.bg`), sem vídeo nesta página interna.
+  // `.page-hero`, `_reference/semog.html:43-63,236-245` — só imagem de fundo
+  // (`.bg`), sem vídeo nesta página interna. `pageHeroOverlay` estava
+  // faltando (regressão de wave anterior): sem ele, `isPageHero` fica
+  // `false` e o poster passado acima NUNCA renderiza (nem a imagem nem o
+  // gradiente por cima — `Hero/Component.tsx` só desenha `.bg`/`::after`
+  // quando `pageHeroOverlay` está ligado). Números próprios desta página:
+  // `min-height:78dvh`, `background-position:center 30%`, opacidade `0.5`,
+  // gradiente com parada intermediária a 35%, `padding-block` 2º valor
+  // `clamp(3rem,6vw,5rem)`, `h1{max-width:14ch}`.
   const semogHero: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
     eyebrow: 'Desde 1991',
@@ -391,15 +398,23 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
     subhead:
       'Nascemos no Recife, crescemos com o Nordeste e nos tornamos referência nacional em administração de condomínios.',
     poster: heroPosterId,
+    pageHeroOverlay: true,
+    pageHeroMinHeight: '78dvh',
+    pageHeroPosterOpacity: 0.5,
+    pageHeroBgPosition: 'center 30%',
+    pageHeroGradient:
+      'linear-gradient(180deg, rgba(5,8,26,0.55) 0%, rgba(10,16,46,0.35) 50%, var(--color-navy-900) 100%)',
+    pageHeroPaddingBottom: 'clamp(3rem, 6vw, 5rem)',
+    pageHeroHeadlineMaxWidth: '14ch',
   }
 
-  // `.manifesto .big`, `_reference/semog.html:248-253` — o `em` "Esse
-  // trabalho é nosso." em ice não tem contrapartida no `WordsSectionBlock`
-  // (`text` é texto puro, sem inline formatting), mesma limitação já
-  // presente no manifesto da home.
+  // `.manifesto .big`, `_reference/semog.html:248-253` — `<em>Esse trabalho
+  // é nosso.</em>` embutido reproduz o destaque em ice do ref;
+  // `WordsSectionBlock` soma a classe `.big` automaticamente por ter `<em>`
+  // (ver doc de `WordsSection/Component.tsx`).
   const semogManifesto: Omit<WordsSectionBlock, 'id' | 'blockName'> = {
     blockType: 'wordsSection',
-    text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. Esse trabalho é nosso. O de vocês é viver bem.',
+    text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
   }
 
   // `.mini-stats`, `_reference/semog.html:254-271` — vive dentro da própria
@@ -574,6 +589,8 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
       'Gestão financeira, contábil, jurídica e de pessoas, com a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
     poster: residencialId,
     pageHeroOverlay: true,
+    // `.page-hero h1{max-width:16ch}`, `_reference/solucoes.html:105`.
+    pageHeroHeadlineMaxWidth: '16ch',
   }
 
   // As 3 verticais `#residenciais`/`#comerciais`/`#associacoes`, fiel a
@@ -905,6 +922,8 @@ async function seedAdministracaoPage(payload: Awaited<ReturnType<typeof getPaylo
     pageHeroBgPosition: 'center 40%',
     pageHeroGradient:
       'linear-gradient(180deg, rgba(5,8,26,0.45) 0%, rgba(5,8,26,0.15) 45%, rgba(5,8,26,0.85) 100%)',
+    // `.page-hero h1{max-width:16ch}`, `_reference/administracao-de-condominios.html:84`.
+    pageHeroHeadlineMaxWidth: '16ch',
     ctas: [{ label: 'Solicitar proposta', href: '/proposta', variant: 'white' }],
   }
 
@@ -1306,17 +1325,19 @@ async function seedIncorporadorasPage(payload: Awaited<ReturnType<typeof getPayl
     pageHeroBgPosition: 'center',
     pageHeroGradient:
       'linear-gradient(180deg, rgba(5,8,26,0.5) 0%, rgba(10,16,46,0.3) 45%, var(--color-navy-900) 100%)',
+    // `.page-hero h1{max-width:15ch}`, `_reference/incorporadoras.html:69`.
+    pageHeroHeadlineMaxWidth: '15ch',
     ctas: [{ label: 'Solicitar proposta', href: '/proposta' }],
   }
 
   // `.argument`, `_reference/incorporadoras.html:72-79,204-216` — o
   // parágrafo-manifesto (`text`, scrub via `Words`) + `sub` (2º parágrafo,
-  // `Reveal` simples). `<em>` do ref descartado (texto puro), mesma
-  // limitação documentada em `WordsSection/config.ts`.
+  // `Reveal` simples). `<em>como a sua marca será lembrada.</em>` embutido
+  // reproduz o destaque em ice do ref.
   const incorporadorasArgumento: Omit<WordsSectionBlock, 'id' | 'blockName'> = {
     blockType: 'wordsSection',
     variant: 'argument',
-    text: 'A experiência do comprador não termina na escritura. Os primeiros doze meses do condomínio definem como a sua marca será lembrada.',
+    text: 'A experiência do comprador não termina na escritura. Os primeiros doze meses do condomínio definem <em>como a sua marca será lembrada.</em>',
     sub: 'Condomínio recém-entregue com taxa mal calculada, assembleia tumultuada e áreas comuns sem manutenção vira reclamação pública contra a incorporadora. Com 35 anos de implantações, a Semog garante que a vida no empreendimento comece tão bem quanto a obra terminou.',
   }
 
@@ -1425,10 +1446,11 @@ async function seedIncorporadorasPage(payload: Awaited<ReturnType<typeof getPayl
   }
 
   // `.dev-quote`, `_reference/incorporadoras.html:125-136,311-317` (bloco
-  // novo, ver `DevQuote/config.ts`). `<em>` do ref descartado (texto puro).
+  // novo, ver `DevQuote/config.ts`). `<em>A Semog entrega a
+  // convivência.</em>` embutido reproduz o destaque em ice do ref.
   const incorporadorasQuote: Omit<DevQuoteBlock, 'id' | 'blockName'> = {
     blockType: 'devQuote',
-    quote: 'Entregar a obra é metade. A Semog entrega a convivência.',
+    quote: 'Entregar a obra é metade. <em>A Semog entrega a convivência.</em>',
     cite: 'Filosofia do time de implantação Semog',
   }
 
@@ -1967,6 +1989,10 @@ async function seedCityLanding(
     pageHeroBgPosition: 'center 35%',
     pageHeroGradient:
       'linear-gradient(180deg, rgba(5,8,26,0.5) 0%, rgba(10,16,46,0.3) 50%, var(--color-navy-950) 100%)',
+    // `.page-hero h1{max-width:17ch}` — igual nas 4 landings de cidade do
+    // ref (`_reference/administradora-de-condominios-{recife,joao-pessoa,
+    // campina-grande,belem}.html:89`).
+    pageHeroHeadlineMaxWidth: '17ch',
     ctas: [{ label: 'Solicitar proposta', href: '/proposta', variant: 'white' }],
   }
 

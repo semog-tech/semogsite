@@ -43,7 +43,10 @@ import { getMediaId } from './lib/media'
  * `pnpm seed:media` — lança se o asset não existir (não inventa ids).
  */
 
-const HERO_HEADLINE = 'Preocupe-se apenas em morar.'
+// `\n` reproduz o `<br>` literal de `_reference/index.html:491`
+// (`Preocupe-se apenas<br>em morar.`) — `src/motion/Chars.tsx` insere uma
+// quebra de linha real no lugar, ver doc do componente.
+const HERO_HEADLINE = 'Preocupe-se apenas\nem morar.'
 
 async function seedHome() {
   const payload = await getPayload({ config })
