@@ -856,6 +856,25 @@
     margin: 0;
   }
 
+  /* `.manifesto .big` — fiel a `_reference/semog.html:76-83`: markup
+     distinto de `.manifesto p` acima (usado só quando o parágrafo tem um
+     trecho `<em>` em destaque, ex.: "Esse trabalho é nosso." de `/semog`).
+     `src/blocks/WordsSection/Component.tsx` soma a classe `.big` no variant
+     `manifesto` quando `text` contém `<em>` — ver doc do bloco. */
+  .manifesto .big {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.6vw, 3rem);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    max-width: 26ch;
+    margin: 0;
+  }
+  .manifesto .big em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+
   /* ---------- O problema (manifesto compacto, /garante) — fiel a
      `.g-problem` de `_reference/garante.html:114-120` (estilo inline da
      própria página) ----------
@@ -2379,9 +2398,9 @@
      padding-block próprio no ref (usa o `--section` genérico do site, que
      este codebase não porta como regra solta `section{}` — por isso
      replicado aqui como valor literal, idêntico a `--section` do
-     `@layer base`/semog.css:61). O `<em>` do ref (`.argument .big em`) não
-     tem contrapartida em texto puro — mesma limitação já documentada no
-     `manifesto`/`g-problem`. */
+     `@layer base`/semog.css:61). `text` aceita `<em>` embutido (destaque em
+     ice, ex.: "como a sua marca será lembrada.") — `src/motion/Words.tsx`
+     preserva a marcação através do scrub palavra-a-palavra. */
   .argument {
     padding-block: clamp(5rem, 10vw, 9rem);
   }
@@ -2392,6 +2411,10 @@
     line-height: 1.25;
     max-width: 28ch;
     margin: 0;
+  }
+  .argument .big em {
+    font-style: normal;
+    color: var(--color-ice-400);
   }
   .argument .sub {
     color: var(--text-2);
@@ -2489,10 +2512,9 @@
      src/blocks/DevQuote renderiza blockquote (scrub palavra-a-palavra via
      `Words`) + cite dentro de um `<section>` puro — `.dev-quote` não
      sobrescreve `padding-block` no ref (usa o `--section` genérico, mesmo
-     caso de `.argument` acima). `var(--ice-400)`→`--color-ice-400`. O
-     `<em>` do ref (`.dev-quote blockquote em`) não tem contrapartida em
-     texto puro — mesma limitação documentada em `.argument`/`manifesto`/
-     `g-problem`. */
+     caso de `.argument` acima). `var(--ice-400)`→`--color-ice-400`. `quote`
+     aceita `<em>` embutido (destaque em ice no trecho final) — `Words`
+     preserva a marcação através do scrub palavra-a-palavra. */
   .dev-quote {
     padding-block: clamp(5rem, 10vw, 9rem);
     background: var(--grad-band);
@@ -2506,6 +2528,10 @@
     font-weight: 500;
     font-size: clamp(1.8rem, 3.6vw, 3rem);
     line-height: 1.2;
+  }
+  .dev-quote blockquote em {
+    font-style: normal;
+    color: var(--color-ice-400);
   }
   .dev-quote cite {
     font-style: normal;

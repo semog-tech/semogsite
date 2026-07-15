@@ -356,6 +356,9 @@ export interface ValuesMarqueeBlock {
 export interface WordsSectionBlock {
   variant?: ('manifesto' | 'problem' | 'argument') | null;
   eyebrow?: string | null;
+  /**
+   * Aceita `<em>...</em>` embutido para o destaque em ice do ref (`.argument .big em`/`.manifesto .big em`) — `Words` preserva a marcação, ver doc do bloco acima.
+   */
   text: string;
   /**
    * Parágrafo de apoio abaixo de `text` (`.argument .sub`), revelado em bloco via `Reveal` (sem scrub). Só usado pelo variant `argument` — ignorado nas outras 2.
@@ -1178,7 +1181,7 @@ export interface PartnerSplitBlock {
  */
 export interface DevQuoteBlock {
   /**
-   * Texto puro do blockquote. O ref tem um trecho final em `<em>` (cor ice) — mesma limitação já documentada em `WordsSection`/`PartnerSplit`: sem contrapartida em texto puro, o destaque é descartado.
+   * Aceita `<em>...</em>` embutido para o trecho final em destaque (cor ice) do ref, ex.: "A Semog entrega a convivência." em `_reference/incorporadoras.html:314` (`.dev-quote blockquote em`) — `Words` (mesma primitiva do `WordsSection`) preserva a marcação através do scrub palavra-a-palavra.
    */
   quote: string;
   cite?: string | null;

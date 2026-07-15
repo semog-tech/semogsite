@@ -24,16 +24,25 @@ const SECTION_CLASS = {
  * parágrafo (`sub`, via `Reveal` simples — sem scrub) abaixo do `Words`.
  * Como a seção passa a ter 2 `<p>`, cada um recebe sua própria classe
  * (`.big`/`.sub`) em vez do seletor de tag `p` usado pelas outras variantes.
+ *
+ * `.big` também entra no `variant: 'manifesto'` quando `text` traz `<em>`
+ * embutido: fiel a `.manifesto .big` de `_reference/semog.html:76-83`
+ * (distinto de `.manifesto p`, sem `<em>`, de `_reference/index.html:162-167`
+ * — mesmo variant do CMS, dois markups diferentes no ref, diferenciados só
+ * pela presença do destaque). Sem `<em>`, o parágrafo continua saindo como
+ * `p` solto, igual a antes.
  */
 export function WordsSectionBlock({ eyebrow, text, sub, variant }: WordsSectionBlockType) {
   if (!text) return null
   const isArgument = variant === 'argument'
+  const hasEmphasis = /<em>/.test(text)
+  const big = isArgument || ((variant ?? 'manifesto') === 'manifesto' && hasEmphasis)
 
   return (
     <section className={SECTION_CLASS[variant ?? 'manifesto']}>
       <Container>
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-        <Words className={isArgument ? 'big' : undefined}>{text}</Words>
+        <Words className={big ? 'big' : undefined}>{text}</Words>
         {isArgument && sub && (
           <Reveal as="p" className="sub">
             {sub}

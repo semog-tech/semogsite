@@ -18,7 +18,7 @@ export const devQuoteBlock: Block = {
       required: true,
       admin: {
         description:
-          'Texto puro do blockquote. O ref tem um trecho final em `<em>` (cor ice) — mesma limitação já documentada em `WordsSection`/`PartnerSplit`: sem contrapartida em texto puro, o destaque é descartado.',
+          'Aceita `<em>...</em>` embutido para o trecho final em destaque (cor ice) do ref, ex.: "A Semog entrega a convivência." em `_reference/incorporadoras.html:314` (`.dev-quote blockquote em`) — `Words` (mesma primitiva do `WordsSection`) preserva a marcação através do scrub palavra-a-palavra.',
       },
     },
     { name: 'cite', type: 'text' },

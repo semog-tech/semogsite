@@ -18,6 +18,11 @@ import type { Block } from 'payload'
  * simples, sem scrub) ausente nas outras 2 variantes — por isso os campos
  * ficam com classes próprias (`.big`/`.sub`) em vez do seletor de tag `p`
  * usado por `manifesto`/`problem`.
+ *
+ * `text` aceita `<em>...</em>` embutido pra reproduzir o destaque em ice do
+ * ref (`.argument .big em`/`.manifesto .big em`, ex.: "como a sua marca será
+ * lembrada." em `_reference/incorporadoras.html:208`) — `src/motion/
+ * Words.tsx` preserva a marcação através do scrub palavra-a-palavra.
  */
 export const wordsSectionBlock: Block = {
   slug: 'wordsSection',
@@ -30,7 +35,15 @@ export const wordsSectionBlock: Block = {
       defaultValue: 'manifesto',
     },
     { name: 'eyebrow', type: 'text' },
-    { name: 'text', type: 'textarea', required: true },
+    {
+      name: 'text',
+      type: 'textarea',
+      required: true,
+      admin: {
+        description:
+          'Aceita `<em>...</em>` embutido para o destaque em ice do ref (`.argument .big em`/`.manifesto .big em`) — `Words` preserva a marcação, ver doc do bloco acima.',
+      },
+    },
     {
       name: 'sub',
       type: 'textarea',
