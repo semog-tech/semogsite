@@ -13,7 +13,11 @@ type Cta = { label?: string | null; href?: string | null }
  *  - fundo ao rolar: `.nav.is-scrolled` quando `scrollY > 24` (semog.js:19-27,
  *    listener passivo, só toggle de classe);
  *  - menu mobile: burger com `aria-expanded` + `.nav-mobile.is-open` e trava do
- *    scroll do body (semog.js:31-47), fechando ao navegar.
+ *    scroll do body (semog.js:31-47), fechando ao navegar;
+ *  - página ativa: `aria-current="page"` no link cujo `href` bate com
+ *    `usePathname()`, fiel a `.nav-links a[aria-current="page"]`
+ *    (semog.css:260-261, sublinhado igual ao `:hover`) — a regra já existia
+ *    em theme.css, só faltava o Nav marcar o link ativo.
  *
  * A pílula usa o material `liquid-glass` real do reference (semog.css:204-232),
  * não o `backdrop-blur-md` aproximado. Estrutura/CSS em src/styles/theme.css.
@@ -67,7 +71,9 @@ export function Nav({
             <ul className="nav-links">
               {navItems.map((item) => (
                 <li key={item.id ?? item.href}>
-                  <a href={item.href}>{item.label}</a>
+                  <a href={item.href} aria-current={pathname === item.href ? 'page' : undefined}>
+                    {item.label}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -99,7 +105,12 @@ export function Nav({
       </header>
       <div className={open ? 'nav-mobile is-open' : 'nav-mobile'} id="menu-mobile">
         {navItems.map((item) => (
-          <a key={item.id ?? item.href} href={item.href} onClick={() => setOpen(false)}>
+          <a
+            key={item.id ?? item.href}
+            href={item.href}
+            aria-current={pathname === item.href ? 'page' : undefined}
+            onClick={() => setOpen(false)}
+          >
             {item.label}
           </a>
         ))}
