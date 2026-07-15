@@ -24,14 +24,17 @@ import type {
   PrestacaoBlock,
   PriceMomentBlock,
   ProcessoTimelineBlock,
+  QuickLinksBlock,
   RegistrosBlock,
   RichTextBlock,
+  SelfServeBlock,
   SociosBlock,
   SolutionSplitBlock,
   StatsBlock,
   TecnologiaRoadmapBlock,
   TestimonialsBlock,
   TimelineBlock,
+  TrustPanelBlock,
   ValuesMarqueeBlock,
   WordsSectionBlock,
 } from '@/payload-types'
@@ -103,21 +106,29 @@ import { getMediaId } from './lib/media'
  *   outras páginas). Sem a faixa `Registros` que o seed antigo inseria —
  *   não existe no ref (ver `.superpowers/sdd/audit-servicos.md`, seção
  *   `/incorporadoras`, linha "[CMS-only] Registros").
- * - "Contato" (slug `contato`), fiel a `_reference/contato.html`: Hero +
- *   FormEmbed (`formType: 'contato'` — form real de RHF/Zod/Turnstile, Plano
- *   4b Task 5) + ContactInfo (as 4 unidades de `.unit`). O `_reference` não
- *   tem `<form>`, só os atalhos `.quick-grid` (WhatsApp/e-mail/proposta);
- *   este seed troca esses atalhos pelo form de verdade — quem quiser falar
- *   direto ainda tem WhatsApp/telefone nos cards de unidade logo abaixo. A
- *   seção `.selfserve` do `_reference` linka para autoatendimentos
- *   (`href="#"`) que não existem ainda nesta migração, por isso fica de
- *   fora.
- * - "Proposta" (slug `proposta`), fiel a `_reference/proposta.html`: Hero
- *   (o headline/lead da coluna do formulário) + Benefits (os números do
- *   `.trust-stats` — prova social) + FormEmbed (`formType: 'proposta'` —
- *   form real de RHF/Zod/Turnstile, Plano 4b Task 6) + CTABand (WhatsApp
- *   como canal alternativo pra quem prefere falar direto, mesmo espírito do
- *   `ContactInfo` que fica abaixo do form em "Contato").
+ * - "Contato" (slug `contato`), fiel a `_reference/contato.html` — MAS com
+ *   uma escolha deliberada de manter o form real de RHF/Zod/Turnstile por
+ *   cima do layout original do ref (decisão de produto, não uma correção de
+ *   fidelidade): Hero (`.page-hero` compacto, 46dvh, sem form) + QuickLinks
+ *   (bloco novo — os 3 atalhos `.quick-grid`: WhatsApp/e-mail/proposta) +
+ *   SelfServe (bloco novo — os 6 links `.selfserve`/`.ss-grid`; os `href`
+ *   do ref são todos `"#"`, autoatendimentos que não existem ainda nesta
+ *   migração, mantidos como `"#"` aqui também) + ContactInfo
+ *   `variant:'units'` (a lista `.units`/`.unit`, foto alternando de lado,
+ *   fiel ao ref) + FormEmbed (`formType: 'contato'` — o form de verdade,
+ *   Plano 4b Task 5, um PLUS sobre o ref que não tem `<form>` nenhum) +
+ *   ContactInfo `variant:'grid'` (recapitulação compacta das 4 unidades,
+ *   sem foto, com CTA de WhatsApp — já existia antes desta task, mantida
+ *   como fecho perto do form).
+ * - "Proposta" (slug `proposta`), fiel a `_reference/proposta.html`: Hero (o
+ *   headline/lead da coluna do formulário) + FormEmbed (`formType:
+ *   'proposta'` — form real de RHF/Zod/Turnstile, Plano 4b Task 6) +
+ *   TrustPanel (bloco novo — os 3 `.trust-card` do `<aside class=
+ *   "trust-panel">`: cartão-foto com os 4 números, citação sobre o Semog
+ *   Garante e cartão de WhatsApp; substitui o `Benefits` que só cobria os
+ *   números, sem foto — ver comentário em `TrustPanel/config.ts` sobre a
+ *   deviação do grid 2-colunas do ref) + CTABand (WhatsApp como canal
+ *   alternativo; sem equivalente no ref, mantido do seed anterior).
  * - Quatro landings de cidade (slugs
  *   `administradora-de-condominios-{recife,joao-pessoa,campina-grande,
  *   belem}`), fiéis a `_reference/administradora-de-condominios-*.html`: as
@@ -1517,17 +1528,95 @@ async function seedBlogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
   })
 }
 
-// ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` =====
-//
-// NOTA: `_reference/contato.html` não tem `<form>` — só atalhos (WhatsApp,
-// e-mail, link de proposta) e cards de unidade. O form de verdade (RHF/Zod/
-// Turnstile, `formType: 'contato'`) é a Task 5 do Plano 4b — ver
-// `src/components/forms/ContactForm.tsx` e `src/blocks/FormEmbed`.
+// ===== "Contato" (slug `contato`), fiel a `_reference/contato.html` — MIX
+// deliberado: layout original do ref (quick/selfserve/units) + form real
+// (plus sobre o ref, que não tem `<form>` nenhum) =====
 
+// `.page-hero`, `_reference/contato.html:76-88,198-205`: SEM `poster`, 46dvh
+// (igual ao blog), radial-gradient a 85% (a la direita — o blog usa 15%, à
+// esquerda), `h1{max-width:15ch}`.
 const contatoHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   blockType: 'hero',
   headline: 'Fale com gente que resolve.',
   subhead: 'Atendimento rápido nos canais digitais e quatro unidades de portas abertas.',
+  pageHeroOverlay: true,
+  pageHeroMinHeight: '46dvh',
+  pageHeroPaddingBottom: 'clamp(2.5rem, 5vw, 4rem)',
+  pageHeroHeadlineMaxWidth: '15ch',
+  pageHeroGradient:
+    'radial-gradient(80% 70% at 85% 0%, rgba(42,63,150,0.45) 0%, transparent 55%), var(--grad-hero)',
+}
+
+// `.quick` (3 atalhos), `_reference/contato.html:207-231`.
+const contatoQuickLinks: Omit<QuickLinksBlock, 'id' | 'blockName'> = {
+  blockType: 'quickLinks',
+  items: [
+    {
+      icon: 'whatsapp',
+      title: 'WhatsApp',
+      description: 'Resposta em horário comercial, geralmente em poucos minutos.',
+      value: '(81) 9 9999-9999',
+      href: 'https://wa.me/5581999999999',
+      external: true,
+    },
+    {
+      icon: 'email',
+      title: 'E-mail',
+      description: 'Para solicitações formais, documentos e propostas.',
+      value: 'contato@semog.com.br',
+      href: 'mailto:contato@semog.com.br',
+    },
+    {
+      icon: 'document',
+      title: 'Proposta comercial',
+      description: 'Conte sobre o seu condomínio e receba retorno em até 24 horas úteis.',
+      value: 'Solicitar proposta →',
+      href: '/proposta',
+    },
+  ],
+}
+
+// `.selfserve` (6 links de autoatendimento), `_reference/contato.html:233-268`.
+// `href="#"` em todos — mesmo estado do ref (autoatendimentos que ainda não
+// existem nesta migração).
+const contatoSelfServe: Omit<SelfServeBlock, 'id' | 'blockName'> = {
+  blockType: 'selfServe',
+  title: 'Resolva fácil, sem esperar.',
+  titleAccent: 'sem esperar.',
+  text: 'Os pedidos mais comuns já têm caminho direto. Escolha e resolva em minutos.',
+  items: [
+    {
+      title: 'Segunda via de boleto',
+      description: 'Baixe agora, sem falar com ninguém.',
+      href: '#',
+    },
+    {
+      title: 'CND do condomínio',
+      description: 'Certidão negativa de débitos na hora.',
+      href: '#',
+    },
+    {
+      title: 'Acordo para pagamento',
+      description: 'Negocie parcelas 100% online.',
+      href: '#',
+    },
+    {
+      title: 'Alteração de titularidade',
+      description: 'Comprou ou vendeu? Atualize o cadastro.',
+      href: '#',
+    },
+    {
+      title: 'Declaração de quitação',
+      description: 'Documento anual para o imposto de renda.',
+      href: '#',
+    },
+    {
+      title: 'Reserva de áreas comuns',
+      description: 'Salão, churrasqueira e quadra pelo app.',
+      href: '#',
+    },
+  ],
+  note: 'Precisa de outra coisa? O time responde no WhatsApp em horário comercial.',
 }
 
 const contatoFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
@@ -1538,8 +1627,12 @@ const contatoFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
   text: 'Preencha o formulário e nossa equipe responde em horário comercial, geralmente em poucos minutos.',
 }
 
+// Recapitulação compacta das 4 unidades (`variant:'grid'`, sem foto), fecho
+// perto do form — já existia antes desta task, mantida como um plus sobre
+// o ref (que termina em `.units`, sem nada depois).
 const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
   blockType: 'contactInfo',
+  variant: 'grid',
   eyebrow: 'Unidades',
   title: 'As Semogs, de portas abertas.',
   items: [
@@ -1571,6 +1664,93 @@ const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
   whatsapp: '5581999999999',
 }
 
+/**
+ * `.units` (4 unidades, foto alternando de lado), fiel a
+ * `_reference/contato.html:271-338`. Precisa de mídia (fotos das 4
+ * cidades, já semeadas por `pnpm seed:media` — mesmos arquivos usados na
+ * home e nas landings de cidade), por isso vira uma função async em vez de
+ * um `const` no topo do módulo como os outros blocos desta página.
+ */
+async function buildContatoUnits(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+): Promise<Omit<ContactInfoBlock, 'id' | 'blockName'>> {
+  const [recifeId, joaoPessoaId, campinaGrandeId, belemId] = await Promise.all([
+    getMediaId(payload, 'recife.webp'),
+    getMediaId(payload, 'joao-pessoa.webp'),
+    getMediaId(payload, 'campina-grande.webp'),
+    getMediaId(payload, 'belem.webp'),
+  ])
+
+  return {
+    blockType: 'contactInfo',
+    variant: 'units',
+    eyebrow: 'Unidades',
+    title: 'As Semogs, de portas abertas.',
+    items: [
+      {
+        city: 'Semog Recife',
+        chip: 'Matriz · Pernambuco',
+        address: 'Av. Exemplo, 1000, Boa Viagem, Recife/PE',
+        phone: '(81) 0000-0000',
+        whatsappDisplay: '(81) 9 9999-9999',
+        hours: 'Segunda a sexta, 8h às 18h',
+        mapsHref: 'https://maps.google.com/?q=Recife',
+        photo: recifeId,
+        uf: 'PE',
+      },
+      {
+        city: 'Semog João Pessoa',
+        chip: 'Filial · Paraíba',
+        address: 'Av. Exemplo, 200, Manaíra, João Pessoa/PB',
+        phone: '(83) 0000-0000',
+        whatsappDisplay: '(83) 9 9999-9999',
+        hours: 'Segunda a sexta, 8h às 18h',
+        mapsHref: 'https://maps.google.com/?q=Joao+Pessoa',
+        photo: joaoPessoaId,
+        uf: 'PB',
+      },
+      {
+        city: 'Semog Campina Grande',
+        chip: 'Filial · Paraíba',
+        address: 'Rua Exemplo, 300, Centro, Campina Grande/PB',
+        phone: '(83) 0000-0001',
+        whatsappDisplay: '(83) 9 8888-8888',
+        hours: 'Segunda a sexta, 8h às 18h',
+        mapsHref: 'https://maps.google.com/?q=Campina+Grande',
+        photo: campinaGrandeId,
+        uf: 'PB',
+      },
+      {
+        city: 'Semog Belém',
+        chip: 'Filial · Pará',
+        address: 'Av. Exemplo, 400, Umarizal, Belém/PA',
+        phone: '(91) 0000-0000',
+        whatsappDisplay: '(91) 9 7777-7777',
+        hours: 'Segunda a sexta, 8h às 18h',
+        mapsHref: 'https://maps.google.com/?q=Belem',
+        photo: belemId,
+        uf: 'PA',
+      },
+    ],
+  }
+}
+
+async function seedContatoPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const contatoUnits = await buildContatoUnits(payload)
+  await upsertPage(payload, {
+    title: 'Contato',
+    slug: 'contato',
+    layout: [
+      contatoHero,
+      contatoQuickLinks,
+      contatoSelfServe,
+      contatoUnits,
+      contatoFormEmbed,
+      contatoUnidades,
+    ],
+  })
+}
+
 // ===== "Proposta" (slug `proposta`), fiel a `_reference/proposta.html` =====
 //
 // NOTA: `_reference/proposta.html` tem um `<form id="prop-form">` com
@@ -1583,30 +1763,6 @@ const propostaHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   blockType: 'hero',
   headline: 'Vamos falar do seu condomínio?',
   subhead: 'Preencha em dois minutos. Nossa equipe comercial responde em até 24 horas úteis.',
-}
-
-const propostaProvaSocial: Omit<BenefitsBlock, 'id' | 'blockName'> = {
-  blockType: 'benefits',
-  eyebrow: 'Por que pedir à Semog',
-  title: 'Números que sustentam a proposta.',
-  items: [
-    {
-      title: '35 anos de mercado',
-      description: 'Trajetória consolidada desde 1991, com renovação constante de contratos.',
-    },
-    {
-      title: '+700 condomínios',
-      description: 'Carteira ativa em Recife, João Pessoa, Campina Grande e Belém.',
-    },
-    {
-      title: '+70 mil clientes',
-      description: 'Síndicos, conselheiros e moradores atendidos todos os dias.',
-    },
-    {
-      title: '4 unidades na região',
-      description: 'Equipes locais em cada praça, prontas para atender o seu condomínio.',
-    },
-  ],
 }
 
 const propostaFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
@@ -1622,6 +1778,47 @@ const propostaCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
   title: 'Pronto para receber a sua proposta?',
   text: 'Fale agora com a Semog e receba uma proposta sob medida para o seu condomínio.',
   cta: { label: 'Falar no WhatsApp', href: 'https://wa.me/5581999999999' },
+}
+
+/**
+ * `.trust-panel` (3 `.trust-card`), fiel a `_reference/proposta.html:
+ * 260-290`. Substitui o antigo `propostaProvaSocial` (`Benefits`), que só
+ * cobria os 4 números sem foto/citação/WhatsApp e não é mais usado —
+ * manter os dois seria duplicar os mesmos 4 números na mesma página, o
+ * `Benefits` "não sticky/sem foto" apontado pela auditoria vira `TrustPanel`
+ * em vez de um ajuste no lugar. Precisa de mídia (`hero-towers.webp`, já
+ * usada na home), por isso vira função async.
+ */
+async function buildPropostaTrustPanel(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+): Promise<Omit<TrustPanelBlock, 'id' | 'blockName'>> {
+  const heroTowersId = await getMediaId(payload, 'hero-towers.webp')
+  return {
+    blockType: 'trustPanel',
+    photo: heroTowersId,
+    stats: [
+      { value: '35', label: 'anos de mercado' },
+      { value: '+700', label: 'condomínios' },
+      { value: '+70 mil', label: 'clientes' },
+      { value: '4', label: 'unidades na região' },
+    ],
+    quote: 'Com o Semog Garante, a inadimplência do seu condomínio cai a zero.',
+    quoteAccent: 'cai a zero.',
+    quoteText: 'Pergunte ao consultor sobre a garantia de 100% da arrecadação por 1% ao mês.',
+    whatsappTitle: 'Prefere conversar agora?',
+    whatsappText: 'Chame no WhatsApp:',
+    whatsapp: '5581999999999',
+    whatsappDisplay: '(81) 9 9999-9999',
+  }
+}
+
+async function seedPropostaPage(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const propostaTrustPanel = await buildPropostaTrustPanel(payload)
+  await upsertPage(payload, {
+    title: 'Solicitar Proposta',
+    slug: 'proposta',
+    layout: [propostaHero, propostaFormEmbed, propostaTrustPanel, propostaCtaBand],
+  })
 }
 
 async function upsertPage(
@@ -2080,17 +2277,9 @@ async function seedPages() {
 
   await seedBlogPage(payload)
 
-  await upsertPage(payload, {
-    title: 'Contato',
-    slug: 'contato',
-    layout: [contatoHero, contatoFormEmbed, contatoUnidades],
-  })
+  await seedContatoPage(payload)
 
-  await upsertPage(payload, {
-    title: 'Solicitar Proposta',
-    slug: 'proposta',
-    layout: [propostaHero, propostaProvaSocial, propostaFormEmbed, propostaCtaBand],
-  })
+  await seedPropostaPage(payload)
 
   await seedCityLanding(payload, recifeCityLanding)
   await seedCityLanding(payload, joaoPessoaCityLanding)
