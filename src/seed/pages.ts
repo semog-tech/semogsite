@@ -17,6 +17,7 @@ import type {
   FormEmbedBlock,
   GaranteBlock,
   HeroBlock,
+  LegalHeroBlock,
   NewsletterBlock,
   Page,
   PartnerSplitBlock,
@@ -45,10 +46,11 @@ import { getMediaId } from './lib/media'
  * existentes (sem mídia, sem novo blocos):
  *
  * - "Privacidade" e "Termos", fiel ao corpo de `_reference/privacidade.html`
- *   e `_reference/termos.html`: Hero simples (headline + subhead com a data
- *   de "última atualização", sem ctas/video) seguido de um único bloco
- *   RichText com o texto completo — heading `h2` por seção numerada e
- *   listas onde o `_reference` usa `<ul>`.
+ *   e `_reference/termos.html`: LegalHero compacto (`.legal-hero` — headline
+ *   + linha "última atualização", SEM animação, ~150px de padding-top,
+ *   border-bottom) seguido de um único bloco RichText com `legal:true`
+ *   (`.legal-body` — medida de 760px, `h2` em 1.4rem) com o texto completo —
+ *   heading `h2` por seção numerada e listas onde o `_reference` usa `<ul>`.
  * - "A Semog" (slug `semog`), fiel a `_reference/semog.html`: Hero (poster
  *   `hero-towers.webp`) + WordsSection (parágrafo-manifesto, scrub palavra-
  *   a-palavra) + Stats (mini-stats sem cabeçalho próprio, igual ao ref,
@@ -274,10 +276,10 @@ function legalRichText(sections: Section[]): any {
 
 const UPDATED_AT = 'Última atualização: julho de 2026 · Documento em revisão pelo jurídico da Semog'
 
-const privacidadeHero: Omit<HeroBlock, 'id' | 'blockName'> = {
-  blockType: 'hero',
+const privacidadeHero: Omit<LegalHeroBlock, 'id' | 'blockName'> = {
+  blockType: 'legalHero',
   headline: 'Política de Privacidade',
-  subhead: UPDATED_AT,
+  updatedText: UPDATED_AT,
 }
 
 const privacidadeSections: Section[] = [
@@ -320,13 +322,14 @@ const privacidadeSections: Section[] = [
 
 const privacidadeRichText: Omit<RichTextBlock, 'id' | 'blockName'> = {
   blockType: 'richText',
+  legal: true,
   content: legalRichText(privacidadeSections),
 }
 
-const termosHero: Omit<HeroBlock, 'id' | 'blockName'> = {
-  blockType: 'hero',
+const termosHero: Omit<LegalHeroBlock, 'id' | 'blockName'> = {
+  blockType: 'legalHero',
   headline: 'Termos de Uso',
-  subhead: UPDATED_AT,
+  updatedText: UPDATED_AT,
 }
 
 const termosSections: Section[] = [
@@ -367,6 +370,7 @@ const termosSections: Section[] = [
 
 const termosRichText: Omit<RichTextBlock, 'id' | 'blockName'> = {
   blockType: 'richText',
+  legal: true,
   content: legalRichText(termosSections),
 }
 
