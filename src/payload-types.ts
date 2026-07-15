@@ -838,6 +838,14 @@ export interface CTABandBlock {
    * Só no variant `centered`. O `.final-cta` de `_reference/index.html`/`garante.html`/`administracao-de-condominios.html` sempre usa `.btn-white`, mas `_reference/incorporadoras.html:325` usa `.btn-primary` — daí este campo, default `white` para preservar o comportamento das 3 páginas já seedadas.
    */
   buttonVariant?: ('white' | 'primary') | null;
+  /**
+   * Só no variant `centered`. `max-width` do `.final-cta h2` do ref — a maioria das páginas (`administracao-de-condominios.html`/`incorporadoras.html`/`semog.html`/`solucoes.html`/as 4 landings de cidade) usa `20ch` (o default aqui, sem `font-size` próprio), mas `index.html` usa `16ch` e `garante.html` usa `18ch` — ambas também com `headingFontSize` próprio.
+   */
+  headingMaxWidth?: string | null;
+  /**
+   * Só no variant `centered`. `font-size` do `.final-cta h2` do ref, ex.: `clamp(2.4rem, 5.6vw, 4.6rem)` em `index.html`, `clamp(2.2rem, 5vw, 4.2rem)` em `garante.html`. Deixe em branco para o tamanho padrão de `h2` (`--text-h2`) — caso da maioria das páginas.
+   */
+  headingFontSize?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'ctaBand';
@@ -2176,6 +2184,8 @@ export interface CTABandBlockSelect<T extends boolean = true> {
         href?: T;
       };
   buttonVariant?: T;
+  headingMaxWidth?: T;
+  headingFontSize?: T;
   id?: T;
   blockName?: T;
 }

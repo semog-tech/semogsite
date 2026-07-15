@@ -1540,9 +1540,16 @@
     background: radial-gradient(circle, rgba(27, 45, 112, 0.55) 0%, transparent 60%);
     pointer-events: none;
   }
+  /* `max-width:20ch` sem `font-size` próprio é o padrão do ref em
+     `administracao-de-condominios.html`/`incorporadoras.html`/`semog.html`/
+     `solucoes.html`/as 4 landings de cidade (h2 fica no tamanho genérico de
+     `--text-h2`). `index.html` (16ch + clamp maior) e `garante.html` (18ch +
+     clamp maior) têm números próprios — `src/blocks/CTABand/Component.tsx`
+     aplica esses 2 casos via `style` inline a partir dos campos
+     `headingMaxWidth`/`headingFontSize` do bloco (ver `CTABand/config.ts`),
+     que essa regra de base não cobre. */
   .final-cta h2 {
-    font-size: clamp(2.4rem, 5.6vw, 4.6rem);
-    max-width: 16ch;
+    max-width: 20ch;
     margin-inline: auto;
   }
   .final-cta p {

@@ -1247,12 +1247,16 @@ async function seedGarantePage(payload: Awaited<ReturnType<typeof getPayload>>) 
 
   // `.final-cta`, `_reference/garante.html:222-224,420-431` — CTA final
   // centrado (`variant: 'centered'`, ao contrário do grad-band default).
+  // `headingMaxWidth`/`headingFontSize` reproduzem `.final-cta h2` próprio
+  // desta página (`max-width:18ch`, `font-size:clamp(2.2rem,5vw,4.2rem)`).
   const garanteCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
     blockType: 'ctaBand',
     variant: 'centered',
     title: 'Quanto vale nunca mais se preocupar com a arrecadação?',
     text: 'Envie os dados do condomínio e receba a simulação do Garante em até 24 horas úteis.',
     cta: { label: 'Solicitar proposta', href: '/proposta' },
+    headingMaxWidth: '18ch',
+    headingFontSize: 'clamp(2.2rem, 5vw, 4.2rem)',
   }
 
   await upsertPage(payload, {

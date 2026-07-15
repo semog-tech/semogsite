@@ -1,5 +1,12 @@
 'use client'
-import { type ElementType, type ReactNode, type Ref, useEffect, useRef } from 'react'
+import {
+  type CSSProperties,
+  type ElementType,
+  type ReactNode,
+  type Ref,
+  useEffect,
+  useRef,
+} from 'react'
 import { gsap } from './gsap'
 
 type Dir = 'up' | 'left' | 'right' | 'scale'
@@ -7,6 +14,10 @@ type Dir = 'up' | 'left' | 'right' | 'scale'
 /**
  * Fiel a semog.js:122-136 ([data-reveal]). Roda sempre, mesmo sob
  * reduced-motion — reveals são movimento essencial, não efeito pesado.
+ *
+ * `style` é um escape hatch pros mesmos casos de `Section`/`Hero`: valores
+ * vindos do CMS que variam por página (ex.: `.final-cta h2{max-width}` do
+ * `CTABand`) e não dá pra expressar como classe Tailwind estática.
  */
 export function Reveal({
   children,
@@ -14,12 +25,14 @@ export function Reveal({
   delay = 0,
   as: Tag = 'div',
   className,
+  style,
 }: {
   children: ReactNode
   dir?: Dir
   delay?: number
   as?: ElementType
   className?: string
+  style?: CSSProperties
 }) {
   const ref = useRef<HTMLElement>(null)
   useEffect(() => {
@@ -54,7 +67,7 @@ export function Reveal({
     }
   }, [dir, delay])
   return (
-    <Tag ref={ref as Ref<HTMLElement>} className={className}>
+    <Tag ref={ref as Ref<HTMLElement>} className={className} style={style}>
       {children}
     </Tag>
   )

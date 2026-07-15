@@ -235,12 +235,18 @@ async function seedHome() {
     caption: 'Tecnologia na operação. Gente na relação.',
   }
 
+  // `headingMaxWidth`/`headingFontSize` reproduzem `.final-cta h2` de
+  // `_reference/index.html:420` (`max-width:16ch`,
+  // `font-size:clamp(2.4rem,5.6vw,4.6rem)`) — maior que o genérico `20ch`/
+  // tamanho padrão que `theme.css` usa nas outras páginas com `.final-cta`.
   const ctaBandBlock: Omit<CTABandBlock, 'id' | 'blockName'> = {
     blockType: 'ctaBand',
     variant: 'centered',
     title: 'Seu condomínio merece governança de líder.',
     text: 'Receba uma proposta sob medida em até 24 horas úteis.',
     cta: { label: 'Solicitar proposta', href: '/proposta' },
+    headingMaxWidth: '16ch',
+    headingFontSize: 'clamp(2.4rem, 5.6vw, 4.6rem)',
   }
 
   const layout = [

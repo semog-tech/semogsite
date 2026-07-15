@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { GradientText } from '@/components/ui/GradientText'
@@ -6,16 +7,28 @@ import { Reveal } from '@/motion/reveal'
 import type { CTABandBlock as CTABandBlockType } from '@/payload-types'
 
 /** Título com o trecho final em `.gx-ice` — mesmo padrão de `Benefits`'s `BentoTitle`. */
-function CenteredTitle({ title, accent }: { title: string; accent?: string | null }) {
+function CenteredTitle({
+  title,
+  accent,
+  style,
+}: {
+  title: string
+  accent?: string | null
+  style?: CSSProperties
+}) {
   if (accent && title.endsWith(accent)) {
     return (
-      <Reveal as="h2">
+      <Reveal as="h2" style={style}>
         {title.slice(0, -accent.length)}
         <GradientText variant="ice">{accent}</GradientText>
       </Reveal>
     )
   }
-  return <Reveal as="h2">{title}</Reveal>
+  return (
+    <Reveal as="h2" style={style}>
+      {title}
+    </Reveal>
+  )
 }
 
 /**
@@ -30,7 +43,12 @@ function CenteredTitle({ title, accent }: { title: string; accent?: string | nul
  *   padrão do Hero/HumanQuote) com o glow radial `::before` portado pra
  *   `theme.css`, h2/p/botão em `Reveal` escalonado (0/0.1/0.2, como
  *   `data-reveal`/`data-reveal-delay` no ref) e o botão branco magnético
- *   (`.btn-white ... data-magnetic`).
+ *   (`.btn-white ... data-magnetic`). `.final-cta h2` do ref varia por
+ *   página (`max-width`/`font-size` próprios em `index.html`/`garante.html`,
+ *   as outras usam o genérico `20ch`/tamanho padrão de `h2`) — `theme.css`
+ *   só porta o genérico; `headingMaxWidth`/`headingFontSize` (campos do
+ *   bloco, ver `CTABand/config.ts`) entram via `style` no `h2` pras 2
+ *   páginas com números próprios.
  */
 export function CTABandBlock({
   title,
@@ -39,12 +57,18 @@ export function CTABandBlock({
   cta,
   variant,
   buttonVariant,
+  headingMaxWidth,
+  headingFontSize,
 }: CTABandBlockType) {
   if (variant === 'centered') {
+    const headingStyle: CSSProperties | undefined =
+      headingMaxWidth || headingFontSize
+        ? { maxWidth: headingMaxWidth || undefined, fontSize: headingFontSize || undefined }
+        : undefined
     return (
       <section className="final-cta">
         <Container className="relative z-[2]">
-          <CenteredTitle title={title} accent={titleAccent} />
+          <CenteredTitle title={title} accent={titleAccent} style={headingStyle} />
           {text && (
             <Reveal as="p" delay={0.1}>
               {text}
