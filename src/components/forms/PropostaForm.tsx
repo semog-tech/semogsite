@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { Field } from '@/components/forms/Field'
+import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { Button } from '@/components/ui/Button'
 import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/form-schemas'
@@ -62,6 +63,7 @@ export function PropostaForm() {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<PropostaInput, unknown, PropostaValues>({
     resolver: zodResolver(propostaSchema),
@@ -165,14 +167,12 @@ export function PropostaForm() {
           error={errors.email?.message}
           {...register('email')}
         />
-        <Field
+        <PhoneField
+          control={control}
+          name="telefone"
           label="WhatsApp"
-          type="tel"
           required
-          autoComplete="tel"
-          placeholder="(81) 9 0000-0000"
           error={errors.telefone?.message}
-          {...register('telefone')}
         />
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

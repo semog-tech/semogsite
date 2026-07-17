@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from 'libphonenumber-js/min'
 import { z } from 'zod'
 
 /**
@@ -16,6 +17,28 @@ import { z } from 'zod'
  */
 
 const requiredText = (message: string) => z.string().trim().min(1, message)
+
+/**
+ * `PhoneField.tsx` sempre entrega o valor em E.164 (`+55...`, via
+ * `AsYouType.getNumber()?.number`) — string vazia quando nada foi digitado.
+ * `isValidPhoneNumber` (sem 2º argumento) exige esse formato E.164 completo,
+ * então um número parcial (DDD incompleto, poucos dígitos etc.) também cai
+ * como inválido aqui, não só valores claramente malformados — é o
+ * comportamento certo: só um número completo/válido deve passar.
+ */
+const optionalPhone = (invalidMessage: string) =>
+  z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value || isValidPhoneNumber(value), invalidMessage)
+
+const requiredPhone = (requiredMessage: string, invalidMessage: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, requiredMessage)
+    .refine((value) => isValidPhoneNumber(value), invalidMessage)
 
 // ---------------------------------------------------------------------------
 // Contato (form id=1)
@@ -36,7 +59,7 @@ const ASSUNTO_OPTIONS = [
 export const contatoSchema = z.object({
   nome: requiredText('Informe seu nome.'),
   email: z.email('Informe um e-mail válido.'),
-  telefone: z.string().trim().optional(),
+  telefone: optionalPhone('Informe um telefone válido.'),
   assunto: z.enum(ASSUNTO_OPTIONS).optional(),
   mensagem: requiredText('Escreva sua mensagem.'),
 })
@@ -90,7 +113,7 @@ export const propostaSchema = z.object({
   nome: requiredText('Informe seu nome.'),
   cargo: z.enum(CARGO_OPTIONS).optional(),
   email: z.email('Informe um e-mail válido.'),
-  telefone: requiredText('Informe seu WhatsApp.'),
+  telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um WhatsApp válido.'),
   cidade: z.enum(CIDADE_OPTIONS).optional(),
   unidades: unidadesField,
   mensagem: z.string().trim().optional(),

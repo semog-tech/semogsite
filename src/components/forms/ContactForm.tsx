@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { Field } from '@/components/forms/Field'
+import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { Button } from '@/components/ui/Button'
 import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
@@ -47,6 +48,7 @@ export function ContactForm() {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ContatoValues>({
     resolver: zodResolver(contatoSchema),
@@ -130,13 +132,11 @@ export function ContactForm() {
           error={errors.email?.message}
           {...register('email')}
         />
-        <Field
+        <PhoneField
+          control={control}
+          name="telefone"
           label="Telefone / WhatsApp"
-          type="tel"
-          autoComplete="tel"
-          placeholder="(81) 9 0000-0000"
           error={errors.telefone?.message}
-          {...register('telefone')}
         />
       </div>
       <Field
