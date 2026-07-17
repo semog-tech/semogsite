@@ -25,6 +25,21 @@ export const heroBlock: Block = {
     { name: 'video', type: 'upload', relationTo: 'media' },
     { name: 'poster', type: 'upload', relationTo: 'media' },
     {
+      name: 'background',
+      type: 'select',
+      options: [
+        { label: 'Vídeo/imagem (padrão)', value: 'video' },
+        { label: 'Gradiente animado', value: 'gradient' },
+        { label: 'Imagem estática', value: 'image' },
+        { label: 'Sem fundo (navy sólido)', value: 'plain' },
+      ],
+      defaultValue: 'video',
+      admin: {
+        description:
+          'Só `gradient` tem efeito próprio: troca o fundo por `GradientBackground` (`src/motion/GradientBackground.tsx`), um gradiente "aurora" animado em canvas, reativo ao mouse, na paleta navy/ice — usado no hero da home no lugar do vídeo. Os outros três valores (inclusive o default `video`, e o vazio dos heróis já existentes antes deste campo) preservam o comportamento anterior inalterado: vídeo+poster se `video` estiver preenchido, senão `pageHeroOverlay`/`poster` como imagem, senão navy sólido — este campo não introduz lógica nova pra eles.',
+      },
+    },
+    {
       name: 'pageHeroOverlay',
       type: 'checkbox',
       defaultValue: false,

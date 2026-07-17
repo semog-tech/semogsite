@@ -5,12 +5,22 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Chars } from '@/motion/Chars'
 import { Fade } from '@/motion/Fade'
+import { GradientBackground } from '@/motion/GradientBackground'
 import type { HeroBlock as HeroBlockType, Media } from '@/payload-types'
 
 function mediaUrl(resource?: number | Media | null): string | undefined {
   if (!resource || typeof resource === 'number') return undefined
   return resource.url ?? undefined
 }
+
+/**
+ * Scrim sobre o `GradientBackground` (`background: 'gradient'`) — o
+ * `Container` do hero é `justify-end` (conteúdo colado embaixo), então o
+ * escurecimento cresce de cima (quase nada) pra baixo (mais forte), sem
+ * esconder o próprio gradiente no resto da seção.
+ */
+const GRADIENT_OVERLAY =
+  'linear-gradient(180deg, rgba(5,8,26,0) 0%, rgba(5,8,26,0.12) 45%, rgba(5,8,26,0.62) 100%)'
 
 /**
  * Fiel a `.hero`/`.hero-video`/`.hero-layout` de `_reference/index.html`:
@@ -66,6 +76,15 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  * tem `max-width` nenhum no ref, só `font-size`/`letter-spacing`). O hero
  * com `priceChip` já tem seu `max-w-[12ch]` fiel a `.g-hero h1` hardcoded
  * abaixo — nunca precisa do campo.
+ *
+ * `background === 'gradient'` (ex.: hero da home, `src/seed/home.ts`) troca
+ * a camada de fundo pelo `GradientBackground` original em
+ * `src/motion/GradientBackground.tsx` (aurora animada em canvas, reativa ao
+ * mouse, paleta navy/ice) no lugar do vídeo/poster — com um scrim
+ * (`GRADIENT_OVERLAY`, acima) por cima pra manter headline/tagbox legíveis.
+ * Qualquer outro valor (inclusive vazio, dos heróis já existentes antes
+ * deste campo) preserva o comportamento anterior: vídeo, `pageHeroOverlay`,
+ * ou navy sólido.
  */
 export function HeroBlock({
   eyebrow,
@@ -74,6 +93,7 @@ export function HeroBlock({
   tag,
   video,
   poster,
+  background,
   pageHeroOverlay,
   pageHeroMinHeight,
   pageHeroPosterOpacity,
@@ -87,6 +107,7 @@ export function HeroBlock({
   const videoUrl = mediaUrl(video)
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
+  const isGradient = background === 'gradient'
   const isPageHero = !videoUrl && !!pageHeroOverlay
   // Sem `poster`, não há imagem/overlay pra desenhar — `.page-hero` fiel a
   // `_reference/blog.html:37-46`/`_reference/contato.html:77-87` é só um
@@ -141,7 +162,9 @@ export function HeroBlock({
           : { minHeight: '100dvh' }
       }
     >
-      {videoUrl ? (
+      {isGradient ? (
+        <GradientBackground className="absolute inset-0 z-[1]" />
+      ) : videoUrl ? (
         <video
           autoPlay
           loop
@@ -163,6 +186,13 @@ export function HeroBlock({
             style={{ objectPosition: bgPosition, opacity: posterOpacity }}
           />
         )
+      )}
+      {isGradient && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-[2]"
+          style={{ background: GRADIENT_OVERLAY }}
+        />
       )}
       {hasPosterImage && (
         <div
