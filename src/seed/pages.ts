@@ -1790,10 +1790,35 @@ async function seedContatoPage(payload: Awaited<ReturnType<typeof getPayload>>) 
 // 'proposta'`) é a Task 6 do Plano 4b — ver `src/components/forms/PropostaForm.tsx`
 // e `src/blocks/FormEmbed`.
 
+// `.proposal-wrap`, `_reference/proposta.html:38-45,154-166`: SEM `poster`
+// nem vídeo — no ref, este headline vive dentro da coluna esquerda do
+// `.prop-grid` (2 colunas, form + `.trust-panel`), com o gradiente
+// `radial-gradient(70% 60% at 100% 0%, ...) + var(--grad-hero)` como fundo
+// do wrapper inteiro (min-height 100dvh só porque o conteúdo — headline +
+// form completo + trust-panel — enche a tela). Aqui `Hero`/`FormEmbed`/
+// `TrustPanel` continuam blocos empilhados (não reconstruímos o grid de 2
+// colunas — mudança estrutural fora do escopo desta correção), mas SEM
+// `pageHeroOverlay` o hero antigo caía no ramo `minHeight:'100dvh'` +
+// `bg-navy-950` sólido (fundo `Hero/Component.tsx:141`), virando um
+// retângulo navy vazio do tamanho da viewport com só duas linhas de texto
+// no rodapé — nada a ver com o ref, que nunca tem uma faixa navy lisa e
+// vazia. `pageHeroOverlay` liga o MESMO tratamento de gradiente puro (sem
+// `poster`) usado em `/blog` e `/contato`, com números compactos próprios
+// desta página: `pageHeroMinHeight` bem menor que os 46dvh de blog/contato
+// (aqui é só um headline de 2 linhas + lead curto, não um `h1` de página
+// inteira) e o radial-gradient do próprio `.proposal-wrap` (a 100% 0%, à
+// direita — onde ficaria o `.trust-panel` no ref, diferente do 15%/85% de
+// blog/contato).
 const propostaHero: Omit<HeroBlock, 'id' | 'blockName'> = {
   blockType: 'hero',
   headline: 'Vamos falar do seu condomínio?',
   subhead: 'Preencha em dois minutos. Nossa equipe comercial responde em até 24 horas úteis.',
+  pageHeroOverlay: true,
+  pageHeroMinHeight: '38dvh',
+  pageHeroPaddingBottom: 'clamp(2rem, 4vw, 3rem)',
+  pageHeroHeadlineMaxWidth: '15ch',
+  pageHeroGradient:
+    'radial-gradient(70% 60% at 100% 0%, rgba(42,63,150,0.5) 0%, transparent 55%), var(--grad-hero)',
 }
 
 const propostaFormEmbed: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
