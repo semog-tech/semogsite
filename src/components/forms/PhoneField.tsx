@@ -1,6 +1,6 @@
 'use client'
 
-import { AsYouType, type CountryCode, getCountryCallingCode } from 'libphonenumber-js/min'
+import { AsYouType, type CountryCode } from 'libphonenumber-js/min'
 import { useId, useState } from 'react'
 import {
   type Control,
@@ -9,6 +9,7 @@ import {
   type FieldValues,
   type PathValue,
 } from 'react-hook-form'
+import { type CountryOption, CountrySelect } from '@/components/forms/CountrySelect'
 
 /**
  * Lista curta dos países mais prováveis pros clientes da Semog (BR primeiro
@@ -16,7 +17,7 @@ import {
  * completa (~250 países) se um dia for preciso ampliar; um `<select>` desse
  * tamanho custaria mais em UX do que resolveria aqui.
  */
-const COUNTRY_OPTIONS: { code: CountryCode; name: string }[] = [
+const COUNTRY_OPTIONS: CountryOption[] = [
   { code: 'BR', name: 'Brasil' },
   { code: 'PT', name: 'Portugal' },
   { code: 'US', name: 'Estados Unidos' },
@@ -87,7 +88,6 @@ export function PhoneField<TFieldValues extends FieldValues>({
   className,
 }: PhoneFieldProps<TFieldValues>) {
   const autoId = useId()
-  const selectId = `${autoId}-country`
   const inputId = `${autoId}-number`
   const hintId = hint ? `${autoId}-hint` : undefined
   const errorId = error ? `${autoId}-error` : undefined
@@ -121,29 +121,19 @@ export function PhoneField<TFieldValues extends FieldValues>({
               )}
             </label>
             <div
-              className={`flex w-full items-stretch overflow-hidden rounded-input border bg-[rgba(10,16,46,0.6)] transition-[border-color,box-shadow] duration-[250ms] ease-out focus-within:border-ice-400 focus-within:shadow-[0_0_0_3px_rgba(173,213,235,0.18)] ${
+              className={`flex w-full items-stretch rounded-input border bg-[rgba(10,16,46,0.6)] transition-[border-color,box-shadow] duration-[250ms] ease-out focus-within:border-ice-400 focus-within:shadow-[0_0_0_3px_rgba(173,213,235,0.18)] ${
                 error ? 'border-[#E27287]' : 'border-line-strong'
               }`}
             >
-              <label htmlFor={selectId} className="sr-only">
-                País
-              </label>
-              <select
-                id={selectId}
+              <CountrySelect
+                options={COUNTRY_OPTIONS}
                 value={country}
-                onChange={(event) => {
-                  const nextCountry = event.target.value as CountryCode
+                onChange={(nextCountry) => {
                   setCountry(nextCountry)
                   applyRaw(nationalText, nextCountry)
                 }}
-                className="shrink-0 border-r border-line-strong bg-transparent py-[0.9rem] pl-[1rem] pr-[0.5rem] font-body text-[0.92rem] text-fg outline-none"
-              >
-                {COUNTRY_OPTIONS.map((option) => (
-                  <option key={option.code} value={option.code} className="bg-[#0a102e] text-fg">
-                    {option.name} +{getCountryCallingCode(option.code)}
-                  </option>
-                ))}
-              </select>
+                label="País"
+              />
               <input
                 id={inputId}
                 ref={field.ref}
@@ -157,7 +147,7 @@ export function PhoneField<TFieldValues extends FieldValues>({
                 onBlur={field.onBlur}
                 aria-invalid={!!error}
                 aria-describedby={describedBy}
-                className="w-full min-w-0 flex-1 bg-transparent px-[1.1rem] py-[0.9rem] font-body text-[1rem] text-fg outline-none placeholder:text-fg-3 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full min-w-0 flex-1 rounded-r-[var(--radius-input)] bg-transparent px-[1.1rem] py-[0.9rem] font-body text-[1rem] text-fg outline-none placeholder:text-fg-3 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
             {hint && !error && (
