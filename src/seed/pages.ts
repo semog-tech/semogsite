@@ -427,6 +427,7 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
       { value: 700, prefix: '+', label: 'Condomínios' },
       { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
       { value: 100, prefix: '+', label: 'Colaboradores' },
+      { value: 3, label: 'Estados' },
     ],
   }
 

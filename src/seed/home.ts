@@ -22,7 +22,7 @@ import { getMediaId } from './lib/media'
  *
  * 1. **Hero** (`.hero`) — headline/subhead/CTAs + `tag` (`.hero-tagbox`),
  *    vídeo de fundo `hero.mp4` com poster `hero-towers.webp`.
- * 2. **Stats** (`.stats-grid`) — 4 contadores (35/+700/+70mil/+100).
+ * 2. **Stats** (`.stats-grid`) — 5 contadores (35/+700/+70mil/+100/3 Estados).
  * 3. **ValuesMarquee** (`.values-strip`) — TRANSPARÊNCIA / RETIDÃO / DINÂMICA.
  * 4. **WordsSection** (`.manifesto`) — parágrafo com scrub palavra-a-palavra.
  * 5. **Pillars** (`.pillars`) — 3 `.pillar-row` (Condomínios/Métricas/Organização).
@@ -109,6 +109,7 @@ async function seedHome() {
       { value: 700, prefix: '+', label: 'Condomínios' },
       { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
       { value: 100, prefix: '+', label: 'Especialistas' },
+      { value: 3, label: 'Estados' },
     ],
   }
 
