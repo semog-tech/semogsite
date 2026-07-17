@@ -21,7 +21,8 @@ import { getMediaId } from './lib/media'
  * seção A.1 — a 12ª seção visual é o Footer, um global fora do `layout`):
  *
  * 1. **Hero** (`.hero`) — headline/subhead/CTAs + `tag` (`.hero-tagbox`),
- *    vídeo de fundo `hero.mp4` com poster `hero-towers.webp`.
+ *    fundo `background: 'gradient'`: aurora animada reativa ao mouse
+ *    (`src/motion/GradientBackground.tsx`), no lugar do vídeo/poster.
  * 2. **Stats** (`.stats-grid`) — 5 contadores (35/+700/+70mil/+100/3 Estados).
  * 3. **ValuesMarquee** (`.values-strip`) — TRANSPARÊNCIA / RETIDÃO / DINÂMICA.
  * 4. **WordsSection** (`.manifesto`) — parágrafo com scrub palavra-a-palavra.
@@ -52,8 +53,6 @@ async function seedHome() {
   const payload = await getPayload({ config })
 
   const [
-    heroVideoId,
-    heroPosterId,
     residencialId,
     comercialId,
     associacoesId,
@@ -69,8 +68,6 @@ async function seedHome() {
     belemId,
     equipeId,
   ] = await Promise.all([
-    getMediaId(payload, 'hero.mp4'),
-    getMediaId(payload, 'hero-towers.webp'),
     getMediaId(payload, 'residencial.webp'),
     getMediaId(payload, 'comercial.webp'),
     getMediaId(payload, 'associacoes.webp'),
@@ -92,8 +89,7 @@ async function seedHome() {
     headline: HERO_HEADLINE,
     subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
     tag: 'Condomínios. Métricas. Organização.',
-    video: heroVideoId,
-    poster: heroPosterId,
+    background: 'gradient',
     ctas: [
       { label: 'Solicitar proposta', href: '/proposta', variant: 'white' },
       { label: 'Conhecer soluções', href: '/solucoes', variant: 'glass' },
