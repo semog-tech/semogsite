@@ -42,7 +42,7 @@ export default function GlobalError({
             <p className="mb-[1rem] text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-ice-500">
               Erro inesperado
             </p>
-            <h1 className="mx-auto mb-[1.2rem] max-w-xl text-[clamp(2rem,5vw,3.2rem)] tracking-[-0.03em]">
+            <h1 className="mx-auto mb-[1.2rem] max-w-xl text-[clamp(2rem,5vw,3.2rem)] tracking-normal">
               Algo saiu do controle
             </h1>
             <p className="mx-auto mb-[2rem] max-w-[46ch] text-lead text-fg-2">

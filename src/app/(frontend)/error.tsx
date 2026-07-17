@@ -29,7 +29,7 @@ export default function ErrorBoundary({
         <p className="mb-[1rem] text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-ice-500">
           Algo deu errado
         </p>
-        <h1 className="mx-auto mb-[1.4rem] max-w-2xl text-[clamp(2.2rem,5vw,3.6rem)] tracking-[-0.04em]">
+        <h1 className="mx-auto mb-[1.4rem] max-w-2xl text-[clamp(2.2rem,5vw,3.6rem)] tracking-normal">
           Não conseguimos carregar esta página
         </h1>
         <p className="mx-auto mb-[2.2rem] max-w-[46ch] text-lead text-fg-2">

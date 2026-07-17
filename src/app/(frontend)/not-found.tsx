@@ -20,7 +20,7 @@ export default function NotFound() {
         <p className="mb-[1rem] text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-ice-500">
           Erro 404
         </p>
-        <h1 className="mx-auto mb-[1.4rem] max-w-2xl text-[clamp(2.6rem,6.2vw,5.2rem)] tracking-[-0.04em]">
+        <h1 className="mx-auto mb-[1.4rem] max-w-2xl text-[clamp(2.6rem,6.2vw,5.2rem)] tracking-normal">
           Página não <GradientText>encontrada</GradientText>
         </h1>
         <p className="mx-auto mb-[2.2rem] max-w-[46ch] text-lead text-fg-2">

@@ -186,8 +186,8 @@ export function HeroBlock({
           as="h1"
           className={
             hasPriceChip
-              ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-[-0.02em] [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
-              : 'mb-[1.4rem] text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-[-0.04em] [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
+              ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-normal [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
+              : 'mb-[1.4rem] text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-normal [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
           }
           style={pageHeroHeadlineMaxWidth ? { maxWidth: pageHeroHeadlineMaxWidth } : undefined}
         >
