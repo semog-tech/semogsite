@@ -111,6 +111,10 @@ const unidadesField = z.preprocess(
 export const propostaSchema = z.object({
   tipo: z.enum(TIPO_OPTIONS, 'Selecione o que você representa.'),
   nome: requiredText('Informe seu nome.'),
+  // Opcional de propósito: incorporadoras solicitando proposta para um
+  // empreendimento em lançamento (ver `tipo: 'Incorporadora'` acima) muitas
+  // vezes ainda não têm nome de condomínio definido.
+  nomeCondominio: z.string().trim().optional(),
   cargo: z.enum(CARGO_OPTIONS).optional(),
   email: z.email('Informe um e-mail válido.'),
   telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um WhatsApp válido.'),

@@ -36,6 +36,7 @@ const CONTATO_LABELS: Record<keyof ContatoValues, string> = {
 const PROPOSTA_LABELS: Record<keyof PropostaValues, string> = {
   tipo: 'O que você representa?',
   nome: 'Seu nome',
+  nomeCondominio: 'Nome do condomínio',
   cargo: 'Seu papel',
   email: 'E-mail',
   telefone: 'WhatsApp',

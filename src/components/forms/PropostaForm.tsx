@@ -68,7 +68,7 @@ export function PropostaForm() {
   } = useForm<PropostaInput, unknown, PropostaValues>({
     resolver: zodResolver(propostaSchema),
     mode: 'onTouched',
-    defaultValues: { nome: '', email: '', telefone: '', mensagem: '' },
+    defaultValues: { nome: '', nomeCondominio: '', email: '', telefone: '', mensagem: '' },
   })
 
   const [token, setToken] = useState<string | null>(null)
@@ -158,6 +158,14 @@ export function PropostaForm() {
           {...register('cargo', { setValueAs: (value) => (value === '' ? undefined : value) })}
         />
       </div>
+      <Field
+        label="Nome do condomínio"
+        hint="Opcional — se ainda não tiver um nome definido, pode deixar em branco"
+        autoComplete="off"
+        placeholder="Ex.: Residencial Jardins do Atlântico"
+        error={errors.nomeCondominio?.message}
+        {...register('nomeCondominio')}
+      />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
           label="E-mail"

@@ -15,10 +15,13 @@ import type { Form } from '@/payload-types'
  *   comercial"/"Dúvida geral"/"Outro assunto", e mensagem.
  * - "Proposta": espelha o `<form id="prop-form">` de `_reference/proposta.html`
  *   campo a campo — grupo "tipo" (pills/radiogroup em HTML, aqui um `select`
- *   porque o plugin não tem tipo `radio` habilitado), nome, cargo (select),
- *   e-mail, telefone (WhatsApp), cidade (select das 4 praças + "Outra
- *   cidade"), número de unidades e mensagem (opcional). "Número de unidades"
- *   é `number` em vez do `select` de faixas do HTML — decisão da task (ver
+ *   porque o plugin não tem tipo `radio` habilitado), nome, nome do
+ *   condomínio (texto, opcional — sem equivalente no ref, adicionado depois:
+ *   incorporadoras solicitando proposta para um lançamento muitas vezes
+ *   ainda não têm nome de condomínio definido), cargo (select), e-mail,
+ *   telefone (WhatsApp), cidade (select das 4 praças + "Outra cidade"),
+ *   número de unidades e mensagem (opcional). "Número de unidades" é
+ *   `number` em vez do `select` de faixas do HTML — decisão da task (ver
  *   `.superpowers/sdd/p4b-task-1-brief.md`, que pede explicitamente o tipo
  *   `number` para esse campo), documentada no relatório da task.
  *
@@ -137,6 +140,12 @@ const propostaData: FormData = {
       name: 'nome',
       label: 'Seu nome',
       required: true,
+    },
+    {
+      blockType: 'text',
+      name: 'nomeCondominio',
+      label: 'Nome do condomínio',
+      required: false,
     },
     {
       blockType: 'select',
