@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { Field } from '@/components/forms/Field'
@@ -57,12 +57,21 @@ type Status = 'idle' | 'success' | 'error'
  * dos campos, `PropostaValues` pro valor que chega em `handleSubmit`, já
  * validado/coagido pelo `zodResolver`; ver `PropostaInput` em
  * `form-schemas.ts` pro motivo).
+ *
+ * Campo `cargo` ("Seu papel") some quando `tipo === 'Incorporadora'`: perguntar
+ * o papel de alguém que já disse ser incorporadora é redundante. `watch('tipo')`
+ * decide a exibição e `setValue('cargo', undefined)` limpa o valor ao esconder,
+ * pra nenhum resquício ser submetido caso o usuário troque de tipo depois de já
+ * ter selecionado um cargo. `cargo` já é opcional em `propostaSchema`, então
+ * esconder o campo não quebra validação nenhuma.
  */
 export function PropostaForm() {
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
+    watch,
     control,
     formState: { errors, isSubmitting },
   } = useForm<PropostaInput, unknown, PropostaValues>({
@@ -70,6 +79,17 @@ export function PropostaForm() {
     mode: 'onTouched',
     defaultValues: { nome: '', nomeCondominio: '', email: '', telefone: '', mensagem: '' },
   })
+
+  const isIncorporadora = watch('tipo') === 'Incorporadora'
+
+  // Sempre que vira Incorporadora, limpa o `cargo` (RHF mantém o valor de um
+  // campo desmontado por padrão — sem isso, um cargo escolhido antes de trocar
+  // pra Incorporadora ficaria retido e seria submetido mesmo com o campo oculto).
+  useEffect(() => {
+    if (isIncorporadora) {
+      setValue('cargo', undefined)
+    }
+  }, [isIncorporadora, setValue])
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
@@ -140,7 +160,7 @@ export function PropostaForm() {
         error={errors.tipo?.message}
         {...register('tipo', { setValueAs: (value) => (value === '' ? undefined : value) })}
       />
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className={`grid grid-cols-1 gap-5 ${isIncorporadora ? '' : 'sm:grid-cols-2'}`}>
         <Field
           label="Seu nome"
           required
@@ -149,14 +169,16 @@ export function PropostaForm() {
           error={errors.nome?.message}
           {...register('nome')}
         />
-        <Field
-          as="select"
-          label="Seu papel"
-          placeholder="Selecione uma opção (opcional)"
-          options={CARGO_OPTIONS}
-          error={errors.cargo?.message}
-          {...register('cargo', { setValueAs: (value) => (value === '' ? undefined : value) })}
-        />
+        {!isIncorporadora && (
+          <Field
+            as="select"
+            label="Seu papel"
+            placeholder="Selecione uma opção (opcional)"
+            options={CARGO_OPTIONS}
+            error={errors.cargo?.message}
+            {...register('cargo', { setValueAs: (value) => (value === '' ? undefined : value) })}
+          />
+        )}
       </div>
       <Field
         label="Nome do condomínio"
