@@ -67,6 +67,7 @@ export function PropostaForm() {
     formState: { errors, isSubmitting },
   } = useForm<PropostaInput, unknown, PropostaValues>({
     resolver: zodResolver(propostaSchema),
+    mode: 'onTouched',
     defaultValues: { nome: '', email: '', telefone: '', mensagem: '' },
   })
 

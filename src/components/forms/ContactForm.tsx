@@ -52,6 +52,7 @@ export function ContactForm() {
     formState: { errors, isSubmitting },
   } = useForm<ContatoValues>({
     resolver: zodResolver(contatoSchema),
+    mode: 'onTouched',
     defaultValues: { nome: '', email: '', telefone: '', mensagem: '' },
   })
 
