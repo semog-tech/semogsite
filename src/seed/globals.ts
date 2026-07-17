@@ -23,6 +23,10 @@ const headerData: Omit<Header, 'id' | 'updatedAt' | 'createdAt'> = {
     { label: 'Contato', href: '/contato' },
   ],
   cta: { label: 'Solicitar proposta', href: '/proposta' },
+  clientArea: {
+    label: 'Área do cliente',
+    href: 'https://semog.superlogica.net/clients/areadocondomino',
+  },
 }
 
 // Rodapé fiel a `_reference/index.html`: banda foot-cta (slogan + CTA), grid de

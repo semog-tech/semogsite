@@ -2736,6 +2736,10 @@ export interface Header {
     label?: string | null;
     href?: string | null;
   };
+  clientArea?: {
+    label?: string | null;
+    href?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2829,6 +2833,12 @@ export interface HeaderSelect<T extends boolean = true> {
         id?: T;
       };
   cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  clientArea?:
     | T
     | {
         label?: T;

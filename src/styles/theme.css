@@ -520,6 +520,17 @@
   .nav-cta {
     flex-shrink: 0;
   }
+  /* Embrulha o CTA primário + o botão secundário "Área do cliente"
+     (src/components/layout/Nav.tsx) — mesmo `gap` visual do `.nav-links`. */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .nav-secondary {
+    flex-shrink: 0;
+  }
   .nav-burger {
     display: none;
     background: none;
@@ -572,7 +583,14 @@
     font-size: 2rem;
     font-weight: 600;
   }
-  .nav-mobile .btn {
+  /* Empilha o CTA primário + o botão secundário "Área do cliente" no menu
+     mobile (substitui o antigo `.nav-mobile .btn { margin-top: 1rem }`, que só
+     cobria um botão) — mesmo espaçamento vertical entre os dois. */
+  .nav-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
     margin-top: 1rem;
   }
   @media (max-width: 1024px) {
@@ -584,7 +602,7 @@
     .nav-links {
       display: none;
     }
-    .nav-inner .nav-cta {
+    .nav-inner .nav-actions {
       display: none;
     }
     .nav-burger {

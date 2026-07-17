@@ -58,6 +58,8 @@ export function Button({
   type = 'button',
   disabled,
   magnetic,
+  target,
+  rel,
 }: {
   children: ReactNode
   variant?: Variant
@@ -71,6 +73,9 @@ export function Button({
   disabled?: boolean
   /** Embrulha com `Magnetic`. Default: `true` em `variant="primary"`, `false` nos demais. */
   magnetic?: boolean
+  /** Só se aplica com `href` — ex.: `target="_blank"` pra links externos (usar com `rel`). */
+  target?: string
+  rel?: string
 }) {
   const cls = `${base} ${sizes[size]} ${variants[variant]} ${disabled ? 'pointer-events-none opacity-50' : ''} ${className}`
   const inner = (
@@ -89,11 +94,11 @@ export function Button({
   const isMagnetic = magnetic ?? variant === 'primary'
   const element = href ? (
     isInternalHref(href) ? (
-      <Link href={href} className={cls}>
+      <Link href={href} className={cls} target={target} rel={rel}>
         {inner}
       </Link>
     ) : (
-      <a className={cls} href={href}>
+      <a className={cls} href={href} target={target} rel={rel}>
         {inner}
       </a>
     )

@@ -6,6 +6,7 @@ import type { Header } from '@/payload-types'
 
 type NavItem = NonNullable<Header['navItems']>[number]
 type Cta = { label?: string | null; href?: string | null }
+type ClientArea = { label?: string | null; href?: string | null }
 
 /**
  * Ilha client da navegação — fiel a `_reference/index.html` (nav) e a
@@ -21,14 +22,23 @@ type Cta = { label?: string | null; href?: string | null }
  *
  * A pílula usa o material `liquid-glass` real do reference (semog.css:204-232),
  * não o `backdrop-blur-md` aproximado. Estrutura/CSS em src/styles/theme.css.
+ *
+ * `clientArea` é o botão secundário "Área do cliente" (global `header`,
+ * `src/globals/Header.ts`), renderizado ao lado do `cta` primário — `.nav-actions`
+ * embrulha os dois no desktop (`.nav-mobile-actions` no menu mobile). Sempre
+ * abre em nova aba (link externo pro portal Superlógica), daí `variant="ghost"`
+ * (não compete visualmente com o `cta` primário) + `target="_blank" rel="noopener
+ * noreferrer"` fixos aqui, não vindos do CMS.
  */
 export function Nav({
   navItems,
   cta,
+  clientArea,
   logoSrc,
 }: {
   navItems: NavItem[]
   cta: Cta
+  clientArea: ClientArea
   logoSrc: string
 }) {
   const [scrolled, setScrolled] = useState(false)
@@ -58,6 +68,7 @@ export function Nav({
   }, [pathname])
 
   const hasCta = Boolean(cta.label && cta.href)
+  const hasClientArea = Boolean(clientArea.label && clientArea.href)
 
   return (
     <>
@@ -78,16 +89,33 @@ export function Nav({
               ))}
             </ul>
           </nav>
-          {hasCta && cta.href && (
-            <Button
-              href={cta.href}
-              variant="primary"
-              size="sm"
-              magnetic={false}
-              className="nav-cta"
-            >
-              {cta.label}
-            </Button>
+          {(hasClientArea || hasCta) && (
+            <div className="nav-actions">
+              {hasClientArea && clientArea.href && (
+                <Button
+                  href={clientArea.href}
+                  variant="ghost"
+                  size="sm"
+                  magnetic={false}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-secondary"
+                >
+                  {clientArea.label}
+                </Button>
+              )}
+              {hasCta && cta.href && (
+                <Button
+                  href={cta.href}
+                  variant="primary"
+                  size="sm"
+                  magnetic={false}
+                  className="nav-cta"
+                >
+                  {cta.label}
+                </Button>
+              )}
+            </div>
           )}
           <button
             type="button"
@@ -114,10 +142,25 @@ export function Nav({
             {item.label}
           </a>
         ))}
-        {hasCta && cta.href && (
-          <Button href={cta.href} variant="primary" magnetic={false} className="btn">
-            {cta.label}
-          </Button>
+        {(hasClientArea || hasCta) && (
+          <div className="nav-mobile-actions">
+            {hasClientArea && clientArea.href && (
+              <Button
+                href={clientArea.href}
+                variant="ghost"
+                magnetic={false}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {clientArea.label}
+              </Button>
+            )}
+            {hasCta && cta.href && (
+              <Button href={cta.href} variant="primary" magnetic={false}>
+                {cta.label}
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </>

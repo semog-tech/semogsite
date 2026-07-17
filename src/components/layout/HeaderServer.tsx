@@ -16,6 +16,11 @@ const FALLBACK_NAV_ITEMS: NonNullable<Header['navItems']> = [
 
 const FALLBACK_CTA = { label: 'Solicitar proposta', href: '/proposta' }
 
+const FALLBACK_CLIENT_AREA = {
+  label: 'Área do cliente',
+  href: 'https://semog.superlogica.net/clients/areadocondomino',
+}
+
 async function getHeaderGlobal(): Promise<Header | null> {
   try {
     const payload = await getPayloadClient()
@@ -38,6 +43,10 @@ export async function HeaderServer() {
   const header = await getHeaderGlobal()
   const navItems = header?.navItems?.length ? header.navItems : FALLBACK_NAV_ITEMS
   const cta = header?.cta?.label && header?.cta?.href ? header.cta : FALLBACK_CTA
+  const clientArea =
+    header?.clientArea?.label && header?.clientArea?.href ? header.clientArea : FALLBACK_CLIENT_AREA
 
-  return <Nav navItems={navItems} cta={cta} logoSrc="/semog-logo-light.svg" />
+  return (
+    <Nav navItems={navItems} cta={cta} clientArea={clientArea} logoSrc="/semog-logo-light.svg" />
+  )
 }

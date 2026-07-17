@@ -21,5 +21,18 @@ export const Header: GlobalConfig = {
         { name: 'href', type: 'text' },
       ],
     },
+    {
+      name: 'clientArea',
+      type: 'group',
+      label: 'Área do cliente (botão secundário)',
+      fields: [
+        { name: 'label', type: 'text', defaultValue: 'Área do cliente' },
+        {
+          name: 'href',
+          type: 'text',
+          defaultValue: 'https://semog.superlogica.net/clients/areadocondomino',
+        },
+      ],
+    },
   ],
 }
