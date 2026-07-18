@@ -176,7 +176,7 @@ export function HeroBlock({
 
   return (
     <Section
-      className={`flex flex-col overflow-hidden !py-0 bg-navy-950 ${hasPriceChip ? 'g-hero' : ''}`}
+      className={`overflow-hidden !py-0 bg-navy-950 ${hasPriceChip ? 'g-hero' : ''}`}
       style={
         isPageHero
           ? { minHeight, ...(hasPosterImage ? {} : { background: gradient }) }
@@ -232,10 +232,13 @@ export function HeroBlock({
         />
       )}
       <Container
-        className={`relative z-[3] flex flex-1 flex-col justify-end pt-[110px] ${
+        className={`relative z-[3] flex flex-col justify-end pt-[110px] ${
           isPageHero ? '' : 'pb-[clamp(3rem,5vw,4.5rem)]'
         }`}
-        style={isPageHero ? { paddingBottom } : undefined}
+        style={{
+          minHeight: isPageHero ? minHeight : '100dvh',
+          ...(isPageHero ? { paddingBottom } : {}),
+        }}
       >
         {eyebrow && (
           <Fade delay={600}>
