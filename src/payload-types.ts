@@ -265,9 +265,9 @@ export interface HeroBlock {
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
   /**
-   * Só `gradient` tem efeito próprio: troca o fundo por `GradientBackground` (`src/motion/GradientBackground.tsx`), um gradiente "aurora" animado em canvas, reativo ao mouse, na paleta navy/ice — usado no hero da home no lugar do vídeo. Os outros três valores (inclusive o default `video`, e o vazio dos heróis já existentes antes deste campo) preservam o comportamento anterior inalterado: vídeo+poster se `video` estiver preenchido, senão `pageHeroOverlay`/`poster` como imagem, senão navy sólido — este campo não introduz lógica nova pra eles.
+   * Dois valores têm efeito próprio: `gradient` troca o fundo por `GradientBackground` (`src/motion/GradientBackground.tsx`), um gradiente "aurora" animado em canvas na paleta navy/ice; `videoSequence` troca por `VideoSequenceBackground` (`src/motion/VideoSequenceBackground.tsx`), que toca em loop os 4 clipes drone das filiais/matriz (`public/hero/*.mp4`) com crossfade. Os demais valores (inclusive o default `video`, e o vazio dos heróis já existentes antes deste campo) preservam o comportamento anterior inalterado: vídeo+poster se `video` estiver preenchido, senão `pageHeroOverlay`/`poster` como imagem, senão navy sólido.
    */
-  background?: ('video' | 'gradient' | 'image' | 'plain') | null;
+  background?: ('video' | 'gradient' | 'videoSequence' | 'image' | 'plain') | null;
   /**
    * Ativa o tratamento `.page-hero` do ref (ex.: `_reference/solucoes.html:87-107`): altura reduzida, a imagem de `poster` com opacidade reduzida e um gradiente `::after` escuro por cima para dar contraste ao texto. Só tem efeito sem `video` (o hero com vídeo, ex. home, não muda). Sem isso marcado, o herói mantém o comportamento atual (100dvh, sem overlay). Os 4 campos abaixo (`pageHeroMinHeight`/`pageHeroPosterOpacity`/`pageHeroBgPosition`/`pageHeroGradient`) controlam os números exatos — cada `.page-hero` do ref tem seus próprios valores (ex.: `/solucoes` = 74dvh/0.5/"center 65%"; `/administracao-de-condominios` = 88dvh/0.85/"center 40%"); os defaults abaixo são os de `/solucoes`, primeira página a usar este campo.
    */

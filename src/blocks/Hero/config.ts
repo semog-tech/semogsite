@@ -30,13 +30,14 @@ export const heroBlock: Block = {
       options: [
         { label: 'Vídeo/imagem (padrão)', value: 'video' },
         { label: 'Gradiente animado', value: 'gradient' },
+        { label: 'Sequência de vídeos (drone filiais)', value: 'videoSequence' },
         { label: 'Imagem estática', value: 'image' },
         { label: 'Sem fundo (navy sólido)', value: 'plain' },
       ],
       defaultValue: 'video',
       admin: {
         description:
-          'Só `gradient` tem efeito próprio: troca o fundo por `GradientBackground` (`src/motion/GradientBackground.tsx`), um gradiente "aurora" animado em canvas, reativo ao mouse, na paleta navy/ice — usado no hero da home no lugar do vídeo. Os outros três valores (inclusive o default `video`, e o vazio dos heróis já existentes antes deste campo) preservam o comportamento anterior inalterado: vídeo+poster se `video` estiver preenchido, senão `pageHeroOverlay`/`poster` como imagem, senão navy sólido — este campo não introduz lógica nova pra eles.',
+          'Dois valores têm efeito próprio: `gradient` troca o fundo por `GradientBackground` (`src/motion/GradientBackground.tsx`), um gradiente "aurora" animado em canvas na paleta navy/ice; `videoSequence` troca por `VideoSequenceBackground` (`src/motion/VideoSequenceBackground.tsx`), que toca em loop os 4 clipes drone das filiais/matriz (`public/hero/*.mp4`) com crossfade. Os demais valores (inclusive o default `video`, e o vazio dos heróis já existentes antes deste campo) preservam o comportamento anterior inalterado: vídeo+poster se `video` estiver preenchido, senão `pageHeroOverlay`/`poster` como imagem, senão navy sólido.',
       },
     },
     {

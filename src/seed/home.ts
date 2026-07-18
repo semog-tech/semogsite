@@ -89,7 +89,7 @@ async function seedHome() {
     headline: HERO_HEADLINE,
     subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
     tag: 'Condomínios. Métricas. Organização.',
-    background: 'gradient',
+    background: 'videoSequence',
     ctas: [
       { label: 'Solicitar proposta', href: '/proposta', variant: 'white' },
       { label: 'Conhecer soluções', href: '/solucoes', variant: 'glass' },

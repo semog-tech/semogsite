@@ -6,6 +6,7 @@ import { Section } from '@/components/ui/Section'
 import { Chars } from '@/motion/Chars'
 import { Fade } from '@/motion/Fade'
 import { GradientBackground } from '@/motion/GradientBackground'
+import { VideoSequenceBackground } from '@/motion/VideoSequenceBackground'
 import type { HeroBlock as HeroBlockType, Media } from '@/payload-types'
 
 function mediaUrl(resource?: number | Media | null): string | undefined {
@@ -21,6 +22,25 @@ function mediaUrl(resource?: number | Media | null): string | undefined {
  */
 const GRADIENT_OVERLAY =
   'linear-gradient(180deg, rgba(5,8,26,0) 0%, rgba(5,8,26,0.12) 45%, rgba(5,8,26,0.62) 100%)'
+
+/**
+ * Scrim sobre `VideoSequenceBackground` (`background: 'videoSequence'`). O
+ * vídeo é mais claro que o gradiente, então leva um tint geral leve + reforço
+ * embaixo pra manter headline/tagbox legíveis (o conteúdo é `justify-end`).
+ */
+const VIDEO_SEQUENCE_OVERLAY =
+  'linear-gradient(180deg, rgba(5,8,26,0.30) 0%, rgba(5,8,26,0.24) 42%, rgba(5,8,26,0.74) 100%)'
+
+/**
+ * Clipes drone das filiais/matriz para `background: 'videoSequence'`, servidos
+ * de `public/hero/`. Ordem = matriz primeiro (Recife), depois as filiais.
+ */
+const HERO_SEQUENCE = [
+  '/hero/recife.mp4',
+  '/hero/joao-pessoa.mp4',
+  '/hero/campina-grande.mp4',
+  '/hero/belem.mp4',
+]
 
 /**
  * Fiel a `.hero`/`.hero-video`/`.hero-layout` de `_reference/index.html`:
@@ -108,6 +128,7 @@ export function HeroBlock({
   const posterUrl = mediaUrl(poster)
   const posterMedia = poster && typeof poster === 'object' ? poster : undefined
   const isGradient = background === 'gradient'
+  const isVideoSequence = background === 'videoSequence'
   const isPageHero = !videoUrl && !!pageHeroOverlay
   // Sem `poster`, não há imagem/overlay pra desenhar — `.page-hero` fiel a
   // `_reference/blog.html:37-46`/`_reference/contato.html:77-87` é só um
@@ -164,6 +185,8 @@ export function HeroBlock({
     >
       {isGradient ? (
         <GradientBackground className="absolute inset-0 z-[1]" />
+      ) : isVideoSequence ? (
+        <VideoSequenceBackground className="absolute inset-0 z-[1]" videos={HERO_SEQUENCE} />
       ) : videoUrl ? (
         <video
           autoPlay
@@ -192,6 +215,13 @@ export function HeroBlock({
           aria-hidden="true"
           className="absolute inset-0 z-[2]"
           style={{ background: GRADIENT_OVERLAY }}
+        />
+      )}
+      {isVideoSequence && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-[2]"
+          style={{ background: VIDEO_SEQUENCE_OVERLAY }}
         />
       )}
       {hasPosterImage && (
