@@ -1,7 +1,6 @@
 'use client'
 import type { CSSProperties } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { useReducedHeavy } from './useReducedHeavy'
 
 /**
  * Mesh gradient full-bleed para o hero da home: WebGL puro (sem libs),
@@ -33,10 +32,9 @@ import { useReducedHeavy } from './useReducedHeavy'
  * `getComputedStyle` no boot, então dá pra sobrescrever por CSS (ex.: uma
  * página específica) sem tocar neste arquivo.
  *
- * Sob `prefers-reduced-motion: reduce` (via `useReducedHeavy`), desenha um
- * único frame estático em `uTime = 0` — sem rAF. O campo de ruído já varia
- * no ESPAÇO (não só no tempo), então `t=0` continua sendo uma composição
- * cheia, não um frame degenerado/plano.
+ * Motion: anima SEMPRE (decisão do dono do site — o gradiente animado é
+ * parte da identidade do hero), inclusive sob `prefers-reduced-motion`. Se
+ * um dia precisar respeitar essa preferência, reintroduzir um branch estático.
  *
  * Robustez: client component, WebGL só é tocado dentro de `useEffect`
  * (SSR-safe). Se `getContext('webgl')` falhar (browser antigo, contexto
@@ -58,10 +56,10 @@ import { useReducedHeavy } from './useReducedHeavy'
 // gelo/periwinkle claro — deliberadamente "profissional vibrante", não
 // arco-íris.
 // ---------------------------------------------------------------------
-const GRADIENT_COLOR_1 = '#070c26' // base: navy/indigo profundo (perto de --color-navy-950)
-const GRADIENT_COLOR_2 = '#3450e0' // azul vívido (mais saturado que --color-navy-400)
-const GRADIENT_COLOR_3 = '#17b7c4' // teal/cyan de acento (novo na paleta, dá vida)
-const GRADIENT_COLOR_4 = '#c9d7ff' // highlight gelo/periwinkle (mais claro que --color-ice-400)
+const GRADIENT_COLOR_1 = '#070c26' // base: navy profundo (perto de --color-navy-950)
+const GRADIENT_COLOR_2 = '#2b6fe6' // azul azure vívido (menos violeta/roxo que antes)
+const GRADIENT_COLOR_3 = '#17b7c4' // teal/cyan de acento (dá vida)
+const GRADIENT_COLOR_4 = '#bfe3f5' // highlight gelo-cyan claro (menos lavanda/roxo)
 
 /** Multiplica segundos decorridos antes de virar `uTime` — velocidade global. */
 const ANIMATION_SPEED = 0.35
@@ -267,7 +265,6 @@ const CSS_VARS = {
 
 export function GradientBackground({ className = '' }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const reduceMotion = useReducedHeavy()
   const [webglFailed, setWebglFailed] = useState(false)
 
   useEffect(() => {
@@ -343,15 +340,7 @@ export function GradientBackground({ className = '' }: { className?: string }) {
       gl.drawArrays(gl.TRIANGLES, 0, 6)
     }
 
-    // Reduced motion: um frame estático (`uTime = 0`), sem rAF. O
-    // resize/ResizeObserver continua ativo — reatribuir `canvas.width`/
-    // `height` limpa o framebuffer, então cada resize precisa redesenhar.
-    const resize = reduceMotion
-      ? () => {
-          applySize()
-          renderFrame(0)
-        }
-      : applySize
+    const resize = applySize
 
     resize()
     window.addEventListener('resize', resize)
@@ -364,14 +353,6 @@ export function GradientBackground({ className = '' }: { className?: string }) {
       cancelAnimationFrame(raf)
     }
     canvas.addEventListener('webglcontextlost', onContextLost, false)
-
-    if (reduceMotion) {
-      return () => {
-        window.removeEventListener('resize', resize)
-        ro?.disconnect()
-        canvas.removeEventListener('webglcontextlost', onContextLost)
-      }
-    }
 
     let visible = true
     const io =
@@ -404,7 +385,7 @@ export function GradientBackground({ className = '' }: { className?: string }) {
       io?.disconnect()
       canvas.removeEventListener('webglcontextlost', onContextLost)
     }
-  }, [reduceMotion, webglFailed])
+  }, [webglFailed])
 
   return (
     <div aria-hidden="true" className={`pointer-events-none ${className}`}>
