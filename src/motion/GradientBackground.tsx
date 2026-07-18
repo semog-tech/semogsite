@@ -56,13 +56,13 @@ import { useEffect, useRef, useState } from 'react'
 // gelo/periwinkle claro — deliberadamente "profissional vibrante", não
 // arco-íris.
 // ---------------------------------------------------------------------
-const GRADIENT_COLOR_1 = '#070c26' // base: navy profundo (perto de --color-navy-950)
-const GRADIENT_COLOR_2 = '#2b6fe6' // azul azure vívido (menos violeta/roxo que antes)
-const GRADIENT_COLOR_3 = '#17b7c4' // teal/cyan de acento (dá vida)
-const GRADIENT_COLOR_4 = '#bfe3f5' // highlight gelo-cyan claro (menos lavanda/roxo)
+const GRADIENT_COLOR_1 = '#060a1e' // base: navy profundo (um tico mais escuro)
+const GRADIENT_COLOR_2 = '#234f9e' // azul azure mais profundo/escuro (menos roxo)
+const GRADIENT_COLOR_3 = '#12909c' // teal/cyan de acento, mais escuro
+const GRADIENT_COLOR_4 = '#93b7d4' // highlight gelo-cyan, menos claro (mais sóbrio)
 
 /** Multiplica segundos decorridos antes de virar `uTime` — velocidade global. */
-const ANIMATION_SPEED = 0.35
+const ANIMATION_SPEED = 0.16
 /** Teto de devicePixelRatio — cada pixel paga ruído simplex no fragment shader. */
 const MAX_DPR = 1.5
 
