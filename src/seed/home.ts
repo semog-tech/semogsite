@@ -100,6 +100,7 @@ async function seedHome() {
     blockType: 'stats',
     eyebrow: 'A líder do Nordeste',
     title: 'Liderança não se declara. Se comprova.',
+    variant: 'feature',
     items: [
       { value: 35, label: 'Anos de mercado' },
       { value: 700, prefix: '+', label: 'Condomínios' },

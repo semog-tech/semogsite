@@ -11,6 +11,19 @@ export const statsBlock: Block = {
     { name: 'eyebrow', type: 'text' },
     { name: 'title', type: 'text' },
     {
+      name: 'variant',
+      type: 'select',
+      options: [
+        { label: 'Grade (padrão — mini-stats)', value: 'grid' },
+        { label: 'Destaque (1º número gigante + apoio)', value: 'feature' },
+      ],
+      defaultValue: 'grid',
+      admin: {
+        description:
+          "`grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = o 1º item vira um número gigante em destaque e os demais entram num grid de apoio 2×2 ao lado — mais impacto, usado na home. Vazio = 'grid' (comportamento anterior).",
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       fields: [

@@ -322,6 +322,10 @@ export interface HeroBlock {
 export interface StatsBlock {
   eyebrow?: string | null;
   title?: string | null;
+  /**
+   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = o 1º item vira um número gigante em destaque e os demais entram num grid de apoio 2×2 ao lado — mais impacto, usado na home. Vazio = 'grid' (comportamento anterior).
+   */
+  variant?: ('grid' | 'feature') | null;
   items?:
     | {
         value: number;
@@ -1750,6 +1754,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
 export interface StatsBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
+  variant?: T;
   items?:
     | T
     | {
