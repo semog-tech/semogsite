@@ -28,7 +28,12 @@ export const tecnologiaRoadmapBlock: Block = {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
-          admin: { description: 'Opcional. Ex.: semog-one.webp (monitor com o ERP).' },
+          admin: { description: 'Opcional. Ex.: semog-one.webp (dashboard do Semog One).' },
+        },
+        {
+          name: 'badge',
+          type: 'text',
+          admin: { description: 'Selo acima do nome (ex.: "Plataforma própria"). Opcional.' },
         },
         { name: 'name', type: 'text', required: true },
         { name: 'description', type: 'textarea', required: true },

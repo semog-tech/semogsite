@@ -674,9 +674,13 @@ export interface TecnologiaRoadmapBlock {
   text?: string | null;
   intro: {
     /**
-     * Opcional. Ex.: semog-one.webp (monitor com o ERP).
+     * Opcional. Ex.: semog-one.webp (dashboard do Semog One).
      */
     image?: (number | null) | Media;
+    /**
+     * Selo acima do nome (ex.: "Plataforma própria"). Opcional.
+     */
+    badge?: string | null;
     name: string;
     description: string;
     tags?:
@@ -2041,6 +2045,7 @@ export interface TecnologiaRoadmapBlockSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        badge?: T;
         name?: T;
         description?: T;
         tags?:

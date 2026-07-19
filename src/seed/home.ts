@@ -215,7 +215,7 @@ async function seedHome() {
         image: cOneId,
         theme: 'on-white',
         tag: 'Semog One',
-        title: 'O ERP que construímos para o nosso jeito de administrar.',
+        title: 'A plataforma própria que construímos sobre o nosso ERP.',
         text: 'Equipe de desenvolvimento própria e uma plataforma única que evolui toda semana.',
         href: '/solucoes#tecnologia',
       },

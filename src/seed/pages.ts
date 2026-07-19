@@ -734,12 +734,13 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
   const solucoesTecnologia: Omit<TecnologiaRoadmapBlock, 'id' | 'blockName'> = {
     blockType: 'tecnologiaRoadmap',
     title: 'Software de dono, não de prateleira.',
-    text: 'A Semog tem equipe de desenvolvimento própria desde a década passada. Em 2019, criamos o primeiro chatbot do setor. Hoje, toda a operação roda no nosso ERP.',
+    text: 'A Semog tem equipe de desenvolvimento própria desde a década passada — em 2019, criamos o primeiro chatbot do setor. Hoje, toda a operação roda no Semog One, a plataforma que construímos sobre o nosso ERP.',
     intro: {
       image: semogOneId,
+      badge: 'Plataforma própria',
       name: 'Semog One',
       description:
-        'O ERP que construímos para o nosso jeito de administrar: financeiro, cobrança, assembleias, documentos e atendimento em uma única plataforma, evoluindo toda semana.',
+        'A plataforma que criamos para potencializar o nosso ERP: reúne a operação numa só tela — financeiro, cobrança, assembleias, documentos e atendimento — com dashboards e indicadores em tempo real, evoluindo toda semana.',
       tags: [
         { label: 'Financeiro e cobrança' },
         { label: 'Prestação de contas digital' },
@@ -751,6 +752,18 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
     roadmapLabel: 'Roadmap 2026',
     steps: [
       {
+        title: 'Nova prestação de contas digital',
+        text: 'Entregue em junho/2026: balancete 100% digital, com documentos anexados, gráficos claros e assinatura com validade jurídica.',
+        status: 'No ar',
+        live: true,
+      },
+      {
+        title: 'Chatbot de atendimento',
+        text: 'Pioneiro no setor desde 2019, em evolução contínua.',
+        status: 'No ar',
+        live: true,
+      },
+      {
         title: 'Gestão de Manutenções',
         text: 'Preventivas programadas, chamados e histórico por equipamento.',
         status: 'Em desenvolvimento',
@@ -759,12 +772,6 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
         title: 'Gestão de Contratos',
         text: 'Fornecedores, vigências e reajustes monitorados automaticamente.',
         status: 'Previsto para 2026',
-      },
-      {
-        title: 'Chatbot de atendimento',
-        text: 'Pioneiro no setor desde 2019, em evolução contínua.',
-        status: 'No ar',
-        live: true,
       },
     ],
   }

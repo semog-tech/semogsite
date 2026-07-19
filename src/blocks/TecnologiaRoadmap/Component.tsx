@@ -6,15 +6,16 @@ import { Reveal } from '@/motion/reveal'
 import type { Media, TecnologiaRoadmapBlock as TecnologiaRoadmapBlockType } from '@/payload-types'
 
 /**
- * Fiel a `#tecnologia` de `_reference/solucoes.html:645-691`: `.sec-head`
- * + `.tech-grid` (`.one-card` `data-reveal="left"` | `.road`
- * `data-reveal="right"`). CSS portada em `theme.css` (`.tech-grid`,
- * `.one-card`, `.one-tags`, `.road*`, `.status.live`).
+ * Seção "Tecnologia própria" (Semog One) de `/solucoes`. Redesenhada em torno
+ * do card de destaque: `.sec-head` (título + texto) → `.one-card.has-media`
+ * (à esquerda: selo `.one-badge`, lockup `.one-logo` com a última palavra em
+ * `--grad-ice`, descrição e `.one-tags`; à direita: o dashboard do Semog One
+ * em landscape, `.one-media`, mostrado por inteiro) → `.road` (roadmap em
+ * `.road-grid`, cards `.road-item` com `.status`/`.live`). CSS em `theme.css`.
+ * Seção escura (Section sem `light`).
  *
- * `.one-card` ganha um slot de imagem opcional (`intro.image`, ver
- * `config.ts`): sem mídia, fica igual ao ref (texto + tags empilhados,
- * `.has-media` ausente); com mídia, vira split interno imagem/texto via
- * `.one-card.has-media`.
+ * O nome (`intro.name`) tem a última palavra destacada no gradiente ice (ex.:
+ * "Semog **One**"), dividindo a string no último espaço.
  */
 export function TecnologiaRoadmapBlock({
   eyebrow,
@@ -27,6 +28,10 @@ export function TecnologiaRoadmapBlock({
   if (!steps || steps.length === 0) return null
   const image = intro?.image && typeof intro.image === 'object' ? (intro.image as Media) : undefined
 
+  const nameParts = (intro?.name ?? '').trim().split(/\s+/)
+  const nameLast = nameParts.pop() ?? ''
+  const nameHead = nameParts.join(' ')
+
   return (
     <Section className="tech">
       <Container>
@@ -36,43 +41,48 @@ export function TecnologiaRoadmapBlock({
           {text && <p className="max-w-[58ch] text-lead text-fg-2">{text}</p>}
         </Reveal>
 
-        <div className="tech-grid">
-          {intro?.name && (
-            <Reveal dir="left" className={`one-card${image ? ' has-media' : ''}`}>
-              {image && (
-                <div className="one-media">
-                  <ImageMedia resource={image} fill sizes="(min-width: 1024px) 30vw, 100vw" />
+        {intro?.name && (
+          <Reveal dir="left" className={`one-card${image ? ' has-media' : ''}`}>
+            <div className="one-body">
+              {intro.badge && (
+                <span className="one-badge">
+                  <span className="one-badge-dot" aria-hidden="true" />
+                  {intro.badge}
+                </span>
+              )}
+              <div className="one-logo">
+                {nameHead && <>{nameHead} </>}
+                <span className="one">{nameLast}</span>
+              </div>
+              <p>{intro.description}</p>
+              {intro.tags && intro.tags.length > 0 && (
+                <div className="one-tags">
+                  {intro.tags.map((tag) => (
+                    <span key={tag.id ?? tag.label}>{tag.label}</span>
+                  ))}
                 </div>
               )}
-              <div className="one-body">
-                <div>
-                  <div className="one-logo">{intro.name}</div>
-                  <p className="mt-4">{intro.description}</p>
-                </div>
-                {intro.tags && intro.tags.length > 0 && (
-                  <div className="one-tags">
-                    {intro.tags.map((tag) => (
-                      <span key={tag.id ?? tag.label}>{tag.label}</span>
-                    ))}
-                  </div>
-                )}
+            </div>
+            {image && (
+              <div className="one-media">
+                <ImageMedia resource={image} fill sizes="(min-width: 900px) 55vw, 100vw" />
               </div>
-            </Reveal>
-          )}
+            )}
+          </Reveal>
+        )}
 
-          <Reveal dir="right" className="road">
-            {roadmapLabel && <div className="road-head">{roadmapLabel}</div>}
+        <Reveal dir="right" className="road">
+          {roadmapLabel && <div className="road-head">{roadmapLabel}</div>}
+          <div className="road-grid">
             {steps.map((step) => (
               <div key={step.id ?? step.title} className="road-item">
-                <div>
-                  <strong>{step.title}</strong>
-                  <small>{step.text}</small>
-                </div>
+                <strong>{step.title}</strong>
+                <small>{step.text}</small>
                 <span className={`status${step.live ? ' live' : ''}`}>{step.status}</span>
               </div>
             ))}
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </Container>
     </Section>
   )

@@ -1725,144 +1725,154 @@
      `--radius-card`, `var(--r-pill)`→`--radius-pill`, `var(--ice-500)`→
      `--color-ice-500`, `var(--silver-100)`→`--color-silver-100`,
      `var(--ice-300)`→`--color-ice-300`. */
-  .tech-grid {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: stretch;
-  }
   .one-card {
+    border: 1px solid rgba(173, 213, 235, 0.14);
     border-radius: var(--radius-card);
-    border: 1px solid var(--line-strong);
+    padding: clamp(1.8rem, 3.4vw, 3rem);
     background:
-      radial-gradient(90% 90% at 10% 0%, rgba(173, 213, 235, 0.12) 0%, transparent 55%),
-      var(--grad-band);
-    padding: clamp(2rem, 4vw, 3rem);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 2rem;
+      radial-gradient(120% 120% at 100% 0%, rgba(173, 213, 235, 0.1) 0%, transparent 50%),
+      linear-gradient(160deg, #111b46 0%, #0b1234 100%);
   }
   .one-card.has-media {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(2rem, 4vw, 3.4rem);
     align-items: center;
   }
+  .one-card .one-body {
+    min-width: 0;
+  }
+  .one-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9fd0ec;
+    border: 1px solid rgba(173, 213, 235, 0.28);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.9rem;
+  }
+  .one-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-ice-400);
+    box-shadow: 0 0 10px 2px rgba(173, 213, 235, 0.6);
+  }
+  .one-card .one-logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+    letter-spacing: -0.005em;
+    line-height: 1;
+    margin-top: 1.1rem;
+  }
+  .one-card .one-logo .one {
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .one-card p {
+    color: var(--color-silver-100);
+    max-width: 42ch;
+    margin: 1rem 0 0;
+    line-height: 1.6;
+  }
+  .one-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.5rem;
+  }
+  .one-tags span {
+    border: 1px solid rgba(173, 213, 235, 0.22);
+    border-radius: var(--radius-pill);
+    padding: 0.42rem 1rem;
+    font-size: 0.84rem;
+    color: #cdd6ee;
+  }
   .one-card .one-media {
-    flex: 0 0 38%;
-    align-self: stretch;
-    border-radius: calc(var(--radius-card) - 6px);
-    overflow: hidden;
-    border: 1px solid var(--line-strong);
     position: relative;
+    aspect-ratio: 2336 / 1744;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(173, 213, 235, 0.2);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7);
   }
   .one-card .one-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .one-card .one-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 2rem;
-    min-width: 0;
-  }
-  .one-card .one-logo {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: clamp(2.2rem, 4.4vw, 3.6rem);
-    letter-spacing: normal;
-  }
-  .one-card p {
-    color: var(--text-2);
-    max-width: 44ch;
-    margin: 0;
-  }
-  .one-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-  }
-  .one-tags span {
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-pill);
-    padding: 0.4rem 1rem;
-    font-size: 0.84rem;
-    color: var(--color-silver-100);
-    background: rgba(5, 8, 26, 0.3);
-  }
   .road {
-    display: flex;
-    flex-direction: column;
+    margin-top: clamp(2.4rem, 4vw, 3.4rem);
   }
   .road-head {
     font-size: 0.76rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-ice-500);
-    border-top: 1px solid var(--line);
-    padding-top: 1.1rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 1.4rem;
+  }
+  .road-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
   }
   .road-item {
-    border-top: 1px solid var(--line);
-    padding: 1.3rem 0.4rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-height: 170px;
+    padding: 1.5rem;
+    border: 1px solid rgba(173, 213, 235, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.015);
     transition:
-      background 0.4s ease,
-      padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .road-item:last-child {
-    border-bottom: 1px solid var(--line);
+      border-color 0.35s ease,
+      background 0.35s ease;
   }
   .road-item:hover {
-    background: rgba(173, 213, 235, 0.035);
-    padding-left: 1rem;
+    border-color: rgba(173, 213, 235, 0.28);
+    background: rgba(173, 213, 235, 0.04);
   }
   .road-item strong {
     font-family: var(--font-display);
     font-weight: 500;
-    font-size: 1.15rem;
-    display: block;
+    font-size: 1.2rem;
   }
   .road-item small {
-    color: var(--text-2);
-    font-size: 0.88rem;
+    flex: 1;
+    color: var(--color-silver-100);
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
   .road-item .status {
-    flex-shrink: 0;
-    font-size: 0.74rem;
-    font-weight: 600;
+    align-self: flex-start;
+    font-weight: 700;
+    font-size: 0.72rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-ice-300);
-    border: 1px solid var(--line-strong);
+    color: #9fb0d2;
+    border: 1px solid rgba(173, 213, 235, 0.22);
     border-radius: var(--radius-pill);
-    padding: 0.35rem 0.9rem;
+    padding: 0.35rem 0.8rem;
     white-space: nowrap;
   }
   .road-item .status.live {
-    background: rgba(173, 213, 235, 0.14);
+    color: var(--color-navy-900);
+    background: var(--color-ice-400);
+    border-color: var(--color-ice-400);
   }
-  @media (max-width: 1024px) {
-    .tech-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 640px) {
+  @media (max-width: 900px) {
     .one-card.has-media {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .one-card .one-media {
-      flex-basis: auto;
-      width: 100%;
-      aspect-ratio: 16 / 10;
+      grid-template-columns: 1fr;
     }
   }
 
