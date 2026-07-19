@@ -3405,14 +3405,14 @@
   overflow: visible;
 }
 .br-uf {
-  fill: rgba(16, 26, 72, 0.035);
-  stroke: #cfd5e1;
+  fill: rgba(16, 26, 72, 0.04);
+  stroke: #c2c9d7;
   stroke-width: 1.1;
   vector-effect: non-scaling-stroke;
 }
 .br-uf.is-on {
-  fill: #2a3f96;
-  stroke: #1b2d70;
+  fill: #a6c5e6;
+  stroke: #7ba1cd;
 }
 .br-halo {
   fill: #3b54be;
