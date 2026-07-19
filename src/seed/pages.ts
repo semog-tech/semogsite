@@ -417,17 +417,36 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
     text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
   }
 
-  // `.mini-stats`, `_reference/semog.html:254-271` — vive dentro da própria
-  // `.manifesto`, sem cabeçalho próprio (por isso sem eyebrow/title, ao
-  // contrário do StatsBlock da home).
+  // Ledger editorial + mapa do Brasil (variant 'feature', mesmo tratamento da
+  // home) — substitui as `.mini-stats` do ref (`_reference/semog.html:254-271`).
+  // Segue sem eyebrow/title: entra logo após o manifesto acima, que já dá o
+  // contexto (não precisa de cabeçalho próprio). 4º item é "Colaboradores"
+  // (na home é "Especialistas").
   const semogStats: Omit<StatsBlock, 'id' | 'blockName'> = {
     blockType: 'stats',
+    variant: 'feature',
     items: [
-      { value: 35, label: 'Anos de mercado' },
-      { value: 700, prefix: '+', label: 'Condomínios' },
-      { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
-      { value: 100, prefix: '+', label: 'Colaboradores' },
-      { value: 3, label: 'Estados' },
+      { value: 35, label: 'Anos de mercado', detail: 'Desde 1991, sempre no Nordeste.' },
+      {
+        value: 700,
+        prefix: '+',
+        label: 'Condomínios',
+        detail: 'Sob gestão completa, mês após mês.',
+      },
+      {
+        value: 70,
+        prefix: '+',
+        suffix: 'mil',
+        label: 'Clientes',
+        detail: 'Famílias e empresas que confiam.',
+      },
+      {
+        value: 100,
+        prefix: '+',
+        label: 'Colaboradores',
+        detail: 'Time próprio: financeiro, jurídico, contábil.',
+      },
+      { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
     ],
   }
 
