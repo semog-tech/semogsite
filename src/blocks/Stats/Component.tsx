@@ -84,7 +84,7 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
                 </div>
               ))}
             </Stagger>
-            <div className="br-panel mx-auto w-full max-w-[30rem] p-[clamp(1.5rem,3vw,2.4rem)] lg:max-w-none">
+            <div className="mx-auto w-full max-w-[26rem] lg:max-w-none">
               <BrazilMap />
             </div>
           </div>

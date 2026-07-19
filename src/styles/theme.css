@@ -3393,15 +3393,11 @@
 }
 
 /* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────
-   Painel navy à direita do ledger com PA/PB/PE acesos e marcadores de luz
-   azul pulsante nas cidades (Belém, Recife, João Pessoa). Fora dos @layer
-   acima (CSS sem camada) de propósito: são classes próprias sem conflito, e
-   o pulso deve ficar sempre ativo (mesma decisão do hero animado). */
-.br-panel {
-  background: linear-gradient(158deg, #0c1330 0%, #05081a 100%);
-  border-radius: 26px;
-  box-shadow: 0 30px 60px -35px rgba(5, 8, 26, 0.5);
-}
+   Mapa do Brasil ao lado do ledger, SEM fundo/painel: estados desenhados em
+   linhas de cinza claro sobre o próprio fundo claro da seção, com PA/PB/PE
+   acesos no azul da marca e marcadores de luz azul pulsante nas cidades
+   (Belém, Recife, João Pessoa). Puro CSS/SVG; fora dos @layer de propósito
+   (classes próprias sem conflito, e o pulso deve ficar sempre ativo). */
 .br-map {
   display: block;
   width: 100%;
@@ -3409,27 +3405,27 @@
   overflow: visible;
 }
 .br-uf {
-  fill: rgba(216, 236, 247, 0.05);
-  stroke: rgba(173, 213, 235, 0.16);
+  fill: rgba(16, 26, 72, 0.035);
+  stroke: #cfd5e1;
   stroke-width: 1.1;
   vector-effect: non-scaling-stroke;
 }
 .br-uf.is-on {
   fill: #2a3f96;
-  stroke: #7fb8db;
+  stroke: #1b2d70;
 }
 .br-halo {
-  fill: #5895bd;
-  opacity: 0.5;
+  fill: #3b54be;
+  opacity: 0.22;
 }
 .br-core {
   fill: #eaf5fc;
-  stroke: #add5eb;
+  stroke: #2a3f96;
   stroke-width: 2;
 }
 .br-ring {
   fill: none;
-  stroke: #add5eb;
+  stroke: #2a3f96;
   stroke-width: 3.5;
   transform-box: fill-box;
   transform-origin: center;
@@ -3442,7 +3438,7 @@
 @keyframes br-pulse {
   0% {
     transform: scale(0.35);
-    opacity: 0.75;
+    opacity: 0.7;
   }
   100% {
     transform: scale(3.4);
