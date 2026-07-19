@@ -5,6 +5,7 @@ import { Section } from '@/components/ui/Section'
 import { Counter } from '@/motion/Counter'
 import { Stagger } from '@/motion/reveal'
 import type { StatsBlock as StatsBlockType } from '@/payload-types'
+import { BrazilMap } from './BrazilMap'
 
 type StatItem = NonNullable<StatsBlockType['items']>[number]
 
@@ -59,29 +60,34 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
       <Section light>
         <Container>
           {header}
-          <Stagger className="border-t border-line">
-            {items.map((item) => (
-              <div
-                key={item.id ?? item.label}
-                className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-[clamp(1.5rem,5vw,4.5rem)] border-b border-line py-[clamp(1.4rem,2.8vw,2.1rem)]"
-              >
-                <StatValue
-                  item={item}
-                  className="min-w-[min(42vw,15rem)] text-right font-[family-name:var(--font-display)] font-semibold leading-[0.85] tracking-[-0.01em] text-[length:clamp(2.6rem,5vw,4.8rem)]"
-                />
-                <div>
-                  <div className="text-[0.85rem] font-bold uppercase tracking-[0.12em] text-navy-500">
-                    {item.label}
+          <div className="grid items-center gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <Stagger className="border-t border-line">
+              {items.map((item) => (
+                <div
+                  key={item.id ?? item.label}
+                  className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-[clamp(1.2rem,3vw,2.4rem)] border-b border-line py-[clamp(1.1rem,2.2vw,1.7rem)]"
+                >
+                  <StatValue
+                    item={item}
+                    className="min-w-[min(38vw,11rem)] text-right font-[family-name:var(--font-display)] font-semibold leading-[0.85] tracking-[-0.01em] text-[length:clamp(2.2rem,4vw,3.9rem)]"
+                  />
+                  <div>
+                    <div className="text-[0.82rem] font-bold uppercase tracking-[0.12em] text-navy-500">
+                      {item.label}
+                    </div>
+                    {item.detail && (
+                      <p className="mb-0 mt-[0.35rem] text-[length:clamp(0.92rem,1.2vw,1.05rem)] font-medium text-fg-3">
+                        {item.detail}
+                      </p>
+                    )}
                   </div>
-                  {item.detail && (
-                    <p className="mb-0 mt-[0.4rem] text-[length:clamp(1rem,1.5vw,1.18rem)] font-medium text-fg-3">
-                      {item.detail}
-                    </p>
-                  )}
                 </div>
-              </div>
-            ))}
-          </Stagger>
+              ))}
+            </Stagger>
+            <div className="br-panel mx-auto w-full max-w-[30rem] p-[clamp(1.5rem,3vw,2.4rem)] lg:max-w-none">
+              <BrazilMap />
+            </div>
+          </div>
         </Container>
       </Section>
     )

@@ -3391,3 +3391,61 @@
     padding-left: 1.3rem;
   }
 }
+
+/* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────
+   Painel navy à direita do ledger com PA/PB/PE acesos e marcadores de luz
+   azul pulsante nas cidades (Belém, Recife, João Pessoa). Fora dos @layer
+   acima (CSS sem camada) de propósito: são classes próprias sem conflito, e
+   o pulso deve ficar sempre ativo (mesma decisão do hero animado). */
+.br-panel {
+  background: linear-gradient(158deg, #0c1330 0%, #05081a 100%);
+  border-radius: 26px;
+  box-shadow: 0 30px 60px -35px rgba(5, 8, 26, 0.5);
+}
+.br-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.br-uf {
+  fill: rgba(216, 236, 247, 0.05);
+  stroke: rgba(173, 213, 235, 0.16);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+.br-uf.is-on {
+  fill: #2a3f96;
+  stroke: #7fb8db;
+}
+.br-halo {
+  fill: #5895bd;
+  opacity: 0.5;
+}
+.br-core {
+  fill: #eaf5fc;
+  stroke: #add5eb;
+  stroke-width: 2;
+}
+.br-ring {
+  fill: none;
+  stroke: #add5eb;
+  stroke-width: 3.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: br-pulse 2.6s ease-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.35s);
+}
+.br-ring-2 {
+  animation-delay: calc(var(--i, 0) * 0.35s + 1.3s);
+}
+@keyframes br-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
