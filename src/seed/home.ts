@@ -102,11 +102,27 @@ async function seedHome() {
     title: 'Liderança não se declara. Se comprova.',
     variant: 'feature',
     items: [
-      { value: 35, label: 'Anos de mercado' },
-      { value: 700, prefix: '+', label: 'Condomínios' },
-      { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
-      { value: 100, prefix: '+', label: 'Especialistas' },
-      { value: 3, label: 'Estados' },
+      { value: 35, label: 'Anos de mercado', detail: 'Desde 1991, sempre no Nordeste.' },
+      {
+        value: 700,
+        prefix: '+',
+        label: 'Condomínios',
+        detail: 'Sob gestão completa, mês após mês.',
+      },
+      {
+        value: 70,
+        prefix: '+',
+        suffix: 'mil',
+        label: 'Clientes',
+        detail: 'Famílias e empresas que confiam.',
+      },
+      {
+        value: 100,
+        prefix: '+',
+        label: 'Especialistas',
+        detail: 'Time próprio: financeiro, jurídico, contábil.',
+      },
+      { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
     ],
   }
 

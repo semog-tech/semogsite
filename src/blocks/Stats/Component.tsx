@@ -11,7 +11,7 @@ type StatItem = NonNullable<StatsBlockType['items']>[number]
 /** Número em gradiente (`GradientText variant="brand"` = `.gx`) animado via `Counter`. */
 function StatValue({ item, className }: { item: StatItem; className: string }) {
   return (
-    <div className={`${className} whitespace-nowrap leading-[0.9]`}>
+    <div className={`${className} whitespace-nowrap`}>
       <GradientText variant="brand">
         {item.prefix}
         <Counter value={item.value} />
@@ -23,25 +23,26 @@ function StatValue({ item, className }: { item: StatItem; className: string }) {
 
 /**
  * Fiel a `.stats-grid` de `_reference/index.html`: números em gradiente
- * (`GradientText variant="brand"` = `.gx`, igual ao ref) animados via
- * `Counter`, dentro de `Stagger`. Seção clara (`sec-light`). Header opcional
- * (`eyebrow`/`title`, fiel ao `.sec-head`). Itens aceitam `prefix`/`suffix`.
+ * (`GradientText variant="brand"` = `.gx`) animados via `Counter`, dentro de
+ * `Stagger`. Seção clara (`sec-light`). Header opcional (`eyebrow`/`title`,
+ * fiel ao `.sec-head`). Itens aceitam `prefix`/`suffix` e — no ledger —
+ * `detail`.
  *
  * Dois layouts, via `variant`:
  *
  * - **`grid`** (padrão): a grade fiel ao ref (usada em /semog e nas landings
- *   de cidade como `.mini-stats`). Cada item é um container query (`@container`)
+ *   de cidade como `.mini-stats`). Cada item é container query (`@container`)
  *   e a fonte usa `cqi` (`clamp(2.1rem,22cqi,4.5rem)`) — escala com a largura
- *   real da coluna, nunca estoura, seja qual for o nº de colunas
- *   (`grid-cols-2` → `sm:grid-cols-3` → `xl:grid-cols-5`). O ref original usa
- *   `repeat(4,1fr)` com `font-size` fixo em vw, que com 5 itens estoura.
+ *   da coluna, nunca estoura (`grid-cols-2` → `sm:grid-cols-3` →
+ *   `xl:grid-cols-5`). Inalterado.
  *
- * - **`feature`** (home): o 1º item vira um número GIGANTE em destaque
- *   (`clamp(4rem,26cqi,8.5rem)`) e os demais entram num grid de apoio 2×2 ao
- *   lado (desktop) / abaixo (mobile), em tamanho médio — resolve o "5 é um
- *   número ruim pra grade" e dá muito mais impacto que 5 colunas estreitas
- *   (onde o `cqi` deixava os números pequenos). Tamanhos em `cqi` também, por
- *   isso nunca estouram.
+ * - **`feature`** (home): **ledger editorial**. Cada item é uma linha própria:
+ *   número grande em Clash (`var(--font-display)`) alinhado à direita num
+ *   eixo comum (coluna `auto` + `min-width`, por isso os números nunca
+ *   estouram e as réguas alinham), rótulo em azul da marca (`navy-500`) e uma
+ *   frase de apoio (`detail`) — separados por réguas finas (`border-line`).
+ *   Resolve o "5 colunas estreitas deixavam os números pequenos" com muito
+ *   mais impacto e significado que a grade.
  */
 export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
   if (!items || items.length === 0) return null
@@ -54,33 +55,32 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
   )
 
   if (variant === 'feature') {
-    const [feature, ...rest] = items
     return (
       <Section light>
         <Container>
           {header}
-          <Stagger className="grid gap-y-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-x-[clamp(3rem,6vw,6rem)]">
-            <div className="@container">
-              <StatValue item={feature} className="text-[length:clamp(4rem,26cqi,8.5rem)]" />
-              <p className="mt-[1.1rem] text-[0.95rem] font-semibold uppercase tracking-[0.14em] text-fg-3">
-                {feature.label}
-              </p>
-            </div>
-            {rest.length > 0 && (
-              <div className="grid grid-cols-2 gap-x-8 gap-y-[clamp(2rem,4vw,3rem)] sm:gap-x-12">
-                {rest.map((item) => (
-                  <div
-                    key={item.id ?? item.label}
-                    className="@container border-l border-line pl-[1.4rem] pt-[0.4rem]"
-                  >
-                    <StatValue item={item} className="text-[length:clamp(2rem,15cqi,3.6rem)]" />
-                    <p className="mt-[0.7rem] text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-fg-3">
-                      {item.label}
-                    </p>
+          <Stagger className="border-t border-line">
+            {items.map((item) => (
+              <div
+                key={item.id ?? item.label}
+                className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-[clamp(1.5rem,5vw,4.5rem)] border-b border-line py-[clamp(1.4rem,2.8vw,2.1rem)]"
+              >
+                <StatValue
+                  item={item}
+                  className="min-w-[min(42vw,15rem)] text-right font-[family-name:var(--font-display)] font-semibold leading-[0.85] tracking-[-0.01em] text-[length:clamp(2.6rem,5vw,4.8rem)]"
+                />
+                <div>
+                  <div className="text-[0.85rem] font-bold uppercase tracking-[0.12em] text-navy-500">
+                    {item.label}
                   </div>
-                ))}
+                  {item.detail && (
+                    <p className="mb-0 mt-[0.4rem] text-[length:clamp(1rem,1.5vw,1.18rem)] font-medium text-fg-3">
+                      {item.detail}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
+            ))}
           </Stagger>
         </Container>
       </Section>
@@ -97,7 +97,7 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
               key={item.id ?? item.label}
               className="@container border-l border-line px-[1.6rem] pt-[0.6rem]"
             >
-              <StatValue item={item} className="text-[length:clamp(2.1rem,22cqi,4.5rem)]" />
+              <StatValue item={item} className="text-[length:clamp(2.1rem,22cqi,4.5rem)] leading-none" />
               <p className="mt-[0.9rem] text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-fg-3">
                 {item.label}
               </p>

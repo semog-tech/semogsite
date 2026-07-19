@@ -323,7 +323,7 @@ export interface StatsBlock {
   eyebrow?: string | null;
   title?: string | null;
   /**
-   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = o 1º item vira um número gigante em destaque e os demais entram num grid de apoio 2×2 ao lado — mais impacto, usado na home. Vazio = 'grid' (comportamento anterior).
+   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — usado na home. Vazio = 'grid' (comportamento anterior).
    */
   variant?: ('grid' | 'feature') | null;
   items?:
@@ -332,6 +332,10 @@ export interface StatsBlock {
         prefix?: string | null;
         suffix?: string | null;
         label: string;
+        /**
+         * Frase curta de apoio, exibida abaixo do rótulo só no variant "Ledger editorial" (ex.: "Desde 1991, sempre no Nordeste."). Ignorada no variant "grid".
+         */
+        detail?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1762,6 +1766,7 @@ export interface StatsBlockSelect<T extends boolean = true> {
         prefix?: T;
         suffix?: T;
         label?: T;
+        detail?: T;
         id?: T;
       };
   id?: T;

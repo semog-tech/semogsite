@@ -15,12 +15,12 @@ export const statsBlock: Block = {
       type: 'select',
       options: [
         { label: 'Grade (padrão — mini-stats)', value: 'grid' },
-        { label: 'Destaque (1º número gigante + apoio)', value: 'feature' },
+        { label: 'Ledger editorial (linhas + contexto)', value: 'feature' },
       ],
       defaultValue: 'grid',
       admin: {
         description:
-          "`grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = o 1º item vira um número gigante em destaque e os demais entram num grid de apoio 2×2 ao lado — mais impacto, usado na home. Vazio = 'grid' (comportamento anterior).",
+          "`grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — usado na home. Vazio = 'grid' (comportamento anterior).",
       },
     },
     {
@@ -31,6 +31,14 @@ export const statsBlock: Block = {
         { name: 'prefix', type: 'text' },
         { name: 'suffix', type: 'text' },
         { name: 'label', type: 'text', required: true },
+        {
+          name: 'detail',
+          type: 'text',
+          admin: {
+            description:
+              'Frase curta de apoio, exibida abaixo do rótulo só no variant "Ledger editorial" (ex.: "Desde 1991, sempre no Nordeste."). Ignorada no variant "grid".',
+          },
+        },
       ],
     },
   ],
