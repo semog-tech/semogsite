@@ -1,0 +1,111 @@
+import Link from 'next/link'
+import type { ReactNode } from 'react'
+import { Magnetic } from '@/motion/Magnetic'
+
+type Variant = 'primary' | 'ghost' | 'white' | 'glass'
+type Size = 'md' | 'lg' | 'sm'
+
+const base =
+  'group inline-flex items-center justify-center gap-2.5 rounded-pill font-semibold leading-none whitespace-nowrap border border-transparent transition-[transform,box-shadow,background,color,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98]'
+const sizes: Record<Size, string> = {
+  md: 'px-8 py-[0.95rem] text-[0.98rem]',
+  lg: 'px-[2.6rem] py-[1.15rem] text-[1.05rem]',
+  sm: 'px-[1.4rem] py-[0.7rem] text-[0.88rem]',
+}
+/**
+ * Rota interna = começa com `/` e não com `//` (protocol-relative) e não
+ * contém `:` (descarta `mailto:`, `tel:`, `https:` etc. — nenhuma rota
+ * interna legítima tem `:` no path).
+ */
+function isInternalHref(href: string): boolean {
+  return href.startsWith('/') && !href.startsWith('//') && !href.includes(':')
+}
+
+const variants: Record<Variant, string> = {
+  // `btn-primary` não é utility Tailwind: é um hook de classe estável (igual
+  // ao nome literal do ref) só para `.sec-light .btn-primary`
+  // (semog.css:140-144) conseguir recolorir o botão dentro de seções claras
+  // — ver a regra em theme.css. As utilities Tailwind abaixo continuam
+  // controlando a cor/hover em seções escuras (especificidade de 2 classes
+  // do seletor `.sec-light .btn-primary` vence a de 1 classe das utilities).
+  primary:
+    'btn-primary bg-ice-400 text-navy-900 shadow-[0_8px_30px_-10px_rgba(173,213,235,0.45)] hover:bg-ice-300 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_-12px_rgba(173,213,235,0.55)]',
+  ghost:
+    'bg-ice-400/5 border-line-strong text-fg hover:border-ice-400 hover:bg-ice-400/10 hover:-translate-y-0.5',
+  white:
+    'bg-white text-navy-950 shadow-[0_10px_34px_-12px_rgba(255,255,255,0.35)] hover:bg-silver-100 hover:-translate-y-0.5',
+  glass: 'text-fg border-white/20 hover:bg-white hover:text-navy-950 hover:-translate-y-0.5',
+}
+
+/**
+ * Fiel a semog.css:288-330 (.btn/.btn-primary/.btn-ghost/.btn-lg/.btn-sm/.arr)
+ * e :519-530 (.btn-white/.btn-glass). Renderiza `<a>` quando `href` é passado,
+ * senão `<button type="button">`.
+ *
+ * `magnetic` embrulha o elemento renderizado com `Magnetic` (semog.js:199-211
+ * — `[data-magnetic]`, só liga em `pointer: fine` fora de reduced-motion;
+ * `Magnetic` já é `'use client'` e no-op em SSR/ponteiro grosso). Default:
+ * `true` para `variant="primary"`, `false` nos demais.
+ */
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  href,
+  withArrow,
+  onClick,
+  className = '',
+  type = 'button',
+  disabled,
+  magnetic,
+  target,
+  rel,
+}: {
+  children: ReactNode
+  variant?: Variant
+  size?: Size
+  href?: string
+  withArrow?: boolean
+  onClick?: () => void
+  className?: string
+  /** Só se aplica ao `<button>` (sem `href`) — ex.: `submit` num `<form>` de RHF. */
+  type?: 'button' | 'submit'
+  disabled?: boolean
+  /** Embrulha com `Magnetic`. Default: `true` em `variant="primary"`, `false` nos demais. */
+  magnetic?: boolean
+  /** Só se aplica com `href` — ex.: `target="_blank"` pra links externos (usar com `rel`). */
+  target?: string
+  rel?: string
+}) {
+  const cls = `${base} ${sizes[size]} ${variants[variant]} ${disabled ? 'pointer-events-none opacity-50' : ''} ${className}`
+  const inner = (
+    <>
+      {children}
+      {withArrow && (
+        <span
+          aria-hidden="true"
+          className="transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1"
+        >
+          →
+        </span>
+      )}
+    </>
+  )
+  const isMagnetic = magnetic ?? variant === 'primary'
+  const element = href ? (
+    isInternalHref(href) ? (
+      <Link href={href} className={cls} target={target} rel={rel}>
+        {inner}
+      </Link>
+    ) : (
+      <a className={cls} href={href} target={target} rel={rel}>
+        {inner}
+      </a>
+    )
+  ) : (
+    <button className={cls} onClick={onClick} type={type} disabled={disabled}>
+      {inner}
+    </button>
+  )
+  return isMagnetic ? <Magnetic className="inline-block">{element}</Magnetic> : element
+}

@@ -1,0 +1,3801 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand — navy */
+  --color-navy-950: #05081a;
+  --color-navy-900: #0a102e;
+  --color-navy-850: #0d1439;
+  --color-navy-800: #101a48;
+  --color-navy-700: #16225c;
+  --color-navy-600: #1b2d70; /* primária */
+  --color-navy-500: #2a3f96;
+  --color-navy-400: #3b54be;
+  /* ice */
+  --color-ice-300: #d8ecf7;
+  --color-ice-400: #add5eb; /* acento */
+  --color-ice-500: #7fb8db;
+  --color-ice-600: #5895bd;
+  /* silver */
+  --color-silver-100: #edeef5;
+  --color-silver-300: #bcbcc7;
+  --color-silver-500: #8e90a6;
+
+  /* Semantic (referem as CSS vars definidas no @layer base) */
+  --color-bg: var(--bg);
+  --color-bg-raise: var(--bg-raise);
+  --color-bg-deep: var(--bg-deep);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+
+  /* Fonts (variáveis vindas do next/font — Task 2) */
+  --font-display: var(--font-clash), 'Satoshi', system-ui, sans-serif;
+  --font-body: var(--font-satoshi), system-ui, -apple-system, sans-serif;
+
+  /* Type scale (clamp fiel ao ref) */
+  --text-hero: clamp(2.6rem, 6.2vw, 5.2rem);
+  --text-h2: clamp(2rem, 4.2vw, 3.4rem);
+  --text-h3: clamp(1.4rem, 2.4vw, 2rem);
+  --text-lead: clamp(1.05rem, 1.5vw, 1.3rem);
+
+  /* Radii */
+  --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-pill: 999px;
+
+  /* Shadows (tinted navy) */
+  --shadow-card: 0 24px 60px -24px rgba(5, 8, 26, 0.7);
+  --shadow-glow: 0 0 80px -20px rgba(173, 213, 235, 0.25);
+
+  /* Layout */
+  --container-site: 1280px;
+}
+
+@layer base {
+  :root {
+    --bg: var(--color-navy-900);
+    --bg-raise: var(--color-navy-850);
+    --bg-deep: var(--color-navy-950);
+    --text: #edf1fa;
+    --text-2: #b4bdd9;
+    --text-3: #7e88ac;
+    --line: rgba(173, 213, 235, 0.14);
+    --line-strong: rgba(173, 213, 235, 0.28);
+    --accent: var(--color-ice-400);
+    /* gradientes da marca */
+    --grad-brand: linear-gradient(135deg, #1b2d70 0%, #2a3f96 45%, #5895bd 100%);
+    --grad-ice: linear-gradient(120deg, #add5eb 0%, #d8ecf7 60%, #add5eb 100%);
+    --grad-hero: radial-gradient(120% 90% at 70% 10%, #1b2d70 0%, #0d1439 48%, #05081a 100%);
+    --grad-band: linear-gradient(160deg, #101a48 0%, #1b2d70 55%, #16225c 100%);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  /* Lenis assume o smooth-scroll (adiciona a classe `lenis` em <html>) — o
+     scroll-behavior nativo do navegador continua ativo por baixo e dobra a
+     animação em qualquer scroll programático (ex.: `Link` com hash, `focus()`
+     de um elemento fora da viewport). Desativado só quando o Lenis está
+     ativo; reduced-motion acima já cobre o caso sem Lenis. */
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  img {
+    max-width: 100%;
+    display: block;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+  ::selection {
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: normal;
+    margin: 0 0 0.6em;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: var(--text-hero);
+  }
+  h2 {
+    font-size: var(--text-h2);
+  }
+  h3 {
+    font-size: var(--text-h3);
+  }
+  p {
+    margin: 0 0 1em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Seções claras: trocam os semânticos (ref semog.css:128-137) */
+  .sec-light {
+    --text: #10152e;
+    --text-2: #4b557a;
+    /* #7a83a6 media ~3.4–3.7:1 sobre #f2f4f9/#fff (falha AA em texto pequeno,
+       ex.: `cite` de depoimentos). Escurecido para >=4.5:1 nos dois fundos
+       (Task 6 do Plano 4a) — não altera --text-3 fora de .sec-light. */
+    --text-3: #5a6488;
+    --line: rgba(16, 26, 72, 0.12);
+    --line-strong: rgba(16, 26, 72, 0.24);
+    --bg: #f2f4f9;
+    --bg-raise: #ffffff;
+    --bg-deep: #f2f4f9;
+    background: #f2f4f9;
+    color: var(--text);
+
+    /*
+     * A indireção `--color-*` no @theme resolve no escopo em que a var()
+     * é declarada (:root) e o RESULTADO herda — não a referência. Por isso,
+     * trocar apenas os intermediários (--text/--bg/--line acima) não é
+     * suficiente para as utilities Tailwind (text-fg, bg-bg-raise,
+     * border-line etc.), que ficam "congeladas" nos valores escuros de
+     * :root. Redeclarar os tokens semânticos aqui força a var() a
+     * reresolver contra os intermediários claros já sobrescritos.
+     */
+    --color-fg: var(--text);
+    --color-fg-2: var(--text-2);
+    --color-fg-3: var(--text-3);
+    --color-bg: var(--bg);
+    --color-bg-raise: var(--bg-raise);
+    --color-bg-deep: var(--bg-deep);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+
+    /*
+     * --color-ice-400 (#add5eb) é acento pensado para fundo navy escuro;
+     * sobre fundos claros (#f2f4f9/#fff) o contraste cai para ~1.4–1.6:1
+     * (usado em texto/UI visível: números do Benefits, rótulo de cidade do
+     * Cities, ícone "+" do Faq). Redireciona para navy-500, que mede
+     * ~8.5–9.3:1 sobre os dois fundos claros.
+     */
+    --color-accent: var(--color-navy-500);
+  }
+  .sec-light.white {
+    --bg: #ffffff;
+    background: #fff;
+  }
+}
+
+@layer utilities {
+  /* `.btn-primary` (`bg-ice-400`/`text-navy-900`) some sobre fundo claro —
+     fiel a semog.css:140-144: dentro de `.sec-light`, o botão primário
+     recolore para navy sólido + texto branco (ex.: `/administracao` "Ver
+     como funciona"/AppShowcase de `/solucoes`). `src/components/ui/
+     Button.tsx` soma a classe estável `btn-primary` só como hook de seletor
+     — o resto do visual continua vindo das utilities Tailwind. Precisa
+     ficar em `@layer utilities` (não `@layer base`, onde vive o resto de
+     `.sec-light`): as utilities Tailwind (`bg-ice-400` etc.) são geradas
+     nesta mesma layer por `@import 'tailwindcss'`, e a ordem das layers
+     decide antes da especificidade — em `@layer base` este seletor perderia
+     para `.bg-ice-400` mesmo tendo mais especificidade. */
+  .sec-light .btn-primary {
+    background: var(--color-navy-600);
+    color: #fff;
+    box-shadow: 0 10px 30px -12px rgba(27, 45, 112, 0.5);
+  }
+  .sec-light .btn-primary:hover {
+    background: var(--color-navy-500);
+  }
+
+  .grad-text {
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .gx {
+    background: linear-gradient(100deg, #1b2d70 0%, #3b54be 52%, #5895bd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .gx-ice {
+    background: linear-gradient(100deg, #add5eb 0%, #d8ecf7 55%, #7fb8db 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+    padding: 0.8rem 1.4rem;
+    border-radius: 0 0 12px 0;
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* ---------- Animação por caractere (hero) — fiel a semog.css:500-509 ----------
+     src/motion/Chars.tsx marca o elemento com [data-chars] e injeta um
+     span.ch por caractere com --d (delay) inline; is-in é adicionado após
+     2x requestAnimationFrame (semog.js:83-85). */
+  [data-chars] .ch {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-18px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s ease;
+    transition-delay: var(--d, 0ms);
+  }
+  [data-chars].is-in .ch {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ---------- Fade com atraso (hero) — fiel a semog.css:511-517 ----------
+     src/motion/Fade.tsx marca o elemento com [data-fade] e adiciona is-in
+     via setTimeout(delay) (semog.js:88-93). */
+  [data-fade] {
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  [data-fade].is-in {
+    opacity: 1;
+  }
+
+  /* ---------- Marquee (faixa infinita) — fiel a semog.css:432-434 ----------
+     src/motion/Marquee.tsx renderiza .marquee > .marquee-track com os itens
+     duplicados; roda sempre (semog.js:11-14, semog.css:435). */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+  .marquee-track {
+    display: inline-flex;
+    gap: 0;
+    will-change: transform;
+    animation: marquee 20s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---------- Liquid Glass (aprox. web) — fiel a semog.css:204-232 ----------
+     Material da pílula de nav (.nav-inner). Sob prefers-reduced-transparency
+     cai para um fundo sólido sem blur. */
+  .liquid-glass {
+    background: rgba(5, 8, 26, 0.4);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.1) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.1) 80%,
+      rgba(255, 255, 255, 0.3) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .liquid-glass {
+      background: rgba(5, 8, 26, 0.92);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  /* ---------- Hero grid + tagbox (coluna de vidro) — fiel a `.hero-grid`/
+     `.hero-tagbox`/`.hero-tagcol` de `_reference/index.html:102-117` (estilo
+     inline do próprio index.html, não semog.css) ----------
+     src/blocks/Hero só renderiza `.hero-grid` quando o campo `tag` está
+     preenchido; sem `tag`, subhead/CTAs seguem em 1 coluna (sem este grid).
+     `var(--silver-100)`→`--color-silver-100`. */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: end;
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: 1.3fr 0.7fr;
+    }
+    .hero-tagcol {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+  }
+  .hero-tagbox {
+    border-radius: 16px;
+    padding: 0.9rem 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    color: var(--color-silver-100);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  @media (max-width: 680px) {
+    .hero-tagbox {
+      white-space: normal;
+      font-size: 0.98rem;
+      padding: 0.75rem 1.2rem;
+      margin-right: 64px;
+    }
+  }
+
+  /* ---------- Hero de vídeo com chip "1%" (.g-hero / .g-price) — fiel a
+     `_reference/garante.html:59-104` (estilo inline da própria página)
+     ----------
+     src/blocks/Hero aplica a classe `g-hero` (overlay `::after`) e troca
+     subhead/CTAs por `.row` (docked à esquerda) + `.g-price` (docked à
+     direita) só quando `priceChip.value` está preenchido — variante
+     exclusiva do hero de vídeo de `/garante` (a home usa vídeo sem chip,
+     sem overlay, comportamento inalterado). `--grad-ice` já existe como CSS
+     var solta; `var(--silver-100)`→`--color-silver-100`. */
+  .g-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.25) 0%, transparent 40%, rgba(5, 8, 26, 0.72) 100%);
+  }
+  .g-hero .row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .g-price {
+    border-radius: 16px;
+    padding: 1.1rem 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .g-price .n {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    line-height: 1;
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .g-price small {
+    color: var(--color-silver-100);
+    font-size: 0.9rem;
+    max-width: 18ch;
+    line-height: 1.4;
+  }
+
+  /* ---------- Nav (pílula flutuante liquid-glass) — fiel a semog.css:234-286 + 481-486 ----------
+     Ilha client src/components/layout/Nav.tsx: toggle .is-scrolled no scroll
+     (semog.js:19-27) e burger + trava de scroll do body (semog.js:31-47). */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 1.1rem clamp(1.25rem, 4vw, 3rem) 0;
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s ease;
+  }
+  .nav-inner {
+    width: 100%;
+    max-width: calc(var(--container-site) - 2 * clamp(1.25rem, 4vw, 3rem));
+    margin-inline: auto;
+    padding: 0.55rem 0.65rem 0.55rem 1.4rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    transition: background 0.35s ease;
+  }
+  .nav.is-scrolled .nav-inner {
+    background: rgba(5, 8, 26, 0.62);
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .nav-logo img {
+    height: 22px;
+    width: auto;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-links a {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-2);
+    transition: color 0.25s ease;
+    position: relative;
+    padding-block: 4px;
+  }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-links a:hover,
+  .nav-links a[aria-current="page"] {
+    color: var(--text);
+  }
+  .nav-links a:hover::after,
+  .nav-links a[aria-current="page"]::after {
+    width: 100%;
+  }
+  .nav-cta {
+    flex-shrink: 0;
+  }
+  /* Embrulha o CTA primário + o botão secundário "Área do cliente"
+     (src/components/layout/Nav.tsx) — mesmo `gap` visual do `.nav-links`. */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .nav-secondary {
+    flex-shrink: 0;
+  }
+  .nav-burger {
+    display: none;
+    background: none;
+    border: 0;
+    padding: 10px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .nav-burger span {
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-burger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+  .nav-mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(5, 8, 26, 0.96);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.4rem;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.35s ease,
+      visibility 0.35s;
+  }
+  .nav-mobile.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .nav-mobile a {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  /* Empilha o CTA primário + o botão secundário "Área do cliente" no menu
+     mobile (substitui o antigo `.nav-mobile .btn { margin-top: 1rem }`, que só
+     cobria um botão) — mesmo espaçamento vertical entre os dois. */
+  .nav-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 1024px) {
+    .nav-links {
+      gap: 1.4rem;
+    }
+  }
+  @media (max-width: 860px) {
+    .nav-links {
+      display: none;
+    }
+    .nav-inner .nav-actions {
+      display: none;
+    }
+    .nav-burger {
+      display: flex;
+    }
+  }
+
+  /* ---------- Footer (banda foot-cta + grid de 4 colunas + footer-bottom) — fiel a semog.css:380-422 + 487-490 ----------
+     src/components/layout/FooterServer.tsx (server). */
+  .footer {
+    background: linear-gradient(180deg, var(--color-navy-900) 0%, var(--color-navy-950) 30%);
+    border-top: 1px solid var(--line);
+    padding: 0 0 2.2rem;
+  }
+  .foot-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: clamp(3rem, 6vw, 5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .foot-cta .slog {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: normal;
+    margin: 0;
+    max-width: 18ch;
+  }
+  .foot-cta .slog em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+    gap: 3rem;
+    padding: clamp(2.5rem, 5vw, 4rem) 0;
+  }
+  .footer h4 {
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 1.2rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+  }
+  .footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .footer li a {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    transition:
+      color 0.25s ease,
+      padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .footer li a:hover {
+    color: var(--color-ice-400);
+    padding-left: 6px;
+  }
+  .footer-brand img {
+    height: 24px;
+    width: auto;
+    margin-bottom: 1.4rem;
+    display: block;
+  }
+  .footer-brand p {
+    color: var(--text-2);
+    font-size: 0.92rem;
+    max-width: 36ch;
+    margin: 0 0 0.6em;
+  }
+  .footer-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--text-3);
+    font-size: 0.85rem;
+  }
+  .footer-bottom .legal {
+    display: flex;
+    gap: 1.6rem;
+  }
+  .footer-bottom a {
+    color: var(--text-3);
+    transition: color 0.25s ease;
+  }
+  .footer-bottom a:hover {
+    color: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Grain overlay (fixo, sem repaint em scroll) — fiel a semog.css:197-202 ----------
+     src/components/layout/Grain.tsx — decorativo, não captura cliques. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- WhatsApp flutuante — fiel a semog.css:467-478 ----------
+     src/components/layout/WhatsAppFloat.tsx (número via global `company`). */
+  .wa-float {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 40;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-pill);
+    background: var(--grad-brand);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.3s ease;
+  }
+  .wa-float:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: var(--shadow-glow);
+  }
+  .wa-float svg {
+    width: 26px;
+    height: 26px;
+    fill: var(--color-ice-300);
+  }
+
+  /* ---------- Preloader (três barras do logo) — fiel a semog.css:532-549 ----------
+     src/components/layout/Preloader.tsx (client): dismiss no `load` OU após 2.2s;
+     sob prefers-reduced-motion sai de imediato (semog.css:550, aqui via matchMedia
+     no componente porque não existe a classe `.reduced-motion` neste app). */
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: var(--color-navy-950);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      opacity 0.7s ease,
+      visibility 0.7s;
+  }
+  .preloader.is-done {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .preloader .bars {
+    display: flex;
+    gap: 10px;
+    height: 64px;
+    align-items: flex-end;
+  }
+  .preloader .bars i {
+    width: 18px;
+    background: transparent;
+    border: 1.5px solid #f4f6fb;
+    border-radius: 2px;
+    animation: preloader-rise 1s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
+  }
+  .preloader .bars i:nth-child(1) {
+    height: 42px;
+    animation-delay: 0ms;
+  }
+  .preloader .bars i:nth-child(2) {
+    height: 64px;
+    animation-delay: 140ms;
+  }
+  .preloader .bars i:nth-child(3) {
+    height: 52px;
+    animation-delay: 280ms;
+  }
+  @keyframes preloader-rise {
+    from {
+      transform: scaleY(0.55);
+      opacity: 0.5;
+    }
+    to {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  /* ---------- Faixa de valores (marquee único da home) — fiel a `.values-strip`
+     de `_reference/index.html:541-548` + `:153-159` ----------
+     src/blocks/ValuesMarquee envolve o `.marquee` (src/motion/Marquee.tsx) numa
+     faixa com borda em cima/embaixo e fundo `bg-deep`; tipografia display. */
+  .values-strip {
+    padding-block: 1.8rem;
+    border-block: 1px solid var(--line);
+    background: var(--bg-deep);
+  }
+  .values-strip .marquee-track span {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 4rem;
+  }
+
+  /* ---------- Ticker (marquee curto, /garante) — fiel a `.g-ticker` de
+     `_reference/garante.html:105-112` (estilo inline da própria página)
+     ----------
+     src/blocks/ValuesMarquee com `variant:'ticker'` troca `.values-strip`
+     por `.g-ticker` — mesmo `Marquee`, padding/tipografia próprios. */
+  .g-ticker {
+    padding-block: 1.6rem;
+    border-block: 1px solid var(--line);
+    background: var(--bg-deep);
+  }
+  .g-ticker .marquee-track span {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    display: inline-flex;
+    gap: 4rem;
+  }
+
+  /* ---------- Manifesto (revelação palavra a palavra) — fiel a `.manifesto`
+     de `_reference/index.html:551-555` + `:161-168` ----------
+     src/blocks/WordsSection usa `Words` (src/motion/Words.tsx), que injeta os
+     `.wd` e o `.sr-only`. Padding-block próprio (maior que o das seções). */
+  .manifesto {
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+  .manifesto p {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.8vw, 3.1rem);
+    line-height: 1.22;
+    letter-spacing: normal;
+    max-width: 30ch;
+    margin: 0;
+  }
+
+  /* `.manifesto .big` — fiel a `_reference/semog.html:76-83`: markup
+     distinto de `.manifesto p` acima (usado só quando o parágrafo tem um
+     trecho `<em>` em destaque, ex.: "Esse trabalho é nosso." de `/semog`).
+     `src/blocks/WordsSection/Component.tsx` soma a classe `.big` no variant
+     `manifesto` quando `text` contém `<em>` — ver doc do bloco. */
+  .manifesto .big {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.6vw, 3rem);
+    line-height: 1.25;
+    letter-spacing: normal;
+    max-width: 26ch;
+    margin: 0;
+  }
+  .manifesto .big em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+
+  /* ---------- O problema (manifesto compacto, /garante) — fiel a
+     `.g-problem` de `_reference/garante.html:114-120` (estilo inline da
+     própria página) ----------
+     src/blocks/WordsSection com `variant:'problem'` troca `.manifesto` por
+     `.g-problem` — mesmo `Words`, padding/tipografia levemente menores. */
+  .g-problem {
+    padding-block: clamp(6rem, 11vw, 9rem);
+  }
+  .g-problem p {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.7rem, 3.6vw, 3rem);
+    line-height: 1.24;
+    max-width: 30ch;
+    margin: 0;
+  }
+
+  /* ---------- "1%" gigante (momento tipográfico) — fiel a `.g-one` de
+     `_reference/garante.html:143-165` (estilo inline da própria página)
+     ----------
+     src/blocks/PriceMoment renderiza `.huge` (`Reveal dir="scale"`), `.sub`
+     e `.fine`. `var(--navy-900)`→`--color-navy-900`; `--grad-ice` já existe
+     como CSS var solta. */
+  .g-one {
+    text-align: center;
+    padding-block: clamp(6rem, 12vw, 11rem);
+    background:
+      radial-gradient(60% 60% at 50% 45%, rgba(42, 63, 150, 0.5) 0%, transparent 65%),
+      var(--color-navy-900);
+    overflow: hidden;
+  }
+  .g-one .huge {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(8rem, 26vw, 22rem);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+  }
+  .g-one .sub {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text);
+    font-size: clamp(1.3rem, 2.6vw, 2rem);
+    margin-top: 1.6rem;
+  }
+  .g-one .fine {
+    color: var(--text-2);
+    max-width: 44ch;
+    margin: 1rem auto 0;
+  }
+
+  /* ---------- Pilares (rows interativas) — fiel a `.pillar-row` de
+     `_reference/index.html:172-195` + `:431-432`, overrides claros em
+     `semog.css:165-177` ----------
+     src/blocks/Pillars renderiza `.pillar-row` via `Reveal`. Hover muda
+     padding-left/cor do h3/rotação do glyph. `var(--ice-400)`→`--color-ice-400`,
+     `var(--r-pill)`→`--radius-pill`, `var(--navy-500)`→`--color-navy-500`. */
+  .pillar-row {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2rem;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    padding: clamp(1.8rem, 3.4vw, 2.8rem) 0.6rem;
+    position: relative;
+    transition:
+      background 0.45s ease,
+      padding-left 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pillar-row:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+  .pillar-row:hover {
+    background: rgba(173, 213, 235, 0.035);
+    padding-left: 1.6rem;
+  }
+  .pillar-row h3 {
+    font-size: clamp(1.8rem, 3.6vw, 3rem);
+    margin: 0;
+    transition: color 0.35s ease;
+  }
+  .pillar-row:hover h3 {
+    color: var(--color-ice-400);
+  }
+  .pillar-row p {
+    color: var(--text-2);
+    max-width: 44ch;
+    margin: 0;
+    font-size: 1rem;
+  }
+  .pillar-row .glyph {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      background 0.35s ease;
+    flex-shrink: 0;
+  }
+  .pillar-row:hover .glyph {
+    transform: rotate(-8deg) scale(1.08);
+    background: rgba(173, 213, 235, 0.08);
+  }
+  .sec-light .pillar-row:hover {
+    background: rgba(27, 45, 112, 0.045);
+  }
+  .sec-light .pillar-row:hover h3 {
+    color: var(--color-navy-500);
+  }
+  /* `compact`, fiel a `.g-step h3`/`p` de `_reference/garante.html:139,141`
+     (estilo inline da própria página) — usado por `.g-how`/"Como funciona". */
+  .pillar-row.compact h3 {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+  }
+  .pillar-row.compact p {
+    max-width: 48ch;
+  }
+  @media (max-width: 860px) {
+    .pillar-row {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+    .pillar-row .glyph {
+      display: none;
+    }
+  }
+
+  /* ---------- Soluções (bento 1 alto + 2 empilhados) — fiel a `.solutions`
+     de `_reference/index.html:197-227` + responsivo `:426-427` ----------
+     src/blocks/SolucoesBento renderiza `.sol-grid > .sol-card.tall + .sol-col`
+     via `Reveal`; zoom da imagem e giro do "go" só em CSS (`:hover`).
+     `var(--r-card)`→`--radius-card`, `var(--r-pill)`→`--radius-pill`,
+     `var(--ice-300/400)`→`--color-ice-300/400`, `var(--navy-900)`→
+     `--color-navy-900`. */
+  .solutions {
+    background: var(--bg-deep);
+  }
+  .sol-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: 1.6rem;
+  }
+  .sol-col {
+    display: grid;
+    gap: 1.6rem;
+    grid-template-rows: 1fr 1fr;
+  }
+  .sol-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .sol-card.tall {
+    min-height: 640px;
+  }
+  .sol-card .card-img {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .sol-card .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sol-card:hover .card-img img {
+    transform: scale(1.06);
+  }
+  .sol-card .card-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(5, 8, 26, 0.08) 30%,
+      rgba(5, 8, 26, 0.66) 68%,
+      rgba(5, 8, 26, 0.95) 100%
+    );
+  }
+  .sol-card .sol-body {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 2rem 2.2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .sol-card h3 {
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+  }
+  .sol-card p {
+    color: var(--text-2);
+    font-size: 0.94rem;
+    max-width: 40ch;
+    margin: 0;
+  }
+  .sol-card .go {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-ice-300);
+    transition:
+      background 0.35s ease,
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.35s ease;
+  }
+  .sol-card:hover .go {
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+    transform: rotate(-45deg);
+  }
+  @media (max-width: 1024px) {
+    .sol-grid {
+      grid-template-columns: 1fr;
+    }
+    .sol-card.tall {
+      min-height: 460px;
+    }
+  }
+
+  /* ---------- Produtos (grade 2x2, cards com tema) — fiel a `.prods`/
+     `.prod-card` de `_reference/index.html:229-294` + responsivo `:290-294`
+     ----------
+     src/blocks/ProdutosGrid renderiza `.prod-grid > .prod-card.{theme}` via
+     `Reveal`; hover-lift do card + zoom da imagem só em CSS. Temas
+     `on-white`/`on-navy`/`on-deep` escolhidos por card no CMS. */
+  .prods {
+    padding-block: clamp(5rem, 9vw, 8rem);
+  }
+  .prods h2 {
+    max-width: 22ch;
+  }
+  .prod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
+  }
+  .prod-card {
+    position: relative;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 460px;
+    transition:
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.4s ease;
+  }
+  .prod-card:hover {
+    transform: translateY(-8px);
+  }
+  .prod-card .txt {
+    padding: 2.2rem 2.2rem 1.2rem;
+    position: relative;
+    z-index: 2;
+  }
+  .prod-card .tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+  .prod-card h3 {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    margin-bottom: 0.5rem;
+  }
+  .prod-card p {
+    font-size: 0.96rem;
+    margin: 0;
+    max-width: 46ch;
+  }
+  .prod-card .img {
+    margin-top: auto;
+    height: 240px;
+    position: relative;
+    overflow: hidden;
+  }
+  .prod-card .img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .prod-card:hover .img img {
+    transform: scale(1.05);
+  }
+  .prod-card .go {
+    position: absolute;
+    right: 1.6rem;
+    bottom: 1.6rem;
+    z-index: 3;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .prod-card:hover .go {
+    transform: rotate(-45deg);
+  }
+  .prod-card.on-white {
+    background: #fff;
+    color: #10152e;
+    box-shadow: 0 20px 55px -28px rgba(16, 26, 72, 0.25);
+    border: 1px solid rgba(16, 26, 72, 0.08);
+  }
+  .prod-card.on-white .tag {
+    color: var(--color-navy-500);
+  }
+  .prod-card.on-white p {
+    color: #4b557a;
+  }
+  .prod-card.on-white .go {
+    background: var(--color-navy-600);
+    color: #fff;
+  }
+  .prod-card.on-navy {
+    background: var(--grad-band);
+    color: #edf1fa;
+    border: 1px solid rgba(173, 213, 235, 0.28);
+  }
+  .prod-card.on-navy h3,
+  .prod-card.on-deep h3 {
+    color: #edf1fa;
+  }
+  .prod-card.on-navy .tag {
+    color: var(--color-ice-400);
+  }
+  .prod-card.on-navy p {
+    color: #b4bdd9;
+  }
+  .prod-card.on-navy .go {
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+  }
+  .prod-card.on-deep {
+    background: #0a102e;
+    color: #edf1fa;
+    border: 1px solid rgba(173, 213, 235, 0.2);
+  }
+  .prod-card.on-deep .tag {
+    color: var(--color-ice-500);
+  }
+  .prod-card.on-deep p {
+    color: #b4bdd9;
+  }
+  .prod-card.on-deep .go {
+    background: rgba(173, 213, 235, 0.14);
+    color: var(--color-ice-300);
+    border: 1px solid rgba(173, 213, 235, 0.35);
+  }
+  @media (max-width: 900px) {
+    .prod-grid {
+      grid-template-columns: 1fr;
+    }
+    .prod-card {
+      min-height: 0;
+    }
+    .prod-card .img {
+      height: 200px;
+    }
+  }
+
+  /* ---------- Banda Garante com vídeo (full-bleed + chip "1%") — fiel a
+     `.g-band-home` de `_reference/index.html:297-331` (estilo inline do
+     próprio index.html, não semog.css) ----------
+     src/blocks/Garante renderiza esta variante só quando `video`/`poster`
+     está preenchido; sem mídia, o bloco segue como a banda `--grad-band` +
+     steps (uso em `/garante`, inalterado). `var(--navy-950)`→
+     `--color-navy-950`, `var(--ice-300)`→`--color-ice-300`,
+     `var(--silver-100)`→`--color-silver-100`. Vídeo/overlay em z-index
+     próprio (1/2), conteúdo em z-[3] via Tailwind no Component (mesmo
+     padrão do Hero — sem regra `.g-band-home .inner` aqui). */
+  .g-band-home {
+    position: relative;
+    overflow: hidden;
+    min-height: 78dvh;
+    display: flex;
+    align-items: flex-end;
+    padding-block: 0 clamp(3rem, 5vw, 4.5rem);
+    background: var(--color-navy-950);
+  }
+  .g-band-home::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.3) 0%, transparent 45%, rgba(5, 8, 26, 0.78) 100%);
+  }
+  .g-band-home .tag {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ice-300);
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .g-band-home h2 {
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    max-width: 15ch;
+    margin-bottom: 1.4rem;
+    text-shadow: 0 2px 40px rgba(5, 8, 26, 0.5);
+  }
+  .g-band-home .row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .g-band-home .pct-chip {
+    border-radius: 16px;
+    padding: 1rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+  .g-band-home .pct-chip .n {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 3.6vw, 3rem);
+    line-height: 1;
+  }
+  .g-band-home .pct-chip small {
+    color: var(--color-silver-100);
+    font-size: 0.88rem;
+    max-width: 17ch;
+    line-height: 1.4;
+  }
+
+  /* ---------- Presença (accordion de cidades) — fiel a `.cities-acc`/
+     `.city-panel` de `_reference/index.html:335-381` (estilo inline do
+     próprio index.html) + override sempre-claro `semog.css:183-186` +
+     responsivo `:434-437` ----------
+     src/blocks/Cities/CitiesAccordion (ilha client) alterna `.is-open` no
+     hover/toque; o CSS só cuida do layout/transição. `var(--r-card)`→
+     `--radius-card`, `var(--ice-400)`→`--color-ice-400`. */
+  .cities-acc {
+    display: flex;
+    gap: 0.8rem;
+    height: clamp(420px, 60vh, 560px);
+  }
+  .city-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+    flex: 1;
+    transition: flex 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    min-width: 0;
+    /* reset do UA stylesheet — `.city-panel` agora é um <button> nativo
+       (a11y, Task 8), não mais o `<a>` do ref. */
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: none;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    appearance: none;
+  }
+  .cities-acc .city-panel.is-open {
+    flex: 3.2;
+  }
+  .city-panel img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .city-panel.is-open img {
+    transform: scale(1.03);
+  }
+  .city-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 8, 26, 0.12) 40%, rgba(5, 8, 26, 0.9) 100%);
+  }
+  .city-panel .ci {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .city-panel .role {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.5s ease 0.15s,
+      transform 0.5s ease 0.15s;
+  }
+  .city-panel h3 {
+    margin: 0;
+    font-size: clamp(1.2rem, 2.2vw, 2rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: font-size 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .city-panel:not(.is-open) h3 {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+  .city-panel .uf {
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.5s ease 0.22s,
+      transform 0.5s ease 0.22s;
+  }
+  .city-panel.is-open .role,
+  .city-panel.is-open .uf {
+    opacity: 1;
+    transform: none;
+  }
+  .city-panel.hq {
+    outline: 1px solid rgba(173, 213, 235, 0.35);
+    outline-offset: -1px;
+  }
+  /* Painéis de cidade ficam sobre foto escura — texto sempre claro,
+     independente da seção (`Cities` usa `Section light`), fiel a
+     `semog.css:183-186`. */
+  .city-panel h3 {
+    color: #edf1fa !important;
+  }
+  .city-panel .uf {
+    color: #c5cde4 !important;
+  }
+  .city-panel .role {
+    color: var(--color-ice-400) !important;
+  }
+  @media (max-width: 860px) {
+    .cities-acc {
+      flex-direction: column;
+      height: auto;
+    }
+    .city-panel {
+      min-height: 110px;
+    }
+    .cities-acc .city-panel.is-open {
+      flex: 1;
+      min-height: 300px;
+    }
+    .city-panel h3 {
+      white-space: normal;
+    }
+  }
+
+  /* ---------- Quote humana (citação gigante + parallax) — fiel a `.human`
+     de `_reference/index.html:383-409` + responsivo `:438` ----------
+     src/blocks/HumanQuote usa `Words` no blockquote e `Parallax` na foto;
+     `.human-media` é o contêiner `overflow:hidden` exigido pelo `Parallax`
+     (o wrapper do `Parallax`, não a `img`, recebe o sobre-tamanho — ver
+     comentário no Component). */
+  .human {
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+  .human blockquote {
+    margin: 0 auto;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.14;
+    letter-spacing: normal;
+    max-width: 22ch;
+    text-align: center;
+  }
+  .human cite {
+    display: block;
+    text-align: center;
+    font-style: normal;
+    color: var(--text-3);
+    font-size: 0.9rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 2rem;
+  }
+  .human-media {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    aspect-ratio: 21 / 9;
+    position: relative;
+  }
+  .human-media .cap {
+    position: absolute;
+    left: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 2;
+    border-radius: 12px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.88rem;
+    color: var(--color-silver-100);
+  }
+  @media (max-width: 860px) {
+    .human-media {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  /* ---------- CTA final centrado (glow radial) — fiel a `.final-cta` de
+     `_reference/index.html:412-421` (estilo inline do próprio index.html)
+     ----------
+     src/blocks/CTABand renderiza esta variante só com `variant: "centered"`;
+     a variante `band` (default) segue com fundo `--grad-band`, inalterada. */
+  .final-cta {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+  .final-cta::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(27, 45, 112, 0.55) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  /* `max-width:20ch` sem `font-size` próprio é o padrão do ref em
+     `administracao-de-condominios.html`/`incorporadoras.html`/`semog.html`/
+     `solucoes.html`/as 4 landings de cidade (h2 fica no tamanho genérico de
+     `--text-h2`). `index.html` (16ch + clamp maior) e `garante.html` (18ch +
+     clamp maior) têm números próprios — `src/blocks/CTABand/Component.tsx`
+     aplica esses 2 casos via `style` inline a partir dos campos
+     `headingMaxWidth`/`headingFontSize` do bloco (ver `CTABand/config.ts`),
+     que essa regra de base não cobre. */
+  .final-cta h2 {
+    max-width: 20ch;
+    margin-inline: auto;
+  }
+  .final-cta p {
+    max-width: 44ch;
+    margin-inline: auto;
+    margin-bottom: 2.6rem;
+    color: var(--text-2);
+  }
+
+  /* ---------- Timeline horizontal (pin + scrub) — fiel a
+     `_reference/semog.html:86-131` (`.timeline-wrap`/`.tl-*`) ----------
+     src/motion/TimelinePinned.tsx pina `.timeline-wrap` (o próprio wrap que
+     renderiza) e desliza `.tl-track` no scroll; src/blocks/Timeline monta
+     `head`/`children`. `var(--bg-deep)`/`var(--line)`/`var(--gutter)`/
+     `var(--r-card)`/`var(--font-display)`/`var(--grad-ice)`/`var(--text-2)`
+     já existem como CSS vars soltas (`@layer base`/`@theme`, mesmo padrão
+     usado por `.solutions`/`.pillar-row` acima); `var(--gutter)` e
+     `var(--section)` do ref não têm token dedicado — reproduzidos como os
+     mesmos clamps literais usados por `Container`/`Section`. */
+  .timeline-wrap {
+    background: var(--bg-deep);
+    overflow: hidden;
+    padding-block: 0;
+    border-block: 1px solid var(--line);
+  }
+  @media (min-width: 861px) {
+    .timeline-wrap {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: clamp(2rem, 4vh, 4rem);
+    }
+    .timeline-head {
+      padding-top: 90px;
+    }
+  }
+  @media (max-width: 860px) {
+    .timeline-head {
+      padding-top: clamp(5rem, 10vw, 9rem);
+    }
+  }
+  .tl-viewport {
+    position: relative;
+  }
+  .tl-track {
+    display: flex;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: 0.5rem clamp(1.25rem, 4vw, 3rem) 2rem;
+    align-items: stretch;
+    width: max-content;
+  }
+  @media (max-width: 860px) {
+    .tl-track {
+      padding-bottom: clamp(5rem, 10vw, 9rem);
+    }
+  }
+  .tl-item {
+    width: clamp(280px, 30vw, 400px);
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2.2rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.01));
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+  }
+  .tl-item .year {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  .tl-item h3 {
+    font-size: 1.25rem;
+    margin: 0.4rem 0 0.2rem;
+  }
+  .tl-item p {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .tl-item.now {
+    border-color: rgba(173, 213, 235, 0.45);
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* ---------- Prestação de contas (showcase + grade de ícones) — fiel a
+     `_reference/solucoes.html:188-207` (`.prestacao`/`.showcase`/
+     `.prest-grid`) + responsivo `:350-361` ----------
+     src/blocks/Prestacao renderiza `.showcase` (Reveal dir="scale") e
+     `.prest-grid` (Stagger) via `Section`/`Container`, então não repete
+     `position:relative`/padding aqui. `var(--r-card)`→`--radius-card`;
+     `var(--line-strong)`/`var(--line)`/`var(--text-2)`/`var(--shadow-glow)`
+     já existem como CSS vars soltas (mesmo padrão do bloco Timeline acima). */
+  .prestacao .showcase {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    box-shadow: var(--shadow-glow);
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+  .prestacao .showcase img {
+    width: 100%;
+  }
+  .prest-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.4rem;
+    margin-top: 1.4rem;
+  }
+  .prest-grid .cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.6rem;
+  }
+  .prest-grid .cell h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.3rem;
+  }
+  .prest-grid .cell p {
+    font-size: 0.88rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .prest-grid .cell svg {
+    margin-bottom: 0.9rem;
+  }
+  @media (max-width: 1024px) {
+    .prest-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 860px) {
+    .prest-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Tecnologia própria (Semog One + roadmap) — fiel a
+     `_reference/solucoes.html:260-322` (`.tech`/`.tech-grid`/`.one-card`/
+     `.one-tags`/`.road*`) ----------
+     src/blocks/TecnologiaRoadmap renderiza `.tech-grid` (`.one-card`
+     `Reveal dir="left"` + `.road` `Reveal dir="right"`) via
+     `Section`/`Container`. `.one-card.has-media`/`.one-media` são adição
+     nossa (ver `config.ts`): o ref não tem imagem nessa seção, mas
+     `semog-one.webp` existe como asset não-ligado (`guia.html:106`) — sem
+     mídia, `.one-card` renderiza igual ao ref. `var(--r-card)`→
+     `--radius-card`, `var(--r-pill)`→`--radius-pill`, `var(--ice-500)`→
+     `--color-ice-500`, `var(--silver-100)`→`--color-silver-100`,
+     `var(--ice-300)`→`--color-ice-300`. */
+  .one-card {
+    border: 1px solid rgba(173, 213, 235, 0.14);
+    border-radius: var(--radius-card);
+    padding: clamp(1.8rem, 3.4vw, 3rem);
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgba(173, 213, 235, 0.1) 0%, transparent 50%),
+      linear-gradient(160deg, #111b46 0%, #0b1234 100%);
+  }
+  .one-card.has-media {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(2rem, 4vw, 3.4rem);
+    align-items: center;
+  }
+  .one-card .one-body {
+    min-width: 0;
+  }
+  .one-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9fd0ec;
+    border: 1px solid rgba(173, 213, 235, 0.28);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.9rem;
+  }
+  .one-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-ice-400);
+    box-shadow: 0 0 10px 2px rgba(173, 213, 235, 0.6);
+  }
+  .one-card .one-logo {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+    letter-spacing: -0.005em;
+    line-height: 1;
+    margin-top: 1.1rem;
+  }
+  .one-card .one-logo .one {
+    background: var(--grad-ice);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .one-card p {
+    color: var(--color-silver-100);
+    max-width: 42ch;
+    margin: 1rem 0 0;
+    line-height: 1.6;
+  }
+  .one-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.5rem;
+  }
+  .one-tags span {
+    border: 1px solid rgba(173, 213, 235, 0.22);
+    border-radius: var(--radius-pill);
+    padding: 0.42rem 1rem;
+    font-size: 0.84rem;
+    color: #cdd6ee;
+  }
+  .one-card .one-media {
+    position: relative;
+    aspect-ratio: 2336 / 1744;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(173, 213, 235, 0.2);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7);
+  }
+  .one-card .one-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .road {
+    margin-top: clamp(2.4rem, 4vw, 3.4rem);
+  }
+  .road-head {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ice-500);
+    margin-bottom: 1.4rem;
+  }
+  .road-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  .road-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-height: 170px;
+    padding: 1.5rem;
+    border: 1px solid rgba(173, 213, 235, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.015);
+    transition:
+      border-color 0.35s ease,
+      background 0.35s ease;
+  }
+  .road-item:hover {
+    border-color: rgba(173, 213, 235, 0.28);
+    background: rgba(173, 213, 235, 0.04);
+  }
+  .road-item strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+  .road-item small {
+    flex: 1;
+    color: var(--color-silver-100);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .road-item .status {
+    align-self: flex-start;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9fb0d2;
+    border: 1px solid rgba(173, 213, 235, 0.22);
+    border-radius: var(--radius-pill);
+    padding: 0.35rem 0.8rem;
+    white-space: nowrap;
+  }
+  .road-item .status.live {
+    color: var(--color-navy-900);
+    background: var(--color-ice-400);
+    border-color: var(--color-ice-400);
+  }
+  @media (max-width: 900px) {
+    .one-card.has-media {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Clube de benefícios — fiel a `_reference/solucoes.html:
+     308-322` (`.club`/`.club-grid`/`.club-note`) ----------
+     src/blocks/ClubeBeneficios renderiza `.club-grid` (`Stagger`) e
+     `.club-note` (`Reveal`) via `Section light white`/`Container`. */
+  .club-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .club-grid > div {
+    border-left: 1px solid var(--line);
+    padding: 0.4rem 1.5rem 0;
+  }
+  .club-grid h3 {
+    font-size: 1.1rem;
+    margin: 0.9rem 0 0.4rem;
+  }
+  .club-grid p {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .club-note {
+    margin-top: 2.5rem;
+    color: var(--text-3);
+    font-size: 0.9rem;
+    max-width: 60ch;
+  }
+  @media (max-width: 1024px) {
+    .club-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem 0;
+    }
+  }
+  @media (max-width: 560px) {
+    .club-grid {
+      grid-template-columns: 1fr;
+      gap: 1.6rem;
+    }
+  }
+
+  /* ---------- Sócios / Empresa humana — fiel a `_reference/semog.html:
+     147-181` (`.founders`/`.founders-grid`/`.f-feats`/`.founders-media`)
+     ----------
+     src/blocks/Socios renderiza `.founders-grid` (`Reveal dir="left"` /
+     `dir="right"`) via `Section light white`/`Container`. `var(--r-card)`→
+     `--radius-card`, `var(--silver-100)`→`--color-silver-100`. */
+  .founders-grid {
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .founders-grid h2 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    max-width: 15ch;
+  }
+  .f-feats {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2.2rem;
+  }
+  .f-feats > div {
+    border-top: 1px solid var(--line);
+    padding: 1.2rem 0.4rem;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 1.5rem;
+    transition:
+      background 0.4s ease,
+      padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .f-feats > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .f-feats > div:hover {
+    background: rgba(173, 213, 235, 0.035);
+    padding-left: 1rem;
+  }
+  .f-feats strong {
+    font-size: 1.02rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+  .f-feats span {
+    font-size: 0.92rem;
+    color: var(--text-2);
+  }
+  .sec-light .f-feats > div:hover {
+    background: rgba(27, 45, 112, 0.045);
+  }
+  .founders-media {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-card);
+    position: relative;
+  }
+  .founders-media .cap {
+    position: absolute;
+    left: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 2;
+    border-radius: 12px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.86rem;
+    color: var(--color-silver-100);
+  }
+  @media (max-width: 860px) {
+    .founders-grid {
+      grid-template-columns: 1fr;
+    }
+    .founders-media {
+      order: -1;
+    }
+  }
+
+  /* ---------- Verticais (split alternado + associações full-bleed) — fiel a
+     `_reference/solucoes.html:108-142` (`.vertical`/`.split`/`.split-media`/
+     `.svc-tags`/`.assoc`/`.assoc-body`) + responsivo `:354-361` +
+     `.link-arrow` base de `semog.css:323-329`/`:147` ----------
+     src/blocks/SolutionSplit renderiza uma `<section class="vertical
+     sec-light">` por item: variante `split` (texto + `.split-media`,
+     alternando lado via `reversed`) ou `assoc` (full-bleed com overlay).
+     `var(--r-card)`→`--radius-card`, `var(--r-pill)`→`--radius-pill`,
+     `var(--navy-500)`→`--color-navy-500`, `var(--ice-400/300)`→
+     `--color-ice-400/300`, `var(--accent)`→`--color-accent` (troca sozinho
+     dentro de `.sec-light`, ver @layer base), `var(--line-strong)`/
+     `var(--line)`/`var(--text)`/`var(--text-2)`/`var(--shadow-card)` já
+     existem como CSS vars soltas. */
+  .vertical {
+    border-top: 1px solid var(--line);
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 6vw, 5.5rem);
+    align-items: center;
+  }
+  .split-media {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .split-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .split .kicker {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-navy-500);
+    display: block;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+  .svc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+  }
+  .svc-tags span {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 1rem;
+    font-size: 0.86rem;
+    color: var(--text-2);
+    background: rgba(173, 213, 235, 0.04);
+    transition:
+      border-color 0.3s ease,
+      color 0.3s ease;
+  }
+  .svc-tags span:hover {
+    border-color: var(--color-ice-400);
+    color: var(--text);
+  }
+  .sec-light .svc-tags span {
+    background: rgba(27, 45, 112, 0.04);
+  }
+  .assoc {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    min-height: 420px;
+    display: flex;
+    align-items: flex-end;
+    border: 1px solid var(--line);
+  }
+  .assoc img {
+    object-fit: cover;
+  }
+  .assoc::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(5, 8, 26, 0.9) 0%, rgba(5, 8, 26, 0.55) 55%, rgba(5, 8, 26, 0.15) 100%);
+  }
+  .assoc-body {
+    position: relative;
+    z-index: 2;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    max-width: 560px;
+  }
+  .assoc-body .kicker {
+    color: var(--color-ice-400);
+  }
+  .assoc-body h2 {
+    color: #edf1fa;
+  }
+  .assoc-body p {
+    color: #c5cde4 !important;
+  }
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    font-size: 0.98rem;
+  }
+  .link-arrow .arr {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-arrow:hover .arr {
+    transform: translateX(5px);
+  }
+  .assoc-body .link-arrow {
+    color: var(--color-ice-300);
+  }
+  @media (max-width: 860px) {
+    .split {
+      grid-template-columns: 1fr;
+    }
+    .split-media {
+      order: -1;
+    }
+  }
+
+  /* ---------- Benefícios (bento 5 células) — fiel a
+     `_reference/solucoes.html:144-187` (`.benefits`/`.bento`/`.cell`) +
+     responsivo `:352` e `:357-358` ----------
+     src/blocks/Benefits renderiza esta variante quando `variant: 'bento'`
+     (`Stagger` > 5 `.cell.c{1..5}`, na ordem do ref: c1 24h / c2 acesso
+     direto (fundo `--grad-band`) / c3 35 anos / c4 equipes locais (foto) /
+     c5 100% digital). `.sec-light .bento .cell` (fundo branco) já vem do
+     `@layer base` (semog.css:153-164). `var(--r-card)`→`--radius-card`,
+     `var(--line)`/`var(--line-strong)`/`var(--text-2)`/`var(--grad-band)`
+     já existem como CSS vars soltas. */
+  .bento {
+    display: grid;
+    gap: 1.4rem;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: minmax(180px, auto);
+  }
+  .bento .cell {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.8rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.045), rgba(173, 213, 235, 0.01));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease;
+  }
+  .bento .cell:hover {
+    transform: translateY(-5px);
+    border-color: var(--line-strong);
+  }
+  .bento .cell h3 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .bento .cell p {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .bento .c1 {
+    grid-column: span 3;
+  }
+  .bento .c2 {
+    grid-column: span 3;
+    background-image: linear-gradient(160deg, rgba(27, 45, 112, 0.85), rgba(88, 149, 189, 0.4));
+  }
+  .bento .c3 {
+    grid-column: span 2;
+  }
+  .bento .c4 {
+    grid-column: span 2;
+    position: relative;
+  }
+  .bento .c4 img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+  }
+  .bento .c4 h3,
+  .bento .c4 p {
+    position: relative;
+    z-index: 2;
+  }
+  .bento .c4::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 20%, rgba(5, 8, 26, 0.9));
+  }
+  .bento .c5 {
+    grid-column: span 2;
+  }
+  .bento .cell .num {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 2.4rem;
+    line-height: 1;
+    background: linear-gradient(100deg, #1b2d70 0%, #3b54be 52%, #5895bd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sec-light .bento .c2 {
+    background: var(--grad-band);
+    border-color: rgba(173, 213, 235, 0.28);
+    box-shadow: 0 20px 55px -28px rgba(16, 26, 72, 0.4);
+  }
+  .bento .c2 h3 {
+    color: #edf1fa;
+  }
+  .bento .c2 p {
+    color: #b4bdd9 !important;
+  }
+  .bento .c4 h3 {
+    color: #edf1fa;
+  }
+  .bento .c4 p {
+    color: #c5cde4 !important;
+  }
+  @media (max-width: 1024px) {
+    .bento .c1,
+    .bento .c2,
+    .bento .c3,
+    .bento .c4,
+    .bento .c5 {
+      grid-column: span 3;
+    }
+  }
+  @media (max-width: 860px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .bento .c1,
+    .bento .c2,
+    .bento .c3,
+    .bento .c4,
+    .bento .c5 {
+      grid-column: span 1;
+    }
+  }
+
+  /* ---------- Quanto custa (prosa + checklist grad-band) — fiel a `.cost`
+     de `_reference/administracao-de-condominios.html:128-152` (estilo
+     inline da própria página, não semog.css) ----------
+     src/blocks/CustoChecklist renderiza `<section class="cost sec-light
+     white">` fora do `Section` genérico (mesmo motivo do `WordsSection`/
+     `CTABand` `variant:'centered'` acima — `padding-block` bespoke, não o
+     clamp genérico de `Section`); `.wrap`/`.prose`/`.cost-card` só em CSS.
+     `var(--r-card)`→`--radius-card`, `var(--ice-400)`→`--color-ice-400`;
+     `var(--line-strong)`/`var(--text-2)`/`var(--grad-band)` já existem
+     como CSS vars soltas (mesmo padrão usado por `.pillar-row`/`.svc-tags`
+     acima) e re-resolvem certo dentro de `.sec-light.white` (ver o
+     comentário grande sobre a indireção `--color-*` no `.sec-light` do
+     `@layer base`, no topo do arquivo). */
+  .cost {
+    padding-block: clamp(5rem, 9vw, 8rem);
+  }
+  .cost .wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .cost h2 {
+    max-width: 16ch;
+  }
+  .cost .prose p {
+    color: var(--text-2);
+    max-width: 52ch;
+  }
+  .cost-card {
+    background: var(--grad-band);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line-strong);
+    padding: clamp(2rem, 4vw, 3rem);
+    color: #edf1fa;
+  }
+  .cost-card .top {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ice-400);
+    display: block;
+    margin-bottom: 1.4rem;
+  }
+  .cost-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cost-card li {
+    border-top: 1px solid rgba(173, 213, 235, 0.14);
+    padding: 0.9rem 0.2rem;
+    color: #d9e0f2;
+    font-size: 0.96rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+  .cost-card li::before {
+    content: "";
+    width: 14px;
+    height: 2px;
+    flex-shrink: 0;
+    transform: translateY(-4px);
+    background: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .cost .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Antes/depois (comparação 2 cartões) — fiel a `.cmp-grid`/
+     `.cmp-col` de `_reference/garante.html:167-195` (estilo inline da
+     própria página) ----------
+     src/blocks/Compare renderiza `.cmp-grid` > 2x `.cmp-col` dentro de
+     `Section light white` (`.g-compare sec-light white` do ref) — a 2ª
+     coluna (`.after`) é sempre "Com o Garante" (fundo `--grad-band` +
+     `--shadow-glow`, já CSS vars soltas, mesmo padrão de `.cost-card`
+     acima). `var(--r-card)`→`--radius-card`, `var(--silver-500)`→
+     `--color-silver-500`, `var(--ice-300)`→`--color-ice-300`,
+     `var(--ice-400)`→`--color-ice-400`. */
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
+  }
+  .cmp-col {
+    border-radius: var(--radius-card);
+    padding: clamp(1.8rem, 4vw, 3rem);
+    border: 1px solid rgba(16, 26, 72, 0.08);
+    background: #fff;
+    box-shadow: 0 18px 45px -26px rgba(16, 26, 72, 0.2);
+  }
+  .cmp-col.after {
+    background: var(--grad-band);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-glow);
+  }
+  .cmp-col .cmp-tag {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    display: block;
+    margin-bottom: 1.6rem;
+  }
+  .cmp-col.after .cmp-tag {
+    color: var(--color-ice-300);
+  }
+  .cmp-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cmp-col li {
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 0.2rem;
+    color: var(--text-2);
+    font-size: 1rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+  .cmp-col li::before {
+    content: "";
+    width: 14px;
+    height: 2px;
+    flex-shrink: 0;
+    transform: translateY(-4px);
+    background: var(--color-silver-500);
+  }
+  .cmp-col.after li {
+    color: #d9e0f2;
+    border-top-color: rgba(173, 213, 235, 0.16);
+  }
+  .cmp-col.after li::before {
+    background: var(--color-ice-400);
+  }
+  @media (max-width: 860px) {
+    .cmp-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- G5 Partners (split de texto puro) — fiel a `.g-partner` de
+     `_reference/garante.html:197-201` (estilo inline da própria página)
+     ----------
+     src/blocks/PartnerSplit renderiza `.wrap` (2 colunas de texto, sem
+     imagem — família `.split`/`SolutionSplit` sempre tem mídia, por isso um
+     bloco novo) dentro de `Section light` (`.g-partner sec-light` do ref). */
+  .g-partner {
+    border-top: 1px solid var(--line);
+  }
+  .g-partner .wrap {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .g-partner h2 {
+    font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+    max-width: 14ch;
+  }
+  .g-partner p {
+    color: var(--text-2);
+    max-width: 52ch;
+  }
+  @media (max-width: 860px) {
+    .g-partner .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Argumento (manifesto + sub) — fiel a `.argument` de
+     `_reference/incorporadoras.html:72-79,204-216` (estilo inline da própria
+     página) ----------
+     src/blocks/WordsSection com `variant:'argument'` adiciona um 2º
+     parágrafo (`sub`, ausente em `manifesto`/`problem`) abaixo do `Words` —
+     por isso os 2 parágrafos precisam de classes próprias (`.big`/`.sub`) em
+     vez do seletor de tag `p` usado pelas outras 2 variantes. Sem
+     padding-block próprio no ref (usa o `--section` genérico do site, que
+     este codebase não porta como regra solta `section{}` — por isso
+     replicado aqui como valor literal, idêntico a `--section` do
+     `@layer base`/semog.css:61). `text` aceita `<em>` embutido (destaque em
+     ice, ex.: "como a sua marca será lembrada.") — `src/motion/Words.tsx`
+     preserva a marcação através do scrub palavra-a-palavra. */
+  .argument {
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+  .argument .big {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+    line-height: 1.25;
+    max-width: 28ch;
+    margin: 0;
+  }
+  .argument .big em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  .argument .sub {
+    color: var(--text-2);
+    max-width: 60ch;
+    font-size: 1.08rem;
+    margin-top: 1.4rem;
+  }
+
+  /* ---------- Processo (timeline vertical) — fiel a `.proc-list`/
+     `.proc-item` de `_reference/incorporadoras.html:81-107,218-278` (estilo
+     inline da própria página) ----------
+     src/blocks/ProcessoTimeline renderiza `.proc-list` > N `.proc-item`
+     (dot gradiente + ícone SVG + h3/p + `.tags`) dentro de `Section light`
+     (`.process.sec-light` do ref — `.process` em si não tem regras, só o
+     wrapper `sec-light` importa, por isso não portado). `var(--r-pill)`→
+     `--radius-pill`, `var(--ice-400)`→`--color-ice-400`; `var(--line)`/
+     `var(--text-2)`/`var(--text-3)` já são CSS vars soltas (mesmo padrão de
+     `.g-partner` acima) e re-resolvem certo dentro de `.sec-light`. */
+  .proc-list {
+    position: relative;
+    margin-top: 1rem;
+  }
+  .proc-list::before {
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--color-ice-400), var(--line) 80%);
+    opacity: 0.4;
+  }
+  .proc-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 1.6rem;
+    padding: 2rem 0;
+    position: relative;
+  }
+  .proc-item .dot {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, #1b2d70, #3b54be);
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+  .proc-item .dot svg {
+    width: 22px;
+    height: 22px;
+  }
+  .proc-item h3 {
+    font-size: 1.4rem;
+    margin: 0.6rem 0 0.4rem;
+  }
+  .proc-item p {
+    color: var(--text-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+  .proc-item .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .proc-item .tags span {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.8rem;
+  }
+  @media (max-width: 860px) {
+    .proc-item {
+      grid-template-columns: 44px 1fr;
+      gap: 1.1rem;
+    }
+    .proc-item .dot {
+      width: 44px;
+      height: 44px;
+    }
+    .proc-list::before {
+      left: 21px;
+    }
+  }
+
+  /* ---------- Quote de desenvolvedor (banda depoimento) — fiel a
+     `.dev-quote` de `_reference/incorporadoras.html:125-136,311-317` (estilo
+     inline da própria página) ----------
+     src/blocks/DevQuote renderiza blockquote (scrub palavra-a-palavra via
+     `Words`) + cite dentro de um `<section>` puro — `.dev-quote` não
+     sobrescreve `padding-block` no ref (usa o `--section` genérico, mesmo
+     caso de `.argument` acima). `var(--ice-400)`→`--color-ice-400`. `quote`
+     aceita `<em>` embutido (destaque em ice no trecho final) — `Words`
+     preserva a marcação através do scrub palavra-a-palavra. */
+  .dev-quote {
+    padding-block: clamp(5rem, 10vw, 9rem);
+    background: var(--grad-band);
+    border-block: 1px solid var(--line);
+    text-align: center;
+  }
+  .dev-quote blockquote {
+    margin: 0 auto 1.4rem;
+    max-width: 26ch;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 3.6vw, 3rem);
+    line-height: 1.2;
+  }
+  .dev-quote blockquote em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  .dev-quote cite {
+    font-style: normal;
+    color: var(--text-3);
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Unidade (cartão rico com foto) — fiel a `.unit-card` de
+     `_reference/administradora-de-condominios-recife.html:110-140` (estilo
+     inline da própria página, idêntico nas 4 landings de cidade)
+     ----------
+     src/blocks/ContactInfo com `variant:'card'` renderiza este cartão
+     (foto + chip + dl de contato + ações) em vez da grade compacta usada em
+     `/contato`. `var(--r-card)`→`--radius-card`; `var(--line)`/`var(--text)`/
+     `var(--text-2)`/`var(--text-3)` já existem como CSS vars soltas. */
+  .unit-card {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(16, 26, 72, 0.08);
+    box-shadow: 0 28px 70px -32px rgba(16, 26, 72, 0.35);
+  }
+  .unit-card .photo {
+    position: relative;
+    min-height: 380px;
+  }
+  .unit-card .photo .chip {
+    position: absolute;
+    left: 1.2rem;
+    top: 1.2rem;
+    z-index: 2;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #edf1fa;
+  }
+  .unit-card .info {
+    padding: clamp(1.8rem, 4vw, 2.8rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .unit-card h2 {
+    font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+    margin-bottom: 1.4rem;
+  }
+  .unit-rows {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.6rem;
+  }
+  .unit-rows > div {
+    border-top: 1px solid var(--line);
+    padding: 0.9rem 0.2rem;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+  .unit-rows > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .unit-rows dt {
+    color: var(--text-3);
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+  .unit-rows dd {
+    margin: 0;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .unit-rows dd small {
+    display: block;
+    color: var(--text-2);
+    font-weight: 400;
+  }
+  .unit-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  @media (max-width: 900px) {
+    .unit-card {
+      grid-template-columns: 1fr;
+    }
+    .unit-card .photo {
+      min-height: 240px;
+    }
+  }
+
+  /* ---------- Bairros (pills) — fiel a `.hood`/`.hood-pills` de
+     `_reference/administradora-de-condominios-recife.html:142-156` (estilo
+     inline da própria página, idêntico nas 4 landings de cidade)
+     ----------
+     src/blocks/Bairros (bloco novo) renderiza `<section class="hood
+     sec-light white">` — sem correspondente antes desta task (nenhum bloco
+     do inventário modelava lista de pills). `var(--r-pill)`→`--radius-pill`;
+     `var(--line-strong)`/`var(--text-2)`/`var(--text-3)`/`var(--navy-500)`→
+     `--color-navy-500` já existem/mapeiam para vars soltas. */
+  .hood h3 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-navy-500);
+    font-family: var(--font-body);
+    margin-bottom: 1.2rem;
+  }
+  .hood-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .hood-pills span {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--text-2);
+    background: #fff;
+    transition:
+      border-color 0.3s ease,
+      color 0.3s ease,
+      transform 0.3s ease;
+  }
+  .hood-pills span:hover {
+    border-color: var(--color-navy-500);
+    color: var(--text);
+    transform: translateY(-2px);
+  }
+  .hood .note {
+    color: var(--text-3);
+    font-size: 0.88rem;
+    margin-top: 1.2rem;
+  }
+
+  /* ---------- Serviços (lista vertical + intro) — fiel a `.svc-sec`/
+     `.svc-rows` de `_reference/administradora-de-condominios-recife.html:
+     158-174` (estilo inline da própria página, idêntico nas 4 landings de
+     cidade) ----------
+     src/blocks/FeatureGrid com `variant:'rows'` troca a grade de cards
+     pelas linhas planas do ref: coluna esquerda com h2 sticky + `intro`,
+     coluna direita com `.svc-rows` (título em negrito + `badge` opcional,
+     ex.: "EXCLUSIVA"/"1% AO MÊS"). `padding-block`/`border-top` do próprio
+     `<section>` aplicados via `style`/className diretamente no Component
+     (mesmo motivo do `.cost`/`.g-partner` acima — valor bespoke, não o
+     clamp genérico de `Section`). */
+  .svc-sec .wrap {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .svc-sec h2 {
+    max-width: 15ch;
+    position: sticky;
+    top: 110px;
+  }
+  .svc-rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .svc-rows > div {
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 0.4rem;
+    color: var(--text-2);
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    transition:
+      background 0.35s ease,
+      padding-left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .svc-rows > div:hover {
+    background: rgba(27, 45, 112, 0.045);
+    padding-left: 1rem;
+    color: var(--text);
+  }
+  .svc-rows > div:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .svc-rows strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text);
+  }
+  .svc-more {
+    margin-top: 1.6rem;
+  }
+  @media (max-width: 900px) {
+    .svc-sec .wrap {
+      grid-template-columns: 1fr;
+    }
+    .svc-sec h2 {
+      position: static;
+    }
+  }
+
+  /* ---------- Banda Garante (split 2 colunas + "%" gigante) — fiel a
+     `.g-band` de `_reference/administradora-de-condominios-recife.html:
+     176-190` (estilo inline da própria página, idêntico nas 4 landings de
+     cidade) ----------
+     src/blocks/Garante com o grupo `pct` preenchido (e sem `video`/`poster`)
+     troca a banda `--grad-band` de steps pela versão split desta família de
+     páginas: h2+p+CTA à esquerda (`dir="left"`), porcentagem tipográfica
+     gigante à direita (`dir="right"`) — distinta do `.pct-chip` de vidro
+     usado na home/`.g-band-home`. `var(--text-2)`/`var(--font-display)`/
+     `var(--grad-band)` já existem como CSS vars soltas. */
+  .g-band .wrap {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .g-band h2 {
+    font-size: clamp(1.9rem, 3.8vw, 3rem);
+    max-width: 16ch;
+  }
+  .g-band p {
+    color: var(--text-2);
+    max-width: 46ch;
+  }
+  .g-band .pct {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(4rem, 9vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    display: block;
+    text-align: center;
+  }
+  .g-band .pct-l {
+    text-align: center;
+    color: var(--text-2);
+    margin-top: 0.8rem;
+  }
+  @media (max-width: 900px) {
+    .g-band .wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Blog: destaque + grade de posts (`.featured`/`.posts`/`.post`)
+     — fiel a `_reference/blog.html:48-109` (estilo inline da própria
+     página) ----------
+     src/blocks/BlogFeatured renderiza `.featured` (card 2 colunas, ilha
+     `Reveal`); src/blocks/BlogList renderiza `.posts` (`Stagger`) > `.post`
+     (link inteiro, card de imagem 16:9 + corpo). Ambos vivem dentro da MESMA
+     seção clara (`.sec-light`, sem `.white`) do ref — por isso a segunda
+     regra abaixo (`.sec-light .featured, .sec-light .post`) porta só as 2
+     classes relevantes aqui do override combinado de `semog.css:152-164`
+     (`.bento .cell`/`.unit`/`.ss-card`/`.why-card`/`.tl-item`/
+     `.prest-grid .cell` ficam fora, não usadas nesta página).
+     `var(--line)`/`var(--line-strong)`/`var(--text-2)`/`var(--text-3)` já
+     existem como CSS vars soltas (redeclaradas dentro de `.sec-light`);
+     `var(--r-card)`→`--radius-card`; `var(--navy-500)`→`--color-navy-500`
+     (token `@theme`, não a var solta — mesmo padrão de `.prod-card.on-white
+     .tag` acima). `position:relative` em `.featured`/`.pimg` foi adicionado
+     (sem equivalente no ref) só pra ancorar, respectivamente, o link
+     "esticado" absoluto do `BlogFeatured` e o `<Image fill>` do `BlogList`
+     — nenhum dos dois muda a aparência. */
+  .featured {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.04), rgba(173, 213, 235, 0.01));
+    transition: border-color 0.35s ease;
+  }
+  .featured:hover {
+    border-color: var(--line-strong);
+  }
+  .featured .fimg {
+    position: relative;
+    min-height: 380px;
+    overflow: hidden;
+  }
+  .featured .fimg img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .featured:hover .fimg img {
+    transform: scale(1.04);
+  }
+  .featured .fbody {
+    padding: clamp(1.8rem, 4vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .featured .cat {
+    color: var(--color-navy-500);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .featured h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  }
+  .featured p {
+    color: var(--text-2);
+  }
+  .featured .meta {
+    color: var(--text-3);
+    font-size: 0.86rem;
+    margin-top: 1.4rem;
+  }
+  .posts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+    margin-top: 1.4rem;
+  }
+  .post {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.04), rgba(173, 213, 235, 0.01));
+    display: flex;
+    flex-direction: column;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease;
+  }
+  .post:hover {
+    transform: translateY(-6px);
+    border-color: var(--line-strong);
+  }
+  .post .pimg {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  .post .pimg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .post:hover .pimg img {
+    transform: scale(1.05);
+  }
+  .post .pbody {
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1;
+  }
+  .post .cat {
+    color: var(--color-navy-500);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .post h3 {
+    font-size: 1.2rem;
+    margin: 0;
+    line-height: 1.25;
+  }
+  .post p {
+    color: var(--text-2);
+    font-size: 0.92rem;
+    margin: 0;
+    flex: 1;
+  }
+  .post .meta {
+    color: var(--text-3);
+    font-size: 0.82rem;
+  }
+  .sec-light .featured,
+  .sec-light .post {
+    background: #ffffff;
+    border-color: rgba(16, 26, 72, 0.08);
+    box-shadow: 0 18px 45px -26px rgba(16, 26, 72, 0.2);
+  }
+  @media (max-width: 1024px) {
+    .posts {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 860px) {
+    .featured {
+      grid-template-columns: 1fr;
+    }
+    .featured .fimg {
+      min-height: 240px;
+    }
+  }
+  @media (max-width: 620px) {
+    .posts {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Newsletter (captura de e-mail) — fiel a `.newsletter`/
+     `.nl-form` de `_reference/blog.html:83-99` (estilo inline da própria
+     página) ----------
+     src/blocks/Newsletter renderiza `<Section className="newsletter">` +
+     `NewsletterForm` (ilha client, troca o form por mensagem de sucesso no
+     submit — sem backend real, igual ao ref). `var(--grad-band)`/
+     `var(--line)`/`var(--line-strong)`/`var(--text)`/`var(--text-2)`/
+     `var(--text-3)` já existem como CSS vars soltas; `var(--r-input)`→
+     `--radius-input`; `var(--ice-400)`→`--color-ice-400`. */
+  .newsletter {
+    background: var(--grad-band);
+    border-block: 1px solid var(--line);
+    text-align: center;
+  }
+  .newsletter h2 {
+    max-width: 22ch;
+    margin-inline: auto;
+  }
+  .newsletter p {
+    max-width: 46ch;
+    margin-inline: auto;
+    color: var(--text-2);
+    margin-bottom: 2rem;
+  }
+  .nl-form {
+    display: flex;
+    gap: 0.8rem;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+  .nl-form input {
+    flex: 1;
+    background: rgba(5, 8, 26, 0.5);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-input);
+    color: var(--text);
+    padding: 0.95rem 1.2rem;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  .nl-form input:focus {
+    outline: none;
+    border-color: var(--color-ice-400);
+    box-shadow: 0 0 0 3px rgba(173, 213, 235, 0.18);
+  }
+  .nl-form input::placeholder {
+    color: var(--text-3);
+  }
+  @media (max-width: 620px) {
+    .nl-form {
+      flex-direction: column;
+    }
+  }
+
+  /* ---------- Contato: atendimento rápido (`.quick`/`.quick-card`) — fiel a
+     `_reference/contato.html:208-231` + CSS em `_reference/contato.html:
+     89-109` (estilo inline da própria página) ----------
+     src/blocks/QuickLinks (bloco novo) renderiza `Section` + `Stagger
+     className="quick-grid"` (`data-stagger` no ref) > 3 `<a class="quick-card">`
+     diretos (sem wrapper — `Stagger` anima os filhos diretos do container, e
+     cada card já é um `<a>` de verdade, sem precisar do truque de link
+     esticado). O ref só tem UMA propriedade em `.quick` (`padding-top`
+     reduzido) — reproduzida como `!pt-[clamp(2.5rem,5vw,4rem)]` direto no
+     `className` do `Section` (mesmo truque de `BlogFeatured`), por isso não
+     vira uma regra `.quick{}` aqui (seria morta: o `!important` do
+     Tailwind sempre ganharia). `var(--line)`/`var(--ice-400)`→
+     `--color-ice-400` (o ícone usa gradiente fixo, sem token — mesmo valor
+     bruto do ref); `var(--r-card)`→`--radius-card`; `var(--text-2)`/
+     `var(--ice-300)`→`--color-ice-300`. */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+  }
+  .quick-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.015));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s ease;
+  }
+  .quick-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-ice-400);
+  }
+  .quick-card .ic {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2a3f96, #5895bd);
+    box-shadow: 0 10px 24px -10px rgba(88, 149, 189, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.9rem;
+  }
+  .quick-card h3 {
+    font-size: 1.15rem;
+    margin: 0;
+  }
+  .quick-card p {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    margin: 0;
+    flex: 1;
+  }
+  .quick-card .val {
+    color: var(--color-ice-300);
+    font-weight: 600;
+    font-size: 1.02rem;
+    margin-top: 0.6rem;
+  }
+  @media (max-width: 1024px) {
+    .quick-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Contato: resolva fácil (`.selfserve`/`.ss-card`) — fiel a
+     `_reference/contato.html:233-268` + CSS em `_reference/contato.html:
+     110-133` (estilo inline da própria página) ----------
+     src/blocks/SelfServe (bloco novo) renderiza `Section light white
+     className="selfserve"` (`.selfserve.sec-light.white`) + cabeçalho
+     padrão + `.ss-grid` > `Reveal className="ss-card"` (`data-reveal` por
+     card no ref) — cada `Reveal` vira um `<div>` (não repassa `href`, mesma
+     limitação documentada em `BlogFeatured`), com um `<a>` esticado
+     absoluto por cima (por isso `.ss-card` ganhou `position:relative`, sem
+     equivalente no ref, mesmo padrão de `.featured`/`.pimg`). `var(--line)`/
+     `var(--text-2)`/`var(--text-3)`→ já soltas; `var(--r-card)`→
+     `--radius-card`; `var(--ice-400)`→`--color-ice-400`; `var(--navy-600)`/
+     `var(--navy-500)`→`--color-navy-600`/`--color-navy-500`;
+     `var(--r-pill)`→`--radius-pill`. */
+  .selfserve {
+    margin-top: 0;
+  }
+  .ss-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+  }
+  .ss-card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.6rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.045), rgba(173, 213, 235, 0.01));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease;
+  }
+  .ss-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-ice-400);
+  }
+  .ss-card strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.06rem;
+    display: block;
+  }
+  .ss-card small {
+    color: var(--text-2);
+    font-size: 0.85rem;
+  }
+  .ss-card .go {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-pill);
+    background: var(--color-navy-600);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px -12px rgba(27, 45, 112, 0.55);
+    transition:
+      background 0.3s ease,
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ss-card:hover .go {
+    background: var(--color-navy-500);
+    transform: rotate(-45deg);
+  }
+  .ss-note {
+    margin-top: 1.6rem;
+    color: var(--text-3);
+    font-size: 0.88rem;
+  }
+  @media (max-width: 1024px) {
+    .ss-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 620px) {
+    .ss-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Contato: unidades em lista (`.units`/`.unit`) — fiel a
+     `_reference/contato.html:271-338` + CSS em `_reference/contato.html:
+     135-160` (estilo inline da própria página) ----------
+     src/blocks/ContactInfo com `variant:'units'` renderiza `Section
+     className="units"` + um `Reveal as="article" className="unit"` por
+     item, direto como filho de `Container` (a alternância `nth-child(even)`
+     abaixo depende disso). `var(--line)`/`var(--text-2)`/`var(--text-3)`→
+     já soltas; `var(--r-card)`→`--radius-card`; `var(--ice-400)`→
+     `--color-ice-400`; `var(--bg-deep)`→ já solta. */
+  .units {
+    background: var(--bg-deep);
+  }
+  .unit {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    margin-bottom: 1.6rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.035), rgba(173, 213, 235, 0.01));
+    scroll-margin-top: 90px;
+  }
+  .unit:last-child {
+    margin-bottom: 0;
+  }
+  .unit:nth-child(even) .uimg {
+    order: 2;
+  }
+  .unit .uimg {
+    position: relative;
+    min-height: 300px;
+  }
+  .unit .uimg img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .unit .ubody {
+    padding: clamp(1.8rem, 4vw, 2.8rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .unit .role {
+    color: var(--color-ice-400);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .unit h3 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    margin: 0.4rem 0 1.2rem;
+  }
+  .unit dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+  }
+  .unit dt {
+    color: var(--text-3);
+  }
+  .unit dd {
+    margin: 0;
+    color: var(--text-2);
+  }
+  .unit .ubody .btn {
+    margin-top: 1.6rem;
+    align-self: flex-start;
+  }
+  @media (max-width: 860px) {
+    .unit {
+      grid-template-columns: 1fr;
+    }
+    .unit:nth-child(even) .uimg {
+      order: 0;
+    }
+    .unit .uimg {
+      min-height: 220px;
+    }
+  }
+
+  /* ---------- Proposta: painel de confiança (`.trust-card`/`.trust-stats`/
+     `.trust-quote`) — fiel a `_reference/proposta.html:260-290` + CSS em
+     `_reference/proposta.html:89-110` (estilo inline da própria página)
+     ----------
+     src/blocks/TrustPanel (bloco novo) renderiza os 3 `.trust-card` do ref
+     (hero-card com foto+stats / citação / WhatsApp). O ref embrulha os 3
+     num `<aside class="trust-panel">` `position:sticky`, ao lado do form,
+     dentro do MESMO grid de 2 colunas de `.prop-grid` — como cada bloco do
+     CMS é sua própria `<section>` empilhada (mesma limitação já documentada
+     em `FormEmbed`, que também não reproduz esse grid), aqui os 3 cards
+     viram uma faixa de 3 colunas (`.trust-panel-band`, classe nova, sem
+     equivalente no ref) em vez de uma coluna estreita fixa ao lado do form
+     — `.trust-panel` continua portada verbatim (inclusive `position:sticky`)
+     para quem reaproveitar o bloco num layout que realmente tenha 2
+     colunas. `var(--line)`/`var(--line-strong)`/`var(--text-2)`→ já soltas;
+     `var(--r-card)`→`--radius-card`; `var(--ice-400)`→`--color-ice-400`. */
+  .trust-panel {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+  .trust-panel-band {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+  }
+  .trust-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 1.8rem;
+    background: linear-gradient(180deg, rgba(173, 213, 235, 0.05), rgba(173, 213, 235, 0.015));
+  }
+  .trust-card.hero-card {
+    border-color: var(--line-strong);
+  }
+  .trust-card h3 {
+    font-size: 1.15rem;
+  }
+  .trust-card p {
+    color: var(--text-2);
+    font-size: 0.93rem;
+    margin: 0;
+  }
+  .trust-stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+  }
+  .trust-quote {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0 0 0.8rem;
+  }
+  .trust-quote em {
+    font-style: normal;
+    color: var(--color-ice-400);
+  }
+  @media (max-width: 1024px) {
+    .trust-panel {
+      position: static;
+    }
+    .trust-panel-band {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Páginas legais (`.legal-hero`/`.legal-body`) — fiel ao CSS
+     inline (idêntico) de `_reference/privacidade.html:19-29` e
+     `_reference/termos.html:19-29` ----------
+     src/blocks/LegalHero (bloco novo) renderiza `.legal-hero` (h1 + `.upd`,
+     SEM `Chars`/`Fade` — o ref não anima esta seção); src/blocks/RichText
+     com `legal:true` renderiza `.legal-body` > `Container` > `.wrap`
+     (medida de leitura de 760px). Portado verbatim, sem indireção var→token:
+     `var(--line)`/`var(--text-2)`/`var(--text-3)` já são as CSS vars soltas
+     usadas em todo o resto deste arquivo (ex. `.quick-card`/`.trust-card`
+     acima). */
+  .legal-hero {
+    padding: 150px 0 clamp(2rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .legal-hero h1 {
+    font-size: clamp(2rem, 4.4vw, 3.4rem);
+    max-width: 18ch;
+  }
+  .legal-hero .upd {
+    color: var(--text-3);
+    font-size: 0.9rem;
+  }
+  .legal-body {
+    padding-block: clamp(3rem, 6vw, 5rem);
+  }
+  .legal-body .wrap {
+    max-width: 760px;
+  }
+  .legal-body h2 {
+    font-size: 1.4rem;
+    margin-top: 2.6rem;
+  }
+  .legal-body p,
+  .legal-body li {
+    color: var(--text-2);
+  }
+  /* O ref não reseta `ul` (só `.nav-links`/`.footer ul`/`.feature-list`
+     zeram list-style/margin/padding — `semog.css:251,406,453`), então
+     `.legal-body ul` herda o UA stylesheet padrão (`list-style:disc`,
+     `margin-block:1em`). O Preflight do Tailwind zera os três globalmente
+     (`ul{list-style:none;margin:0;padding:0}`) — sem restaurá-los aqui, a
+     lista renderiza sem marcador e sem respiro vertical, ao contrário do
+     ref. `padding-left:1.3rem` já era o único valor que o ref sobrescrevia
+     explicitamente. */
+  .legal-body ul {
+    list-style: disc;
+    margin-block: 1em;
+    padding-left: 1.3rem;
+  }
+}
+
+/* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────
+   Mapa do Brasil ao lado do ledger, SEM fundo/painel: estados desenhados em
+   linhas de cinza claro sobre o próprio fundo claro da seção, com PA/PB/PE
+   acesos no azul da marca e marcadores de luz azul pulsante nas cidades
+   (Belém, Recife, João Pessoa). Puro CSS/SVG; fora dos @layer de propósito
+   (classes próprias sem conflito, e o pulso deve ficar sempre ativo). */
+.br-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.br-uf {
+  fill: rgba(16, 26, 72, 0.04);
+  stroke: #c2c9d7;
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+.br-uf.is-on {
+  fill: #a6c5e6;
+  stroke: #7ba1cd;
+}
+.br-halo {
+  fill: #3b54be;
+  opacity: 0.22;
+}
+.br-core {
+  fill: #eaf5fc;
+  stroke: #2a3f96;
+  stroke-width: 2;
+}
+.br-ring {
+  fill: none;
+  stroke: #2a3f96;
+  stroke-width: 3.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: br-pulse 2.6s ease-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.35s);
+}
+.br-ring-2 {
+  animation-delay: calc(var(--i, 0) * 0.35s + 1.3s);
+}
+@keyframes br-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+/* ── Blog · Página do artigo (`/blog/[slug]`, layout "flagship") ──────────────
+   Fora dos @layer de propósito: são classes próprias (sem conflito) e precisam
+   VENCER o Preflight do Tailwind (que zera ul/ol/blockquote/headings em
+   @layer base) dentro de `.article-body`. Não há referência no `_reference/`
+   (só a listagem `blog.html`); os tokens claros (--text/--text-2/--line etc.)
+   vêm do ancestral `.sec-light` (Section light). */
+
+.article-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 60;
+  pointer-events: none;
+}
+.article-progress__bar {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--color-ice-500), var(--color-navy-500));
+  will-change: transform;
+}
+
+.article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-3);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.25s ease;
+}
+.article-back svg {
+  width: 16px;
+  height: 16px;
+}
+.article-back:hover {
+  color: var(--text);
+}
+
+.article-head {
+  max-width: 720px;
+  margin: clamp(1.6rem, 3vw, 2.4rem) auto 0;
+  text-align: center;
+}
+.article-cat {
+  display: inline-block;
+  color: var(--color-navy-500);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.42rem 0.95rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  margin-bottom: 1.2rem;
+}
+.article-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  max-width: 20ch;
+  margin: 0 auto;
+}
+.article-dek {
+  color: var(--text-2);
+  font-size: clamp(1.08rem, 1.6vw, 1.28rem);
+  line-height: 1.6;
+  max-width: 46ch;
+  margin: 1.4rem auto 0;
+}
+.article-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.8rem;
+  color: var(--text-3);
+  font-size: 0.9rem;
+}
+.article-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, var(--color-navy-600), var(--color-navy-400));
+}
+.article-who {
+  color: var(--text);
+  font-weight: 500;
+}
+.article-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-silver-300);
+}
+
+.article-hero {
+  position: relative;
+  margin: clamp(2rem, 4vw, 3rem) 0 0;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, var(--color-navy-800), var(--color-navy-600));
+}
+.article-hero img {
+  object-fit: cover;
+}
+
+/* Corpo do artigo — lexical de `content`, medida de leitura 720px */
+.article-body {
+  max-width: 720px;
+  margin: clamp(2.6rem, 5vw, 3.6rem) auto 0;
+}
+.article-body p {
+  color: var(--text-2);
+  font-size: 1.075rem;
+  line-height: 1.78;
+  margin-bottom: 1.35rem;
+}
+.article-body > p:first-of-type {
+  font-size: 1.22rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+.article-body h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  line-height: 1.18;
+  color: var(--text);
+  margin: 2.8rem 0 1rem;
+}
+.article-body h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--text);
+  margin: 2rem 0 0.7rem;
+}
+.article-body ul,
+.article-body ol {
+  margin: 1.2rem 0 1.6rem;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.article-body li {
+  position: relative;
+  padding-left: 1.9rem;
+  color: var(--text-2);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+.article-body ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-navy-500);
+  transform: rotate(45deg);
+}
+.article-body ol {
+  counter-reset: art;
+}
+.article-body ol li {
+  counter-increment: art;
+}
+.article-body ol li::before {
+  content: counter(art);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-navy-500);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.article-body strong {
+  color: var(--text);
+  font-weight: 700;
+}
+.article-body a {
+  color: var(--color-navy-500);
+  font-weight: 500;
+  border-bottom: 1px solid rgba(42, 63, 150, 0.35);
+}
+.article-body a:hover {
+  border-bottom-color: var(--color-navy-500);
+}
+.article-body blockquote {
+  margin: 2.6rem 0;
+  padding: 0.4rem 0 0.4rem 1.8rem;
+  border-left: 3px solid var(--color-navy-500);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  line-height: 1.35;
+  color: var(--text);
+}
+.article-body blockquote p {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+}
+
+/* Caixa "Em resumo" — campo `keyTakeaways` */
+.article-resumo {
+  max-width: 720px;
+  margin: clamp(2.6rem, 5vw, 3.4rem) auto 0;
+  padding: clamp(1.5rem, 3vw, 2rem);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(42, 63, 150, 0.05), rgba(42, 63, 150, 0.02));
+}
+.article-resumo h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-navy-500);
+  margin: 0 0 1.1rem;
+}
+.article-resumo ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.article-resumo li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  color: var(--text);
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+.article-resumo li svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: var(--color-navy-500);
+}
+
+/* CTA de proposta — card escuro dentro da seção clara */
+.article-cta {
+  margin: clamp(3rem, 6vw, 4.5rem) 0 0;
+  padding: clamp(2.2rem, 5vw, 3.4rem);
+  border-radius: var(--radius-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  background:
+    radial-gradient(120% 160% at 90% -20%, rgba(59, 84, 190, 0.5), transparent 55%),
+    linear-gradient(135deg, var(--color-navy-900), var(--color-navy-800));
+}
+.article-cta__text h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: #fff;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.15;
+  max-width: 18ch;
+}
+.article-cta__text p {
+  color: rgba(255, 255, 255, 0.66);
+  margin-top: 0.7rem;
+  max-width: 40ch;
+  font-size: 1rem;
+}
+.article-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  background: var(--color-ice-400);
+  color: var(--color-navy-900);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.95rem 1.7rem;
+  border-radius: var(--radius-pill);
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s ease;
+}
+.article-cta__btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.article-cta__btn:hover {
+  background: var(--color-ice-300);
+  transform: translateY(-2px);
+}
+.article-cta__btn:hover svg {
+  transform: translateX(3px);
+}
+
+/* Continue lendo */
+.article-related-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.6rem;
+}
+.article-all {
+  color: var(--color-navy-500);
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.article-all:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .article-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

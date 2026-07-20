@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-typecheck:
+    name: Lint, typecheck & types drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # pnpm v10 skips build/postinstall scripts for deps not listed in
+      # pnpm.onlyBuiltDependencies (package.json) — e.g. @sentry/cli. This only
+      # prints an "Ignored build scripts" warning, it does not prompt or fail,
+      # so --frozen-lockfile is safe to run unattended in CI.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome check
+        run: pnpm check
+
+      - name: TypeScript check
+        run: pnpm exec tsc --noEmit
+
+      # generate:types only reads the Payload config to derive TS types; it
+      # never opens a DB connection, so a dummy DATABASE_URI is enough to let
+      # the config load in CI (no live database available here).
+      - name: Payload generate:types (drift check)
+        env:
+          DATABASE_URI: postgresql://user:pass@localhost:5432/db
+          PAYLOAD_SECRET: ci-dummy-secret
+          NODE_OPTIONS: --no-deprecation
+        run: |
+          pnpm exec payload generate:types
+          git diff --exit-code src/payload-types.ts
+
+      # `next build` is intentionally NOT run in this workflow: it fetches
+      # data from Payload/Postgres at build time for the site's pages, and
+      # CI has no live database available. Build verification happens via
+      # the preview/deploy pipeline instead.
