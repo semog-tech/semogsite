@@ -46,6 +46,26 @@ const PROPOSTA_LABELS: Record<keyof PropostaValues, string> = {
 }
 
 /**
+ * Roteamento da notificação interna de **Proposta** por região, a partir do
+ * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
+ * `src/lib/form-schemas.ts` — se o seed/enum mudar as opções, atualizar aqui).
+ * Cobre todos os valores do enum, então uma `cidade` preenchida sempre resolve
+ * um destinatário; `cidade` em branco (campo opcional) cai no
+ * `PROPOSTA_FALLBACK_TO`. Só a Proposta usa isto — Contato continua indo pro
+ * `CONTACT_TO`.
+ */
+const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, string> = {
+  'Recife e região': 'ivan@semog.com.br',
+  'João Pessoa e região': 'comercial@semog.com.br',
+  'Campina Grande e região': 'comercial@semog.com.br',
+  'Belém e região': 'galvao@semog.com.br',
+  'Outra cidade': 'comercial@semog.com.br',
+}
+
+/** Destino da Proposta quando `cidade` não foi preenchida (campo opcional). */
+const PROPOSTA_FALLBACK_TO = 'comercial@semog.com.br'
+
+/**
  * Converte o primeiro `ZodIssue` de cada campo (`issue.path[0]`) num
  * `Record<string, string>` — formato que o client usa pra destacar o campo
  * com erro, sem precisar entender a árvore de issues do Zod.
@@ -153,9 +173,20 @@ export async function submitForm(
           value: String(value),
         }))
 
-      if (process.env.CONTACT_TO) {
+      // Proposta roteia por região (campo `cidade`) pra caixa da pessoa
+      // responsável; Contato continua indo pro `CONTACT_TO` (que pode estar
+      // ausente em dev — cai no `else` abaixo, comportamento original).
+      let notifyTo: string | undefined
+      if (formType === 'proposta') {
+        const { cidade } = data as PropostaValues
+        notifyTo = cidade ? PROPOSTA_CIDADE_TO[cidade] : PROPOSTA_FALLBACK_TO
+      } else {
+        notifyTo = process.env.CONTACT_TO
+      }
+
+      if (notifyTo) {
         const notificationResult = await sendMail({
-          to: process.env.CONTACT_TO,
+          to: notifyTo,
           subject: `Novo contato via ${formTitle}`,
           react: ContactNotification({ formTitle, fields }),
         })
@@ -163,7 +194,7 @@ export async function submitForm(
           console.error('[submit-form] sendMail falhou:', notificationResult.error)
         }
       } else {
-        console.info('[submit-form] CONTACT_TO ausente — notificação interna não enviada.')
+        console.info('[submit-form] destinatário da notificação ausente — notificação interna não enviada.')
       }
 
       const autoReplyResult = await sendMail({
