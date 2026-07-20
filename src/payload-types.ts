@@ -971,6 +971,15 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Bullets da caixa "Em resumo" ao fim do artigo (página `/blog/[slug]`). Deixe vazio para ocultar a caixa. Ideal: 3 pontos curtos.
+   */
+  keyTakeaways?:
+    | {
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
   category?: (number | null) | Category;
   /**
    * Minutos de leitura estimados — alimenta o "meta" dos cards do blog (ex.: "Equipe Semog · 8 min"), fiel a `_reference/blog.html` (`.featured .meta`/`.post .meta`).
@@ -2553,6 +2562,12 @@ export interface PostsSelect<T extends boolean = true> {
   heroImage?: T;
   excerpt?: T;
   content?: T;
+  keyTakeaways?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
   category?: T;
   readingTime?: T;
   publishedAt?: T;

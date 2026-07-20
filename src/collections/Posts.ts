@@ -24,6 +24,16 @@ export const Posts: CollectionConfig = {
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     { name: 'excerpt', type: 'textarea' },
     { name: 'content', type: 'richText' },
+    {
+      name: 'keyTakeaways',
+      type: 'array',
+      labels: { singular: 'Ponto', plural: 'Pontos' },
+      admin: {
+        description:
+          'Bullets da caixa "Em resumo" ao fim do artigo (página `/blog/[slug]`). Deixe vazio para ocultar a caixa. Ideal: 3 pontos curtos.',
+      },
+      fields: [{ name: 'point', type: 'text', required: true }],
+    },
     { name: 'category', type: 'relationship', relationTo: 'categories' },
     {
       name: 'readingTime',

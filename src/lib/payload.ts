@@ -49,6 +49,54 @@ export const getRecentPosts = cache(async (limit = 6, excludeId?: number): Promi
   return res.docs
 })
 
+/**
+ * Posts relacionados para o rodapé "Continue lendo" da página do artigo
+ * (`/blog/[slug]`). Prioriza a mesma categoria do post atual (`categoryId`) e,
+ * se não houver publicados suficientes, completa com os mais recentes de
+ * outras categorias — sem duplicar e sempre excluindo o próprio post
+ * (`excludeId`). `depth: 1` resolve `category`/`heroImage` para o card
+ * (mesmo shape consumido por `getRecentPosts`/`BlogList`).
+ */
+export const getRelatedPosts = cache(
+  async (
+    categoryId: number | undefined,
+    excludeId: number,
+    limit = 3,
+  ): Promise<Post[]> => {
+    const payload = await getPayloadClient()
+
+    const sameCategory = categoryId
+      ? (
+          await payload.find({
+            collection: 'posts',
+            where: {
+              _status: { equals: 'published' },
+              id: { not_equals: excludeId },
+              category: { equals: categoryId },
+            },
+            sort: '-publishedAt',
+            limit,
+            depth: 1,
+          })
+        ).docs
+      : []
+
+    if (sameCategory.length >= limit) return sameCategory
+
+    // Completa com recentes de qualquer categoria, sem repetir os já escolhidos.
+    const chosen = new Set(sameCategory.map((post) => post.id))
+    const recent = await payload.find({
+      collection: 'posts',
+      where: { _status: { equals: 'published' }, id: { not_equals: excludeId } },
+      sort: '-publishedAt',
+      limit: limit + sameCategory.length,
+      depth: 1,
+    })
+    const filler = recent.docs.filter((post) => !chosen.has(post.id))
+    return [...sameCategory, ...filler].slice(0, limit)
+  },
+)
+
 export const getPostBySlug = cache(async (slug: string): Promise<Post | null> => {
   const payload = await getPayloadClient()
   const res = await payload.find({
