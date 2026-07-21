@@ -1,4 +1,5 @@
 import type React from 'react'
+import { Analytics } from '@/components/analytics/Analytics'
 import { CookieBanner } from '@/components/consent/CookieBanner'
 import { FooterServer } from '@/components/layout/FooterServer'
 import { Grain } from '@/components/layout/Grain'
@@ -27,6 +28,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <Preloader />
         <Grain />
         <ConsentProvider>
+          <Analytics />
           <LenisProvider>
             <HeaderServer />
             <main id="conteudo">{children}</main>

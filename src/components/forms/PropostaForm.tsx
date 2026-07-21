@@ -106,6 +106,9 @@ export function PropostaForm() {
     const result = await submitForm('proposta', values, token)
 
     if (result.ok) {
+      // Conversão de lead → GA4 `generate_lead`. Marcar como evento-chave no GA4
+      // e importar como conversão no Google Ads (o Consent Mode cuida do gating).
+      window.gtag?.('event', 'generate_lead', { form: 'proposta', currency: 'BRL', value: 1 })
       setStatus('success')
       setMessage(result.message ?? 'Solicitação recebida!')
       return
