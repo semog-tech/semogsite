@@ -12,7 +12,7 @@ import { useConsent } from '@/providers/ConsentProvider'
  * Entrada anima com slide-up; `motion-reduce:` desliga a transição.
  */
 export function CookieBanner() {
-  const { consent, decided, acceptAll, rejectNonEssential, save } = useConsent()
+  const { consent, decided, rejectNonEssential, save } = useConsent()
   const [showPreferences, setShowPreferences] = useState(false)
   const [analytics, setAnalytics] = useState(consent.analytics)
   const [marketing, setMarketing] = useState(consent.marketing)
@@ -59,8 +59,9 @@ export function CookieBanner() {
           Sua privacidade
         </h2>
         <p id={descId} className="mb-4 text-[0.92rem] leading-relaxed text-fg-2">
-          Usamos cookies necessários para o funcionamento do site e, mediante sua autorização,
-          cookies de análise e marketing para melhorar sua experiência. Saiba mais na nossa{' '}
+          Usamos cookies necessários para o site funcionar e cookies de análise — agregados e sem
+          publicidade — para entender o uso e melhorar sua experiência. Você pode recusar a análise
+          quando quiser. Saiba mais na nossa{' '}
           <a href="/privacidade" className="text-fg underline underline-offset-2 hover:text-accent">
             Política de Privacidade
           </a>
@@ -92,11 +93,15 @@ export function CookieBanner() {
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="primary" size="sm" onClick={acceptAll}>
-              Aceitar todos
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => save({ analytics: true, marketing: false })}
+            >
+              Entendi
             </Button>
             <Button variant="ghost" size="sm" onClick={rejectNonEssential}>
-              Só necessários
+              Recusar análise
             </Button>
             {showPreferences && (
               <Button variant="glass" size="sm" onClick={handleSave}>
