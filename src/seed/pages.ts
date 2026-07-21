@@ -1905,7 +1905,13 @@ async function seedPropostaPage(payload: Awaited<ReturnType<typeof getPayload>>)
 
 async function upsertPage(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  args: { title: string; slug: string; layout: NonNullable<Page['layout']> },
+  args: {
+    title: string
+    slug: string
+    layout: NonNullable<Page['layout']>
+    /** SEO (`@payloadcms/plugin-seo`): título/descrição próprios da página; sem isso, `buildMetadata` cai no fallback genérico. */
+    meta?: { title?: string; description?: string }
+  },
 ) {
   const existing = await payload.find({
     collection: 'pages',
@@ -1919,6 +1925,7 @@ async function upsertPage(
     slug: args.slug,
     _status: 'published' as const,
     layout: args.layout,
+    ...(args.meta ? { meta: args.meta } : {}),
   }
 
   if (existing.docs[0]) {
@@ -2164,6 +2171,10 @@ async function seedCityLanding(
   await upsertPage(payload, {
     title: `Administradora de Condomínios em ${input.city}`,
     slug: input.slug,
+    meta: {
+      title: `Administradora de Condomínios em ${input.city} | Semog`,
+      description: `Administradora de condomínios em ${input.city}/${input.uf}: ${input.role.toLowerCase()} Semog em ${input.neighborhood}, com prestação de contas digital, aplicativo e Semog Garante. Peça sua proposta.`,
+    },
     layout: [
       hero,
       stats,
