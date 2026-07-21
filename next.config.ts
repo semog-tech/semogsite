@@ -135,6 +135,95 @@ const nextConfig: NextConfig = {
       { source: '/privacidade.html', destination: '/privacidade', permanent: true },
       { source: '/termos.html', destination: '/termos', permanent: true },
       { source: '/guia.html', destination: '/', permanent: true },
+
+      // ── Migração do WordPress antigo (www.semog.com.br) → 301 (permanent:true
+      // = 308, tratado como permanente pelo Google) pras novas URLs. Origens sem
+      // barra final (o Next normaliza a barra do WP). Lista tirada do sitemap do
+      // WordPress (jul/2026). Home `/`, `/proposta` e `/blog` mantêm o caminho.
+
+      // Landings de unidade: /locais/... → /administradora-de-condominios-*
+      {
+        source: '/locais/semog-administradora-de-condominios-recife',
+        destination: '/administradora-de-condominios-recife',
+        permanent: true,
+      },
+      {
+        source: '/locais/semog-administradora-de-condominios-joao-pessoa',
+        destination: '/administradora-de-condominios-joao-pessoa',
+        permanent: true,
+      },
+      {
+        source: '/locais/semog-administradora-de-condominios-campina-grande',
+        destination: '/administradora-de-condominios-campina-grande',
+        permanent: true,
+      },
+      {
+        source: '/locais/semog-administradora-de-condominios-belem',
+        destination: '/administradora-de-condominios-belem',
+        permanent: true,
+      },
+
+      // Páginas institucionais
+      { source: '/sobre', destination: '/semog', permanent: true },
+      // `/domestica` (gestão de doméstica) não tem página equivalente — mando pra
+      // Soluções. Ajustar se preferir outro destino.
+      { source: '/domestica', destination: '/solucoes', permanent: true },
+
+      // Posts antigos COM tema correspondente → post novo mais próximo
+      {
+        source: '/acabe-com-a-inadimplencia-de-seu-condominio',
+        destination: '/blog/inadimplencia-condominio-o-que-a-lei-permite',
+        permanent: true,
+      },
+      {
+        source: '/assembleias-virtuais-apos-pandemia',
+        destination: '/blog/assembleia-virtual-validade-juridica',
+        permanent: true,
+      },
+      {
+        source: '/prestacao-de-contas-do-condominio',
+        destination: '/blog/previsao-orcamentaria-guia-sindico',
+        permanent: true,
+      },
+      {
+        source: '/despesas-ordinarias-e-extraordinarias-entenda-a-diferenca',
+        destination: '/blog/fundo-reserva-quanto-guardar-por-mes',
+        permanent: true,
+      },
+      {
+        source: '/3-tipos-barulho-condominio-lei-silencio',
+        destination: '/blog/areas-lazer-regras-de-uso',
+        permanent: true,
+      },
+      {
+        source: '/o-vizinho-insiste-no-som-alto-no-fim-de-semana-saiba-o-que-fazer',
+        destination: '/blog/areas-lazer-regras-de-uso',
+        permanent: true,
+      },
+
+      // Demais posts antigos (sem correspondência direta) → índice do blog
+      { source: '/qual-o-prazo-para-guarda-de-documentos-em-condominio', destination: '/blog', permanent: true },
+      { source: '/economia-de-energia-condominio-5-dicas', destination: '/blog', permanent: true },
+      { source: '/inspecao-predial-5-coisas-sindico-deve-saber', destination: '/blog', permanent: true },
+      { source: '/cigarros-eletronicos-condominio-permitido', destination: '/blog', permanent: true },
+      { source: '/8-dicas-lidar-latidos-cachorro-condominio-copy', destination: '/blog', permanent: true },
+      { source: '/precisamos-falar-sobre-a-acessibilidade-nos-condominios', destination: '/blog', permanent: true },
+      {
+        source: '/mudancas-na-legislacao-de-sst-entenda-os-impactos-nos-condominios',
+        destination: '/blog',
+        permanent: true,
+      },
+      { source: '/imovel-e-um-bom-investimento', destination: '/blog', permanent: true },
+      { source: '/9-dicas-para-cuidar-da-saude-do-condominio', destination: '/blog', permanent: true },
+      {
+        source: '/saiba-como-aplicar-corretamente-advertencia-e-multa-de-condominio',
+        destination: '/blog',
+        permanent: true,
+      },
+      { source: '/checklist-para-comecar-2021-com-pe-direito', destination: '/blog', permanent: true },
+
+      // Páginas de categoria do WordPress (qualquer uma) → índice do blog
+      { source: '/category/:slug*', destination: '/blog', permanent: true },
     ]
   },
 }
