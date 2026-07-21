@@ -77,16 +77,16 @@ const footerData: Omit<Footer, 'id' | 'updatedAt' | 'createdAt'> = {
   bottomText: '© 2026 Semog Administradora de Condomínios · Desde 1991',
 }
 
-// Endereços, telefones e registros são placeholders — os mesmos valores
-// fictícios usados em `_reference` (ex.: "Av. Exemplo", "(81) 0000-0000",
-// "CRECI/PE"). Não substituir por dados reais nesta tarefa.
+// Endereços e telefones reais das 4 unidades (fonte: semog.com.br + confirmação
+// do cliente, jul/2026). `creci/abadi/secovi` seguem genéricos por ora (sem
+// número de registro informado).
 const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
   addresses: [
     {
       city: 'Recife',
       uf: 'PE',
-      address: 'Av. Conselheiro Aguiar, 1000 · Sala 501, Boa Viagem, Recife/PE · CEP 51011-000',
-      phone: '(81) 0000-0000',
+      address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE · CEP 50610-190',
+      phone: '(81) 3316-0265',
       creci: 'CRECI/PE',
       abadi: 'ABADI',
       secovi: 'SECOVI',
@@ -94,8 +94,8 @@ const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
     {
       city: 'João Pessoa',
       uf: 'PB',
-      address: 'Av. Epitácio Pessoa, 500 · Sala 302, Tambaú, João Pessoa/PB · CEP 58039-000',
-      phone: '(83) 0000-0000',
+      address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB · CEP 58038-140',
+      phone: '(83) 3224-1228',
       creci: 'CRECI/PB',
       abadi: 'ABADI',
       secovi: 'SECOVI',
@@ -103,8 +103,8 @@ const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
     {
       city: 'Campina Grande',
       uf: 'PB',
-      address: 'Rua Maciel Pinheiro, 200 · Sala 104, Centro, Campina Grande/PB · CEP 58400-000',
-      phone: '(83) 0000-0001',
+      address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB · CEP 58410-193',
+      phone: '(83) 3201-9039',
       creci: 'CRECI/PB',
       abadi: 'ABADI',
       secovi: 'SECOVI',
@@ -112,15 +112,15 @@ const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
     {
       city: 'Belém',
       uf: 'PA',
-      address: 'Av. Visconde de Souza Franco, 300 · Sala 205, Umarizal, Belém/PA · CEP 66053-000',
-      phone: '(91) 0000-0000',
+      address: 'Av. Alcindo Cacela, 2351 · Sl 201, Cremação, Belém/PA · CEP 66040-273',
+      phone: '(91) 3115-4700',
       creci: 'CRECI/PA',
       abadi: 'ABADI',
       secovi: 'SECOVI',
     },
   ],
-  // Número da matriz (Recife), usado no botão flutuante de `_reference`.
-  whatsapp: '5581999999999',
+  // WhatsApp central da Semog (atende todas as unidades), usado no botão flutuante.
+  whatsapp: '551130034506',
 }
 
 const siteSettingsData: Omit<SiteSettings, 'id' | 'updatedAt' | 'createdAt'> = {
