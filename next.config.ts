@@ -99,6 +99,17 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Apex → www. O site é canônico em www.semog.com.br (canonical/OG/sitemap
+      // em src/lib/seo.ts), então todo acesso ao domínio raiz faz 301 pro www.
+      // A condição `host` restringe ao apex — não afeta o próprio www nem os
+      // domínios *.vercel.app (preview/prod interno). Roda no edge da Vercel,
+      // antes da app.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'semog.com.br' }],
+        destination: 'https://www.semog.com.br/:path*',
+        permanent: true,
+      },
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/semog.html', destination: '/semog', permanent: true },
       { source: '/solucoes.html', destination: '/solucoes', permanent: true },
