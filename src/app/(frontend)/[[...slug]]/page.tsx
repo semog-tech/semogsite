@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { getPageBySlug, getPayloadClient, getSiteSettings } from '@/lib/payload'
-import { buildMetadata, getOrganizationJsonLd } from '@/lib/seo'
+import { buildMetadata, getPageJsonLd } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -52,13 +52,16 @@ export default async function Page({ params }: { params: Promise<{ slug?: string
   const path = slug?.join('/') || 'home'
   const page = await getPageBySlug(path)
   if (!page) notFound()
+  // JSON-LD por tipo de página: Organization (home), LocalBusiness+FAQPage+
+  // BreadcrumbList (landings de cidade) ou BreadcrumbList (demais). Ver `getPageJsonLd`.
+  const jsonLd = getPageJsonLd({ page, path })
   return (
     <>
-      {path === 'home' && (
+      {jsonLd && (
         <script
           type="application/ld+json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD estático (sem input de usuário), gerado por getOrganizationJsonLd
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(getOrganizationJsonLd()) }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD derivado do CMS/dados estáticos, sem input de usuário
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
       <RenderBlocks blocks={page.layout} />

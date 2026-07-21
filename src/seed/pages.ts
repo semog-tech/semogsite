@@ -1612,8 +1612,8 @@ const contatoQuickLinks: Omit<QuickLinksBlock, 'id' | 'blockName'> = {
       icon: 'whatsapp',
       title: 'WhatsApp',
       description: 'Resposta em horário comercial, geralmente em poucos minutos.',
-      value: '(81) 9 9999-9999',
-      href: 'https://wa.me/5581999999999',
+      value: '(11) 3003-4506',
+      href: 'https://wa.me/551130034506',
       external: true,
     },
     {
@@ -1696,29 +1696,29 @@ const contatoUnidades: Omit<ContactInfoBlock, 'id' | 'blockName'> = {
     {
       city: 'Recife',
       uf: 'PE · Matriz',
-      address: 'Av. Exemplo, 1000, Boa Viagem, Recife/PE',
-      phone: '(81) 0000-0000',
+      address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE',
+      phone: '(81) 3316-0265',
     },
     {
       city: 'João Pessoa',
       uf: 'PB · Filial',
-      address: 'Av. Exemplo, 200, Manaíra, João Pessoa/PB',
-      phone: '(83) 0000-0000',
+      address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB',
+      phone: '(83) 3224-1228',
     },
     {
       city: 'Campina Grande',
       uf: 'PB · Filial',
-      address: 'Rua Exemplo, 300, Centro, Campina Grande/PB',
-      phone: '(83) 0000-0001',
+      address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB',
+      phone: '(83) 3201-9039',
     },
     {
       city: 'Belém',
       uf: 'PA · Filial',
-      address: 'Av. Exemplo, 400, Umarizal, Belém/PA',
-      phone: '(91) 0000-0000',
+      address: 'Av. Alcindo Cacela, 2351, Sl 201, Cremação, Belém/PA',
+      phone: '(91) 3115-4700',
     },
   ],
-  whatsapp: '5581999999999',
+  whatsapp: '551130034506',
 }
 
 /**
@@ -1747,44 +1747,44 @@ async function buildContatoUnits(
       {
         city: 'Semog Recife',
         chip: 'Matriz · Pernambuco',
-        address: 'Av. Exemplo, 1000, Boa Viagem, Recife/PE',
-        phone: '(81) 0000-0000',
-        whatsappDisplay: '(81) 9 9999-9999',
+        address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE',
+        phone: '(81) 3316-0265',
+        whatsappDisplay: '(11) 3003-4506',
         hours: 'Segunda a sexta, 8h às 18h',
-        mapsHref: 'https://maps.google.com/?q=Recife',
+        mapsHref: 'https://maps.google.com/?q=Semog+Bartolomeu+de+Gusmao+217+Madalena+Recife',
         photo: recifeId,
         uf: 'PE',
       },
       {
         city: 'Semog João Pessoa',
         chip: 'Filial · Paraíba',
-        address: 'Av. Exemplo, 200, Manaíra, João Pessoa/PB',
-        phone: '(83) 0000-0000',
-        whatsappDisplay: '(83) 9 9999-9999',
+        address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB',
+        phone: '(83) 3224-1228',
+        whatsappDisplay: '(11) 3003-4506',
         hours: 'Segunda a sexta, 8h às 18h',
-        mapsHref: 'https://maps.google.com/?q=Joao+Pessoa',
+        mapsHref: 'https://maps.google.com/?q=Semog+Guarabira+834+Manaira+Joao+Pessoa',
         photo: joaoPessoaId,
         uf: 'PB',
       },
       {
         city: 'Semog Campina Grande',
         chip: 'Filial · Paraíba',
-        address: 'Rua Exemplo, 300, Centro, Campina Grande/PB',
-        phone: '(83) 0000-0001',
-        whatsappDisplay: '(83) 9 8888-8888',
+        address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB',
+        phone: '(83) 3201-9039',
+        whatsappDisplay: '(11) 3003-4506',
         hours: 'Segunda a sexta, 8h às 18h',
-        mapsHref: 'https://maps.google.com/?q=Campina+Grande',
+        mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
         photo: campinaGrandeId,
         uf: 'PB',
       },
       {
         city: 'Semog Belém',
         chip: 'Filial · Pará',
-        address: 'Av. Exemplo, 400, Umarizal, Belém/PA',
-        phone: '(91) 0000-0000',
-        whatsappDisplay: '(91) 9 7777-7777',
+        address: 'Av. Alcindo Cacela, 2351, Sl 201, Cremação, Belém/PA',
+        phone: '(91) 3115-4700',
+        whatsappDisplay: '(11) 3003-4506',
         hours: 'Segunda a sexta, 8h às 18h',
-        mapsHref: 'https://maps.google.com/?q=Belem',
+        mapsHref: 'https://maps.google.com/?q=Semog+Alcindo+Cacela+2351+Cremacao+Belem',
         photo: belemId,
         uf: 'PA',
       },
@@ -1859,7 +1859,7 @@ const propostaCtaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
   blockType: 'ctaBand',
   title: 'Pronto para receber a sua proposta?',
   text: 'Fale agora com a Semog e receba uma proposta sob medida para o seu condomínio.',
-  cta: { label: 'Falar no WhatsApp', href: 'https://wa.me/5581999999999' },
+  cta: { label: 'Falar no WhatsApp', href: 'https://wa.me/551130034506' },
 }
 
 /**
@@ -1889,8 +1889,8 @@ async function buildPropostaTrustPanel(
     quoteText: 'Pergunte ao consultor sobre a garantia de 100% da arrecadação por 1% ao mês.',
     whatsappTitle: 'Prefere conversar agora?',
     whatsappText: 'Chame no WhatsApp:',
-    whatsapp: '5581999999999',
-    whatsappDisplay: '(81) 9 9999-9999',
+    whatsapp: '551130034506',
+    whatsappDisplay: '(11) 3003-4506',
   }
 }
 
@@ -1905,7 +1905,13 @@ async function seedPropostaPage(payload: Awaited<ReturnType<typeof getPayload>>)
 
 async function upsertPage(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  args: { title: string; slug: string; layout: NonNullable<Page['layout']> },
+  args: {
+    title: string
+    slug: string
+    layout: NonNullable<Page['layout']>
+    /** SEO (`@payloadcms/plugin-seo`): título/descrição próprios da página; sem isso, `buildMetadata` cai no fallback genérico. */
+    meta?: { title?: string; description?: string }
+  },
 ) {
   const existing = await payload.find({
     collection: 'pages',
@@ -1919,6 +1925,7 @@ async function upsertPage(
     slug: args.slug,
     _status: 'published' as const,
     layout: args.layout,
+    ...(args.meta ? { meta: args.meta } : {}),
   }
 
   if (existing.docs[0]) {
@@ -2164,6 +2171,10 @@ async function seedCityLanding(
   await upsertPage(payload, {
     title: `Administradora de Condomínios em ${input.city}`,
     slug: input.slug,
+    meta: {
+      title: `Administradora de Condomínios em ${input.city} | Semog`,
+      description: `Administradora de condomínios em ${input.city}/${input.uf}: ${input.role.toLowerCase()} Semog em ${input.neighborhood}, com prestação de contas digital, aplicativo e Semog Garante. Peça sua proposta.`,
+    },
     layout: [
       hero,
       stats,
@@ -2188,13 +2199,13 @@ const recifeCityLanding: CityLandingInput = {
   heroSubhead:
     'A líder do Nordeste nasceu aqui. Matriz em Recife, 35 anos de mercado e mais de 700 condomínios sob gestão.',
   cityPhotoFilename: 'recife.webp',
-  neighborhood: 'Boa Viagem',
-  addressMain: 'Av. Conselheiro Aguiar, 1000 · Sala 501',
-  addressDetail: 'Boa Viagem · Recife/PE · CEP 51011-000',
-  phone: '(81) 0000-0000',
-  whatsapp: '5581999999999',
-  whatsappDisplay: '(81) 9 9999-9999',
-  mapsHref: 'https://maps.google.com/?q=Semog+recife',
+  neighborhood: 'Madalena',
+  addressMain: 'R. Bartolomeu de Gusmão, 217',
+  addressDetail: 'Madalena · Recife/PE · CEP 50610-190',
+  phone: '(81) 3316-0265',
+  whatsapp: '551130034506',
+  whatsappDisplay: '(11) 3003-4506',
+  mapsHref: 'https://maps.google.com/?q=Semog+Bartolomeu+de+Gusmao+217+Madalena+Recife',
   neighborhoodPills: [
     'Boa Viagem',
     'Casa Forte',
@@ -2233,13 +2244,13 @@ const joaoPessoaCityLanding: CityLandingInput = {
   heroSubhead:
     'A administradora líder do Nordeste, com filial e equipe local em João Pessoa para cuidar do seu condomínio de perto.',
   cityPhotoFilename: 'joao-pessoa.webp',
-  neighborhood: 'Tambaú',
-  addressMain: 'Av. Epitácio Pessoa, 500 · Sala 302',
-  addressDetail: 'Tambaú · João Pessoa/PB · CEP 58039-000',
-  phone: '(83) 0000-0000',
-  whatsapp: '5583999999999',
-  whatsappDisplay: '(83) 9 9999-9999',
-  mapsHref: 'https://maps.google.com/?q=Semog+joao+pessoa',
+  neighborhood: 'Manaíra',
+  addressMain: 'Av. Guarabira, 834',
+  addressDetail: 'Manaíra · João Pessoa/PB · CEP 58038-140',
+  phone: '(83) 3224-1228',
+  whatsapp: '551130034506',
+  whatsappDisplay: '(11) 3003-4506',
+  mapsHref: 'https://maps.google.com/?q=Semog+Guarabira+834+Manaira+Joao+Pessoa',
   neighborhoodPills: [
     'Manaíra',
     'Tambaú',
@@ -2276,13 +2287,13 @@ const campinaGrandeCityLanding: CityLandingInput = {
   heroSubhead:
     'A administradora líder do Nordeste, com filial e equipe local em Campina Grande para cuidar do seu condomínio de perto.',
   cityPhotoFilename: 'campina-grande.webp',
-  neighborhood: 'Centro',
-  addressMain: 'Rua Maciel Pinheiro, 200 · Sala 104',
-  addressDetail: 'Centro · Campina Grande/PB · CEP 58400-000',
-  phone: '(83) 0000-0000',
-  whatsapp: '5583999999999',
-  whatsappDisplay: '(83) 9 9999-9999',
-  mapsHref: 'https://maps.google.com/?q=Semog+campina+grande',
+  neighborhood: 'Catolé',
+  addressMain: 'R. José Adnoste Roberto, 1001',
+  addressDetail: 'Catolé · Campina Grande/PB · CEP 58410-193',
+  phone: '(83) 3201-9039',
+  whatsapp: '551130034506',
+  whatsappDisplay: '(11) 3003-4506',
+  mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
   neighborhoodPills: ['Catolé', 'Mirante', 'Alto Branco', 'Centro', 'Bela Vista', 'Prata'],
   alsoServedNote: 'Também atendemos Queimadas, Lagoa Seca.',
   servicosIntro:
@@ -2311,13 +2322,13 @@ const belemCityLanding: CityLandingInput = {
   heroSubhead:
     'O método da líder do Nordeste, com filial e equipe local em Belém do Pará para cuidar do seu condomínio de perto.',
   cityPhotoFilename: 'belem.webp',
-  neighborhood: 'Umarizal',
-  addressMain: 'Av. Visconde de Souza Franco, 300 · Sala 205',
-  addressDetail: 'Umarizal · Belém/PA · CEP 66053-000',
-  phone: '(91) 0000-0000',
-  whatsapp: '5591999999999',
-  whatsappDisplay: '(91) 9 9999-9999',
-  mapsHref: 'https://maps.google.com/?q=Semog+belem',
+  neighborhood: 'Cremação',
+  addressMain: 'Av. Alcindo Cacela, 2351 · Sl 201',
+  addressDetail: 'Cremação · Belém/PA · CEP 66040-273',
+  phone: '(91) 3115-4700',
+  whatsapp: '551130034506',
+  whatsappDisplay: '(11) 3003-4506',
+  mapsHref: 'https://maps.google.com/?q=Semog+Alcindo+Cacela+2351+Cremacao+Belem',
   neighborhoodPills: ['Umarizal', 'Nazaré', 'Batista Campos', 'Marco', 'Reduto', 'São Brás'],
   alsoServedNote: 'Também atendemos Ananindeua, Marituba, Região Metropolitana de Belém.',
   servicosIntro:
