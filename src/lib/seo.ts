@@ -4,6 +4,12 @@ import type { Media, SiteSettings } from '@/payload-types'
 const DEFAULT_SITE_URL = 'https://www.semog.com.br'
 const FALLBACK_TITLE = 'Semog Administradora de Condomínios'
 
+/** Perfis oficiais (sameAs) — reforça a associação da entidade no Google. */
+const SOCIAL_PROFILES = [
+  'https://www.instagram.com/semogcondominios/',
+  'https://www.facebook.com/semogcondominio',
+]
+
 /**
  * Forma compartilhada do grupo `meta` que o `@payloadcms/plugin-seo` injeta
  * em `Page` e `Post` (título/descrição/imagem) — evita depender do tipo
@@ -266,6 +272,7 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
     },
     areaServed: unit.areaServed,
     hasMap: unit.mapsHref,
+    sameAs: SOCIAL_PROFILES,
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',
@@ -296,6 +303,7 @@ export function getOrganizationJsonLd(): Record<string, unknown> {
         name: FALLBACK_TITLE,
         url: root,
         logo: absoluteUrl('semog-logo-light.svg'),
+        sameAs: SOCIAL_PROFILES,
         foundingDate: '1991',
         slogan: 'Preocupe-se apenas em morar',
         description:
