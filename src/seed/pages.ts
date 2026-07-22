@@ -2159,14 +2159,16 @@ async function seedCityLanding(
     ],
   }
 
-  // `.final-cta`, fiel a `_reference/administradora-de-condominios-recife.html:459-471`.
-  const ctaBand: Omit<CTABandBlock, 'id' | 'blockName'> = {
-    blockType: 'ctaBand',
-    variant: 'centered',
+  // Fecha a landing com o formulário de proposta NA PRÓPRIA página (menos atrito
+  // que mandar pra /proposta) — captura o lead ali mesmo. A `cidade` já vem
+  // pré-selecionada: o `PropostaForm` infere do slug da URL (ver
+  // src/components/forms/PropostaForm.tsx). O copy reaproveita o antigo CTA band.
+  const propostaForm: Omit<FormEmbedBlock, 'id' | 'blockName'> = {
+    blockType: 'formEmbed',
+    formType: 'proposta',
+    eyebrow: `Semog ${input.city}`,
     title: `Seu condomínio em ${input.city} merece a líder.`,
-    titleAccent: 'a líder.',
-    text: `Fale com a Semog ${input.city} e receba uma proposta sob medida em até 24 horas úteis.`,
-    cta: { label: 'Solicitar proposta', href: '/proposta' },
+    text: `Preencha abaixo e um consultor da unidade de ${input.city} responde com uma proposta sob medida em até 24 horas úteis.`,
   }
 
   await upsertPage(payload, {
@@ -2186,7 +2188,7 @@ async function seedCityLanding(
       depoimentos,
       registros,
       faq,
-      ctaBand,
+      propostaForm,
     ],
   })
 }

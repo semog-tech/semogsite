@@ -41,6 +41,18 @@ const CIDADE_OPTIONS: { label: string; value: NonNullable<PropostaValues['cidade
   { label: 'Outra cidade', value: 'Outra cidade' },
 ]
 
+/**
+ * Infere a `cidade` pelo slug da landing de unidade, pra pré-selecionar o campo
+ * quando o form está embutido nessas páginas (ex.: /administradora-de-
+ * condominios-recife). Menos atrito + atribuição/roteamento corretos.
+ */
+const CIDADE_BY_SLUG: [slug: string, cidade: NonNullable<PropostaValues['cidade']>][] = [
+  ['recife', 'Recife e região'],
+  ['joao-pessoa', 'João Pessoa e região'],
+  ['campina-grande', 'Campina Grande e região'],
+  ['belem', 'Belém e região'],
+]
+
 type Status = 'idle' | 'success' | 'error'
 
 /**
@@ -90,6 +102,15 @@ export function PropostaForm() {
       setValue('cargo', undefined)
     }
   }, [isIncorporadora, setValue])
+
+  // Pré-seleciona a cidade quando o form está embutido numa landing de unidade
+  // (infere do slug da URL). Na /proposta genérica nenhum slug casa, então fica
+  // no placeholder — comportamento inalterado.
+  useEffect(() => {
+    const path = window.location.pathname
+    const cidade = CIDADE_BY_SLUG.find(([slug]) => path.includes(slug))?.[1]
+    if (cidade) setValue('cidade', cidade)
+  }, [setValue])
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
