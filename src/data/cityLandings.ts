@@ -18,6 +18,8 @@ export type CityLandingData = {
   /** Foto aérea em `public/cities/<slug-curto>.jpg`. */
   image: string
   heroSubhead: string
+  /** Parágrafo único por cidade (SEO local + evita conteúdo quase-duplicado). */
+  localContext: string
   coverageText: string
   neighborhoods: string[]
   unit: {
@@ -71,6 +73,8 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     image: '/cities/recife.jpg',
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
+    localContext:
+      'Capital pernambucana e maior economia do Norte-Nordeste, o Recife concentra uma verticalização intensa — de Boa Viagem à orla, passando por Casa Forte, Graças e Espinheiro — onde a boa gestão condominial faz diferença real no valor do imóvel. É aqui que nascem os 35 anos da Semog: como matriz, reunimos financeiro, jurídico e contábil próprios e a tecnologia que hoje atende todo o Nordeste e o Norte. Do prédio na praia ao condomínio de bairro, a administração é conduzida por quem conhece o mercado imobiliário do Recife de perto.',
     coverageText:
       'Da Região Metropolitana do Recife ao interior de Pernambuco, sua gestão é local de ponta a ponta. Presença especialmente forte em:',
     neighborhoods: [
@@ -124,6 +128,8 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     image: '/cities/joao-pessoa.jpg',
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
+    localContext:
+      'Uma das capitais que mais crescem no Nordeste, João Pessoa vive um forte adensamento no litoral — Manaíra, Cabo Branco, Tambaú e Bessa — com condomínios cada vez mais verticais e exigentes em gestão. A Semog leva à Paraíba a mesma estrutura que a tornou líder no Recife: prestação de contas 100% digital, aplicativo para moradores e uma equipe pessoense que resolve perto de você. Seja na orla ou em bairros em expansão como Altiplano e Bancários, o seu condomínio conta com gestão local de ponta a ponta.',
     coverageText:
       'De Manaíra ao Bessa, do litoral ao interior da Paraíba, sua gestão é local e próxima. Presença especialmente forte em:',
     neighborhoods: [
@@ -177,6 +183,8 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     image: '/cities/campina-grande.jpg',
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
+    localContext:
+      'Rainha da Borborema e principal polo tecnológico e universitário do interior nordestino, Campina Grande combina tradição e inovação — e o mesmo vale para a gestão de condomínios. Do Catolé ao Mirante e ao Alto Branco, o mercado condominial cresce junto com a cidade, e a Semog atende com tecnologia própria e um atendimento próximo, no jeito campinense. Aqui você tem a estrutura de uma administradora líder do Nordeste sem abrir mão da proximidade que o interior valoriza.',
     coverageText:
       'Do Catolé ao Centro, em toda Campina Grande e no agreste paraibano, sua gestão é local e próxima. Presença especialmente forte em:',
     neighborhoods: [
@@ -230,6 +238,8 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     image: '/cities/belem.jpg',
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
+    localContext:
+      'No coração da Amazônia, Belém une o charme histórico da Cidade Velha e do Ver-o-Peso à verticalização acelerada de Umarizal, Nazaré e Batista Campos. Levar uma gestão condominial moderna à capital paraense é a missão da Semog no Norte: tecnologia que ainda era rara por aqui, prestação de contas transparente e uma equipe local que entende as particularidades do clima e do mercado amazônico. Do edifício histórico ao lançamento de alto padrão, seu condomínio ganha a estrutura de uma das maiores administradoras do país.',
     coverageText:
       'De Nazaré a Umarizal, em toda Belém e Região Metropolitana, sua gestão é local e próxima. Presença especialmente forte em:',
     neighborhoods: [

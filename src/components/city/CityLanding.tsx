@@ -1,3 +1,4 @@
+import { preload } from 'react-dom'
 import { PropostaForm } from '@/components/forms/PropostaForm'
 import type { CityLandingData } from '@/data/cityLandings'
 import { Reveal, Stagger } from '@/motion/reveal'
@@ -134,6 +135,10 @@ const STEPS = [
 export function CityLanding({ data }: { data: CityLandingData }) {
   const shortSlug = data.image.replace('/cities/', '').replace('.jpg', '')
   const heroVideo = `/hero/${shortSlug}.mp4`
+
+  // O poster do hero costuma ser o elemento LCP — pré-carrega com prioridade
+  // alta para pintar antes de o vídeo (preload=metadata) começar a baixar.
+  preload(data.image, { as: 'image', fetchPriority: 'high' })
 
   return (
     <main
@@ -498,8 +503,14 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               Atendemos todo o {data.ufFull}.
             </h2>
             <p
-              className="mt-4 max-w-[42ch] text-[1.05rem] leading-relaxed"
-              style={{ color: '#404a68' }}
+              className="mt-4 max-w-[54ch] text-[1.05rem] leading-relaxed"
+              style={{ color: '#2a3356' }}
+            >
+              {data.localContext}
+            </p>
+            <p
+              className="mt-4 max-w-[46ch] text-[0.98rem] leading-relaxed"
+              style={{ color: '#5a6488' }}
             >
               {data.coverageText}
             </p>
