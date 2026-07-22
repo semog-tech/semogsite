@@ -27,13 +27,15 @@ import { getMediaId } from './lib/media'
 // (direction/format/indent/version) do parágrafo já validado pelo Payload.
 // ---------------------------------------------------------------------------
 
-type Inline = string | { text: string; bold?: boolean }
+type TextInline = string | { text: string; bold?: boolean }
 // biome-ignore lint/suspicious/noExplicitAny: AST lexical; não vale tipar o nó inteiro aqui
 type Node = any
+type LinkInline = { type: 'link'; [k: string]: unknown }
+type Inline = TextInline | LinkInline
 
 const base = { direction: 'ltr' as const, format: '' as const, indent: 0, version: 1 }
 
-function textNode(seg: Inline): Node {
+function textNode(seg: TextInline): Node {
   const s = typeof seg === 'string' ? { text: seg, bold: false } : seg
   return {
     type: 'text',
@@ -46,9 +48,24 @@ function textNode(seg: Inline): Node {
   }
 }
 
+/** Link inline (custom/interno) — nó lexical do Payload, espelha `linkNode` de pages.ts. */
+function link(text: string, href: string): Node {
+  return {
+    ...base,
+    type: 'link',
+    version: 3,
+    fields: { linkType: 'custom' as const, url: href, newTab: false },
+    children: [textNode(text)],
+  }
+}
+
+function isLink(seg: Inline): seg is LinkInline {
+  return typeof seg === 'object' && seg !== null && (seg as { type?: string }).type === 'link'
+}
+
 function inlines(children: Inline[] | string): Node[] {
   const arr = typeof children === 'string' ? [children] : children
-  return arr.map(textNode)
+  return arr.map((seg) => (isLink(seg) ? (seg as Node) : textNode(seg)))
 }
 
 function p(children: Inline[] | string): Node {
@@ -110,7 +127,10 @@ const postsData = [
     readingTime: 11,
     publishedAt: '2026-07-14T09:00:00.000Z',
     keyTakeaways: [
-      { point: 'Separe despesa recorrente de investimento pontual antes de projetar qualquer número.' },
+      {
+        point:
+          'Separe despesa recorrente de investimento pontual antes de projetar qualquer número.',
+      },
       { point: 'Mapeie reajustes de contrato e dissídio num calendário — quase nada é surpresa.' },
       { point: 'Trate o fundo de reserva como linha fixa do orçamento, não como sobra de caixa.' },
       { point: 'Leve a assembleia cada aumento com uma explicação de uma linha: contrato e data.' },
@@ -212,9 +232,15 @@ const postsData = [
     readingTime: 9,
     publishedAt: '2026-07-11T09:00:00.000Z',
     keyTakeaways: [
-      { point: 'A lei limita a multa a 2% e os juros de mora a 1% ao mês — nada de valores "inventados".' },
+      {
+        point:
+          'A lei limita a multa a 2% e os juros de mora a 1% ao mês — nada de valores "inventados".',
+      },
       { point: 'A régua de cobrança nos primeiros dias recupera mais que qualquer ação judicial.' },
-      { point: 'Acordo com entrada, parcelas e vencimento antecipado é mais rápido e barato que execução.' },
+      {
+        point:
+          'Acordo com entrada, parcelas e vencimento antecipado é mais rápido e barato que execução.',
+      },
       { point: 'O crédito condominial tem preferência e pode chegar à penhora do próprio imóvel.' },
     ],
     content: doc(
@@ -296,7 +322,10 @@ const postsData = [
     readingTime: 8,
     publishedAt: '2026-07-08T09:00:00.000Z',
     keyTakeaways: [
-      { point: 'Balancete atrasado e erro financeiro recorrente são falha de processo, não deslize.' },
+      {
+        point:
+          'Balancete atrasado e erro financeiro recorrente são falha de processo, não deslize.',
+      },
       { point: 'Sem indicadores de gestão, a administradora só paga contas — não administra.' },
       { point: 'Dois ou mais sinais ao mesmo tempo indicam problema estrutural, não pontual.' },
       { point: 'A transição bem conduzida migra dados e cobrança sem o condômino sentir.' },
@@ -441,7 +470,10 @@ const postsData = [
       { point: 'A Lei 14.309/2022 reconhece assembleias virtuais e híbridas — elas são válidas.' },
       { point: 'A convenção (ou uma assembleia) precisa autorizar expressamente a modalidade.' },
       { point: 'Convocação, verificação de quórum e votação rastreável são inegociáveis.' },
-      { point: 'A trilha de auditoria eletrônica é a prova — muitas vezes mais forte que a ata presencial.' },
+      {
+        point:
+          'A trilha de auditoria eletrônica é a prova — muitas vezes mais forte que a ata presencial.',
+      },
     ],
     content: doc(
       p(
@@ -500,8 +532,13 @@ const postsData = [
     readingTime: 7,
     publishedAt: '2026-06-28T09:00:00.000Z',
     keyTakeaways: [
-      { point: 'Faixa de mercado: 5% a 10% da arrecadação mensal, maior para prédios mais antigos.' },
-      { point: 'Se a convenção fixa um mínimo, ele é obrigatório e entra no orçamento como despesa.' },
+      {
+        point: 'Faixa de mercado: 5% a 10% da arrecadação mensal, maior para prédios mais antigos.',
+      },
+      {
+        point:
+          'Se a convenção fixa um mínimo, ele é obrigatório e entra no orçamento como despesa.',
+      },
       { point: 'Use o fundo para imprevisto e obra de porte — nunca para despesa corrente.' },
       { point: 'Fundo bem aplicado rende; parado na conta, perde para a inflação.' },
     ],
@@ -549,10 +586,19 @@ const postsData = [
     readingTime: 10,
     publishedAt: '2026-06-22T09:00:00.000Z',
     keyTakeaways: [
-      { point: 'Convoque todos os compradores e chegue com convenção, regimento e orçamento prontos.' },
-      { point: 'Na assembleia: instale o condomínio, aprove os documentos, eleja o síndico e a taxa — nessa ordem.' },
+      {
+        point:
+          'Convoque todos os compradores e chegue com convenção, regimento e orçamento prontos.',
+      },
+      {
+        point:
+          'Na assembleia: instale o condomínio, aprove os documentos, eleja o síndico e a taxa — nessa ordem.',
+      },
       { point: 'A ata destrava CNPJ, conta bancária e registro em cartório: sem ela, nada anda.' },
-      { point: 'Condomínio que começa organizado gera menos atrito no pós-obra e protege a incorporadora.' },
+      {
+        point:
+          'Condomínio que começa organizado gera menos atrito no pós-obra e protege a incorporadora.',
+      },
     ],
     content: doc(
       p(
@@ -612,10 +658,7 @@ const postsData = [
         'A ata da instalação é o documento que destrava o resto. Com ela em mãos, o síndico eleito pode dar os passos que colocam o condomínio em funcionamento:',
       ),
       ul([
-        [
-          { text: 'Abrir o CNPJ', bold: true },
-          ' do condomínio junto à Receita Federal.',
-        ],
+        [{ text: 'Abrir o CNPJ', bold: true }, ' do condomínio junto à Receita Federal.'],
         [
           { text: 'Abrir a conta bancária', bold: true },
           ' em nome do condomínio, separando de vez o dinheiro comum do da incorporadora.',
@@ -632,6 +675,173 @@ const postsData = [
       p(
         'A Semog conduz esse processo do começo ao fim — da convocação dos compradores ao registro em cartório — para que a incorporadora entregue as chaves com o condomínio juridicamente pronto para funcionar, e o morador comece a vida nova sem herdar uma pendência que não criou.',
       ),
+    ),
+  },
+  {
+    title: 'Quanto custa uma administradora de condomínios? Como comparar propostas',
+    slug: 'quanto-custa-administradora-de-condominios',
+    excerpt:
+      'A resposta honesta é "depende" — mas dá para saber o que puxa o preço, quais são os modelos de cobrança e como comparar propostas sem cair na armadilha da menor taxa.',
+    categorySlug: 'financas',
+    heroImageFilename: 'comercial.webp',
+    readingTime: 9,
+    publishedAt: '2026-07-18T09:00:00.000Z',
+    keyTakeaways: [
+      {
+        point:
+          'O preço varia com o porte do condomínio, o escopo de serviços e o nível de tecnologia — não existe tabela única.',
+      },
+      {
+        point:
+          'Compare o escopo completo, não só a taxa: prestação de contas, jurídico, folha, app e atendimento local mudam o valor real.',
+      },
+      {
+        point:
+          'A menor taxa costuma sair mais cara: inadimplência mal tratada e retrabalho pesam mais que a diferença mensal.',
+      },
+      { point: 'Peça as propostas no mesmo formato e cheque sempre o que NÃO está incluído.' },
+    ],
+    content: doc(
+      p(
+        '"Quanto custa uma administradora de condomínios?" é a primeira pergunta de quase todo síndico — e a resposta honesta é: depende. Não porque o mercado queira esconder o preço, mas porque duas administradoras podem cobrar o mesmo valor entregando coisas completamente diferentes. Este guia mostra o que puxa o preço e como comparar propostas sem se enganar.',
+      ),
+      h('h2', 'O que entra no preço de uma administradora'),
+      p(
+        'O valor cobrado reflete o trabalho que a administradora assume no seu lugar. Os fatores que mais pesam são:',
+      ),
+      ul([
+        [
+          { text: 'Porte do condomínio: ', bold: true },
+          'número de unidades e blocos define o volume de boletos, cobranças e atendimento.',
+        ],
+        [
+          { text: 'Escopo de serviços: ', bold: true },
+          'gestão financeira, cobrança, folha de funcionários, assessoria jurídica e assembleias podem estar dentro ou fora do pacote.',
+        ],
+        [
+          { text: 'Tecnologia: ', bold: true },
+          'aplicativo para moradores, prestação de contas digital e portal do síndico reduzem trabalho manual — e isso se reflete na qualidade.',
+        ],
+        [
+          { text: 'Equipe local: ', bold: true },
+          'ter gente da região que atende de perto é diferente de um call center distante.',
+        ],
+      ]),
+      h('h2', 'Taxa fixa, por unidade ou percentual?'),
+      p('Existem três modelos de cobrança mais comuns no mercado:'),
+      ul([
+        [
+          { text: 'Valor fixo mensal: ', bold: true },
+          'previsível, bom para orçamento; verifique o que está incluído para não ter surpresa em serviços "extras".',
+        ],
+        [
+          { text: 'Por unidade: ', bold: true },
+          'a taxa acompanha o tamanho do condomínio — justo, mas exige comparar o valor por unidade entre as propostas.',
+        ],
+        [
+          { text: 'Percentual da arrecadação: ', bold: true },
+          'menos comum; alinha o custo à receita, mas pode ficar caro em condomínios com taxa alta.',
+        ],
+      ]),
+      h('h2', 'O erro de escolher só pela menor taxa'),
+      p(
+        'A taxa da administradora costuma ser uma fração pequena do orçamento do condomínio — bem menor que a folha de funcionários ou a inadimplência. Economizar na administração e herdar cobrança fraca, prestação de contas confusa e retrabalho jurídico sai muito mais caro do que a diferença mensal entre uma proposta e outra.',
+      ),
+      p([
+        'A inadimplência é o melhor exemplo: um condomínio que não recebe 10% da arrecadação já perde, todo mês, mais do que pagaria a mais por uma boa gestão. Por isso soluções como o ',
+        link('Semog Garante', '/garante'),
+        ', que asseguram a arrecadação integral, mudam a conta a favor do condomínio.',
+      ]),
+      quote(
+        'Barato de verdade é o condomínio que recebe 100% da receita, presta contas em minutos na assembleia e não vira processo trabalhista. Isso não vem da menor taxa — vem da melhor gestão.',
+      ),
+      h('h2', 'Como comparar propostas de verdade'),
+      p('Coloque as propostas lado a lado e confira, item a item:'),
+      ol([
+        'O escopo é o mesmo? Liste serviço por serviço (financeiro, cobrança, folha, jurídico, assembleias, app) e marque o que cada uma inclui.',
+        'A prestação de contas é digital, aberta a todos os condôminos e com validade jurídica — ou é um PDF que ninguém entende?',
+        'Há equipe local e canal de atendimento com prazo de resposta? Quem resolve quando dá problema?',
+        'Como é feita a cobrança de inadimplentes, e existe alguma garantia de arrecadação?',
+        'O que NÃO está incluído e vira custo extra (2ª via, acordos, ações judiciais, relatórios)?',
+      ]),
+      h('h2', 'E quanto a Semog cobra?'),
+      p([
+        'Como todo o mercado, depende do perfil do seu condomínio — por isso a proposta é personalizada. A diferença é o que vem dentro dela: ',
+        link('administração completa', '/administracao-de-condominios'),
+        ', prestação de contas 100% digital, aplicativo para moradores e equipe local. Conte sobre o seu condomínio e ',
+        link('receba uma proposta em até 24 horas úteis', '/proposta'),
+        ', sem compromisso — aí sim você compara com números reais.',
+      ]),
+    ),
+  },
+  {
+    title: 'Administradora ou autogestão: o que compensa para o seu condomínio?',
+    slug: 'administradora-ou-autogestao',
+    excerpt:
+      'Autogestão parece mais barata no papel, mas tem um custo invisível que pesa no síndico. Veja quando cada modelo compensa — e o meio-termo que muda o jogo.',
+    categorySlug: 'gestao',
+    heroImageFilename: 'residencial.webp',
+    readingTime: 8,
+    publishedAt: '2026-07-21T09:00:00.000Z',
+    keyTakeaways: [
+      {
+        point:
+          'Autogestão economiza a taxa da administradora, mas cobra caro em tempo, risco jurídico e trabalhista do síndico.',
+      },
+      {
+        point:
+          'Uma administradora assume financeiro, folha, cobrança, jurídico e prestação de contas — e responde tecnicamente por eles.',
+      },
+      {
+        point:
+          'Autogestão faz sentido em condomínios muito pequenos e simples; acima disso, o risco cresce rápido.',
+      },
+      {
+        point:
+          'O melhor dos dois mundos: administradora com tecnologia, que dá controle ao síndico sem jogar a operação nas costas dele.',
+      },
+    ],
+    content: doc(
+      p(
+        'Todo condomínio uma hora encara a dúvida: contratar uma administradora ou tocar tudo na autogestão? No papel, a autogestão parece mais barata — afinal, corta a taxa da administradora. Mas o preço real aparece em outro lugar. Vamos comparar de forma honesta.',
+      ),
+      h('h2', 'O custo invisível da autogestão'),
+      p(
+        'Na autogestão, o síndico (ou uma pequena equipe interna) assume pessoalmente boletos, cobrança, pagamentos, folha dos funcionários, obrigações fiscais e trabalhistas, prestação de contas e assembleias. Não pagar uma administradora não significa que esse trabalho desaparece — significa que ele cai no colo de alguém, quase sempre voluntário.',
+      ),
+      p(
+        'E o risco não é só de tempo. Um erro em rescisão, INSS, FGTS ou num acordo de inadimplência pode virar processo — e a responsabilidade recai sobre o síndico e o condomínio.',
+      ),
+      h('h2', 'O que uma administradora assume'),
+      p([
+        'Uma administradora existe para tirar essa operação (e o risco técnico) do síndico. Uma ',
+        link('administração completa', '/administracao-de-condominios'),
+        ' cobre o financeiro, a cobrança, a folha dos funcionários, a assessoria jurídica, as assembleias e a prestação de contas — com equipe especializada e responsabilidade técnica sobre cada etapa.',
+      ]),
+      p([
+        'O ponto sensível costuma ser a inadimplência: sem estrutura de cobrança, ela drena o caixa e trava obras. É onde entram ',
+        link('soluções como o Semog Garante', '/garante'),
+        ', que asseguram a arrecadação integral do condomínio, transformando a cobrança em problema da administradora, não do síndico.',
+      ]),
+      h('h2', 'Quando a autogestão faz sentido'),
+      p('A autogestão pode funcionar bem em um cenário específico:'),
+      ul([
+        'Condomínios muito pequenos (poucas unidades), sem funcionários registrados;',
+        'Baixa complexidade financeira e jurídica;',
+        'Um síndico com tempo, disposição e algum conhecimento técnico — e um substituto à altura quando ele sair.',
+      ]),
+      p(
+        'Fora disso, o modelo vira armadilha: basta um funcionário, uma obra grande ou uma onda de inadimplência para o risco superar de longe a economia da taxa.',
+      ),
+      h('h2', 'O meio-termo que muda o jogo'),
+      p(
+        'A escolha não precisa ser entre "terceirizar tudo às cegas" e "fazer tudo sozinho". Uma administradora com tecnologia devolve o controle ao síndico sem jogar a operação nas costas dele: prestação de contas 100% digital e aberta a todos os condôminos, aplicativo para acompanhar boletos e reservas, e relatórios claros a qualquer momento.',
+      ),
+      p([
+        'Assim o síndico decide com informação na mão, enquanto a parte pesada — financeiro, folha, cobrança e jurídico — fica com quem faz isso o dia todo. Se quiser ver como ficaria no seu condomínio, ',
+        link('peça uma proposta sem compromisso', '/proposta'),
+        ' e receba um diagnóstico em até 24 horas úteis.',
+      ]),
     ),
   },
 ]
