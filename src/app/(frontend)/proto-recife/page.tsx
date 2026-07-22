@@ -1,20 +1,20 @@
 'use client'
 
 /**
- * PROTÓTIPO (descartável) do redesign da landing de cidade — Recife.
- * Rota isolada `/proto-recife` só pra validação visual do novo design.
- * Conteúdo hardcoded, sem CMS. Depois de aprovado, vira bloco/CMS.
- *
- * Direção: premium navy/ice cinematográfico, composição em camadas
- * (hero com form em vidro transbordando, faixa de autoridade G20, bento
- * com ritmo, seção local mapa+foto, banda Garante). Acento único: ice-400.
+ * PROTÓTIPO v2 (descartável) do redesign da landing de cidade — Recife.
+ * Ajustes do feedback: form alinhado ao título (sem transbordar quebrado),
+ * seções CLARAS pra quebrar o navy, bairros deixando claro que atende PE
+ * inteiro, seção de depoimentos, foto em alta e scroll-reveal (Reveal/Stagger).
  */
 
 import { useId } from 'react'
+import { Reveal, Stagger } from '@/motion/reveal'
 
 const NAVY_950 = '#05081a'
 const NAVY_900 = '#0a102e'
 const ICE = '#add5eb'
+const LIGHT = '#eef1f8'
+const INK = '#0d1439'
 const DISPLAY = 'var(--font-clash), system-ui, sans-serif'
 const BODY = 'var(--font-satoshi), system-ui, sans-serif'
 
@@ -23,10 +23,12 @@ const NEIGHBORHOODS = [
   'Casa Forte',
   'Graças',
   'Madalena',
-  'Pina',
   'Espinheiro',
   'Parnamirim',
   'Aflitos',
+  'Pina',
+  'Jaqueira',
+  'Torre',
 ]
 
 const SOLUCOES: { title: string; text: string; span: string; tint?: boolean; big?: boolean }[] = [
@@ -64,7 +66,7 @@ const SOLUCOES: { title: string; text: string; span: string; tint?: boolean; big
   },
   {
     title: 'Atendimento próximo',
-    text: 'Fala com sócio, não com protocolo.',
+    text: 'Aqui, cliente fala com sócio, não com protocolo.',
     span: 'lg:col-span-3',
   },
 ]
@@ -88,7 +90,28 @@ const STEPS = [
   },
 ]
 
-const FieldInput = ({
+const DEPOIMENTOS = [
+  {
+    quote:
+      'Trocamos de administradora depois de anos de balancete confuso. Com a prestação de contas digital, a assembleia aprova as contas em minutos.',
+    name: 'Ricardo Menezes',
+    role: 'Síndico · Ed. Solar de Boa Viagem',
+  },
+  {
+    quote:
+      'O atendimento é diferenciado. A equipe resolve com rapidez e sempre nos mantém informados do que acontece no prédio.',
+    name: 'Fabiana Correia',
+    role: 'Conselheira · Cond. Parque das Graças',
+  },
+  {
+    quote:
+      'Relatórios e prestação de contas claros, tudo no aplicativo. Muito mais segurança e tranquilidade pra quem é síndico.',
+    name: 'Juliana Rocha',
+    role: 'Síndica · Res. Madalena Prime',
+  },
+]
+
+function FieldInput({
   label,
   placeholder,
   type = 'text',
@@ -96,7 +119,7 @@ const FieldInput = ({
   label: string
   placeholder: string
   type?: string
-}) => {
+}) {
   const id = useId()
   return (
     <div className="flex flex-col gap-1.5">
@@ -111,7 +134,7 @@ const FieldInput = ({
         id={id}
         type={type}
         placeholder={placeholder}
-        className="rounded-[12px] border px-4 py-3 text-[0.95rem] outline-none transition-colors focus:border-[color:var(--ice)]"
+        className="rounded-[12px] border px-4 py-3 text-[0.95rem] outline-none"
         style={{
           background: 'rgba(5,8,26,0.55)',
           borderColor: 'rgba(173,213,235,0.18)',
@@ -126,90 +149,96 @@ export default function ProtoRecife() {
   return (
     <main style={{ background: NAVY_950, color: '#edf1fa', fontFamily: BODY, overflowX: 'hidden' }}>
       {/* ============ HERO ============ */}
-      <section className="relative min-h-[100dvh] w-full overflow-hidden">
-        {/* vídeo cinematográfico de Recife */}
+      <section className="relative w-full overflow-hidden" style={{ minHeight: '100dvh' }}>
         <video
           autoPlay
           loop
           muted
           playsInline
-          poster=""
           className="absolute inset-0 h-full w-full object-cover"
           style={{ opacity: 0.9 }}
         >
           <source src="/hero/recife.mp4" type="video/mp4" />
         </video>
-        {/* scrim em camadas */}
         <div
           aria-hidden
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(105deg, rgba(5,8,26,0.92) 0%, rgba(5,8,26,0.72) 34%, rgba(5,8,26,0.32) 62%, rgba(5,8,26,0.55) 100%)',
+              'linear-gradient(105deg, rgba(5,8,26,0.94) 0%, rgba(5,8,26,0.74) 38%, rgba(5,8,26,0.42) 66%, rgba(5,8,26,0.6) 100%)',
           }}
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[45%]"
+          className="absolute inset-x-0 bottom-0 h-[35%]"
           style={{ background: `linear-gradient(180deg, transparent, ${NAVY_950})` }}
         />
 
-        <div className="relative z-10 mx-auto grid min-h-[100dvh] w-full max-w-[1280px] grid-cols-1 items-end gap-10 px-[clamp(1.25rem,4vw,3rem)] pb-[clamp(3rem,7vw,6rem)] pt-[8rem] lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          {/* coluna esquerda: mensagem */}
-          <div className="max-w-[42rem]">
-            <span
-              className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.8rem] font-medium"
-              style={{
-                borderColor: 'rgba(173,213,235,0.32)',
-                background: 'rgba(173,213,235,0.08)',
-                color: ICE,
-              }}
-            >
+        <div className="relative z-10 mx-auto grid w-full max-w-[1280px] grid-cols-1 items-start gap-x-12 gap-y-10 px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(7rem,12vh,9rem)] pb-[clamp(3rem,6vw,5rem)] lg:grid-cols-[1.1fr_0.9fr]">
+          {/* esquerda: mensagem */}
+          <div className="max-w-[40rem] lg:pt-6">
+            <Reveal>
               <span
-                aria-hidden
-                className="inline-block h-1.5 w-1.5 rounded-full"
-                style={{ background: ICE }}
-              />
-              G20 Superlógica · 3 anos consecutivos
-            </span>
-            <h1
-              className="text-[clamp(2.7rem,6vw,5rem)] font-medium leading-[1.02] tracking-[-0.01em]"
-              style={{ fontFamily: DISPLAY, textShadow: '0 2px 40px rgba(5,8,26,0.6)' }}
-            >
-              Administradora de condomínios em Recife.
-            </h1>
-            <p
-              className="mt-6 max-w-[34rem] text-[clamp(1.05rem,1.5vw,1.25rem)] leading-relaxed"
-              style={{ color: '#cdd6ec' }}
-            >
-              Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse
-              dela.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <a
-                href="#proposta"
-                className="rounded-full px-7 py-3.5 text-[0.98rem] font-semibold transition-transform active:scale-[0.98]"
-                style={{ background: ICE, color: NAVY_950 }}
+                className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.8rem] font-medium"
+                style={{
+                  borderColor: 'rgba(173,213,235,0.32)',
+                  background: 'rgba(173,213,235,0.08)',
+                  color: ICE,
+                }}
               >
-                Solicitar proposta
-              </a>
-              <a
-                href="/proposta"
-                className="rounded-full border px-7 py-3.5 text-[0.98rem] font-medium transition-colors"
-                style={{ borderColor: 'rgba(173,213,235,0.32)', color: '#edf1fa' }}
+                <span
+                  aria-hidden
+                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ background: ICE }}
+                />
+                G20 Superlógica · 3 anos consecutivos
+              </span>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h1
+                className="text-[clamp(2.6rem,5.4vw,4.6rem)] font-medium leading-[1.03] tracking-[-0.01em]"
+                style={{ fontFamily: DISPLAY, textShadow: '0 2px 40px rgba(5,8,26,0.6)' }}
               >
-                Falar no WhatsApp
-              </a>
-            </div>
+                Administradora de condomínios em Recife.
+              </h1>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p
+                className="mt-6 max-w-[34rem] text-[clamp(1.05rem,1.4vw,1.22rem)] leading-relaxed"
+                style={{ color: '#cdd6ec' }}
+              >
+                Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se
+                fosse dela.
+              </p>
+            </Reveal>
+            <Reveal delay={0.24}>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <a
+                  href="#proposta"
+                  className="rounded-full px-7 py-3.5 text-[0.98rem] font-semibold transition-transform active:scale-[0.98]"
+                  style={{ background: ICE, color: NAVY_950 }}
+                >
+                  Solicitar proposta
+                </a>
+                <a
+                  href="https://wa.me/551130034506"
+                  className="rounded-full border px-7 py-3.5 text-[0.98rem] font-medium"
+                  style={{ borderColor: 'rgba(173,213,235,0.32)', color: '#edf1fa' }}
+                >
+                  Falar no WhatsApp
+                </a>
+              </div>
+            </Reveal>
           </div>
 
-          {/* coluna direita: form em vidro que transborda pra próxima seção */}
-          <div id="proposta" className="relative lg:mb-[-9rem] lg:self-end">
+          {/* direita: form em vidro, alinhado ao topo do título */}
+          <Reveal delay={0.2} dir="scale">
             <div
+              id="proposta"
               className="rounded-[22px] border p-[clamp(1.4rem,2.4vw,2rem)]"
               style={{
                 borderColor: 'rgba(173,213,235,0.22)',
-                background: 'linear-gradient(160deg, rgba(16,26,72,0.72), rgba(5,8,26,0.78))',
+                background: 'linear-gradient(160deg, rgba(16,26,72,0.78), rgba(5,8,26,0.82))',
                 backdropFilter: 'blur(18px)',
                 boxShadow:
                   '0 30px 80px -30px rgba(5,8,26,0.9), inset 0 1px 0 rgba(255,255,255,0.06)',
@@ -219,9 +248,7 @@ export default function ProtoRecife() {
                 className="text-[1.4rem] font-medium leading-tight"
                 style={{ fontFamily: DISPLAY }}
               >
-                Receba uma proposta
-                <br />
-                sob medida.
+                Receba uma proposta sob medida.
               </h2>
               <p className="mt-2 text-[0.9rem]" style={{ color: '#a9b4d6' }}>
                 Um consultor da unidade de Recife responde em até 24h úteis.
@@ -246,14 +273,14 @@ export default function ProtoRecife() {
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ============ AUTORIDADE / G20 + NÚMEROS ============ */}
-      <section className="relative mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(9rem,14vw,12rem)] pb-[clamp(4rem,7vw,6rem)]">
+      {/* ============ AUTORIDADE / G20 + NÚMEROS (dark) ============ */}
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4.5rem,8vw,7rem)]">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-          <div>
+          <Reveal dir="left">
             <p
               className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
               style={{ color: ICE }}
@@ -282,10 +309,10 @@ export default function ProtoRecife() {
             >
               Veja a lista no Sindiconet
             </a>
-          </div>
+          </Reveal>
 
-          {/* números respirando, sem caixinhas */}
-          <div
+          <Reveal
+            dir="right"
             className="grid grid-cols-2 gap-px overflow-hidden rounded-[18px]"
             style={{ background: 'rgba(173,213,235,0.14)' }}
           >
@@ -316,10 +343,9 @@ export default function ProtoRecife() {
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
         </div>
 
-        {/* selos */}
         <div
           className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-4 border-t pt-8"
           style={{ borderColor: 'rgba(173,213,235,0.12)' }}
@@ -335,17 +361,17 @@ export default function ProtoRecife() {
         </div>
       </section>
 
-      {/* ============ SOLUÇÕES (BENTO) ============ */}
-      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4rem,7vw,6rem)]">
-        <div className="mb-12 max-w-[46rem]">
+      {/* ============ SOLUÇÕES (BENTO, dark) ============ */}
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] pb-[clamp(4.5rem,8vw,7rem)]">
+        <Reveal>
           <h2
-            className="text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
+            className="mb-12 max-w-[46rem] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
             style={{ fontFamily: DISPLAY }}
           >
             Uma gestão inteligente para condomínios mais tranquilos.
           </h2>
-        </div>
-        <div className="grid auto-rows-[minmax(140px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        </Reveal>
+        <Stagger className="grid auto-rows-[minmax(140px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {SOLUCOES.map((c) => (
             <article
               key={c.title}
@@ -381,84 +407,86 @@ export default function ProtoRecife() {
               )}
             </article>
           ))}
-        </div>
+        </Stagger>
       </section>
 
-      {/* ============ ONDE ATENDEMOS (MAPA + FOTO) ============ */}
-      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4rem,7vw,6rem)]">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          {/* foto de Recife */}
-          <div className="relative overflow-hidden rounded-[22px]" style={{ minHeight: 420 }}>
+      {/* ============ ONDE ATENDEMOS (LIGHT — quebra o navy) ============ */}
+      <section
+        className="w-full py-[clamp(4.5rem,8vw,7rem)]"
+        style={{ background: LIGHT, color: INK }}
+      >
+        <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-[clamp(1.25rem,4vw,3rem)] lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <Reveal
+            dir="left"
+            className="relative overflow-hidden rounded-[22px]"
+            style={{ minHeight: 460 }}
+          >
             {/* biome-ignore lint/performance/noImgElement: protótipo descartável, sem next/image */}
             <img
-              src="https://qvxlkovrxfqigeaopvui.supabase.co/storage/v1/object/public/media/recife.webp"
-              alt="Vista de Recife"
+              src="/proto/recife.jpg"
+              alt="Boa Viagem, Recife"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div
-              aria-hidden
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(180deg, rgba(5,8,26,0.1), rgba(5,8,26,0.85))' }}
-            />
-            <div className="absolute inset-x-0 bottom-0 p-[clamp(1.5rem,3vw,2.5rem)]">
-              <p
-                className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
-                style={{ color: ICE }}
-              >
-                Recife · Matriz
-              </p>
-              <h2
-                className="mt-2 text-[clamp(1.7rem,3vw,2.4rem)] font-medium leading-[1.05]"
-                style={{ fontFamily: DISPLAY }}
-              >
-                Quem conhece Recife entende os condomínios daqui.
-              </h2>
-            </div>
-          </div>
+          </Reveal>
 
-          {/* bairros + unidade */}
-          <div
-            className="flex flex-col justify-between rounded-[22px] border p-[clamp(1.6rem,3vw,2.4rem)]"
-            style={{ borderColor: 'rgba(173,213,235,0.14)', background: NAVY_900 }}
-          >
-            <div>
-              <h3 className="text-[1.1rem] font-medium" style={{ fontFamily: DISPLAY }}>
-                Bairros com forte presença
-              </h3>
-              <div className="mt-5 flex flex-wrap gap-2.5">
-                {NEIGHBORHOODS.map((b) => (
-                  <span
-                    key={b}
-                    className="rounded-full border px-3.5 py-1.5 text-[0.88rem]"
-                    style={{ borderColor: 'rgba(173,213,235,0.2)', color: '#cdd6ec' }}
-                  >
-                    {b}
-                  </span>
-                ))}
-              </div>
+          <Reveal dir="right">
+            <p
+              className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: '#3b54be' }}
+            >
+              Recife · Matriz
+            </p>
+            <h2
+              className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
+              style={{ fontFamily: DISPLAY, color: INK }}
+            >
+              Atendemos todo o Pernambuco.
+            </h2>
+            <p
+              className="mt-4 max-w-[42ch] text-[1.05rem] leading-relaxed"
+              style={{ color: '#404a68' }}
+            >
+              Da Região Metropolitana do Recife ao interior do estado, sua gestão é local de ponta a
+              ponta. Presença especialmente forte em:
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              {NEIGHBORHOODS.map((b) => (
+                <span
+                  key={b}
+                  className="rounded-full border px-3.5 py-1.5 text-[0.88rem]"
+                  style={{
+                    borderColor: 'rgba(13,20,57,0.14)',
+                    color: '#2a3356',
+                    background: '#fff',
+                  }}
+                >
+                  {b}
+                </span>
+              ))}
             </div>
-            <div className="mt-8 border-t pt-6" style={{ borderColor: 'rgba(173,213,235,0.12)' }}>
-              <dl className="grid gap-3 text-[0.95rem]">
-                <div className="flex justify-between gap-4">
-                  <dt style={{ color: '#7e88ac' }}>Endereço</dt>
-                  <dd className="text-right" style={{ color: '#edf1fa' }}>
-                    R. Bartolomeu de Gusmão, 217 · Madalena
-                  </dd>
+            <div
+              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 border-t pt-6"
+              style={{ borderColor: 'rgba(13,20,57,0.1)' }}
+            >
+              <div>
+                <div className="text-[0.78rem]" style={{ color: '#6a7396' }}>
+                  Unidade Recife
                 </div>
-                <div className="flex justify-between gap-4">
-                  <dt style={{ color: '#7e88ac' }}>Telefone</dt>
-                  <dd style={{ color: '#edf1fa' }}>(81) 3316-0265</dd>
+                <div className="text-[0.98rem] font-medium" style={{ color: INK }}>
+                  R. Bartolomeu de Gusmão, 217 · Madalena
                 </div>
-              </dl>
+              </div>
               <a
-                href="/proposta"
-                className="mt-6 inline-flex rounded-full border px-5 py-2.5 text-[0.9rem] font-medium"
-                style={{ borderColor: 'rgba(173,213,235,0.3)', color: ICE }}
+                href="https://maps.google.com/?q=Semog+Recife+Madalena"
+                target="_blank"
+                rel="noopener"
+                className="rounded-full px-5 py-2.5 text-[0.9rem] font-semibold"
+                style={{ background: INK, color: '#fff' }}
               >
                 Como chegar
               </a>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -468,7 +496,7 @@ export default function ProtoRecife() {
         style={{ background: 'linear-gradient(160deg, #101a48 0%, #1b2d70 55%, #16225c 100%)' }}
       >
         <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start gap-8 px-[clamp(1.25rem,4vw,3rem)] md:flex-row md:items-center md:justify-between">
-          <div className="max-w-[34rem]">
+          <Reveal dir="left" className="max-w-[34rem]">
             <h2
               className="text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.05]"
               style={{ fontFamily: DISPLAY }}
@@ -486,8 +514,8 @@ export default function ProtoRecife() {
             >
               Conhecer o Semog Garante
             </a>
-          </div>
-          <div className="shrink-0 text-right">
+          </Reveal>
+          <Reveal dir="right" className="shrink-0 text-right">
             <div
               className="text-[clamp(4rem,10vw,7rem)] font-medium leading-none"
               style={{ fontFamily: DISPLAY, color: ICE }}
@@ -497,21 +525,23 @@ export default function ProtoRecife() {
             <p className="text-[0.95rem]" style={{ color: '#cdd6ec' }}>
               da arrecadação. Só isso.
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ============ COMO FUNCIONA (PROCESSO) ============ */}
-      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4rem,7vw,6rem)]">
-        <h2
-          className="mb-12 max-w-[40rem] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
-          style={{ fontFamily: DISPLAY }}
-        >
-          Um processo simples para transformar a gestão do seu condomínio.
-        </h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ============ COMO FUNCIONA (dark) ============ */}
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4.5rem,8vw,7rem)]">
+        <Reveal>
+          <h2
+            className="mb-12 max-w-[40rem] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
+            style={{ fontFamily: DISPLAY }}
+          >
+            Um processo simples para transformar a gestão do seu condomínio.
+          </h2>
+        </Reveal>
+        <Stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s) => (
-            <div key={s.n} className="relative">
+            <div key={s.n}>
               <div
                 className="text-[2.6rem] font-medium leading-none"
                 style={{ fontFamily: DISPLAY, color: 'rgba(173,213,235,0.35)' }}
@@ -526,12 +556,80 @@ export default function ProtoRecife() {
               </p>
             </div>
           ))}
+        </Stagger>
+      </section>
+
+      {/* ============ DEPOIMENTOS (LIGHT) ============ */}
+      <section
+        className="w-full py-[clamp(4.5rem,8vw,7rem)]"
+        style={{ background: LIGHT, color: INK }}
+      >
+        <div className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)]">
+          <Reveal>
+            <p
+              className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: '#3b54be' }}
+            >
+              Quem já é Semog em Recife
+            </p>
+            <h2
+              className="mt-3 max-w-[36rem] text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
+              style={{ fontFamily: DISPLAY, color: INK }}
+            >
+              A voz de quem vive nossos resultados.
+            </h2>
+          </Reveal>
+          <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
+            {DEPOIMENTOS.map((d) => (
+              <figure
+                key={d.name}
+                className="flex flex-col justify-between rounded-[18px] border bg-white p-[clamp(1.4rem,2.4vw,2rem)]"
+                style={{ borderColor: 'rgba(13,20,57,0.1)' }}
+              >
+                <blockquote className="text-[1.02rem] leading-relaxed" style={{ color: '#2a3356' }}>
+                  {d.quote}
+                </blockquote>
+                <figcaption className="mt-6">
+                  <div className="text-[0.98rem] font-semibold" style={{ color: INK }}>
+                    {d.name}
+                  </div>
+                  <div className="text-[0.86rem]" style={{ color: '#6a7396' }}>
+                    {d.role}
+                  </div>
+                </figcaption>
+              </figure>
+            ))}
+          </Stagger>
         </div>
       </section>
 
-      <div className="py-16 text-center text-[0.85rem]" style={{ color: '#7e88ac' }}>
-        [ protótipo · fim das seções principais ]
-      </div>
+      {/* ============ CTA FINAL (dark) ============ */}
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(5rem,9vw,8rem)]">
+        <Reveal dir="scale">
+          <div
+            className="flex flex-col items-start justify-between gap-8 rounded-[24px] border p-[clamp(2rem,5vw,4rem)] md:flex-row md:items-center"
+            style={{
+              borderColor: 'rgba(173,213,235,0.16)',
+              background:
+                'radial-gradient(120% 160% at 15% 0%, rgba(27,45,112,0.6), rgba(5,8,26,0.4))',
+            }}
+          >
+            <h2
+              className="max-w-[24ch] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
+              style={{ fontFamily: DISPLAY }}
+            >
+              Seu condomínio em Recife merece a líder.
+            </h2>
+            <a
+              href="#proposta"
+              className="shrink-0 rounded-full px-8 py-4 text-[1rem] font-semibold"
+              style={{ background: ICE, color: NAVY_950 }}
+            >
+              Solicitar proposta
+            </a>
+          </div>
+        </Reveal>
+      </section>
     </main>
   )
 }
