@@ -9,6 +9,23 @@ import type { ContactInfoBlock as ContactInfoBlockType, Media } from '@/payload-
 
 type ContactInfoItem = NonNullable<ContactInfoBlockType['items']>[number]
 
+/** `tel:` a partir do telefone exibido ("(81) 3316-0265" → "tel:+558133160265"). */
+function telHref(phone?: string | null): string | undefined {
+  const digits = (phone ?? '').replace(/\D/g, '')
+  return digits ? `tel:+55${digits}` : undefined
+}
+
+/** Telefone clicável (tap-to-call). Sem número válido, cai pra texto puro. */
+function PhoneLink({ phone }: { phone?: string | null }) {
+  const href = telHref(phone)
+  if (!href) return <>{phone}</>
+  return (
+    <a href={href} className="text-[inherit] no-underline hover:underline">
+      {phone}
+    </a>
+  )
+}
+
 /** Título com o trecho final em `.gx` — mesmo padrão de `FeatureGrid`'s `GridTitle`. */
 function CardTitle({ title, accent }: { title: string; accent?: string | null }) {
   if (accent && title.endsWith(accent)) {
@@ -68,7 +85,9 @@ function UnitCard({ item }: { item: ContactInfoItem }) {
           <dt>Endereço</dt>
           <dd>{item.address}</dd>
           <dt>Telefone</dt>
-          <dd>{item.phone}</dd>
+          <dd>
+            <PhoneLink phone={item.phone} />
+          </dd>
           {item.whatsappDisplay && (
             <>
               <dt>WhatsApp</dt>
@@ -173,7 +192,9 @@ export function ContactInfoBlock({
                   </div>
                   <div>
                     <dt>Telefone</dt>
-                    <dd>{item.phone}</dd>
+                    <dd>
+                      <PhoneLink phone={item.phone} />
+                    </dd>
                   </div>
                   {item.whatsappDisplay && (
                     <div>
@@ -232,7 +253,9 @@ export function ContactInfoBlock({
               </span>
               <h3 className="text-[1.2rem]">{item.city}</h3>
               <p className="mt-3 mb-1 text-[0.9rem] text-fg-2">{item.address}</p>
-              <p className="m-0 text-[0.9rem] text-fg-3">{item.phone}</p>
+              <p className="m-0 text-[0.9rem] text-fg-3">
+                <PhoneLink phone={item.phone} />
+              </p>
             </div>
           ))}
         </Stagger>

@@ -23,7 +23,7 @@ import { getMediaId } from './lib/media'
  * 1. **Hero** (`.hero`) — headline/subhead/CTAs + `tag` (`.hero-tagbox`),
  *    fundo `background: 'gradient'`: aurora animada reativa ao mouse
  *    (`src/motion/GradientBackground.tsx`), no lugar do vídeo/poster.
- * 2. **Stats** (`.stats-grid`) — 5 contadores (35/+700/+70mil/+100/3 Estados).
+ * 2. **Stats** (`.stats-grid`) — 5 contadores (35/+650/+70mil/+100/3 Estados).
  * 3. **ValuesMarquee** (`.values-strip`) — TRANSPARÊNCIA / RETIDÃO / DINÂMICA.
  * 4. **WordsSection** (`.manifesto`) — parágrafo com scrub palavra-a-palavra.
  * 5. **Pillars** (`.pillars`) — 3 `.pillar-row` (Condomínios/Métricas/Organização).
@@ -104,7 +104,7 @@ async function seedHome() {
     items: [
       { value: 35, label: 'Anos de mercado', detail: 'Desde 1991, sempre no Nordeste.' },
       {
-        value: 700,
+        value: 650,
         prefix: '+',
         label: 'Condomínios',
         detail: 'Sob gestão completa, mês após mês.',
@@ -134,7 +134,7 @@ async function seedHome() {
 
   const wordsSectionBlock: Omit<WordsSectionBlock, 'id' | 'blockName'> = {
     blockType: 'wordsSection',
-    text: 'Condomínio bem administrado é aquele que ninguém percebe. Percebe-se a vida que acontece dentro dele. Nós cuidamos de todo o resto.',
+    text: 'Condomínio bem administrado é aquele que ninguém percebe. A vida acontece dentro dele, e nós cuidamos de todo o resto.',
   }
 
   const pillarsBlock: Omit<PillarsBlock, 'id' | 'blockName'> = {
@@ -191,7 +191,7 @@ async function seedHome() {
         image: cPrestacaoId,
         theme: 'on-white',
         tag: 'Prestação de Contas Digital',
-        title: 'O balancete que qualquer condômino entende.',
+        title: 'O balancete que todos os condôminos entendem.',
         text: '100% digital, com documentos anexados, gráficos claros e assinatura digital com validade jurídica.',
         href: '/solucoes#prestacao',
       },
@@ -298,7 +298,7 @@ async function seedHome() {
     meta: {
       title: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
       description:
-        'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 700 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
+        'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 650 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
     },
   }
 

@@ -126,7 +126,7 @@ const companyData: Omit<Company, 'id' | 'updatedAt' | 'createdAt'> = {
 const siteSettingsData: Omit<SiteSettings, 'id' | 'updatedAt' | 'createdAt'> = {
   defaultTitle: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
   defaultDescription:
-    'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 700 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
+    'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 650 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
 }
 
 async function seedGlobals() {

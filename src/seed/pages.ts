@@ -428,7 +428,7 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
     items: [
       { value: 35, label: 'Anos de mercado', detail: 'Desde 1991, sempre no Nordeste.' },
       {
-        value: 700,
+        value: 650,
         prefix: '+',
         label: 'Condomínios',
         detail: 'Sob gestão completa, mês após mês.',
@@ -496,7 +496,7 @@ async function seedSemogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
       {
         date: 'Hoje',
         title: 'Líder do Nordeste',
-        text: 'Mais de 700 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',
+        text: 'Mais de 650 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',
         now: true,
       },
     ],
@@ -780,7 +780,7 @@ async function seedSolucoesPage(payload: Awaited<ReturnType<typeof getPayload>>)
   const solucoesClube: Omit<ClubeBeneficiosBlock, 'id' | 'blockName'> = {
     blockType: 'clubeBeneficios',
     title: 'Ser Semog também vale fora do boleto.',
-    text: 'Condomínios e moradores Semog têm acesso a um clube de vantagens negociado pela nossa escala de 700 condomínios.',
+    text: 'Condomínios e moradores Semog têm acesso a um clube de vantagens negociado pela nossa escala de 650 condomínios.',
     items: [
       {
         title: 'Internet mais barata',
@@ -1008,7 +1008,7 @@ async function seedAdministracaoPage(payload: Awaited<ReturnType<typeof getPaylo
           '<path d="M14.7 6.3a5 5 0 0 0-7.07 7.07l-4.35 4.35a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l4.35-4.35a5 5 0 0 0 7.07-7.07l-2.83 2.83-2.12-2.12Z"/>',
         title: 'Manutenção e fornecedores',
         description:
-          'Preventivas, orçamentos comparados e rede homologada com preço de escala de 700 condomínios.',
+          'Preventivas, orçamentos comparados e rede homologada com preço de escala de 650 condomínios.',
       },
       {
         iconSvg:
@@ -1544,7 +1544,7 @@ async function seedBlogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
   // pro modo sem `poster`).
   const blogHero: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
-    headline: 'Quem administra 700 condomínios tem muito a ensinar.',
+    headline: 'Quem administra 650 condomínios tem muito a compartilhar.',
     pageHeroOverlay: true,
     pageHeroMinHeight: '46dvh',
     pageHeroPaddingBottom: 'clamp(2.5rem, 5vw, 4rem)',
@@ -1572,7 +1572,7 @@ async function seedBlogPage(payload: Awaited<ReturnType<typeof getPayload>>) {
   const blogNewsletter: Omit<NewsletterBlock, 'id' | 'blockName'> = {
     blockType: 'newsletter',
     title: 'Receba o essencial da gestão condominial.',
-    text: 'Um e-mail por mês, direto da equipe que administra 700 condomínios. Sem spam.',
+    text: 'Um e-mail por mês, direto da equipe que administra 650 condomínios. Sem spam.',
     placeholder: 'Seu melhor e-mail',
     buttonLabel: 'Assinar',
     successMessage: 'Inscrição recebida. Até o próximo e-mail!',
@@ -1773,7 +1773,8 @@ async function buildContatoUnits(
         phone: '(83) 3201-9039',
         whatsappDisplay: '(11) 3003-4506',
         hours: 'Segunda a sexta, 8h às 18h',
-        mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
+        mapsHref:
+          'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
         photo: campinaGrandeId,
         uf: 'PB',
       },
@@ -1880,7 +1881,7 @@ async function buildPropostaTrustPanel(
     photo: heroTowersId,
     stats: [
       { value: '35', label: 'anos de mercado' },
-      { value: '+700', label: 'condomínios' },
+      { value: '+650', label: 'condomínios' },
       { value: '+70 mil', label: 'clientes' },
       { value: '4', label: 'unidades na região' },
     ],
@@ -2015,7 +2016,7 @@ const cityServicos: NonNullable<FeatureGridBlock['features']> = [
 // (`_reference/administradora-de-condominios-recife.html:301-310`).
 const cityStats: NonNullable<StatsBlock['items']> = [
   { value: 35, label: 'Anos de mercado' },
-  { value: 700, prefix: '+', label: 'Condomínios' },
+  { value: 650, prefix: '+', label: 'Condomínios' },
   { value: 70, prefix: '+', suffix: 'mil', label: 'Clientes' },
   { value: 100, prefix: '+', label: 'Especialistas' },
 ]
@@ -2144,7 +2145,7 @@ async function seedCityLanding(
     items: [
       {
         question: `Qual a melhor administradora de condomínios de ${input.city}?`,
-        answer: `Com 35 anos de mercado, mais de 700 condomínios e 70 mil clientes, a Semog é a administradora líder do Nordeste, com ${input.role.toLowerCase()} em ${input.neighborhood} e a única prestação de contas 100% digital do mercado.`,
+        answer: `Com 35 anos de mercado, mais de 650 condomínios e 70 mil clientes, a Semog é a administradora líder do Nordeste, com ${input.role.toLowerCase()} em ${input.neighborhood} e a única prestação de contas 100% digital do mercado.`,
       },
       {
         question: 'Quais bairros vocês atendem?',
@@ -2197,7 +2198,7 @@ const recifeCityLanding: CityLandingInput = {
   uf: 'PE',
   ufFull: 'Pernambuco',
   heroSubhead:
-    'A líder do Nordeste nasceu aqui. Matriz em Recife, 35 anos de mercado e mais de 700 condomínios sob gestão.',
+    'A líder do Nordeste nasceu aqui. Matriz em Recife, 35 anos de mercado e mais de 650 condomínios sob gestão.',
   cityPhotoFilename: 'recife.webp',
   neighborhood: 'Madalena',
   addressMain: 'R. Bartolomeu de Gusmão, 217',
