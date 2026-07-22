@@ -248,7 +248,9 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
   return {
     '@type': 'LocalBusiness',
     '@id': `${url}#business`,
-    name: `Semog ${unit.city}`,
+    // Nome idêntico ao Google Business Profile (NAP consistente); a cidade
+    // fica no `address`. GBP das 4 unidades usa "Condomínio" no singular.
+    name: 'Semog Administradora de Condomínio',
     description: `Administradora de condomínios em ${unit.city}/${unit.region} — ${unit.role.toLowerCase()} da Semog, líder do Nordeste há 35 anos.`,
     url,
     image: absoluteUrl(`${unit.slug}/opengraph-image`),
