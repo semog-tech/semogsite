@@ -164,7 +164,15 @@ const UNITS: SeoUnit[] = [
     phoneDisplay: '(81) 3316-0265',
     phoneE164: '+558133160265',
     mapsHref: 'https://maps.google.com/?q=Semog+Bartolomeu+de+Gusmao+217+Madalena+Recife',
-    areaServed: ['Recife', 'Boa Viagem', 'Casa Forte', 'Madalena', 'Olinda', 'Jaboatão dos Guararapes', 'Paulista'],
+    areaServed: [
+      'Recife',
+      'Boa Viagem',
+      'Casa Forte',
+      'Madalena',
+      'Olinda',
+      'Jaboatão dos Guararapes',
+      'Paulista',
+    ],
   },
   {
     slug: 'administradora-de-condominios-joao-pessoa',
@@ -177,7 +185,16 @@ const UNITS: SeoUnit[] = [
     phoneDisplay: '(83) 3224-1228',
     phoneE164: '+558332241228',
     mapsHref: 'https://maps.google.com/?q=Semog+Guarabira+834+Manaira+Joao+Pessoa',
-    areaServed: ['João Pessoa', 'Manaíra', 'Tambaú', 'Cabo Branco', 'Bessa', 'Cabedelo', 'Bayeux', 'Santa Rita'],
+    areaServed: [
+      'João Pessoa',
+      'Manaíra',
+      'Tambaú',
+      'Cabo Branco',
+      'Bessa',
+      'Cabedelo',
+      'Bayeux',
+      'Santa Rita',
+    ],
   },
   {
     slug: 'administradora-de-condominios-campina-grande',
@@ -190,7 +207,15 @@ const UNITS: SeoUnit[] = [
     phoneDisplay: '(83) 3201-9039',
     phoneE164: '+558332019039',
     mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
-    areaServed: ['Campina Grande', 'Catolé', 'Mirante', 'Alto Branco', 'Centro', 'Queimadas', 'Lagoa Seca'],
+    areaServed: [
+      'Campina Grande',
+      'Catolé',
+      'Mirante',
+      'Alto Branco',
+      'Centro',
+      'Queimadas',
+      'Lagoa Seca',
+    ],
   },
   {
     slug: 'administradora-de-condominios-belem',
@@ -203,7 +228,15 @@ const UNITS: SeoUnit[] = [
     phoneDisplay: '(91) 3115-4700',
     phoneE164: '+559131154700',
     mapsHref: 'https://maps.google.com/?q=Semog+Alcindo+Cacela+2351+Cremacao+Belem',
-    areaServed: ['Belém', 'Umarizal', 'Nazaré', 'Batista Campos', 'Marco', 'Ananindeua', 'Marituba'],
+    areaServed: [
+      'Belém',
+      'Umarizal',
+      'Nazaré',
+      'Batista Campos',
+      'Marco',
+      'Ananindeua',
+      'Marituba',
+    ],
   },
 ]
 
@@ -332,7 +365,9 @@ function extractFaqItems(page: JsonLdPage): { question: string; answer: string }
   if (!Array.isArray(page.layout)) return []
   const faq = page.layout.find(
     (block): block is { blockType: string; items?: { question?: string; answer?: string }[] } =>
-      Boolean(block) && typeof block === 'object' && (block as { blockType?: string }).blockType === 'faq',
+      Boolean(block) &&
+      typeof block === 'object' &&
+      (block as { blockType?: string }).blockType === 'faq',
   )
   const items = faq?.items ?? []
   return items
@@ -373,5 +408,28 @@ export function getPageJsonLd({
     if (faqItems.length > 0) graph.push(faqPageNode(faqItems))
   }
 
+  return { '@context': 'https://schema.org', '@graph': graph }
+}
+
+/**
+ * JSON-LD (@graph) da landing de cidade renderizada por COMPONENTE próprio
+ * (`CityLanding`, não CMS): BreadcrumbList + LocalBusiness (da `UNITS`, com NAP
+ * + geo + areaServed) + FAQPage (as perguntas da própria página). Usado pelas
+ * rotas explícitas `/administradora-de-condominios-*`.
+ */
+export function cityLandingJsonLd(
+  slug: string,
+  faq: { question: string; answer: string }[],
+): Record<string, unknown> | null {
+  const unit = UNITS.find((u) => u.slug === slug)
+  if (!unit) return null
+  const graph: Record<string, unknown>[] = [
+    breadcrumbNode([
+      { name: 'Início', url: absoluteUrl('') },
+      { name: `Administradora de Condomínios em ${unit.city}`, url: absoluteUrl(slug) },
+    ]),
+    localBusinessNode(unit),
+  ]
+  if (faq.length > 0) graph.push(faqPageNode(faq))
   return { '@context': 'https://schema.org', '@graph': graph }
 }

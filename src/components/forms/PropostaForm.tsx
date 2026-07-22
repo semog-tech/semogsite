@@ -77,7 +77,7 @@ type Status = 'idle' | 'success' | 'error'
  * ter selecionado um cargo. `cargo` já é opcional em `propostaSchema`, então
  * esconder o campo não quebra validação nenhuma.
  */
-export function PropostaForm() {
+export function PropostaForm({ compact = false }: { compact?: boolean } = {}) {
   const {
     register,
     handleSubmit,
@@ -170,6 +170,77 @@ export function PropostaForm() {
           úteis.
         </p>
       </div>
+    )
+  }
+
+  // Variante COMPACTA (hero das landings de cidade): menos atrito = mais
+  // conversão (ver análise SEO/Ads). `cidade` vai num hidden, preenchida pelo
+  // useEffect de slug acima; o resto (cargo/unidades/mensagem, opcionais) some.
+  if (compact) {
+    return (
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+        <input
+          type="hidden"
+          {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
+        />
+        <Field
+          label="Seu nome"
+          required
+          autoComplete="name"
+          placeholder="Como devemos te chamar"
+          error={errors.nome?.message}
+          {...register('nome')}
+        />
+        <Field
+          label="Nome do condomínio"
+          placeholder="Ex.: Ed. Atlântico (opcional)"
+          error={errors.nomeCondominio?.message}
+          {...register('nomeCondominio')}
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <PhoneField
+            control={control}
+            name="telefone"
+            label="WhatsApp"
+            required
+            error={errors.telefone?.message}
+          />
+          <Field
+            as="select"
+            label="Tipo de condomínio"
+            required
+            placeholder="Selecione"
+            options={TIPO_OPTIONS}
+            error={errors.tipo?.message}
+            {...register('tipo', { setValueAs: (value) => (value === '' ? undefined : value) })}
+          />
+        </div>
+        <Field
+          label="E-mail"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="voce@exemplo.com.br"
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <Turnstile key={turnstileKey} onToken={setToken} className="min-h-[65px]" />
+        {status === 'error' && message && (
+          <p role="alert" className="m-0 text-[0.9rem] text-[#F2A6B4]">
+            {message}
+          </p>
+        )}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          disabled={isSubmitting}
+          withArrow
+          className="w-full justify-center"
+        >
+          {isSubmitting ? 'Enviando…' : 'Quero minha proposta'}
+        </Button>
+      </form>
     )
   }
 
