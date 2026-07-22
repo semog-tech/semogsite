@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * PROTÓTIPO v2 (descartável) do redesign da landing de cidade — Recife.
- * Ajustes do feedback: form alinhado ao título (sem transbordar quebrado),
- * seções CLARAS pra quebrar o navy, bairros deixando claro que atende PE
- * inteiro, seção de depoimentos, foto em alta e scroll-reveal (Reveal/Stagger).
+ * PROTÓTIPO v3 (descartável) do redesign da landing de cidade — Recife.
+ * Ajustes: hero pela altura do conteúdo (sem 100dvh forçado / vazio),
+ * autoridade com Exame + Sindiconet, bento com ícones e exclusivos em
+ * destaque, seção "o que nos torna a escolha certa", FAQ de volta (SEO/Ads).
  */
 
 import { useId } from 'react'
@@ -18,56 +18,103 @@ const INK = '#0d1439'
 const DISPLAY = 'var(--font-clash), system-ui, sans-serif'
 const BODY = 'var(--font-satoshi), system-ui, sans-serif'
 
-const NEIGHBORHOODS = [
-  'Boa Viagem',
-  'Casa Forte',
-  'Graças',
-  'Madalena',
-  'Espinheiro',
-  'Parnamirim',
-  'Aflitos',
-  'Pina',
-  'Jaqueira',
-  'Torre',
-]
+function Icon({ d, size = 26 }: { d: string; size?: number }) {
+  return (
+    // biome-ignore lint/a11y/noSvgWithoutTitle: ícone decorativo (aria-hidden)
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={ICE}
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      style={{ width: size, height: size }}
+    >
+      <path d={d} />
+    </svg>
+  )
+}
 
-const SOLUCOES: { title: string; text: string; span: string; tint?: boolean; big?: boolean }[] = [
+const IC = {
+  doc: 'M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7l-4-4zM14 3v4h4M9 12h6M9 16h6',
+  shield: 'M12 3l7 3v5c0 4.2-3 7.4-7 8-4-.6-7-3.8-7-8V6l7-3z',
+  coins:
+    'M12 6c3.3 0 6 1 6 2.5S15.3 11 12 11 6 10 6 8.5 8.7 6 12 6zM6 8.5v7C6 17 8.7 18 12 18s6-1 6-2.5v-7',
+  scale: 'M12 4v16M6 20h12M5 8h14M5 8l-2.5 6a3 3 0 0 0 5 0zM19 8l2.5 6a3 3 0 0 0-5 0z',
+  calendar: 'M5 6h14v14H5zM5 10h14M9 4v4M15 4v4',
+  phone: 'M8 3h8v18H8zM11 18h2',
+  chat: 'M4 5h16v11H9l-4 4V5z',
+}
+
+const SOLUCOES: {
+  title: string
+  text: string
+  span: string
+  icon: string
+  exclusive?: boolean
+}[] = [
   {
+    icon: IC.doc,
     title: 'Prestação de contas 100% digital',
     text: 'O balancete que todos os condôminos entendem: documentos anexados, gráficos claros e assinatura com validade jurídica.',
     span: 'lg:col-span-3 lg:row-span-2',
-    tint: true,
-    big: true,
+    exclusive: true,
   },
   {
+    icon: IC.shield,
     title: 'Semog Garante',
-    text: 'Inadimplência zero por 1% da arrecadação. A cobrança vira problema nosso.',
-    span: 'lg:col-span-3',
+    text: 'Inadimplência zero por 1% da arrecadação. O condomínio recebe 100% da receita prevista. A cobrança vira problema nosso.',
+    span: 'lg:col-span-3 lg:row-span-2',
+    exclusive: true,
   },
   {
+    icon: IC.coins,
     title: 'Gestão financeira e cobrança',
     text: 'Planejamento, controle e previsibilidade mês a mês.',
     span: 'lg:col-span-2',
   },
   {
+    icon: IC.scale,
     title: 'Assessoria jurídica',
     text: 'Contratos, convenções e conflitos com time próprio.',
     span: 'lg:col-span-2',
   },
   {
+    icon: IC.calendar,
     title: 'Assembleias digitais',
     text: 'Convocação, condução e ata com validade.',
     span: 'lg:col-span-2',
   },
   {
+    icon: IC.phone,
     title: 'App para moradores e síndicos',
     text: 'Boletos, reservas e avisos na palma da mão.',
     span: 'lg:col-span-3',
   },
   {
+    icon: IC.chat,
     title: 'Atendimento próximo',
     text: 'Aqui, cliente fala com sócio, não com protocolo.',
     span: 'lg:col-span-3',
+  },
+]
+
+const DIFERENCIAIS = [
+  {
+    icon: IC.doc,
+    title: 'Tecnologia própria, com IA',
+    text: 'Uma plataforma construída sobre o nosso ERP, que evolui toda semana. O SGC+ usa inteligência artificial na gestão do dia a dia.',
+  },
+  {
+    icon: IC.scale,
+    title: 'Transparência de verdade',
+    text: 'Prestação de contas 100% digital, aberta a todos os condôminos e com validade jurídica. Nada de balancete confuso.',
+  },
+  {
+    icon: IC.chat,
+    title: 'Gente na relação',
+    text: 'Equipe local especializada, sempre por perto. Financeiro, jurídico e contábil próprios, à sua disposição.',
   },
 ]
 
@@ -111,6 +158,42 @@ const DEPOIMENTOS = [
   },
 ]
 
+const NEIGHBORHOODS = [
+  'Boa Viagem',
+  'Casa Forte',
+  'Graças',
+  'Madalena',
+  'Espinheiro',
+  'Parnamirim',
+  'Aflitos',
+  'Pina',
+  'Jaqueira',
+  'Torre',
+]
+
+const FAQ = [
+  {
+    q: 'Qual a melhor administradora de condomínios de Recife?',
+    a: 'Com 35 anos de mercado, mais de 650 condomínios e presença no G20 da Superlógica, a Semog é referência no Nordeste — com matriz em Recife e a única prestação de contas 100% digital do mercado.',
+  },
+  {
+    q: 'Quanto custa uma administradora em Recife?',
+    a: 'Depende do porte do condomínio e dos serviços. Envie os dados e receba uma proposta personalizada em até 24 horas úteis, sem compromisso.',
+  },
+  {
+    q: 'Como funciona a troca de administradora?',
+    a: 'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+  },
+  {
+    q: 'Vocês atendem todo o Pernambuco?',
+    a: 'Sim. Da Região Metropolitana do Recife ao interior do estado, com equipe local e atendimento próximo.',
+  },
+  {
+    q: 'A Semog tem aplicativo?',
+    a: 'Sim. Boletos, reservas, assembleias e avisos numa interface que o morador realmente usa, para síndicos e condôminos.',
+  },
+]
+
 function FieldInput({
   label,
   placeholder,
@@ -148,8 +231,8 @@ function FieldInput({
 export default function ProtoRecife() {
   return (
     <main style={{ background: NAVY_950, color: '#edf1fa', fontFamily: BODY, overflowX: 'hidden' }}>
-      {/* ============ HERO ============ */}
-      <section className="relative w-full overflow-hidden" style={{ minHeight: '100dvh' }}>
+      {/* ============ HERO (altura pelo conteúdo) ============ */}
+      <section className="relative w-full overflow-hidden">
         <video
           autoPlay
           loop
@@ -170,13 +253,12 @@ export default function ProtoRecife() {
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[35%]"
+          className="absolute inset-x-0 bottom-0 h-[45%]"
           style={{ background: `linear-gradient(180deg, transparent, ${NAVY_950})` }}
         />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-[1280px] grid-cols-1 items-start gap-x-12 gap-y-10 px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(7rem,12vh,9rem)] pb-[clamp(3rem,6vw,5rem)] lg:grid-cols-[1.1fr_0.9fr]">
-          {/* esquerda: mensagem */}
-          <div className="max-w-[40rem] lg:pt-6">
+        <div className="relative z-10 mx-auto grid w-full max-w-[1280px] grid-cols-1 items-center gap-x-12 gap-y-10 px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(7rem,11vh,8.5rem)] pb-[clamp(3.5rem,6vw,5.5rem)] lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="max-w-[40rem]">
             <Reveal>
               <span
                 className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.8rem] font-medium"
@@ -196,7 +278,7 @@ export default function ProtoRecife() {
             </Reveal>
             <Reveal delay={0.08}>
               <h1
-                className="text-[clamp(2.6rem,5.4vw,4.6rem)] font-medium leading-[1.03] tracking-[-0.01em]"
+                className="text-[clamp(2.5rem,5vw,4.3rem)] font-medium leading-[1.03] tracking-[-0.01em]"
                 style={{ fontFamily: DISPLAY, textShadow: '0 2px 40px rgba(5,8,26,0.6)' }}
               >
                 Administradora de condomínios em Recife.
@@ -231,7 +313,6 @@ export default function ProtoRecife() {
             </Reveal>
           </div>
 
-          {/* direita: form em vidro, alinhado ao topo do título */}
           <Reveal delay={0.2} dir="scale">
             <div
               id="proposta"
@@ -277,7 +358,7 @@ export default function ProtoRecife() {
         </div>
       </section>
 
-      {/* ============ AUTORIDADE / G20 + NÚMEROS (dark) ============ */}
+      {/* ============ AUTORIDADE / G20 + NÚMEROS + MÍDIA ============ */}
       <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4.5rem,8vw,7rem)]">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <Reveal dir="left">
@@ -300,15 +381,27 @@ export default function ProtoRecife() {
               A Semog integra o G20 da Superlógica, o principal ERP do mercado condominial, no ciclo
               2025/26. Melhor colocação: 3º lugar.
             </p>
-            <a
-              href="https://www.sindiconet.com.br/informese/g20-comite-administradoras-condominios-noticias-mercado"
-              target="_blank"
-              rel="noopener"
-              className="mt-6 inline-flex items-center gap-2 text-[0.92rem] font-medium underline underline-offset-4"
-              style={{ color: ICE }}
-            >
-              Veja a lista no Sindiconet
-            </a>
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[0.9rem]">
+              <span style={{ color: '#7e88ac' }}>Com cobertura em:</span>
+              <a
+                href="https://exame.com/negocios/g20-superlogica-administradoras-imobiliarias-futuro-do-morar/"
+                target="_blank"
+                rel="noopener"
+                className="font-semibold underline underline-offset-4"
+                style={{ color: ICE }}
+              >
+                Exame
+              </a>
+              <a
+                href="https://www.sindiconet.com.br/informese/g20-comite-administradoras-condominios-noticias-mercado"
+                target="_blank"
+                rel="noopener"
+                className="font-semibold underline underline-offset-4"
+                style={{ color: ICE }}
+              >
+                Sindiconet
+              </a>
+            </div>
           </Reveal>
 
           <Reveal
@@ -361,7 +454,7 @@ export default function ProtoRecife() {
         </div>
       </section>
 
-      {/* ============ SOLUÇÕES (BENTO, dark) ============ */}
+      {/* ============ SOLUÇÕES (BENTO com ícones + exclusivos) ============ */}
       <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] pb-[clamp(4.5rem,8vw,7rem)]">
         <Reveal>
           <h2
@@ -371,35 +464,54 @@ export default function ProtoRecife() {
             Uma gestão inteligente para condomínios mais tranquilos.
           </h2>
         </Reveal>
-        <Stagger className="grid auto-rows-[minmax(140px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <Stagger className="grid auto-rows-[minmax(148px,auto)] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {SOLUCOES.map((c) => (
             <article
               key={c.title}
-              className={`flex flex-col justify-between rounded-[18px] border p-[clamp(1.3rem,2.2vw,1.9rem)] ${c.span}`}
+              className={`relative flex flex-col justify-between overflow-hidden rounded-[18px] border p-[clamp(1.4rem,2.2vw,1.9rem)] ${c.span}`}
               style={{
-                borderColor: 'rgba(173,213,235,0.14)',
-                background: c.tint
-                  ? 'radial-gradient(120% 130% at 80% 0%, rgba(43,63,150,0.5), rgba(10,16,46,0.4))'
+                borderColor: c.exclusive ? 'rgba(173,213,235,0.35)' : 'rgba(173,213,235,0.14)',
+                background: c.exclusive
+                  ? 'radial-gradient(130% 130% at 85% 0%, rgba(43,63,150,0.55), rgba(10,16,46,0.5))'
                   : 'rgba(13,20,57,0.5)',
               }}
             >
+              {c.exclusive && (
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-px"
+                  style={{
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(173,213,235,0.7), transparent)',
+                  }}
+                />
+              )}
               <div>
+                <div
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-[12px] border"
+                  style={{
+                    borderColor: 'rgba(173,213,235,0.2)',
+                    background: 'rgba(173,213,235,0.06)',
+                  }}
+                >
+                  <Icon d={c.icon} />
+                </div>
                 <h3
-                  className={`font-medium leading-tight ${c.big ? 'text-[1.5rem]' : 'text-[1.12rem]'}`}
+                  className={`font-medium leading-tight ${c.exclusive ? 'text-[1.45rem]' : 'text-[1.12rem]'}`}
                   style={{ fontFamily: DISPLAY }}
                 >
                   {c.title}
                 </h3>
                 <p
-                  className={`mt-2.5 leading-relaxed ${c.big ? 'text-[1rem]' : 'text-[0.92rem]'}`}
+                  className={`mt-2.5 leading-relaxed ${c.exclusive ? 'text-[1rem]' : 'text-[0.92rem]'}`}
                   style={{ color: '#a9b4d6' }}
                 >
                   {c.text}
                 </p>
               </div>
-              {c.big && (
+              {c.exclusive && (
                 <span
-                  className="mt-6 inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-[0.85rem] font-semibold"
+                  className="mt-6 inline-flex w-fit items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[0.8rem] font-semibold"
                   style={{ background: ICE, color: NAVY_950 }}
                 >
                   Exclusiva Semog
@@ -410,7 +522,51 @@ export default function ProtoRecife() {
         </Stagger>
       </section>
 
-      {/* ============ ONDE ATENDEMOS (LIGHT — quebra o navy) ============ */}
+      {/* ============ DIFERENCIAIS — o que nos torna a escolha certa (dark, accent) ============ */}
+      <section
+        className="w-full border-y py-[clamp(4.5rem,8vw,7rem)]"
+        style={{ borderColor: 'rgba(173,213,235,0.1)', background: NAVY_900 }}
+      >
+        <div className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)]">
+          <Reveal>
+            <p
+              className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: ICE }}
+            >
+              Por que a Semog
+            </p>
+            <h2
+              className="mt-3 max-w-[40rem] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
+              style={{ fontFamily: DISPLAY }}
+            >
+              O que nos torna a escolha certa.
+            </h2>
+          </Reveal>
+          <Stagger className="mt-12 grid gap-8 md:grid-cols-3">
+            {DIFERENCIAIS.map((d) => (
+              <div key={d.title}>
+                <div
+                  className="mb-5 flex h-12 w-12 items-center justify-center rounded-[14px] border"
+                  style={{
+                    borderColor: 'rgba(173,213,235,0.22)',
+                    background: 'rgba(173,213,235,0.06)',
+                  }}
+                >
+                  <Icon d={d.icon} size={28} />
+                </div>
+                <h3 className="text-[1.2rem] font-medium" style={{ fontFamily: DISPLAY }}>
+                  {d.title}
+                </h3>
+                <p className="mt-2.5 text-[0.98rem] leading-relaxed" style={{ color: '#a9b4d6' }}>
+                  {d.text}
+                </p>
+              </div>
+            ))}
+          </Stagger>
+        </div>
+      </section>
+
+      {/* ============ ONDE ATENDEMOS (LIGHT) ============ */}
       <section
         className="w-full py-[clamp(4.5rem,8vw,7rem)]"
         style={{ background: LIGHT, color: INK }}
@@ -490,7 +646,7 @@ export default function ProtoRecife() {
         </div>
       </section>
 
-      {/* ============ BANDA GARANTE (quebra de ritmo) ============ */}
+      {/* ============ BANDA GARANTE (blue) ============ */}
       <section
         className="w-full py-[clamp(4rem,8vw,7rem)]"
         style={{ background: 'linear-gradient(160deg, #101a48 0%, #1b2d70 55%, #16225c 100%)' }}
@@ -603,8 +759,46 @@ export default function ProtoRecife() {
         </div>
       </section>
 
+      {/* ============ FAQ (dark, SEO/Ads) ============ */}
+      <section className="mx-auto w-full max-w-[980px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4.5rem,8vw,7rem)]">
+        <Reveal>
+          <h2
+            className="mb-10 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
+            style={{ fontFamily: DISPLAY }}
+          >
+            Perguntas de quem busca administradora em Recife.
+          </h2>
+        </Reveal>
+        <Stagger className="grid gap-3">
+          {FAQ.map((f) => (
+            <details
+              key={f.q}
+              className="group rounded-[14px] border px-[clamp(1.2rem,2.2vw,1.6rem)] py-4"
+              style={{ borderColor: 'rgba(173,213,235,0.14)', background: 'rgba(13,20,57,0.4)' }}
+            >
+              <summary
+                className="flex cursor-pointer list-none items-center justify-between gap-4 text-[1.05rem] font-medium"
+                style={{ color: '#edf1fa' }}
+              >
+                {f.q}
+                <span
+                  aria-hidden
+                  className="shrink-0 text-[1.4rem] transition-transform group-open:rotate-45"
+                  style={{ color: ICE }}
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 text-[0.98rem] leading-relaxed" style={{ color: '#a9b4d6' }}>
+                {f.a}
+              </p>
+            </details>
+          ))}
+        </Stagger>
+      </section>
+
       {/* ============ CTA FINAL (dark) ============ */}
-      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(5rem,9vw,8rem)]">
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)] pb-[clamp(5rem,9vw,8rem)]">
         <Reveal dir="scale">
           <div
             className="flex flex-col items-start justify-between gap-8 rounded-[24px] border p-[clamp(2rem,5vw,4rem)] md:flex-row md:items-center"
