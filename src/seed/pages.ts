@@ -1620,8 +1620,8 @@ const contatoQuickLinks: Omit<QuickLinksBlock, 'id' | 'blockName'> = {
       icon: 'email',
       title: 'E-mail',
       description: 'Para solicitações formais, documentos e propostas.',
-      value: 'contato@semog.com.br',
-      href: 'mailto:contato@semog.com.br',
+      value: 'ola@semog.com.br',
+      href: 'mailto:ola@semog.com.br',
     },
     {
       icon: 'document',

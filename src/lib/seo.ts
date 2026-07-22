@@ -249,8 +249,9 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
     '@type': 'LocalBusiness',
     '@id': `${url}#business`,
     // Nome idêntico ao Google Business Profile (NAP consistente); a cidade
-    // fica no `address`. GBP das 4 unidades usa "Condomínio" no singular.
-    name: 'Semog Administradora de Condomínio',
+    // fica no `address`. Padronizado no plural ("Condomínios"), que é o
+    // correto e traz a keyword exata — renomear as 4 fichas do GBP p/ bater.
+    name: 'Semog Administradora de Condomínios',
     description: `Administradora de condomínios em ${unit.city}/${unit.region} — ${unit.role.toLowerCase()} da Semog, líder do Nordeste há 35 anos.`,
     url,
     image: absoluteUrl(`${unit.slug}/opengraph-image`),

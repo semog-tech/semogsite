@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { absoluteUrl, siteUrl } from '@/lib/seo'
+import { absoluteUrl } from '@/lib/seo'
 
 /**
  * `/robots.txt` — aponta pro sitemap dinâmico e bloqueia admin/API do Payload.
@@ -29,6 +29,5 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ['/admin', '/api'],
     },
     sitemap: absoluteUrl('sitemap.xml'),
-    host: siteUrl(),
   }
 }
