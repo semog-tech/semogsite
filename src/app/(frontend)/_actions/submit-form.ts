@@ -1,8 +1,13 @@
 'use server'
 
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
+import {
+  ATTRIBUTION_COOKIE,
+  buildAttributionFields,
+  parseAttributionCookie,
+} from '@/lib/attribution'
 import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, propostaSchema } from '@/lib/form-schemas'
 import { getPayloadClient } from '@/lib/payload'
@@ -151,13 +156,22 @@ export async function submitForm(
 
     const data = parsed.data as ContatoValues | PropostaValues
 
+    // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
+    // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
+    const attributionCookie = (await cookies()).get(ATTRIBUTION_COOKIE)?.value
+    const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
+
     await payload.create({
       collection: 'form-submissions',
       data: {
         form: form.id,
-        submissionData: Object.entries(data)
-          .filter(([, value]) => value !== undefined)
-          .map(([field, value]) => ({ field, value: String(value) })),
+        submissionData: [
+          ...Object.entries(data)
+            .filter(([, value]) => value !== undefined)
+            .map(([field, value]) => ({ field, value: String(value) })),
+          // Guarda a origem junto do lead pra consulta futura no admin.
+          ...attributionFields.map((f) => ({ field: `origem — ${f.label}`, value: f.value })),
+        ],
       },
     })
 
@@ -188,13 +202,15 @@ export async function submitForm(
         const notificationResult = await sendMail({
           to: notifyTo,
           subject: `Novo contato via ${formTitle}`,
-          react: ContactNotification({ formTitle, fields }),
+          react: ContactNotification({ formTitle, fields, attribution: attributionFields }),
         })
         if (notificationResult.ok === false) {
           console.error('[submit-form] sendMail falhou:', notificationResult.error)
         }
       } else {
-        console.info('[submit-form] destinatário da notificação ausente — notificação interna não enviada.')
+        console.info(
+          '[submit-form] destinatário da notificação ausente — notificação interna não enviada.',
+        )
       }
 
       const autoReplyResult = await sendMail({
