@@ -92,7 +92,7 @@ export function FooterView({
           </div>
           {columns.map((col) => (
             <div key={col.id ?? col.title}>
-              <h4>{col.title}</h4>
+              <h3>{col.title}</h3>
               <ul>
                 {col.links?.map((link) => (
                   <li key={link.id ?? link.href}>

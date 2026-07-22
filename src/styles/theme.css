@@ -645,7 +645,7 @@
     gap: 3rem;
     padding: clamp(2.5rem, 5vw, 4rem) 0;
   }
-  .footer h4 {
+  .footer h3 {
     font-size: 0.78rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
