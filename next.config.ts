@@ -65,14 +65,14 @@ const nextConfig: NextConfig = {
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
-      "frame-src 'self' https://challenges.cloudflare.com",
+      "frame-src 'self' https://challenges.cloudflare.com https://td.doubleclick.net https://bid.g.doubleclick.net",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.clarity.ms https://c.bing.com",
+      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
       "media-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co blob:",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.clarity.ms https://c.bing.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
     ].join('; ')
 
     // Indexação DESLIGADA por padrão (ambiente de teste): emite

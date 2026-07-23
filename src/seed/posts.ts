@@ -858,6 +858,166 @@ const postsData = [
       ]),
     ),
   },
+  {
+    title: 'Administradora de condomínios no Recife: como escolher a certa',
+    slug: 'administradora-de-condominios-recife-como-escolher',
+    excerpt:
+      'Prédio de orla e prédio de bairro têm problemas diferentes — e nem toda administradora entende isso. O que avaliar no mercado condominial do Recife antes de assinar contrato.',
+    categorySlug: 'gestao',
+    heroImageFilename: 'prestacao-contas.webp',
+    readingTime: 8,
+    publishedAt: '2026-07-23T09:00:00.000Z',
+    keyTakeaways: [
+      {
+        point:
+          'Maresia e salitre encurtam a vida de fachada e esquadrias na orla — exige manutenção preventiva planejada.',
+      },
+      {
+        point:
+          'Prédios antigos de Casa Forte, Graças e Espinheiro pedem plano de obra estrutural, não só conserto pontual.',
+      },
+      {
+        point:
+          'Equipe e jurídico locais resolvem em dias o que um call center de outro estado leva semanas.',
+      },
+      { point: 'Peça o balancete-modelo e o prazo de resposta por escrito antes de assinar.' },
+    ],
+    content: doc(
+      p(
+        'Escolher administradora no Recife não é escolher a taxa mais barata: é escolher quem entende o prédio que você tem. A capital pernambucana concentra uma das verticalizações mais intensas do Nordeste — de Boa Viagem e da orla aos bairros tradicionais como Casa Forte, Graças e Espinheiro — e cada um desses cenários cria um tipo diferente de dor de cabeça para o síndico.',
+      ),
+      h('h2', 'O mercado condominial do Recife tem particularidades reais'),
+      p(
+        'Quem administra condomínio no Recife há tempo suficiente sabe que a geografia da cidade entra na planilha de custos. Dois exemplos que aparecem toda semana:',
+      ),
+      ul([
+        [
+          { text: 'Orla (Boa Viagem, Pina, Imbiribeira): ', bold: true },
+          'maresia e salitre atacam fachada, esquadrias, guarda-corpos e equipamentos expostos. Sem manutenção preventiva planejada, a conta chega de uma vez — e alta — em forma de recuperação de fachada.',
+        ],
+        [
+          { text: 'Bairros tradicionais (Casa Forte, Graças, Espinheiro): ', bold: true },
+          'prédios mais antigos, com instalações e elevadores no fim da vida útil. Aqui o assunto não é conserto pontual: é plano de obra e fundo de reserva dimensionado para ele.',
+        ],
+        [
+          { text: 'Empreendimentos novos: ', bold: true },
+          'muita área de lazer, mais equipamentos, mais regra de convivência para escrever e aplicar — e um custo operacional que precisa caber na taxa desde o primeiro orçamento.',
+        ],
+      ]),
+      quote('No Recife, manutenção adiada não fica parada: com maresia, ela fica mais cara.'),
+      h('h2', 'O que avaliar antes de assinar'),
+      p('Um checklist honesto, que vale para qualquer prédio da Região Metropolitana:'),
+      ol([
+        [
+          { text: 'Equipe local de verdade. ', bold: true },
+          'Alguém que vai ao prédio quando precisa — não um atendimento remoto de outro estado que abre protocolo e some.',
+        ],
+        [
+          { text: 'Jurídico próprio. ', bold: true },
+          'Cobrança, convenção e conflito são rotina. Ter time jurídico interno, acostumado com o rito local, muda o tempo de resposta.',
+        ],
+        [
+          { text: 'Prestação de contas que o condômino entende. ', bold: true },
+          'Peça o balancete-modelo antes de assinar. Se você não entender em cinco minutos, seus condôminos também não vão.',
+        ],
+        [
+          { text: 'Método de cobrança de inadimplência. ', bold: true },
+          'Pergunte qual é a régua, em quantos dias começa e se existe alguma garantia de arrecadação.',
+        ],
+        [
+          { text: 'Prazo de resposta por escrito. ', bold: true },
+          'Não aceite “o mais rápido possível”. Peça o compromisso em horas ou dias, no contrato.',
+        ],
+      ]),
+      h('h2', 'Por que a proximidade pesa mais aqui'),
+      p(
+        'Condomínio é um negócio de urgências: bomba que para, elevador travado, assembleia que precisa acontecer. No Recife, onde o trânsito e a geografia da cidade já custam tempo, a diferença entre uma administradora que está por perto e uma que atende de longe aparece no primeiro imprevisto — e é ela que o condômino sente no bolso e na convivência.',
+      ),
+      p([
+        'É esse o ponto de partida da ',
+        link(
+          'administração de condomínios da Semog no Recife',
+          '/administradora-de-condominios-recife',
+        ),
+        ': aqui fica a matriz, com financeiro, jurídico e contábil próprios, e a mesma tecnologia que hoje atende todo o Nordeste. Se a inadimplência é a sua dor principal, vale conhecer também o ',
+        link('Semog Garante', '/garante'),
+        ', que assegura a arrecadação integral do condomínio.',
+      ]),
+    ),
+  },
+  {
+    title: 'Administradora de condomínios em João Pessoa: o que avaliar antes de contratar',
+    slug: 'administradora-de-condominios-joao-pessoa-o-que-avaliar',
+    excerpt:
+      'Na orla pessoense, boa parte dos proprietários não mora no prédio — e isso muda tudo na gestão. O que exigir da administradora em João Pessoa.',
+    categorySlug: 'gestao',
+    heroImageFilename: 'blog-lazer.webp',
+    readingTime: 8,
+    publishedAt: '2026-07-23T10:00:00.000Z',
+    keyTakeaways: [
+      {
+        point:
+          'Na orla de JP muitos proprietários moram fora — quórum e comunicação viram o maior desafio.',
+      },
+      {
+        point:
+          'Assembleia virtual/híbrida deixa de ser conveniência e vira necessidade operacional.',
+      },
+      { point: 'Prestação de contas digital é o que dá segurança a quem acompanha à distância.' },
+      { point: 'Ainda assim, é preciso equipe pessoense no chão para resolver o presencial.' },
+    ],
+    content: doc(
+      p(
+        'João Pessoa é uma das capitais que mais crescem no Nordeste, e o adensamento do litoral — Manaíra, Tambaú, Cabo Branco e Bessa — criou um perfil de condomínio com uma característica que muda a gestão inteira: uma fatia relevante dos proprietários não mora no imóvel. São segundas residências, imóveis de temporada e investimento.',
+      ),
+      h('h2', 'O desafio que quase ninguém antecipa: quórum e comunicação'),
+      p(
+        'Quando parte dos donos está em outra cidade, dois problemas aparecem juntos. Primeiro, o quórum: assembleia presencial em noite de terça simplesmente não reúne quem mora a 300 km dali. Segundo, a confiança: quem não passa no prédio todo dia depende inteiramente do que a administradora comunica para saber se o dinheiro está bem cuidado.',
+      ),
+      p(
+        'É por isso que, em João Pessoa, dois recursos que em outros lugares são "diferencial" viram requisito básico:',
+      ),
+      ul([
+        [
+          { text: 'Assembleia virtual ou híbrida', bold: true },
+          ' — com convocação, verificação de quórum e votação rastreável. Sem isso, decisões importantes travam por falta de gente na sala.',
+        ],
+        [
+          { text: 'Prestação de contas 100% digital', bold: true },
+          ' — aberta a todos os condôminos, com documentos anexados. É o que permite ao proprietário distante conferir de onde estiver, em vez de confiar no boca a boca.',
+        ],
+        [
+          { text: 'Aplicativo para o morador', bold: true },
+          ' — boleto, reservas e avisos na mão, sem depender de mural ou portaria.',
+        ],
+      ]),
+      quote(
+        'Em prédio de orla, a administradora não gerencia só o condomínio: gerencia a distância entre o proprietário e o próprio patrimônio.',
+      ),
+      h('h2', 'Mas o digital não substitui o presencial'),
+      p(
+        'Aqui mora a armadilha: administradora 100% remota resolve o relatório, mas não resolve a bomba que parou no domingo. A combinação que funciona em João Pessoa é a das duas pernas — tecnologia para quem acompanha de longe e equipe pessoense para o que só se resolve no local. Bairros em expansão como Altiplano e Bancários, com empreendimentos novos e muita área comum, reforçam essa necessidade.',
+      ),
+      h('h2', 'Checklist antes de contratar em João Pessoa'),
+      ol([
+        'A administradora conduz assembleia virtual/híbrida com registro auditável? Peça para ver uma ata.',
+        'A prestação de contas é acessível ao condômino sem precisar pedir por e-mail?',
+        'Existe equipe na cidade — e em quanto tempo alguém vai ao prédio?',
+        'Como funciona a cobrança de inadimplentes e há garantia de arrecadação?',
+        'Quem responde quando o síndico não está disponível?',
+      ]),
+      p([
+        'É exatamente esse equilíbrio que a ',
+        link(
+          'administradora de condomínios da Semog em João Pessoa',
+          '/administradora-de-condominios-joao-pessoa',
+        ),
+        ' entrega: a estrutura da líder do Nordeste com uma equipe local que resolve perto de você. Se quiser um diagnóstico do seu caso, ',
+        link('peça uma proposta sem compromisso', '/proposta'),
+        ' — a resposta sai em até 24 horas úteis.',
+      ]),
+    ),
+  },
 ]
 
 async function seedPosts() {
