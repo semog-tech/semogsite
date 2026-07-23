@@ -217,9 +217,11 @@ const postsData = [
       p(
         'Sob pressão para "não aumentar a taxa", muitos condomínios cortam exatamente o que não deveriam: a manutenção preventiva e o aporte ao fundo. É a economia que sai mais cara. Adiar a manutenção do elevador não elimina o custo — só o transfere para frente, maior, e ainda cria risco. Zerar o fundo não reduz a despesa — só garante que a próxima emergência vire rateio.',
       ),
-      p(
-        'Com todo esse material em mãos — histórico categorizado, calendário de reajustes, fundo dimensionado e uma apresentação clara — a assembleia deixa de ser um embate sobre planilhas soltas e vira uma decisão informada sobre prioridades. É esse trabalho, invisível para o condômino e decisivo para o síndico, que a equipe Semog entrega em cada previsão orçamentária e em cada prestação de contas.',
-      ),
+      p([
+        'Com todo esse material em mãos — histórico categorizado, calendário de reajustes, fundo dimensionado e uma apresentação clara — a assembleia deixa de ser um embate sobre planilhas soltas e vira uma decisão informada sobre prioridades. É esse trabalho, invisível para o condômino e decisivo para o síndico, que a ',
+        link('administração completa da Semog', '/administracao-de-condominios'),
+        ' entrega em cada previsão orçamentária e em cada prestação de contas.',
+      ]),
     ),
   },
   {
@@ -307,9 +309,11 @@ const postsData = [
       p(
         'Uma execução judicial pode se arrastar por anos e ainda gerar custas. Um acordo bem estruturado recupera o crédito mais rápido e mais barato. O bom acordo tem três elementos: uma entrada que sinaliza compromisso, parcelas que cabem no orçamento do devedor e uma cláusula de vencimento antecipado — se uma parcela falhar, o saldo todo volta a vencer, o que protege o condomínio.',
       ),
-      p(
-        'A ação judicial continua sendo necessária para os casos que não negociam. Mas ela deve ser o fim de um processo, não o começo. Na Semog, cada inadimplência entra primeiro como negociação a ser resolvida — e só vira processo quando o diálogo se esgota. É essa ordem que mantém o caixa do condomínio saudável sem transformar o vizinho devedor em réu antes da hora.',
-      ),
+      p([
+        'A ação judicial continua sendo necessária para os casos que não negociam. Mas ela deve ser o fim de um processo, não o começo. Na Semog, cada inadimplência entra primeiro como negociação a ser resolvida — e só vira processo quando o diálogo se esgota. É essa ordem, somada a soluções como o ',
+        link('Semog Garante', '/garante'),
+        ', que assegura a arrecadação integral do condomínio, que mantém o caixa saudável sem transformar o vizinho devedor em réu antes da hora.',
+      ]),
     ),
   },
   {
@@ -388,9 +392,11 @@ const postsData = [
           ' — quem passa a atender, por quais canais, e como fica o boleto do próximo mês.',
         ],
       ]),
-      p(
-        'Na Semog, esse processo é conduzido passo a passo, com o síndico acompanhando cada etapa — porque a troca só vale a pena se a primeira impressão do condomínio for a de que, finalmente, alguém assumiu o controle.',
-      ),
+      p([
+        'Na Semog, ',
+        link('a transição para uma administração completa', '/administracao-de-condominios'),
+        ' é conduzida passo a passo, com o síndico acompanhando cada etapa — porque a troca só vale a pena se a primeira impressão do condomínio for a de que, finalmente, alguém assumiu o controle.',
+      ]),
     ),
   },
   {
@@ -452,9 +458,11 @@ const postsData = [
           ' — a advertência e a multa por descumprimento estão escritas, com valor e rito, antes de serem necessárias.',
         ],
       ]),
-      p(
-        'A equipe Semog ajuda síndicos a redigir e aprovar esse regimento em assembleia, com modelos já testados em centenas de condomínios — porque regra clara, aprovada com quórum e aplicada com isonomia, é o que transforma a área de lazer de fonte de briga em motivo de orgulho do prédio.',
-      ),
+      p([
+        'A ',
+        link('administração da Semog', '/administracao-de-condominios'),
+        ' ajuda síndicos a redigir e aprovar esse regimento em assembleia, com modelos já testados em centenas de condomínios — porque regra clara, aprovada com quórum e aplicada com isonomia, é o que transforma a área de lazer de fonte de briga em motivo de orgulho do prédio.',
+      ]),
     ),
   },
   {
@@ -517,9 +525,11 @@ const postsData = [
       p(
         'Para condomínios com moradores menos familiarizados com tecnologia, a assembleia híbrida — presencial e online ao mesmo tempo — costuma ser a transição ideal. Quem quer, comparece; quem prefere, participa remotamente; e ambos votam com o mesmo peso. O cuidado extra é garantir que os dois canais enxerguem e sejam ouvidos na mesma reunião, sem que o grupo presencial decida à parte.',
       ),
-      p(
-        'Na Semog, cada assembleia virtual ou híbrida é registrada com trilha de auditoria completa — de quem votou a que horas votou — para que a decisão tenha o mesmo peso legal de uma presencial, com a conveniência de participar de onde estiver.',
-      ),
+      p([
+        'Na Semog, ',
+        link('cada assembleia virtual ou híbrida', '/administracao-de-condominios'),
+        ' é registrada com trilha de auditoria completa — de quem votou a que horas votou — para que a decisão tenha o mesmo peso legal de uma presencial, com a conveniência de participar de onde estiver.',
+      ]),
     ),
   },
   {
@@ -571,9 +581,11 @@ const postsData = [
       p(
         'O fundo de reserva cobre o imprevisto e o de grande porte: quebra de equipamento, reparo estrutural, obra não recorrente, uma emergência de segurança. Não deveria ser usado para despesa corrente. Pagar a conta de luz ou a folha com o fundo é sinal de que o orçamento ordinário está subdimensionado — um problema diferente, que só se resolve corrigindo a taxa, não sacando da reserva até ela zerar.',
       ),
-      p(
-        'A equipe Semog projeta, junto com o síndico, quanto reservar mês a mês com base no histórico de manutenção e no ciclo de vida dos equipamentos do prédio — para que o fundo cubra o previsível sem pesar demais no orçamento corrente, e esteja lá no dia em que ninguém queria precisar dele.',
-      ),
+      p([
+        'A ',
+        link('equipe da Semog', '/administracao-de-condominios'),
+        ' projeta, junto com o síndico, quanto reservar mês a mês com base no histórico de manutenção e no ciclo de vida dos equipamentos do prédio — para que o fundo cubra o previsível sem pesar demais no orçamento corrente, e esteja lá no dia em que ninguém queria precisar dele.',
+      ]),
     ),
   },
   {
@@ -672,9 +684,11 @@ const postsData = [
           ' — a partir daí, o condomínio contrata, cobra e é cobrado como pessoa jurídica.',
         ],
       ]),
-      p(
-        'A Semog conduz esse processo do começo ao fim — da convocação dos compradores ao registro em cartório — para que a incorporadora entregue as chaves com o condomínio juridicamente pronto para funcionar, e o morador comece a vida nova sem herdar uma pendência que não criou.',
-      ),
+      p([
+        'A Semog ',
+        link('conduz esse processo do começo ao fim', '/administracao-de-condominios'),
+        ' — da convocação dos compradores ao registro em cartório — para que a incorporadora entregue as chaves com o condomínio juridicamente pronto para funcionar, e o morador comece a vida nova sem herdar uma pendência que não criou.',
+      ]),
     ),
   },
   {
