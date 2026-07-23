@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
     // error/performance events. DSN is deferred — without it the SDK is
     // disabled and never calls out — but the CSP allowance is added now so
     // nothing needs touching again once a DSN lands.
+    //
+    // `https://www.googletagmanager.com` + `https://*.google-analytics.com` +
+    // `https://*.analytics.google.com` (GA4 / Consent Mode): `script-src` carrega
+    // o `gtag.js`; `connect-src` cobre os hits do `/g/collect` (fetch/beacon);
+    // `img-src` o pixel de fallback. SEM esses domínios o CSP bloqueia o gtag
+    // INTEIRO → 0 page_view e 0 generate_lead no GA4 (bug corrigido 2026-07-23,
+    // confirmado: 2.351 sessões / 0 pageviews em 28 dias por causa disso).
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -60,12 +67,12 @@ const nextConfig: NextConfig = {
       "frame-ancestors 'self'",
       "frame-src 'self' https://challenges.cloudflare.com",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co",
+      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com",
       "media-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co blob:",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
     ].join('; ')
 
     // Indexação DESLIGADA por padrão (ambiente de teste): emite
