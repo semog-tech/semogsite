@@ -1,6 +1,7 @@
 import type React from 'react'
 import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
+import { Clarity } from '@/components/analytics/Clarity'
 import { LeadClickTracker } from '@/components/analytics/LeadClickTracker'
 import { CookieBanner } from '@/components/consent/CookieBanner'
 import { FooterServer } from '@/components/layout/FooterServer'
@@ -31,6 +32,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <Grain />
         <ConsentProvider>
           <Analytics />
+          <Clarity />
           <AttributionTracker />
           <LeadClickTracker />
           <LenisProvider>
