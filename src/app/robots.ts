@@ -26,7 +26,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin', '/api'],
+      // Barra final OBRIGATÓRIA: robots.txt casa por PREFIXO. Sem a barra,
+      // `/admin` bloquearia também `/administradora-de-condominios-*` e
+      // `/administracao-de-condominios` (todas começam com "admin") — foi o que
+      // manteve as landings "bloqueadas pela robots" no Search Console. `/admin/`
+      // e `/api/` miram só o painel do Payload e as rotas de API.
+      disallow: ['/admin/', '/api/'],
     },
     sitemap: absoluteUrl('sitemap.xml'),
   }
