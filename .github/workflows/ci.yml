@@ -49,6 +49,14 @@ jobs:
           pnpm exec payload generate:types
           git diff --exit-code src/payload-types.ts
 
+      # Os testes de integração são unitários de verdade (jsdom, sem banco):
+      # cobrem a política do sequenciador de vídeo do hero. Rodam em qualquer
+      # ambiente, então entram no CI sem infraestrutura extra.
+      - name: Testes de integração
+        env:
+          NODE_OPTIONS: --no-deprecation
+        run: pnpm exec vitest run --config ./vitest.config.mts
+
       # `next build` is intentionally NOT run in this workflow: it fetches
       # data from Payload/Postgres at build time for the site's pages, and
       # CI has no live database available. Build verification happens via
