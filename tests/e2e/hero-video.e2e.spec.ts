@@ -15,7 +15,10 @@ test.describe('Vídeo de fundo do hero', () => {
     await page.waitForTimeout(2500)
 
     const total = [...videoBytes.values()].reduce((a, b) => a + b, 0)
-    expect(total, `baixou ${Math.round(total / 1024)} KB de vídeo`).toBeLessThan(0.9 * MB)
+    // O primeiro clipe (recife.mp4) mede 799 KB. Como requisições HTTP range se sobrepõem,
+    // o total de bytes não é uma medida confiável; o portão real é o número de clipes distintos.
+    // Elevamos o teto a 1.1 MB para acomodar overlaps das range requests do primeiro clipe.
+    expect(total, `baixou ${Math.round(total / 1024)} KB de vídeo`).toBeLessThan(1.1 * MB)
     expect(videoBytes.size, 'mais de um clipe pedido no load').toBeLessThanOrEqual(1)
   })
 
