@@ -20,6 +20,10 @@ export function BrazilMap({ className = '' }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label="Mapa do Brasil com Pará, Pernambuco e Paraíba em destaque"
+      // Gancho de teste estável: `className`/estrutura interna mudam com o
+      // design, o `aria-label` descreve conteúdo (estados em destaque) e pode
+      // mudar; este atributo não depende de nenhum dos dois.
+      data-brazil-map=""
     >
       <g>
         {states.map((s) => (

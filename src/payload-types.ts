@@ -340,9 +340,9 @@ export interface StatsBlock {
   eyebrow?: string | null;
   title?: string | null;
   /**
-   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — usado na home. Vazio = 'grid' (comportamento anterior).
+   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — inalterado, ainda disponível. `band` = faixa horizontal de 5 colunas com divisória vertical, número/rótulo/frase de apoio — substituiu `feature` na home (jul/2026). Vazio = 'grid' (comportamento anterior).
    */
-  variant?: ('grid' | 'feature') | null;
+  variant?: ('grid' | 'feature' | 'band') | null;
   items?:
     | {
         value: number;

@@ -16,11 +16,12 @@ export const statsBlock: Block = {
       options: [
         { label: 'Grade (padrão — mini-stats)', value: 'grid' },
         { label: 'Ledger editorial (linhas + contexto)', value: 'feature' },
+        { label: 'Faixa horizontal de 5 (home)', value: 'band' },
       ],
       defaultValue: 'grid',
       admin: {
         description:
-          "`grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — usado na home. Vazio = 'grid' (comportamento anterior).",
+          "`grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — inalterado, ainda disponível. `band` = faixa horizontal de 5 colunas com divisória vertical, número/rótulo/frase de apoio — substituiu `feature` na home (jul/2026). Vazio = 'grid' (comportamento anterior).",
       },
     },
     {
