@@ -115,6 +115,12 @@ async function seedHome() {
     getMediaId(payload, 'app-encomenda.webp'),
   ])
 
+  // A página `/aplicativo` só existe a partir do próximo plano (03). Até lá,
+  // os links do app apontam para a âncora existente `.solucoes#aplicativo`
+  // (a mesma que o header usa) para não caírem em 404 numa página que vende
+  // confiança. Quando `/aplicativo` for ao ar, trocar só esta linha.
+  const APP_HREF = '/solucoes#aplicativo'
+
   const heroBlock: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
     headline: HERO_HEADLINE,
@@ -130,7 +136,7 @@ async function seedHome() {
     ],
     ctas: [
       { label: 'Solicitar proposta', href: '/proposta', variant: 'white' },
-      { label: 'Ver o aplicativo', href: '/aplicativo', variant: 'glass' },
+      { label: 'Ver o aplicativo', href: APP_HREF, variant: 'glass' },
     ],
   }
 
@@ -248,7 +254,7 @@ async function seedHome() {
         tag: 'Aplicativo Semog · 4,8 ★',
         title: 'O condomínio inteiro na palma da mão.',
         text: 'Boletos, reservas, assembleias e avisos em uma interface que o morador realmente usa.',
-        href: '/aplicativo',
+        href: APP_HREF,
       },
       {
         image: cOneId,
@@ -286,7 +292,7 @@ async function seedHome() {
       appStore: 'https://apps.apple.com/br/app/semog-condom%C3%ADnios/id6504202916',
       playStore: 'https://play.google.com/store/apps/details?id=br.com.semog',
     },
-    cta: { label: 'Conhecer o app', href: '/aplicativo' },
+    cta: { label: 'Conhecer o app', href: APP_HREF },
   }
 
   const garanteBlock: Omit<GaranteBlock, 'id' | 'blockName'> = {
