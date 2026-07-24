@@ -19,16 +19,12 @@ describe('StatsBlock — variante band', () => {
   })
 
   it('não renderiza o mapa do Brasil', () => {
-    const { container } = render(
-      <StatsBlock blockType="stats" variant="band" items={items} />,
-    )
+    const { container } = render(<StatsBlock blockType="stats" variant="band" items={items} />)
     expect(container.querySelector('svg[data-brazil-map]')).toBeNull()
   })
 
   it('a variante feature continua renderizando o mapa', () => {
-    const { container } = render(
-      <StatsBlock blockType="stats" variant="feature" items={items} />,
-    )
+    const { container } = render(<StatsBlock blockType="stats" variant="feature" items={items} />)
     expect(container.querySelector('svg[data-brazil-map]')).not.toBeNull()
   })
 

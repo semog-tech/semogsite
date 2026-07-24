@@ -1,10 +1,10 @@
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
+import type { PostData } from '@/lib/blog'
 import { getPostBySlug } from '@/lib/content'
 import { Reveal } from '@/motion/reveal'
 import type { BlogFeaturedBlock as BlogFeaturedBlockType } from '@/types/blocks'
-import type { PostData } from '@/lib/blog'
 
 function metaLine(post: PostData): string {
   return post.readingTime ? `Equipe Semog · ${post.readingTime} min de leitura` : 'Equipe Semog'

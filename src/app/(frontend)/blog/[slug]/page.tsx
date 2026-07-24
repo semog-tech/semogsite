@@ -1,13 +1,13 @@
-import { MDXRemote } from 'next-mdx-remote/rsc'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { MDXRemote } from 'next-mdx-remote/rsc'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
-import { getPostBySlug, getRelatedPosts, getSiteSettings } from '@/lib/content'
 import type { PostData } from '@/lib/blog'
+import { getPostBySlug, getRelatedPosts, getSiteSettings } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
