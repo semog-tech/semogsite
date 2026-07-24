@@ -653,60 +653,22 @@ export interface CustoChecklistBlock {
  * (pacote `lexical`) os exige assim em todo nó, incluindo `root` — confirmado
  * pelo `tsc` da Task 3 ao tipar `RichText/Component.tsx` contra este tipo.
  */
-interface LexicalNode {
-  type: string
-  version: number
-  [key: string]: unknown
-}
-
 export interface RichTextBlock {
   blockType: 'richText'
   id?: string | number | null
   blockName?: string | null
-  content?: {
-    root: {
-      type: string
-      children: LexicalNode[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [key: string]: unknown
-  } | null
+  /**
+   * Corpo em MDX (markdown) — substitui o lexical JSON do Payload (Task 3).
+   * Renderizado via `next-mdx-remote/rsc` (`RichText/Component.tsx`).
+   */
+  body?: string | null
   /** Tratamento `.legal-body` (medida 760px), usado em `/privacidade` e `/termos`. */
   legal?: boolean | null
 }
 
 // ---------------------------------------------------------------------------
-// BlogList / BlogFeatured — referência mínima de post
+// BlogList / BlogFeatured — posts lidos de `src/lib/blog.ts` (MDX), por slug
 // ---------------------------------------------------------------------------
-
-/**
- * Referência mínima de post lida pelos blocos de blog. Cobre só os campos
- * que `BlogListBlock`/`BlogFeaturedBlock` (Component.tsx) leem hoje — título,
- * slug, resumo, categoria, capa, tempo de leitura e data. O `Post`/`Category`
- * completos do Payload ficam fora do escopo desta task (só tipos de bloco).
- * Exportado (diferente dos demais campos aninhados deste arquivo) porque
- * `BlogFeatured/Component.tsx` e `BlogList/Component.tsx` precisam dele por
- * nome pra tipar a variável já estreitada (`post as ...`/`typeof === 'object'`).
- *
- * `id: number` (obrigatório, sem `| string | null` como a convenção de
- * `block.id` no topo do arquivo) porque este é o id de uma linha de banco
- * (post), não o id de instância de bloco — `BlogListBlock.Component.tsx`
- * repassa `excludePost.id` direto pra `getRecentPosts(limit, excludeId?:
- * number)` (`src/lib/payload.ts`), que exige `number`.
- */
-export interface BlogPostRef {
-  id: number
-  title: string
-  slug: string
-  excerpt?: string | null
-  heroImage?: (number | null) | Media
-  category?: (number | null) | { id?: string | number | null; title: string; slug?: string | null }
-  readingTime?: number | null
-  publishedAt?: string | null
-}
 
 export interface BlogListBlock {
   blockType: 'blogList'
@@ -715,8 +677,8 @@ export interface BlogListBlock {
   title?: string | null
   /** Quantidade de posts a exibir (padrão 6). */
   limit?: number | null
-  /** Post a excluir da grade — usar o mesmo post de um `BlogFeatured` logo acima, pra não duplicá-lo. */
-  excludePost?: (number | null) | BlogPostRef
+  /** Slug do post a excluir da grade — o mesmo de um `BlogFeatured` logo acima, pra não duplicá-lo. */
+  excludePost?: string | null
   /** Zera o padding-top da seção — usar quando este bloco vem logo após um BlogFeatured. */
   tightTop?: boolean | null
 }
@@ -725,8 +687,8 @@ export interface BlogFeaturedBlock {
   blockType: 'blogFeatured'
   id?: string | number | null
   blockName?: string | null
-  /** Post exibido em destaque (card grande, 2 colunas). */
-  post: number | BlogPostRef
+  /** Slug do post exibido em destaque (card grande, 2 colunas) — resolvido via `getPostBySlug`. */
+  post: string
 }
 
 // ---------------------------------------------------------------------------

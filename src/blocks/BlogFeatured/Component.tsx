@@ -1,10 +1,12 @@
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
+import { getPostBySlug } from '@/lib/content'
 import { Reveal } from '@/motion/reveal'
-import type { BlogFeaturedBlock as BlogFeaturedBlockType, BlogPostRef } from '@/types/blocks'
+import type { BlogFeaturedBlock as BlogFeaturedBlockType } from '@/types/blocks'
+import type { PostData } from '@/lib/blog'
 
-function metaLine(post: BlogPostRef): string {
+function metaLine(post: PostData): string {
   return post.readingTime ? `Equipe Semog · ${post.readingTime} min de leitura` : 'Equipe Semog'
 }
 
@@ -20,6 +22,13 @@ function metaLine(post: BlogPostRef): string {
  * padding-top exato do ref (`clamp(2.5rem,5vw,4rem)`, ver
  * `_reference/blog.html:153`) em vez do `--section` genérico do `Section`.
  *
+ * `post` é o SLUG do destaque (não mais um snapshot/id numérico — Task 3):
+ * o bloco resolve o `PostData` completo direto de `src/lib/blog.ts` via
+ * `getPostBySlug` no próprio render, mesma fonte única (MDX) que `BlogList`.
+ * Isso elimina o snapshot duplicado que `content/pages/blog.ts` mantinha
+ * antes da migração (risco de o snapshot ficar desatualizado se o post
+ * mudasse).
+ *
  * O ref envolve o card inteiro num único `<a data-reveal>`; aqui o `Reveal`
  * (equivalente React de `[data-reveal]`, `src/motion/reveal.tsx`) não
  * repassa `href`, então o card é um `div` animado com um link "esticado"
@@ -27,25 +36,25 @@ function metaLine(post: BlogPostRef): string {
  * `position:relative` em `.featured`, que o ref não tinha (adicionado em
  * `theme.css`, sem efeito visual).
  */
-export function BlogFeaturedBlock({ post }: BlogFeaturedBlockType) {
-  if (!post || typeof post !== 'object') return null
-  // `post` já está estreitado pra `BlogPostRef` aqui (o `typeof !== 'object'`
-  // acima descarta o outro membro da union, `number`) — sem cast.
-  const featured = post
-  const category = featured.category
-  const categoryTitle = category && typeof category === 'object' ? category.title : null
-  const image =
-    featured.heroImage && typeof featured.heroImage === 'object' ? featured.heroImage : undefined
+export async function BlogFeaturedBlock({ post: slug }: BlogFeaturedBlockType) {
+  const featured = await getPostBySlug(slug)
+  if (!featured) return null
 
   return (
     <Section light className="!pt-[clamp(2.5rem,5vw,4rem)] !pb-0">
       <Container>
         <Reveal className="featured">
           <div className="fimg">
-            {image && <ImageMedia resource={image} fill sizes="(min-width: 860px) 55vw, 100vw" />}
+            {featured.heroImage && (
+              <ImageMedia
+                resource={featured.heroImage}
+                fill
+                sizes="(min-width: 860px) 55vw, 100vw"
+              />
+            )}
           </div>
           <div className="fbody">
-            {categoryTitle && <span className="cat">{categoryTitle}</span>}
+            {featured.categoryTitle && <span className="cat">{featured.categoryTitle}</span>}
             <h2>{featured.title}</h2>
             {featured.excerpt && <p>{featured.excerpt}</p>}
             <span className="meta">{metaLine(featured)}</span>
