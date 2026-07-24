@@ -3957,3 +3957,123 @@
     align-items: flex-start;
   }
 }
+
+/* AppShowcase — Task 5 (Plano 2): segunda tela, nota das lojas e selos.
+   Reabre `@layer utilities` (a instância de `@layer utilities` do topo do
+   arquivo, linha 204, já fechou bem antes daqui, na mesma linha em que os
+   blocos "fora de @layer" — `.br-map` etc. — começam); CSS permite reabrir
+   a mesma layer quantas vezes for preciso, e as regras continuam entrando
+   na MESMA layer nomeada (mesma ordem de cascata relativa a `base`/
+   componentes do Tailwind), só que fisicamente perto do bloco que as usa. */
+@layer utilities {
+  /* Duas telas do app sobrepostas com rotação leve — dá profundidade sem
+     precisar de mockup de aparelho renderizado. */
+  .app-screens {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    min-height: 480px;
+  }
+  .app-screen {
+    width: 246px;
+    overflow: hidden;
+    /* `#11162c` do design não é um token: o mais próximo na paleta navy
+       (@theme) é `--color-navy-900` (#0a102e) — usar esse em vez do hex
+       literal mantém a moldura do telefone na mesma família de cor da
+       marca. Fundo `#fff` fica literal (sem token dedicado a branco puro
+       no @theme; mesmo padrão já usado em `.sec-light.white`/`.prod-card.
+       on-white` neste arquivo). */
+    border: 8px solid var(--color-navy-900);
+    border-radius: 30px;
+    background: #fff;
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+  }
+  .app-screen-back {
+    transform: translateX(46px) translateY(-26px) rotate(5deg) scale(0.9);
+    opacity: 0.92;
+  }
+  .app-screen-front {
+    position: relative;
+    z-index: 2;
+    transform: translateX(-40px) rotate(-3deg);
+  }
+
+  .app-rating {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-top: 2.2rem;
+    padding: 1.1rem 1.35rem;
+    border-radius: 16px;
+    max-width: 420px;
+  }
+  .app-rating-n {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 2.3rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .app-rating-meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.82rem;
+    color: var(--text-3);
+    line-height: 1.45;
+  }
+  /* Mesmo raciocínio de `.hero-proof-stars` (acima, linha ~443): a paleta é
+     navy/ice/silver e não tem token de "gold" — em vez do `#ffc24a`
+     literal do design, reusa `--color-ice-400` (o acento da marca), pra não
+     introduzir uma segunda cor de estrela no site. */
+  .app-rating-stars {
+    color: var(--color-ice-400);
+    letter-spacing: 0.05em;
+  }
+
+  .store-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.6rem;
+  }
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: rgba(173, 213, 235, 0.05);
+    font-size: 0.82rem;
+    line-height: 1.2;
+    transition: border-color 0.25s ease;
+  }
+  .store-badge:hover {
+    border-color: var(--accent);
+  }
+  .store-badge-ico {
+    width: 19px;
+    height: 19px;
+    flex: none;
+  }
+  .store-badge small {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-3);
+  }
+  .store-badge b {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  @media (max-width: 900px) {
+    .app-screens {
+      min-height: 420px;
+    }
+    .app-screen {
+      width: 200px;
+    }
+  }
+}

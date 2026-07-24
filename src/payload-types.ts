@@ -794,6 +794,31 @@ export interface AppShowcaseBlock {
   title: string;
   text?: string | null;
   image?: (number | null) | Media;
+  theme?: ('light' | 'deep') | null;
+  /**
+   * Segunda tela, exibida atrás da primeira com rotação leve. Vazio = uma imagem só (comportamento original).
+   */
+  imageSecondary?: (number | null) | Media;
+  /**
+   * Nota pública do app. Só preencher enquanto bater com as lojas.
+   */
+  rating?: {
+    /**
+     * Ex.: "4,8"
+     */
+    score?: string | null;
+    label?: string | null;
+  };
+  stores?: {
+    /**
+     * URL da ficha na App Store
+     */
+    appStore?: string | null;
+    /**
+     * URL da ficha no Google Play
+     */
+    playStore?: string | null;
+  };
   features?:
     | {
         title: string;
@@ -2173,6 +2198,20 @@ export interface AppShowcaseBlockSelect<T extends boolean = true> {
   title?: T;
   text?: T;
   image?: T;
+  theme?: T;
+  imageSecondary?: T;
+  rating?:
+    | T
+    | {
+        score?: T;
+        label?: T;
+      };
+  stores?:
+    | T
+    | {
+        appStore?: T;
+        playStore?: T;
+      };
   features?:
     | T
     | {
