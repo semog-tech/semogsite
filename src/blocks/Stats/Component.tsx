@@ -4,7 +4,7 @@ import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Counter } from '@/motion/Counter'
 import { Stagger } from '@/motion/reveal'
-import type { StatsBlock as StatsBlockType } from '@/payload-types'
+import type { StatsBlock as StatsBlockType } from '@/types/blocks'
 import { BrazilMap } from './BrazilMap'
 
 type StatItem = NonNullable<StatsBlockType['items']>[number]

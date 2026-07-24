@@ -7,7 +7,8 @@ import { Chars } from '@/motion/Chars'
 import { Fade } from '@/motion/Fade'
 import { GradientBackground } from '@/motion/GradientBackground'
 import { VideoSequenceBackground } from '@/motion/VideoSequenceBackground'
-import type { HeroBlock as HeroBlockType, Media } from '@/payload-types'
+import type { HeroBlock as HeroBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 function mediaUrl(resource?: number | Media | null): string | undefined {
   if (!resource || typeof resource === 'number') return undefined

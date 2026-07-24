@@ -2,7 +2,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { CitiesBlock as CitiesBlockType, Media } from '@/payload-types'
+import type { CitiesBlock as CitiesBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 import { CitiesAccordion, type CityPanelData } from './CitiesAccordion'
 
 /**

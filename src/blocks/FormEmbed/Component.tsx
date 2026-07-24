@@ -3,7 +3,7 @@ import { PropostaForm } from '@/components/forms/PropostaForm'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
-import type { FormEmbedBlock as FormEmbedBlockType } from '@/payload-types'
+import type { FormEmbedBlock as FormEmbedBlockType } from '@/types/blocks'
 
 /**
  * Renderiza o form client certo pra `formType` dentro de um card fiel a

@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Reveal } from '@/motion/reveal'
 import { TimelinePinned } from '@/motion/TimelinePinned'
-import type { Media, TimelineBlock as TimelineBlockType } from '@/payload-types'
+import type { TimelineBlock as TimelineBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type Item = NonNullable<TimelineBlockType['items']>[number]
 

@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { BairrosBlock as BairrosBlockType } from '@/payload-types'
+import type { BairrosBlock as BairrosBlockType } from '@/types/blocks'
 
 /**
  * Bloco novo — lista de bairros atendidos, fiel a `.hood`/`.hood-pills` das

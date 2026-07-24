@@ -5,7 +5,8 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { StoreBadges } from '@/components/ui/StoreBadges'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { AppShowcaseBlock as AppShowcaseBlockType, Media } from '@/payload-types'
+import type { AppShowcaseBlock as AppShowcaseBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /**
  * Seção do aplicativo, fiel a `.app-band`/`.app-grid`/`.app-media`/

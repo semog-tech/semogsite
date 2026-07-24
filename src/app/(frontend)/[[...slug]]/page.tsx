@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { pages } from '@/../content/pages'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { getPageBySlug, getPayloadClient, getSiteSettings } from '@/lib/payload'
+import { getPageBySlug, getSiteSettings } from '@/lib/content'
 import { buildMetadata, getPageJsonLd } from '@/lib/seo'
 
-export const revalidate = 3600
+// Sem `revalidate`: a página é 100% estática agora (conteúdo vem de
+// `content/pages`, não do banco) — nada a revalidar em runtime.
 
 export async function generateMetadata({
   params,
@@ -25,26 +27,17 @@ export async function generateMetadata({
     }
     return buildMetadata({ doc: page, settings, path })
   } catch {
-    // DB indisponível — não derruba o render, cai no fallback embutido em `buildMetadata`.
+    // `content.ts` não faz I/O (não deveria lançar), mas mantém o fallback
+    // defensivo: um erro inesperado aqui não deve derrubar o `<head>` da página.
     return buildMetadata({ doc: null, settings: null, path })
   }
 }
 
-export async function generateStaticParams() {
-  try {
-    const payload = await getPayloadClient()
-    const res = await payload.find({
-      collection: 'pages',
-      where: { _status: { equals: 'published' } },
-      limit: 1000,
-      depth: 0,
-    })
-    return res.docs.map((doc) => ({
-      slug: doc.slug === 'home' ? [] : doc.slug.split('/'),
-    }))
-  } catch {
-    return []
-  }
+/** Todas as rotas do catch-all vêm do índice estático `content/pages` — sem chamada ao banco. */
+export function generateStaticParams() {
+  return Object.keys(pages).map((slug) => ({
+    slug: slug === 'home' ? [] : slug.split('/'),
+  }))
 }
 
 export default async function Page({ params }: { params: Promise<{ slug?: string[] }> }) {

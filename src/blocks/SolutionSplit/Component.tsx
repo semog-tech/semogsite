@@ -2,7 +2,8 @@ import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, SolutionSplitBlock as SolutionSplitBlockType } from '@/payload-types'
+import type { SolutionSplitBlock as SolutionSplitBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type Item = NonNullable<SolutionSplitBlockType['items']>[number]
 

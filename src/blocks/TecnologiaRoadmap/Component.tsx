@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, TecnologiaRoadmapBlock as TecnologiaRoadmapBlockType } from '@/payload-types'
+import type { TecnologiaRoadmapBlock as TecnologiaRoadmapBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /**
  * Seção "Tecnologia própria" (Semog One) de `/solucoes`. Redesenhada em torno

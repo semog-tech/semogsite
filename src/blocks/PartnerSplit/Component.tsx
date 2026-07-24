@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { PartnerSplitBlock as PartnerSplitBlockType } from '@/payload-types'
+import type { PartnerSplitBlock as PartnerSplitBlockType } from '@/types/blocks'
 
 /** Reproduz o `<strong style="color:var(--navy-500);">` inline do ref. */
 function HighlightedText({ text, highlight }: { text: string; highlight?: string | null }) {

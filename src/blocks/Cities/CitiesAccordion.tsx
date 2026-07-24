@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { ImageMedia } from '@/components/Media/ImageMedia'
-import type { Media } from '@/payload-types'
+import type { Media } from '@/types/media'
 
 export type CityPanelData = {
   key: string

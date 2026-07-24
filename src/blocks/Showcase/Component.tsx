@@ -3,7 +3,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { ShowcaseBlock as ShowcaseBlockType } from '@/payload-types'
+import type { ShowcaseBlock as ShowcaseBlockType } from '@/types/blocks'
 
 /**
  * Seção split genérica, fiel ao par "Prestação de contas"

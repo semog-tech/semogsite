@@ -2,7 +2,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Reveal } from '@/motion/reveal'
 import { Words } from '@/motion/Words'
-import type { WordsSectionBlock as WordsSectionBlockType } from '@/payload-types'
+import type { WordsSectionBlock as WordsSectionBlockType } from '@/types/blocks'
 
 const SECTION_CLASS = {
   manifesto: 'manifesto',

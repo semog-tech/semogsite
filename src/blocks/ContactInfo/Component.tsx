@@ -5,7 +5,8 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { ContactInfoBlock as ContactInfoBlockType, Media } from '@/payload-types'
+import type { ContactInfoBlock as ContactInfoBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type ContactInfoItem = NonNullable<ContactInfoBlockType['items']>[number]
 

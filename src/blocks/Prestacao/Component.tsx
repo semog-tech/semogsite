@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { Media, PrestacaoBlock as PrestacaoBlockType } from '@/payload-types'
+import type { PrestacaoBlock as PrestacaoBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /**
  * Fiel a `#prestacao` de `_reference/solucoes.html:522-555`: cabeçalho +

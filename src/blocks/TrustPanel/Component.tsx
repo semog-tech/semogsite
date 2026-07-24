@@ -2,7 +2,8 @@ import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, TrustPanelBlock as TrustPanelBlockType } from '@/payload-types'
+import type { TrustPanelBlock as TrustPanelBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /** `.trust-quote em` — cor sólida `--ice-400`, sem itálico (não é `.gx`/`.gx-ice`, ver `theme.css`). */
 function Quote({ quote, accent }: { quote: string; accent?: string | null }) {

@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { NewsletterBlock as NewsletterBlockType } from '@/payload-types'
+import type { NewsletterBlock as NewsletterBlockType } from '@/types/blocks'
 import { NewsletterForm } from './NewsletterForm'
 
 /**

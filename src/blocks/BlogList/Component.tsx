@@ -3,7 +3,7 @@ import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { getRecentPosts } from '@/lib/payload'
 import { Stagger } from '@/motion/reveal'
-import type { BlogListBlock as BlogListBlockType, Category, Media } from '@/payload-types'
+import type { BlogListBlock as BlogListBlockType } from '@/types/blocks'
 
 function formatDate(date?: string | null): string | null {
   if (!date) return null
@@ -42,12 +42,13 @@ export async function BlogListBlock({ title, limit, excludePost, tightTop }: Blo
         )}
         <Stagger className="posts">
           {posts.map((post) => {
-            const category = post.category as Category | number | null | undefined
+            // `post` vem de `getRecentPosts` (`src/lib/payload.ts`), que retorna o
+            // `Post` completo do Payload — fora do escopo desta task (só tipos de
+            // bloco); os campos abaixo já vêm tipados dali, sem cast.
+            const category = post.category
             const categoryTitle = category && typeof category === 'object' ? category.title : null
             const image =
-              post.heroImage && typeof post.heroImage === 'object'
-                ? (post.heroImage as Media)
-                : undefined
+              post.heroImage && typeof post.heroImage === 'object' ? post.heroImage : undefined
             const meta = post.readingTime
               ? `Equipe Semog · ${post.readingTime} min`
               : formatDate(post.publishedAt)
