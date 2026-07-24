@@ -917,6 +917,13 @@ export interface CTABandBlock {
     href: string;
   };
   /**
+   * Segundo caminho, ao lado do CTA principal (ex.: WhatsApp). Só tem efeito na variante `centered`. Vazio = um botão só.
+   */
+  secondaryCta?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  /**
    * Só no variant `centered`. O `.final-cta` de `_reference/index.html`/`garante.html`/`administracao-de-condominios.html` sempre usa `.btn-white`, mas `_reference/incorporadoras.html:325` usa `.btn-primary` — daí este campo, default `white` para preservar o comportamento das 3 páginas já seedadas.
    */
   buttonVariant?: ('white' | 'primary') | null;
@@ -2307,6 +2314,12 @@ export interface CTABandBlockSelect<T extends boolean = true> {
   titleAccent?: T;
   text?: T;
   cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondaryCta?:
     | T
     | {
         label?: T;

@@ -4154,4 +4154,15 @@
     letter-spacing: 0.02em;
     color: var(--text-3);
   }
+
+  /* CTABand `centered` — par de botões (principal + `secondaryCta`
+     opcional, ex.: WhatsApp). Sem `secondaryCta`, é um único filho: o
+     `flex`/`gap` não muda nada, então `band` e `centered` sem o campo
+     seguem idênticos a antes (Task 7, Plano 2). */
+  .final-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    justify-content: center;
+  }
 }

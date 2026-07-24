@@ -55,6 +55,7 @@ export function CTABandBlock({
   titleAccent,
   text,
   cta,
+  secondaryCta,
   variant,
   buttonVariant,
   headingMaxWidth,
@@ -74,10 +75,19 @@ export function CTABandBlock({
               {text}
             </Reveal>
           )}
-          <Reveal delay={0.2}>
+          <Reveal delay={0.2} className="final-cta-actions">
             <Button href={cta.href} variant={buttonVariant ?? 'white'} size="lg" withArrow magnetic>
               {cta.label}
             </Button>
+            {/* Segundo caminho (ex.: WhatsApp) — só aparece com label E href
+                preenchidos, pra quem ainda não está pronto pra "Solicitar
+                proposta" ter pra onde ir. Botão `glass` (não magnético, pra
+                não competir com o CTA principal) — só afeta `centered`. */}
+            {secondaryCta?.label && secondaryCta.href && (
+              <Button href={secondaryCta.href} variant="glass" size="lg" magnetic={false}>
+                {secondaryCta.label}
+              </Button>
+            )}
           </Reveal>
         </Container>
       </section>
