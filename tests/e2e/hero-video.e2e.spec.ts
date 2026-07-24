@@ -101,7 +101,10 @@ test.describe('Vídeo de fundo do hero', () => {
     await button.click()
     await expect(page.getByRole('button', { name: /retomar vídeo de fundo/i })).toBeVisible()
 
-    const isPaused = await page.locator('section video').first().evaluate((v: HTMLVideoElement) => v.paused)
+    const isPaused = await page
+      .locator('section video')
+      .first()
+      .evaluate((v: HTMLVideoElement) => v.paused)
     expect(isPaused).toBe(true)
   })
 })

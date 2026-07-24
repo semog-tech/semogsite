@@ -31,8 +31,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # NÃO usar `pnpm check` aqui: o script roda `biome check --write`, que
+      # REESCREVE arquivos em vez de só verificar — no CI isso nunca falha
+      # por drift de lint/format (só corrige e segue) e ainda deixa o
+      # checkout do runner mutado. `biome ci` é o modo read-only do Biome,
+      # feito pra pipeline: falha (exit != 0) se houver qualquer violação,
+      # sem tocar em nada. O script `check` continua como está — é o fixer
+      # que os devs rodam localmente.
       - name: Biome check
-        run: pnpm check
+        run: pnpm exec biome ci ./src ./tests ./scripts
 
       - name: TypeScript check
         run: pnpm exec tsc --noEmit

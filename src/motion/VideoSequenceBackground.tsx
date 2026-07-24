@@ -56,6 +56,16 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
   // valor (veja o efeito abaixo). É o que impede aquele efeito de agir no
   // mount, mesmo sob Strict Mode (que invoca o efeito 2x de propósito).
   const userToggledPause = useRef(false)
+  // Espelha `paused` para o `tick` do efeito do sequenciador (abaixo) ler.
+  // `paused` (estado) não serve ali: o efeito do sequenciador roda uma vez só
+  // (dependência é `[videos]`), então o `tick` fechado nele sempre veria o
+  // valor de `paused` de quando o efeito rodou (`false`), nunca uma pausa
+  // posterior. `pausedRef` é atualizado de forma síncrona dentro do próprio
+  // `onClick` do botão — antes do próximo rAF —, fechando a corrida em que
+  // pausar nos ~16ms entre um tick e o próximo (antes de `fading` virar
+  // `true`) não impedia aquele tick de iniciar um crossfade e dar `play()` no
+  // próximo clipe, retomando o vídeo com o botão ainda dizendo "pausado".
+  const pausedRef = useRef(false)
 
   useEffect(() => {
     // `matchMedia` só existe no cliente; o efeito já não roda no servidor.
@@ -83,6 +93,20 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
       v.style.opacity = i === 0 ? '1' : '0'
     })
 
+    // `loop` só faz sentido com um clipe só (`seq.length === 1`, o caso do
+    // mobile — ver `sequenceFor`): aí o rAF nem entra em loop (guarda logo
+    // abaixo), então é o `loop` nativo do <video> que repete o clipe sozinho.
+    // Com mais de um clipe, é o crossfade que decide quando avançar; `loop`
+    // no elemento 0 faria esse elemento decodificar pra sempre em paralelo ao
+    // clipe ativo (2 decodes simultâneos, sem custo de rede mas com custo
+    // real de CPU/bateria) mesmo depois do crossfade já ter saído dele.
+    // Atribuído aqui (propriedade do DOM), não via prop JSX: o mesmo padrão
+    // já usado abaixo para `style.opacity` — a prop do render fica com um
+    // valor fixo (`false`) que nunca muda entre renders, então o React não
+    // tem motivo pra sobrescrever esta atribuição imperativa numa atualização
+    // futura.
+    layers[0].loop = seq.length === 1
+
     layers[0].src = seq[0]
     layers[0].load()
     loaded[0] = true
@@ -96,6 +120,17 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
     const FADE_S = FADE_MS / 1000
 
     const tick = () => {
+      // No-op enquanto pausado — ainda reagenda o próprio rAF (pra reagir
+      // assim que o botão despausar) mas não toca vídeo nem inicia fade
+      // nenhum. Sem isto, pausar bem no meio dos ~16ms entre um tick e o
+      // próximo (antes de `fading` virar `true`) não impedia o tick seguinte
+      // de disparar um crossfade e dar `.play()` no próximo clipe — ver
+      // comentário de `pausedRef` acima.
+      if (pausedRef.current) {
+        raf = requestAnimationFrame(tick)
+        return
+      }
+
       const cur = layers[active]
       const nextI = nextIndex(active, seq.length)
       const next = layers[nextI]
@@ -115,6 +150,13 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
         cur.style.opacity = '0'
         next.style.opacity = '1'
         swapTimer = window.setTimeout(() => {
+          // Pausa a camada que acabou de sair de cena: sem isto ela ficava
+          // decodificando pra sempre em opacity 0 (o elemento 0 nunca era
+          // pausado depois do primeiro crossfade — 2 decodes simultâneos na
+          // home, sem custo de rede mas com custo real de CPU/bateria).
+          // Retomada no próximo crossfade que a trouxer de volta como `next`
+          // (o `next.play()` logo acima).
+          cur.pause()
           active = nextI
           fading = false
         }, FADE_MS)
@@ -187,7 +229,15 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
             }}
             muted
             playsInline
-            loop={i === 0}
+            // Fixo em `false` de propósito — não `i === 0`. `seq.length` (o
+            // que decide se este elemento deve repetir sozinho) só é
+            // conhecido no cliente, dentro do efeito acima, que atribui
+            // `loop` como propriedade do DOM diretamente em `layers[0]`
+            // quando é o caso (mobile/clipe único). Manter o valor da prop
+            // sempre igual entre renders é o que impede o React de
+            // sobrescrever essa atribuição imperativa numa atualização
+            // futura (mesmo padrão de `style.opacity` abaixo).
+            loop={false}
             preload="none"
             poster={i === 0 ? poster : undefined}
             className="absolute inset-0 h-full w-full object-cover"
@@ -205,7 +255,16 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
         className="hero-video-pause liquid-glass"
         onClick={() => {
           userToggledPause.current = true
-          setPaused((v) => !v)
+          setPaused((v) => {
+            const next = !v
+            // Síncrono, dentro do próprio clique — é o que fecha a corrida
+            // descrita no comentário de `pausedRef` acima. Se dependêssemos
+            // só do valor de `paused` propagar por um novo render, o `tick`
+            // agendado por um rAF anterior ao clique ainda rodaria com o
+            // fechamento antigo antes desse render acontecer.
+            pausedRef.current = next
+            return next
+          })
         }}
         aria-label={paused ? 'Retomar vídeo de fundo' : 'Pausar vídeo de fundo'}
       >
