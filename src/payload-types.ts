@@ -846,6 +846,26 @@ export interface TestimonialsBlock {
         quote: string;
         author: string;
         role?: string | null;
+        /**
+         * Condomínio ou empresa
+         */
+        org?: string | null;
+        city?: string | null;
+        /**
+         * Estrelas. Vazio = sem estrelas.
+         */
+        rating?: number | null;
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Faixa de nomes/logos abaixo dos depoimentos. Sem imagem, renderiza o nome em texto.
+   */
+  logos?:
+    | {
+        name: string;
+        logo?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -2241,6 +2261,17 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
         quote?: T;
         author?: T;
         role?: T;
+        org?: T;
+        city?: T;
+        rating?: T;
+        photo?: T;
+        id?: T;
+      };
+  logos?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
         id?: T;
       };
   id?: T;

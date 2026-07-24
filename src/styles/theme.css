@@ -4076,4 +4076,82 @@
       width: 200px;
     }
   }
+
+  /* Card de depoimento — a citação em Clash carrega a seção; o rodapé com
+     avatar e atribuição é o que dá credibilidade e fica separado por régua. */
+  .depo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    height: 100%;
+    margin: 0;
+    padding: 1.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--bg-raise);
+  }
+  /* Mesmo raciocínio de `.hero-proof-stars`/`.app-rating-stars` (acima): reusa
+     `--color-ice-400` em vez de um dourado literal, pra não introduzir uma
+     segunda cor de estrela no site. */
+  .depo-stars {
+    color: var(--color-ice-400);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+  }
+  .depo-card blockquote {
+    flex: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 500;
+    line-height: 1.42;
+  }
+  .depo-card figcaption {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+  .depo-avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-pill);
+    background: var(--grad-brand);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+  }
+  .depo-avatar-photo {
+    object-fit: cover;
+  }
+  .depo-card figcaption b {
+    display: block;
+    font-size: 0.9rem;
+  }
+  .depo-card figcaption small {
+    color: var(--text-3);
+    font-size: 0.78rem;
+  }
+  .depo-logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2.6rem;
+    margin-top: 3rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .depo-logo-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+  }
 }
