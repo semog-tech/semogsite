@@ -41,7 +41,28 @@ test.describe('Vídeo de fundo do hero', () => {
     })
 
     await page.goto('http://localhost:3000/', { waitUntil: 'load' })
-    await page.waitForTimeout(30_000)
+
+    // Janela de carga inicial (~2s): pega o defeito original desta task —
+    // carregar a sequência inteira já na carga da página (`preload="auto"`
+    // ou `src` atribuído a todos os elementos no mount) — que o teto de 30s
+    // acima sozinho NÃO cobre (baixar os 4 clipes uma única vez, ~2,9 MB,
+    // fica dentro do orçamento de 1.15x). Em ~2s o desktop já pediu 2 clipes
+    // distintos, não 1: o primeiro toca desde o `load()`, e o `tick` de rAF
+    // libera o `src` do segundo elemento assim que `shouldPreload` fica
+    // verdadeiro — com clipes de ~5,04s e `PRELOAD_LEAD_S = 3`, isso acontece
+    // ~2,04s depois do play do primeiro clipe, ou seja, ainda dentro da
+    // janela de 2s medida aqui. Por isso o teto é 2, não 1 — apertar pra 1
+    // deixaria o teste flaky (a corrida entre o play do 1º clipe e o
+    // preload do 2º é sensível a alguns dezenas de ms). Um carregamento eager
+    // pediria os 4 de uma vez e estouraria esse teto de 2.
+    await page.waitForTimeout(2_000)
+    const distinctClipsAt2s = new Set(requestUrls.values()).size
+    expect(
+      distinctClipsAt2s,
+      `pediu ${distinctClipsAt2s} clipes de vídeo distintos em ~2s de carga (esperado: no máx. 2)`,
+    ).toBeLessThanOrEqual(2)
+
+    await page.waitForTimeout(28_000)
 
     // Teto de 1.15x a soma dos 4 clipes: acomoda overhead de range requests
     // (headers repetidos, pequenas sobreposições) sem deixar passar um

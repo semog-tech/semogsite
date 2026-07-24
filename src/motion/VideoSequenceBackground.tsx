@@ -94,36 +94,42 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
 
     const tick = () => {
       const cur = layers[active]
+      const nextI = nextIndex(active, seq.length)
+      const next = layers[nextI]
 
-      // Com um clipe só (mobile), não há troca: o `loop` do elemento resolve.
-      if (seq.length > 1) {
-        const nextI = nextIndex(active, seq.length)
-        const next = layers[nextI]
+      if (!loaded[nextI] && shouldPreload(cur.currentTime, cur.duration, PRELOAD_LEAD_S)) {
+        loaded[nextI] = true
+        next.src = seq[nextI]
+        next.load()
+      }
 
-        if (!loaded[nextI] && shouldPreload(cur.currentTime, cur.duration, PRELOAD_LEAD_S)) {
-          loaded[nextI] = true
-          next.src = seq[nextI]
-          next.load()
-        }
-
-        if (!fading && loaded[nextI] && shouldFade(cur.currentTime, cur.duration, FADE_S)) {
-          fading = true
-          next.currentTime = 0
-          next.play().catch(() => {})
-          cur.style.transition = `opacity ${FADE_MS}ms linear`
-          next.style.transition = `opacity ${FADE_MS}ms linear`
-          cur.style.opacity = '0'
-          next.style.opacity = '1'
-          swapTimer = window.setTimeout(() => {
-            active = nextI
-            fading = false
-          }, FADE_MS)
-        }
+      if (!fading && loaded[nextI] && shouldFade(cur.currentTime, cur.duration, FADE_S)) {
+        fading = true
+        next.currentTime = 0
+        next.play().catch(() => {})
+        cur.style.transition = `opacity ${FADE_MS}ms linear`
+        next.style.transition = `opacity ${FADE_MS}ms linear`
+        cur.style.opacity = '0'
+        next.style.opacity = '1'
+        swapTimer = window.setTimeout(() => {
+          active = nextI
+          fading = false
+        }, FADE_MS)
       }
 
       raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
+    // Só entra no loop de rAF quando há troca de clipe pra fazer. Com um
+    // clipe só (mobile), o `loop` do próprio elemento <video> resolve a
+    // repetição sozinho — sem isso, o componente rodaria um loop de rAF a
+    // 60fps ocioso (`if (seq.length > 1)` só dentro do `tick`) pela vida
+    // inteira da página, gastando CPU/bateria exatamente na plataforma que
+    // este componente já otimiza pra rede/dados. `raf` fica 0 se o loop
+    // nunca começa; `cancelAnimationFrame(0)` no cleanup é um no-op seguro
+    // (o browser nunca atribui o id 0 a uma requisição real).
+    if (seq.length > 1) {
+      raf = requestAnimationFrame(tick)
+    }
 
     return () => {
       cancelAnimationFrame(raf)
