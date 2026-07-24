@@ -32,6 +32,8 @@ const FEATURED_POST: BlogPostRef = {
 
 export const blog: PageData = {
   slug: 'blog',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Blog',
   layout: [
     // `.page-hero` de `_reference/blog.html:37-46`: SEM `poster` — só o
     // gradiente, 46dvh, h1 sozinho (sem eyebrow/subhead/CTAs).

@@ -24,6 +24,10 @@ const HERO_HEADLINE = 'Preocupe-se apenas\nem morar.'
 
 export const home: PageData = {
   slug: 'home',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages) —
+  // sem efeito prático aqui (JSON-LD da home é sempre Organization/WebSite, e
+  // `meta.title` abaixo já cobre o `<title>`), mantido só por paridade de dado.
+  title: 'Home',
   // Espelha `<title>`/meta description de `_reference/index.html` — o
   // `meta.title` tem prioridade sobre o rótulo administrativo "Home".
   meta: {

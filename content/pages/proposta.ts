@@ -8,6 +8,8 @@ import { img } from '../media'
 
 export const proposta: PageData = {
   slug: 'proposta',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Solicitar Proposta',
   layout: [
     // `.proposal-wrap`, `_reference/proposta.html:38-45,154-166`: SEM
     // `poster` nem vídeo — `pageHeroOverlay` liga o mesmo tratamento de

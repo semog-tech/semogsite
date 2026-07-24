@@ -47,6 +47,8 @@ const sections: Section[] = [
 
 export const privacidade: PageData = {
   slug: 'privacidade',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Política de Privacidade',
   layout: [
     { blockType: 'legalHero', headline: 'Política de Privacidade', updatedText: UPDATED_AT },
     { blockType: 'richText', legal: true, content: legalRichText(sections) },

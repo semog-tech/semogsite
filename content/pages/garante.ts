@@ -8,6 +8,8 @@ import { img } from '../media'
 
 export const garante: PageData = {
   slug: 'garante',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Semog Garante',
   layout: [
     // `.g-hero`, `_reference/garante.html:59-104,268-293` — hero de vídeo
     // full-bleed (100dvh) com o chip de vidro "1%".
@@ -24,12 +26,19 @@ export const garante: PageData = {
     },
     // `.g-ticker`, `_reference/garante.html:105-112,296-303` — o único
     // marquee da página. Sem "/" visível no ref (usa `&nbsp;` como
-    // espaçador): `separator` recebe 4 nbsp reais, não "/".
+    // espaçador): `separator` recebe 4 nbsp reais, não "/". A comparação
+    // de fidelidade (Task 5, Step 9) pegou que a primeira versão portada
+    // aqui usava 4 espaços comuns (U+0020) em vez de nbsp (U+00A0) —
+    // visualmente idênticos no editor, mas produção usa nbsp de verdade
+    // (confirmado via GET /api/pages?where[slug][equals]=garante, que
+    // devolve os bytes a0 a0 a0 a0). Escrito com \u00a0 (escape Unicode
+    // explícito) em vez do caractere literal, pra não depender de um
+    // caractere invisível sobreviver ao editor/diff/git intactos.
     {
       blockType: 'valuesMarquee',
       variant: 'ticker',
       items: ['100% DA ARRECADAÇÃO', 'TODO MÊS', 'SEM SUSTO'],
-      separator: '    ',
+      separator: '\u00a0\u00a0\u00a0\u00a0',
     },
     // `.g-problem`, `_reference/garante.html:114-120,306-310` — o parágrafo
     // "O problema" com scrub palavra-a-palavra.

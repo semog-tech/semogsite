@@ -9,6 +9,8 @@ import { img } from '../media'
 
 export const solucoes: PageData = {
   slug: 'solucoes',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Soluções',
   layout: [
     // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo
     // `residencial.webp` do `.bg` (reaproveitado também na vertical

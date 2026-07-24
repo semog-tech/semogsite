@@ -54,11 +54,52 @@ const ALT_BY_FILENAME: Record<string, string> = {
   'app-encomenda.webp': 'Detalhe de uma encomenda no aplicativo Semog, com QR code para retirada',
 }
 
-/** Monta `{url, alt}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */
-export function img(file: string): { url: string; alt: string } {
+/**
+ * Dimensões intrínsecas de cada imagem (`sharp` calcula no upload do Payload;
+ * aqui é um port 1:1 — conferido via `GET /api/media` em produção, 24/07/2026).
+ *
+ * Sem isso, `img()` devolveria só `{url, alt}` e `ImageMedia`
+ * (`src/components/Media/ImageMedia.tsx`) cairia no fallback genérico
+ * `width ?? 1200`/`height ?? 800` pra TODA imagem não-`fill` do site — a
+ * comparação de fidelidade (Task 5, Step 9) pegou exatamente isso: `<img>`
+ * com `width`/`height` (logo `srcset` do `next/image`) diferentes dos de
+ * produção em `/` (app-encomenda.webp) e `/solucoes` (residencial.webp).
+ * Vídeos (`.mp4`) e o logo (`.svg`) não têm dimensão no Payload (`null`) e só
+ * são usados via `fill`/`<video>` (não passam por este fallback) — por isso
+ * ficam de fora deste mapa.
+ */
+const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> = {
+  'hero-towers.webp': { width: 2048, height: 1152 },
+  'residencial.webp': { width: 2048, height: 1536 },
+  'comercial.webp': { width: 2400, height: 1792 },
+  'associacoes.webp': { width: 2400, height: 1792 },
+  'incorporadoras.webp': { width: 2048, height: 1152 },
+  'garante.webp': { width: 2048, height: 2048 },
+  'prestacao-contas.webp': { width: 2688, height: 1520 },
+  'app-phone.webp': { width: 1744, height: 2336 },
+  'equipe.webp': { width: 2400, height: 1792 },
+  'blog-lazer.webp': { width: 2048, height: 1152 },
+  'blog-financas.webp': { width: 2752, height: 1536 },
+  'recife.webp': { width: 1536, height: 2048 },
+  'joao-pessoa.webp': { width: 1536, height: 2048 },
+  'campina-grande.webp': { width: 1536, height: 2048 },
+  'belem.webp': { width: 1536, height: 2048 },
+  'semog-one.webp': { width: 2336, height: 1744 },
+  'c-prestacao.webp': { width: 2400, height: 1792 },
+  'c-garante.webp': { width: 2400, height: 1792 },
+  'c-app.webp': { width: 2400, height: 1792 },
+  'c-one.webp': { width: 2400, height: 1792 },
+  'c-chave.webp': { width: 2752, height: 1536 },
+  'app-inicio.webp': { width: 532, height: 1187 },
+  'app-encomenda.webp': { width: 532, height: 1187 },
+}
+
+/** Monta `{url, alt, width?, height?}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */
+export function img(file: string): { url: string; alt: string; width?: number; height?: number } {
   const alt = ALT_BY_FILENAME[file]
   if (alt === undefined) {
     throw new Error(`content/media: alt não mapeado para "${file}" — adicione em ALT_BY_FILENAME`)
   }
-  return { url: BASE + file, alt }
+  const dims = DIMENSIONS_BY_FILENAME[file]
+  return { url: BASE + file, alt, ...(dims ? { width: dims.width, height: dims.height } : {}) }
 }

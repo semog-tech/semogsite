@@ -7,6 +7,8 @@ import { img } from '../media'
 
 export const semog: PageData = {
   slug: 'semog',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'A Semog',
   layout: [
     // `.page-hero`, `_reference/semog.html:43-63,236-245` — só imagem de
     // fundo (`.bg`), sem vídeo nesta página interna. Números próprios desta

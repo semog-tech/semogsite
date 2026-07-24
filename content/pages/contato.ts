@@ -9,6 +9,8 @@ import { img } from '../media'
 
 export const contato: PageData = {
   slug: 'contato',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Contato',
   layout: [
     // `.page-hero`, `_reference/contato.html:76-88,198-205`: SEM `poster`,
     // 46dvh (igual ao blog), radial-gradient a 85% (à direita — o blog usa

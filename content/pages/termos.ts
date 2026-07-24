@@ -45,6 +45,8 @@ const sections: Section[] = [
 
 export const termos: PageData = {
   slug: 'termos',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Termos de Uso',
   layout: [
     { blockType: 'legalHero', headline: 'Termos de Uso', updatedText: UPDATED_AT },
     { blockType: 'richText', legal: true, content: legalRichText(sections) },

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { Media, SiteSettings } from '@/payload-types'
+import type { Media } from '@/payload-types'
 
 const DEFAULT_SITE_URL = 'https://www.semog.com.br'
 const FALLBACK_TITLE = 'Semog Administradora de Condomínios'
@@ -11,19 +11,41 @@ const SOCIAL_PROFILES = [
 ]
 
 /**
- * Forma compartilhada do grupo `meta` que o `@payloadcms/plugin-seo` injeta
- * em `Page` e `Post` (título/descrição/imagem) — evita depender do tipo
- * gerado de uma collection específica.
+ * Fonte de uma imagem de SEO: o `Media` populado do Payload (posts, ainda no
+ * Payload até a Fase 2), o id numérico não-resolvido (depth 0, ignorado por
+ * `resolveImageSource`) ou uma URL pronta (string) — o formato das páginas
+ * estáticas (`PageData.meta.image`/`SiteConfig.ogImage`, ver `@/types/content`
+ * e `content/site.ts`), que não têm mais um doc `Media` do CMS pra resolver.
+ */
+type ImageSource = (number | null) | Media | string
+
+/**
+ * Forma compartilhada do grupo `meta` que o `@payloadcms/plugin-seo` injetava
+ * em `Page`/`Post` (título/descrição/imagem) — hoje também o formato de
+ * `PageData.meta` (páginas estáticas). Evita depender do tipo gerado de uma
+ * collection específica.
  */
 export interface SeoMeta {
   title?: string | null
   description?: string | null
-  image?: (number | null) | Media
+  image?: ImageSource
 }
 
 export interface SeoDoc {
   title?: string | null
   meta?: SeoMeta | null
+}
+
+/**
+ * Forma mínima do global de configurações do site que `buildMetadata` lê
+ * (título/descrição/OG padrão) — compatível tanto com o `SiteSettings` do
+ * Payload (posts, via `src/lib/payload.ts`) quanto com o `SiteConfig` estático
+ * das páginas (`content/site.ts`, Fase 1), sem depender de nenhum dos dois.
+ */
+export interface SeoSettings {
+  defaultTitle?: string | null
+  defaultDescription?: string | null
+  ogImage?: ImageSource
 }
 
 /** Base URL do site (sem trailing slash), fonte única para `absoluteUrl` e `robots.ts`. */
@@ -40,14 +62,27 @@ export function absoluteUrl(path: string): string {
   return `${base}/${normalized}`
 }
 
-/** Resolve o `Media` populado (não só a URL) — precisamos de `width`/`height` próprios em `buildMetadata`. */
-function resolveImageSource(
-  image: SeoMeta['image'] | undefined,
-  fallback?: SeoMeta['image'],
-): Media | undefined {
-  const source = image && typeof image === 'object' ? image : fallback
-  if (source && typeof source === 'object' && source.url) return source
+/** Normaliza uma `ImageSource` só quando ela já vem resolvida: `Media` populado (`.url`) ou uma URL pronta (string). Um id numérico não-resolvido (depth 0) não conta — cai pro fallback. */
+function pickResolvedImage(
+  source: ImageSource | undefined,
+): { url: string; width?: number; height?: number } | undefined {
+  if (typeof source === 'string') return { url: source }
+  if (source && typeof source === 'object' && source.url) {
+    return {
+      url: source.url,
+      width: source.width ?? undefined,
+      height: source.height ?? undefined,
+    }
+  }
   return undefined
+}
+
+/** Resolve a imagem de SEO (doc primeiro, senão o `ogImage` padrão do site) — precisamos de `width`/`height` próprios em `buildMetadata`. */
+function resolveImageSource(
+  image: ImageSource | undefined,
+  fallback?: ImageSource,
+): { url: string; width?: number; height?: number } | undefined {
+  return pickResolvedImage(image) ?? pickResolvedImage(fallback)
 }
 
 /**
@@ -67,9 +102,11 @@ function dynamicOgImageUrl(path: string): string {
 }
 
 /**
- * Monta o objeto `Metadata` do Next a partir do `meta` do doc (Page/Post,
- * populado pelo plugin-seo), com fallback pro título/descrição padrão do
- * global `SiteSettings` e, por fim, pro título bruto do doc.
+ * Monta o objeto `Metadata` do Next a partir do `meta` do doc (Page/Post do
+ * Payload ou `PageData` estático, todos compatíveis com `SeoDoc`), com
+ * fallback pro título/descrição padrão do global de configurações do site
+ * (`SeoSettings` — `SiteSettings` do Payload ou `SiteConfig` estático) e, por
+ * fim, pro título bruto do doc.
  *
  * Nunca lança — chamado a partir de `generateMetadata`, que não deve
  * derrubar o render da página caso o doc ou o global estejam ausentes.
@@ -81,7 +118,7 @@ export function buildMetadata({
   ogType = 'website',
 }: {
   doc?: SeoDoc | null
-  settings?: SiteSettings | null
+  settings?: SeoSettings | null
   path: string
   ogType?: 'website' | 'article'
 }): Metadata {
@@ -104,7 +141,7 @@ export function buildMetadata({
   const ogImages = uploadedImage
     ? [
         {
-          url: uploadedImage.url as string,
+          url: uploadedImage.url,
           ...(uploadedImage.width && uploadedImage.height
             ? { width: uploadedImage.width, height: uploadedImage.height }
             : {}),

@@ -9,6 +9,9 @@ import { img } from '../media'
 
 export const administracaoDeCondominios: PageData = {
   slug: 'administracao-de-condominios',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages) —
+  // fallback de `<title>`/nome do breadcrumb quando `meta.title` está vazio.
+  title: 'Administração de condomínios',
   layout: [
     // `.page-hero`, `_reference/administracao-de-condominios.html:61-77`:
     // números próprios desta página (88dvh, opacidade 0.85,

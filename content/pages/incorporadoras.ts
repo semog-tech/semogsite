@@ -9,6 +9,8 @@ import { img } from '../media'
 
 export const incorporadoras: PageData = {
   slug: 'incorporadoras',
+  // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
+  title: 'Para Incorporadoras',
   layout: [
     // `.page-hero`, `_reference/incorporadoras.html:50-70`: 80dvh, opacidade
     // 0.55, `background-position: center`, gradiente com parada
