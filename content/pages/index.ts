@@ -10,6 +10,7 @@
  */
 import type { PageData } from '@/types/content'
 import { administracaoDeCondominios } from './administracao-de-condominios'
+import { aplicativo } from './aplicativo'
 import { blog } from './blog'
 import { contato } from './contato'
 import { garante } from './garante'
@@ -25,6 +26,7 @@ export const pages: Record<string, PageData> = {
   home,
   semog,
   solucoes,
+  aplicativo,
   'administracao-de-condominios': administracaoDeCondominios,
   garante,
   incorporadoras,
