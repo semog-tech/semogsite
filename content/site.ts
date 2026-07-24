@@ -16,6 +16,14 @@
 export interface NavItem {
   label: string
   href: string
+  /**
+   * Opcional — o Payload gerava um `id` automático pra cada linha de array
+   * (usado como `key` do React em `Nav`/`FooterView`); a config estática não
+   * tem essa noção, então esses componentes caem no fallback `?? href`/`?? title`
+   * já existente (chave estável o bastante: `href`/`title` são únicos dentro
+   * de cada lista aqui).
+   */
+  id?: string
 }
 
 export interface CtaLink {
@@ -38,6 +46,8 @@ export interface FootCta {
 export interface FooterColumn {
   title: string
   links: NavItem[]
+  /** Opcional — mesma razão do `id` de `NavItem` (fallback `?? title` em `FooterView`). */
+  id?: string
 }
 
 export interface FooterConfig {
