@@ -413,6 +413,10 @@ export interface PillarsBlock {
    * Tipografia levemente menor (`h3`/`p`), fiel a `.g-step` de `/garante` (vs `.pillar-row` padrão da Home).
    */
   compact?: boolean | null;
+  /**
+   * Colunas encolhem a seção sem perder conteúdo — as linhas gastam quase uma tela inteira para poucas palavras.
+   */
+  variant?: ('rows' | 'columns') | null;
   items: {
     glyph?: string | null;
     title: string;
@@ -1843,6 +1847,7 @@ export interface PillarsBlockSelect<T extends boolean = true> {
   light?: T;
   white?: T;
   compact?: T;
+  variant?: T;
   items?:
     | T
     | {

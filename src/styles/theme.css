@@ -3523,6 +3523,41 @@
   .hero-video-pause:focus-visible {
     opacity: 1;
   }
+
+  /* Pilares em colunas — grade `auto-fit` e não `repeat(3,1fr)`: na home são
+     3 pilares, mas em /aplicativo o mesmo bloco renderiza 2 (síndico e
+     administradora), e uma grade fixa deixaria um buraco lá. */
+  .pillars-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1.5rem, 3vw, 3rem);
+    margin-top: 2.5rem;
+  }
+  .pillar-col {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 1.4rem;
+  }
+  .pillar-col-glyph {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    /* `--color-accent` (não `--accent` direto): em `.sec-light` o token
+       semântico é redirecionado pra navy-500 (contraste AA em fundo claro,
+       ver comentário em `.sec-light` acima) — usar `--accent` cru
+       "vazaria" o ice-400 (baixo contraste) se este bloco algum dia
+       renderizar claro. */
+    color: var(--color-accent);
+  }
+  .pillar-col h3 {
+    margin: 0 0 0.7rem;
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  }
+  .pillar-col p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
 }
 
 /* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────
