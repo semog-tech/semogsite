@@ -137,6 +137,20 @@ export const MEDIA_ASSETS: { filename: string; path: string; alt: string }[] = [
     path: '_reference/assets/video/garante.mp4',
     alt: 'Vídeo do Semog Garante: escudo de vidro protegendo uma maquete de três torres residenciais',
   },
+  // ---- Telas do aplicativo (public/app-screens/, Task 8 do Plano 2) ----
+  // Prints reais das lojas com o nome do condomínio de demonstração ("Teste
+  // Gruvi") apagado/editado — provisórios até o cliente regravar prints
+  // limpos do app em produção. Reusados também pelo Plano 3 (`/aplicativo`).
+  {
+    filename: 'app-inicio.webp',
+    path: 'public/app-screens/app-inicio.webp',
+    alt: 'Tela inicial do aplicativo Semog, com atalhos para Portaria e Área do condômino',
+  },
+  {
+    filename: 'app-encomenda.webp',
+    path: 'public/app-screens/app-encomenda.webp',
+    alt: 'Detalhe de uma encomenda no aplicativo Semog, com QR code para retirada',
+  },
 ]
 
 /**

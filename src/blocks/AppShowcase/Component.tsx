@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
+import { StoreBadges } from '@/components/ui/StoreBadges'
 import { Reveal, Stagger } from '@/motion/reveal'
 import type { AppShowcaseBlock as AppShowcaseBlockType, Media } from '@/payload-types'
 
@@ -19,19 +20,38 @@ import type { AppShowcaseBlock as AppShowcaseBlockType, Media } from '@/payload-
  * mídia some e o texto ocupa a largura toda — mesmo padrão de `MediaCol`
  * em `SolutionSplit/Component.tsx`. Seção clara (`sec-light`), fiel ao
  * `.app-band.sec-light` do ref.
+ *
+ * Task 5 (Plano 2) — variante usada na home, sem quebrar `/solucoes`:
+ * - `theme='deep'` troca `sec-light` por `bg-navy-950`; o default
+ *   (`theme` ausente ou `'light'`) preserva `sec-light`, então qualquer
+ *   instância já salva no banco (sem o campo) continua igual.
+ * - `imageSecondary` é só um "extra": sem ele, a coluna de mídia mantém
+ *   EXATAMENTE o markup original (`max-w-[400px]` + `rounded-card
+ *   border-line shadow-card`, uma única imagem) — é o que `/solucoes`
+ *   usa hoje. Só quando as duas imagens existem é que a mídia vira
+ *   `.app-screens` (duas telas sobrepostas, ver `theme.css`).
+ * - `rating`/`stores` são blocos totalmente opcionais entre a grade de
+ *   features e o CTA; sem eles, nada é renderizado (nem os wrappers
+ *   `.app-rating`/`.store-badges`), preservando o layout de `/solucoes`.
  */
 export function AppShowcaseBlock({
   eyebrow,
   title,
   text,
   image,
+  imageSecondary,
+  theme,
+  rating,
+  stores,
   features,
   cta,
 }: AppShowcaseBlockType) {
   const media = image && typeof image === 'object' ? (image as Media) : undefined
+  const secondary =
+    imageSecondary && typeof imageSecondary === 'object' ? (imageSecondary as Media) : undefined
 
   return (
-    <Section light>
+    <Section light={theme !== 'deep'} className={theme === 'deep' ? 'bg-navy-950' : undefined}>
       <Container
         className={
           media
@@ -39,14 +59,24 @@ export function AppShowcaseBlock({
             : undefined
         }
       >
-        {media && (
-          <Reveal
-            dir="left"
-            className="w-full max-w-[400px] justify-self-center overflow-hidden rounded-card border border-line shadow-card"
-          >
-            <ImageMedia resource={media} sizes="(min-width: 400px) 400px, 100vw" />
-          </Reveal>
-        )}
+        {media &&
+          (secondary ? (
+            <Reveal dir="left" className="app-screens">
+              <div className="app-screen app-screen-back">
+                <ImageMedia resource={secondary} sizes="(max-width: 900px) 40vw, 240px" />
+              </div>
+              <div className="app-screen app-screen-front">
+                <ImageMedia resource={media} sizes="(max-width: 900px) 45vw, 260px" />
+              </div>
+            </Reveal>
+          ) : (
+            <Reveal
+              dir="left"
+              className="w-full max-w-[400px] justify-self-center overflow-hidden rounded-card border border-line shadow-card"
+            >
+              <ImageMedia resource={media} sizes="(min-width: 400px) 400px, 100vw" />
+            </Reveal>
+          ))}
 
         <div>
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
@@ -69,6 +99,19 @@ export function AppShowcaseBlock({
               ))}
             </Stagger>
           )}
+
+          {rating?.score && (
+            <div className="app-rating liquid-glass">
+              <span className="app-rating-n">{rating.score}</span>
+              <span className="app-rating-meta">
+                <span className="app-rating-stars" aria-hidden="true">
+                  ★★★★★
+                </span>
+                {rating.label && <span>{rating.label}</span>}
+              </span>
+            </div>
+          )}
+          <StoreBadges appStore={stores?.appStore} playStore={stores?.playStore} />
 
           {cta?.label && cta?.href && (
             <Button href={cta.href} variant="primary" size="lg" withArrow className="mt-[2rem]">

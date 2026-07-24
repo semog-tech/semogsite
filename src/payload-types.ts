@@ -262,6 +262,23 @@ export interface HeroBlock {
    * Coluna de vidro à direita do hero (`.hero-tagbox`), ex.: "Condomínios. Métricas. Organização." Opcional — sem valor, o layout fica de 1 coluna como antes.
    */
   tag?: string | null;
+  /**
+   * Faixa de prova colada no rodapé do hero (ex.: nota do app, nº de condomínios). Vazio = não renderiza. Quando preenchida, substitui a `tag` — as duas ocupam o mesmo canto.
+   */
+  proofItems?:
+    | {
+        /**
+         * Ex.: "4,8", "+650"
+         */
+        value: string;
+        label: string;
+        /**
+         * Mostra 5 estrelas antes do valor (só faz sentido em nota).
+         */
+        stars?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
   /**
@@ -323,9 +340,9 @@ export interface StatsBlock {
   eyebrow?: string | null;
   title?: string | null;
   /**
-   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — usado na home. Vazio = 'grid' (comportamento anterior).
+   * `grid` = a grade de mini-stats fiel ao ref (usada em /semog e nas landings de cidade). `feature` = layout ledger editorial: cada item numa linha própria com número grande alinhado à direita, rótulo e uma frase de apoio (`detail`), separados por réguas finas — inalterado, ainda disponível. `band` = faixa horizontal de 5 colunas com divisória vertical, número/rótulo/frase de apoio — substituiu `feature` na home (jul/2026). Vazio = 'grid' (comportamento anterior).
    */
-  variant?: ('grid' | 'feature') | null;
+  variant?: ('grid' | 'feature' | 'band') | null;
   items?:
     | {
         value: number;
@@ -396,6 +413,10 @@ export interface PillarsBlock {
    * Tipografia levemente menor (`h3`/`p`), fiel a `.g-step` de `/garante` (vs `.pillar-row` padrão da Home).
    */
   compact?: boolean | null;
+  /**
+   * Colunas encolhem a seção sem perder conteúdo — as linhas gastam quase uma tela inteira para poucas palavras.
+   */
+  variant?: ('rows' | 'columns') | null;
   items: {
     glyph?: string | null;
     title: string;
@@ -773,6 +794,31 @@ export interface AppShowcaseBlock {
   title: string;
   text?: string | null;
   image?: (number | null) | Media;
+  theme?: ('light' | 'deep') | null;
+  /**
+   * Segunda tela, exibida atrás da primeira com rotação leve. Vazio = uma imagem só (comportamento original).
+   */
+  imageSecondary?: (number | null) | Media;
+  /**
+   * Nota pública do app. Só preencher enquanto bater com as lojas.
+   */
+  rating?: {
+    /**
+     * Ex.: "4,8"
+     */
+    score?: string | null;
+    label?: string | null;
+  };
+  stores?: {
+    /**
+     * URL da ficha na App Store
+     */
+    appStore?: string | null;
+    /**
+     * URL da ficha no Google Play
+     */
+    playStore?: string | null;
+  };
   features?:
     | {
         title: string;
@@ -800,6 +846,26 @@ export interface TestimonialsBlock {
         quote: string;
         author: string;
         role?: string | null;
+        /**
+         * Condomínio ou empresa
+         */
+        org?: string | null;
+        city?: string | null;
+        /**
+         * Estrelas. Vazio = sem estrelas.
+         */
+        rating?: number | null;
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Faixa de nomes/logos abaixo dos depoimentos. Sem imagem, renderiza o nome em texto.
+   */
+  logos?:
+    | {
+        name: string;
+        logo?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -849,6 +915,13 @@ export interface CTABandBlock {
   cta: {
     label: string;
     href: string;
+  };
+  /**
+   * Segundo caminho, ao lado do CTA principal (ex.: WhatsApp). Só tem efeito na variante `centered`. Vazio = um botão só.
+   */
+  secondaryCta?: {
+    label?: string | null;
+    href?: string | null;
   };
   /**
    * Só no variant `centered`. O `.final-cta` de `_reference/index.html`/`garante.html`/`administracao-de-condominios.html` sempre usa `.btn-white`, mas `_reference/incorporadoras.html:325` usa `.btn-primary` — daí este campo, default `white` para preservar o comportamento das 3 páginas já seedadas.
@@ -1737,6 +1810,14 @@ export interface HeroBlockSelect<T extends boolean = true> {
   headline?: T;
   subhead?: T;
   tag?: T;
+  proofItems?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        stars?: T;
+        id?: T;
+      };
   video?: T;
   poster?: T;
   background?: T;
@@ -1818,6 +1899,7 @@ export interface PillarsBlockSelect<T extends boolean = true> {
   light?: T;
   white?: T;
   compact?: T;
+  variant?: T;
   items?:
     | T
     | {
@@ -2143,6 +2225,20 @@ export interface AppShowcaseBlockSelect<T extends boolean = true> {
   title?: T;
   text?: T;
   image?: T;
+  theme?: T;
+  imageSecondary?: T;
+  rating?:
+    | T
+    | {
+        score?: T;
+        label?: T;
+      };
+  stores?:
+    | T
+    | {
+        appStore?: T;
+        playStore?: T;
+      };
   features?:
     | T
     | {
@@ -2172,6 +2268,17 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
         quote?: T;
         author?: T;
         role?: T;
+        org?: T;
+        city?: T;
+        rating?: T;
+        photo?: T;
+        id?: T;
+      };
+  logos?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
         id?: T;
       };
   id?: T;
@@ -2207,6 +2314,12 @@ export interface CTABandBlockSelect<T extends boolean = true> {
   titleAccent?: T;
   text?: T;
   cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondaryCta?:
     | T
     | {
         label?: T;

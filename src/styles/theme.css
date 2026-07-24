@@ -397,6 +397,98 @@
     }
   }
 
+  /* Faixa de prova do hero — quatro números colados no rodapé da seção,
+     sobre o vídeo. Fundo escuro translúcido porque o frame por baixo varia
+     e os números precisam de contraste em qualquer um deles. Ocupa o mesmo
+     canto que `.hero-tagbox` acima (nunca aparecem juntas — ver `showTag`
+     em `Hero/Component.tsx`).
+     Sem `position`/`margin-top: auto`: a faixa é o último item de flex do
+     wrapper flex-column que o `Hero/Component.tsx` monta em volta do
+     `Container` (`Container` vira `flex-1`, a faixa fica com sua altura
+     natural) — assim ela sempre recebe espaço reservado embaixo em vez de
+     sobrepor subhead/CTAs quando cresce (ex.: grid de 2 colunas no mobile,
+     abaixo). Cola sozinha porque é o próximo item de flex após um irmão
+     `flex-1`; nenhuma propriedade de posicionamento é necessária aqui. */
+  .hero-proof {
+    border-top: 1px solid var(--line);
+    background: rgba(5, 8, 26, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .hero-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .hero-proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1.35rem 1.6rem;
+    border-left: 1px solid var(--line);
+  }
+  .hero-proof-item:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .hero-proof-n {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Estrelas na cor de acento da marca (`--color-ice-400`), não um dourado
+     literal: a paleta é navy/ice/silver e não tem token de "gold" — usar um
+     hex fora do @theme quebraria a disciplina de tokens só por causa de um
+     convencionalismo (★ dourada) que não é obrigatório fora dele. */
+  .hero-proof-stars {
+    color: var(--color-ice-400);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+  }
+  .hero-proof-l {
+    font-size: 0.78rem;
+    color: var(--text-3);
+  }
+  @media (max-width: 820px) {
+    .hero-proof-grid {
+      grid-template-columns: repeat(2, 1fr);
+      /* Reserva espaço do `.wa-float` (fixed, `right:22px`, 56px de largura
+         — 78px de "zona de exclusão" a partir da borda direita), que sempre
+         fica no canto inferior direito, exatamente onde cai a 2ª coluna
+         aqui (mesmo problema que `.hero-tagbox` já resolve com
+         `margin-right` no seu próprio breakpoint, acima). Como o texto é
+         alinhado à esquerda dentro de cada item, padding no PRÓPRIO item
+         não adianta (o texto termina bem antes da borda direita do item,
+         então sobra vazio, não desloca nada); é o grid inteiro que precisa
+         encolher, o que empurra o início da 2ª coluna pra esquerda.
+         48px foi o ponto de equilíbrio validado com getBoundingClientRect()
+         em várias larguras (320–820px): dá folga real (≈19–23px) sem
+         quebrar linha em ≥390px (a maioria esmagadora do tráfego mobile);
+         em 360px (largura "padrão" de boa parte do Android) o valor
+         quebra em 2 linhas — pior que caber numa linha, melhor que
+         sobrepor um botão flutuante clicável. Só resta um resíduo de
+         ~5px de sobreposição em 320px (iPhone SE de 1ª geração e
+         equivalentes): a partir de certo ponto o valor da célula já é
+         limitado pelo min-content da própria coluna (`repeat(2,1fr)` vira
+         `minmax(auto,1fr)`), e mais padding só força mais quebra de linha
+         sem ganhar distância nenhuma — confirmado testando também com 64,
+         128 e 168px, todos com a mesma folga em 320px. Aceito como caso
+         extremo (tráfego irrelevante nesse device). */
+      padding-right: 48px;
+    }
+    .hero-proof-item:nth-child(3) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .hero-proof-item:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
   /* ---------- Hero de vídeo com chip "1%" (.g-hero / .g-price) — fiel a
      `_reference/garante.html:59-104` (estilo inline da própria página)
      ----------
@@ -3431,6 +3523,41 @@
   .hero-video-pause:focus-visible {
     opacity: 1;
   }
+
+  /* Pilares em colunas — grade `auto-fit` e não `repeat(3,1fr)`: na home são
+     3 pilares, mas em /aplicativo o mesmo bloco renderiza 2 (síndico e
+     administradora), e uma grade fixa deixaria um buraco lá. */
+  .pillars-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1.5rem, 3vw, 3rem);
+    margin-top: 2.5rem;
+  }
+  .pillar-col {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 1.4rem;
+  }
+  .pillar-col-glyph {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    /* `--color-accent` (não `--accent` direto): em `.sec-light` o token
+       semântico é redirecionado pra navy-500 (contraste AA em fundo claro,
+       ver comentário em `.sec-light` acima) — usar `--accent` cru
+       "vazaria" o ice-400 (baixo contraste) se este bloco algum dia
+       renderizar claro. */
+    color: var(--color-accent);
+  }
+  .pillar-col h3 {
+    margin: 0 0 0.7rem;
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  }
+  .pillar-col p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-2);
+  }
 }
 
 /* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────
@@ -3828,5 +3955,214 @@
   .article-cta {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* AppShowcase — Task 5 (Plano 2): segunda tela, nota das lojas e selos.
+   Reabre `@layer utilities` (a instância de `@layer utilities` do topo do
+   arquivo, linha 204, já fechou bem antes daqui, na mesma linha em que os
+   blocos "fora de @layer" — `.br-map` etc. — começam); CSS permite reabrir
+   a mesma layer quantas vezes for preciso, e as regras continuam entrando
+   na MESMA layer nomeada (mesma ordem de cascata relativa a `base`/
+   componentes do Tailwind), só que fisicamente perto do bloco que as usa. */
+@layer utilities {
+  /* Duas telas do app sobrepostas com rotação leve — dá profundidade sem
+     precisar de mockup de aparelho renderizado. */
+  .app-screens {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    min-height: 480px;
+  }
+  .app-screen {
+    width: 246px;
+    overflow: hidden;
+    /* `#11162c` do design não é um token: o mais próximo na paleta navy
+       (@theme) é `--color-navy-900` (#0a102e) — usar esse em vez do hex
+       literal mantém a moldura do telefone na mesma família de cor da
+       marca. Fundo `#fff` fica literal (sem token dedicado a branco puro
+       no @theme; mesmo padrão já usado em `.sec-light.white`/`.prod-card.
+       on-white` neste arquivo). */
+    border: 8px solid var(--color-navy-900);
+    border-radius: 30px;
+    background: #fff;
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+  }
+  .app-screen-back {
+    transform: translateX(46px) translateY(-26px) rotate(5deg) scale(0.9);
+    opacity: 0.92;
+  }
+  .app-screen-front {
+    position: relative;
+    z-index: 2;
+    transform: translateX(-40px) rotate(-3deg);
+  }
+
+  .app-rating {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-top: 2.2rem;
+    padding: 1.1rem 1.35rem;
+    border-radius: 16px;
+    max-width: 420px;
+  }
+  .app-rating-n {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 2.3rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .app-rating-meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.82rem;
+    color: var(--text-3);
+    line-height: 1.45;
+  }
+  /* Mesmo raciocínio de `.hero-proof-stars` (acima, linha ~443): a paleta é
+     navy/ice/silver e não tem token de "gold" — em vez do `#ffc24a`
+     literal do design, reusa `--color-ice-400` (o acento da marca), pra não
+     introduzir uma segunda cor de estrela no site. */
+  .app-rating-stars {
+    color: var(--color-ice-400);
+    letter-spacing: 0.05em;
+  }
+
+  .store-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.6rem;
+  }
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: rgba(173, 213, 235, 0.05);
+    font-size: 0.82rem;
+    line-height: 1.2;
+    transition: border-color 0.25s ease;
+  }
+  .store-badge:hover {
+    border-color: var(--accent);
+  }
+  .store-badge-ico {
+    width: 19px;
+    height: 19px;
+    flex: none;
+  }
+  .store-badge small {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-3);
+  }
+  .store-badge b {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  @media (max-width: 900px) {
+    .app-screens {
+      min-height: 420px;
+    }
+    .app-screen {
+      width: 200px;
+    }
+  }
+
+  /* Card de depoimento — a citação em Clash carrega a seção; o rodapé com
+     avatar e atribuição é o que dá credibilidade e fica separado por régua. */
+  .depo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    height: 100%;
+    margin: 0;
+    padding: 1.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--bg-raise);
+  }
+  /* Mesmo raciocínio de `.hero-proof-stars`/`.app-rating-stars` (acima): reusa
+     `--color-ice-400` em vez de um dourado literal, pra não introduzir uma
+     segunda cor de estrela no site. */
+  .depo-stars {
+    color: var(--color-ice-400);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+  }
+  .depo-card blockquote {
+    flex: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 500;
+    line-height: 1.42;
+  }
+  .depo-card figcaption {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+  .depo-avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-pill);
+    background: var(--grad-brand);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+  }
+  .depo-avatar-photo {
+    object-fit: cover;
+  }
+  .depo-card figcaption b {
+    display: block;
+    font-size: 0.9rem;
+  }
+  .depo-card figcaption small {
+    color: var(--text-3);
+    font-size: 0.78rem;
+  }
+  .depo-logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2.6rem;
+    margin-top: 3rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .depo-logo-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+  }
+
+  /* CTABand `centered` — par de botões (principal + `secondaryCta`
+     opcional, ex.: WhatsApp). Sem `secondaryCta`, é um único filho: o
+     `flex`/`gap` não muda nada, então `band` e `centered` sem o campo
+     seguem idênticos a antes (Task 7, Plano 2). */
+  .final-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    justify-content: center;
   }
 }

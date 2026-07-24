@@ -36,6 +36,18 @@ export const ctaBandBlock: Block = {
       ],
     },
     {
+      name: 'secondaryCta',
+      type: 'group',
+      admin: {
+        description:
+          'Segundo caminho, ao lado do CTA principal (ex.: WhatsApp). Só tem efeito na variante `centered`. Vazio = um botão só.',
+      },
+      fields: [
+        { name: 'label', type: 'text' },
+        { name: 'href', type: 'text' },
+      ],
+    },
+    {
       name: 'buttonVariant',
       type: 'select',
       options: ['white', 'primary'],

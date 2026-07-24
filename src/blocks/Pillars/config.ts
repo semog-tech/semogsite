@@ -32,6 +32,12 @@ import type { Block } from 'payload'
  * (`_reference/garante.html:139,141`), levemente menores que o `.pillar-row`
  * padrão (`_reference/index.html:172-195`) — mesma família de hover-row,
  * números tipográficos por página.
+ *
+ * `variant` ('rows', padrão, ou 'columns') é ortogonal a `compact`: `compact`
+ * só encolhe a tipografia da MESMA `.pillar-row` de duas colunas (uso atual
+ * em `/garante`), enquanto `columns` troca o layout inteiro para uma grade
+ * lado a lado (`.pillars-columns`, ver `theme.css`) — usado pela Home (Task 8)
+ * e futuramente por `/aplicativo`, que renderiza o mesmo bloco com só 2 itens.
  */
 export const pillarsBlock: Block = {
   slug: 'pillars',
@@ -56,6 +62,19 @@ export const pillarsBlock: Block = {
       admin: {
         description:
           'Tipografia levemente menor (`h3`/`p`), fiel a `.g-step` de `/garante` (vs `.pillar-row` padrão da Home).',
+      },
+    },
+    {
+      name: 'variant',
+      type: 'select',
+      defaultValue: 'rows',
+      options: [
+        { label: 'Linhas com hover (padrão)', value: 'rows' },
+        { label: 'Colunas (home e página do aplicativo)', value: 'columns' },
+      ],
+      admin: {
+        description:
+          'Colunas encolhem a seção sem perder conteúdo — as linhas gastam quase uma tela inteira para poucas palavras.',
       },
     },
     {

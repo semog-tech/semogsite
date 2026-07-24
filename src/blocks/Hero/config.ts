@@ -22,6 +22,30 @@ export const heroBlock: Block = {
           'Coluna de vidro à direita do hero (`.hero-tagbox`), ex.: "Condomínios. Métricas. Organização." Opcional — sem valor, o layout fica de 1 coluna como antes.',
       },
     },
+    {
+      name: 'proofItems',
+      type: 'array',
+      maxRows: 4,
+      admin: {
+        description:
+          'Faixa de prova colada no rodapé do hero (ex.: nota do app, nº de condomínios). Vazio = não renderiza. Quando preenchida, substitui a `tag` — as duas ocupam o mesmo canto.',
+      },
+      fields: [
+        {
+          name: 'value',
+          type: 'text',
+          required: true,
+          admin: { description: 'Ex.: "4,8", "+650"' },
+        },
+        { name: 'label', type: 'text', required: true },
+        {
+          name: 'stars',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: { description: 'Mostra 5 estrelas antes do valor (só faz sentido em nota).' },
+        },
+      ],
+    },
     { name: 'video', type: 'upload', relationTo: 'media' },
     { name: 'poster', type: 'upload', relationTo: 'media' },
     {

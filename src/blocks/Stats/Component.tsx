@@ -37,13 +37,19 @@ function StatValue({ item, className }: { item: StatItem; className: string }) {
  *   da coluna, nunca estoura (`grid-cols-2` → `sm:grid-cols-3` →
  *   `xl:grid-cols-5`). Inalterado.
  *
- * - **`feature`** (home): **ledger editorial**. Cada item é uma linha própria:
- *   número grande em Clash (`var(--font-display)`) alinhado à direita num
- *   eixo comum (coluna `auto` + `min-width`, por isso os números nunca
- *   estouram e as réguas alinham), rótulo em azul da marca (`navy-500`) e uma
- *   frase de apoio (`detail`) — separados por réguas finas (`border-line`).
- *   Resolve o "5 colunas estreitas deixavam os números pequenos" com muito
- *   mais impacto e significado que a grade.
+ * - **`feature`**: **ledger editorial**. Cada item é uma linha própria: número
+ *   grande em Clash (`var(--font-display)`) alinhado à direita num eixo comum
+ *   (coluna `auto` + `min-width`, por isso os números nunca estouram e as
+ *   réguas alinham), rótulo em azul da marca (`navy-500`) e uma frase de apoio
+ *   (`detail`) — separados por réguas finas (`border-line`). Resolve o "5
+ *   colunas estreitas deixavam os números pequenos" com muito mais impacto e
+ *   significado que a grade.
+ *
+ * - **`band`** (home, a partir do redesign de jul/2026): faixa horizontal de
+ *   5 colunas com divisória vertical, número em Clash sobre `--grad-brand`,
+ *   rótulo em caixa alta e frase de apoio. Substituiu o `feature` na home,
+ *   onde a coluna estreita à esquerda + mapa à direita deixavam metade da
+ *   seção vazia. `feature` segue disponível e inalterado para quem já usa.
  */
 export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
   if (!items || items.length === 0) return null
@@ -54,6 +60,35 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
       {title && <h2 className="text-h2">{title}</h2>}
     </div>
   )
+
+  if (variant === 'band') {
+    return (
+      <Section light>
+        <Container>
+          {header}
+          <Stagger className="grid grid-cols-2 border-t border-line md:grid-cols-3 xl:grid-cols-5">
+            {items.map((item) => (
+              <div
+                key={item.id ?? item.label}
+                className="border-line px-[clamp(0.8rem,1.6vw,1.4rem)] pt-[clamp(1.4rem,2.4vw,2rem)] first:pl-0 xl:border-l xl:first:border-l-0"
+              >
+                <StatValue
+                  item={item}
+                  className="font-[family-name:var(--font-display)] font-semibold leading-none tracking-[-0.01em] text-[length:clamp(2rem,3.4vw,3.2rem)] [font-variant-numeric:tabular-nums]"
+                />
+                <div className="mt-[0.7rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-navy-500">
+                  {item.label}
+                </div>
+                {item.detail && (
+                  <p className="mb-0 mt-[0.3rem] text-[0.88rem] text-fg-2">{item.detail}</p>
+                )}
+              </div>
+            ))}
+          </Stagger>
+        </Container>
+      </Section>
+    )
+  }
 
   if (variant === 'feature') {
     return (
