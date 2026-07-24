@@ -68,3 +68,4 @@ next-env.d.ts
 .vercel
 
 .claude/
+db/backup-*.json

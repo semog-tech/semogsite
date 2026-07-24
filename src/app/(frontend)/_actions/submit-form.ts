@@ -8,9 +8,10 @@ import {
   buildAttributionFields,
   parseAttributionCookie,
 } from '@/lib/attribution'
+import { query } from '@/lib/db'
 import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, propostaSchema } from '@/lib/form-schemas'
-import { getPayloadClient } from '@/lib/payload'
+import { extractLeadColumns, FORMS } from '@/lib/forms'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
@@ -21,12 +22,6 @@ export type SubmitFormResult = {
   ok: boolean
   errors?: Record<string, string>
   message?: string
-}
-
-/** Título exato dos forms semeados (`src/seed/forms.ts`, DB live ids 1/2). */
-const FORM_TITLES: Record<FormType, string> = {
-  contato: 'Contato',
-  proposta: 'Proposta',
 }
 
 /** Rótulos pt-BR (iguais ao `label` de cada bloco do seed) pro e-mail de notificação interna. */
@@ -102,15 +97,16 @@ async function getClientIp(): Promise<string | undefined> {
 }
 
 /**
- * Server Action de submit dos formulários "Contato"/"Proposta" (Form
- * Builder, `src/seed/forms.ts`). Pipeline: valida com Zod → Turnstile →
- * rate limit por IP → grava em `form-submissions` → e-mail (best-effort).
+ * Server Action de submit dos formulários "Contato"/"Proposta" (config
+ * estática em `@/lib/forms`). Pipeline: valida com Zod → Turnstile → rate
+ * limit por IP → grava em `cms.leads` (via `pg`, `@/lib/db`) → e-mail
+ * (best-effort).
  *
- * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Payload,
- * SendGrid) fica atrás de um `try/catch` que devolve um `{ ok: false,
- * message }` genérico em vez de deixar o erro subir. A submissão em si
- * (`payload.create`) é o único passo que precisa ter sucesso pra
- * `ok: true` — falha de e-mail depois disso é só logada.
+ * **Nunca lança** — cada etapa arriscada (Turnstile, DB, SendGrid) fica
+ * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
+ * vez de deixar o erro subir. O `INSERT` em `cms.leads` é o único passo que
+ * precisa ter sucesso pra `ok: true` — falha de e-mail depois disso é só
+ * logada.
  */
 export async function submitForm(
   formType: FormType,
@@ -137,23 +133,7 @@ export async function submitForm(
       return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
     }
 
-    const formTitle = FORM_TITLES[formType]
-    const payload = await getPayloadClient()
-
-    const formResult = await payload.find({
-      collection: 'forms',
-      where: { title: { equals: formTitle } },
-      limit: 1,
-      depth: 0,
-    })
-    const form = formResult.docs[0]
-    if (!form) {
-      console.error(
-        `[submit-form] form "${formTitle}" não encontrado em \`forms\` — rode \`pnpm seed:forms\`.`,
-      )
-      return { ok: false, message: 'Erro ao enviar. Tente novamente.' }
-    }
-
+    const formTitle = FORMS[formType].title
     const data = parsed.data as ContatoValues | PropostaValues
 
     // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
@@ -161,19 +141,26 @@ export async function submitForm(
     const attributionCookie = (await cookies()).get(ATTRIBUTION_COOKIE)?.value
     const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
 
-    await payload.create({
-      collection: 'form-submissions',
-      data: {
-        form: form.id,
-        submissionData: [
-          ...Object.entries(data)
-            .filter(([, value]) => value !== undefined)
-            .map(([field, value]) => ({ field, value: String(value) })),
-          // Guarda a origem junto do lead pra consulta futura no admin.
-          ...attributionFields.map((f) => ({ field: `origem — ${f.label}`, value: f.value })),
-        ],
-      },
-    })
+    // Monta o `data` (jsonb) do lead: campos do formulário (chave = nome do
+    // campo do schema Zod) + origem, como objeto `{field: value}`.
+    const leadData: Record<string, string> = {}
+    for (const [field, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        leadData[field] = String(value)
+      }
+    }
+    for (const f of attributionFields) {
+      leadData[`origem — ${f.label}`] = f.value
+    }
+
+    const { gclid, email } = extractLeadColumns(leadData)
+
+    await query('insert into cms.leads (form, data, gclid, email) values ($1, $2, $3, $4)', [
+      formType,
+      leadData,
+      gclid ?? null,
+      email ?? null,
+    ])
 
     // E-mail é best-effort: a submissão já está salva acima, então uma
     // falha de SendGrid (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`)
