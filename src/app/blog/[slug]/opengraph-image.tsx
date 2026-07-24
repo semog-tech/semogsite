@@ -1,15 +1,14 @@
 import { ImageResponse } from 'next/og'
+import { getPostBySlug } from '@/lib/content'
 import { OG_CONTENT_TYPE, OG_SITE_NAME, OG_SIZE, OgCard } from '@/lib/og'
-import { getPostBySlug } from '@/lib/payload'
 
 export const alt = OG_SITE_NAME
 export const size = OG_SIZE
 export const contentType = OG_CONTENT_TYPE
 
 /**
- * Título do post via Local API, espelhando a prioridade de `buildMetadata`
- * em `src/lib/seo.ts`. Nunca lança — se o DB estiver fora do ar ou o post
- * não existir (ou não estiver publicado), cai no nome do site.
+ * Título do post lido de `content/blog/*.mdx` (Task 3 — sem Payload). Nunca
+ * lança: se o post não existir, cai no nome do site.
  *
  * Fica em `src/app/blog/[slug]/opengraph-image.tsx` (raiz do App Router),
  * não em `src/app/(frontend)/blog/[slug]/opengraph-image.tsx` — mesmo
@@ -22,7 +21,7 @@ export const contentType = OG_CONTENT_TYPE
 async function resolveTitle(slug: string): Promise<string> {
   try {
     const post = await getPostBySlug(slug)
-    return post?.meta?.title || post?.title || OG_SITE_NAME
+    return post?.title || OG_SITE_NAME
   } catch {
     return OG_SITE_NAME
   }
