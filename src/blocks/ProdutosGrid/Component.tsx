@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, ProdutosGridBlock as ProdutosGridBlockType } from '@/payload-types'
+import type { ProdutosGridBlock as ProdutosGridBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type Card = NonNullable<ProdutosGridBlockType['cards']>[number]
 

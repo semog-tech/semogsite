@@ -2,7 +2,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { ClubeBeneficiosBlock as ClubeBeneficiosBlockType } from '@/payload-types'
+import type { ClubeBeneficiosBlock as ClubeBeneficiosBlockType } from '@/types/blocks'
 
 /**
  * Fiel à seção "Clube de benefícios" de `_reference/solucoes.html:693-724`:

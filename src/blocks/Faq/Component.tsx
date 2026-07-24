@@ -2,7 +2,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { FaqBlock as FaqBlockType } from '@/payload-types'
+import type { FaqBlock as FaqBlockType } from '@/types/blocks'
 
 /**
  * Accordion de perguntas frequentes fiel a `.faq details`/`.faq summary .plus`

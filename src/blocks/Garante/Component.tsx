@@ -4,7 +4,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { GaranteBlock as GaranteBlockType, Media } from '@/payload-types'
+import type { GaranteBlock as GaranteBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 function mediaUrl(resource?: number | Media | null): string | undefined {
   if (!resource || typeof resource === 'number') return undefined

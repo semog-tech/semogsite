@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { CSSProperties } from 'react'
-import type { Media } from '@/payload-types'
+import type { Media } from '@/types/media'
 
 type Props = {
   resource?: Media | string | null

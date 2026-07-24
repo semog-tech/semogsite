@@ -4,7 +4,7 @@ import { Container } from '@/components/ui/Container'
 import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { CTABandBlock as CTABandBlockType } from '@/payload-types'
+import type { CTABandBlock as CTABandBlockType } from '@/types/blocks'
 
 /** Título com o trecho final em `.gx-ice` — mesmo padrão de `Benefits`'s `BentoTitle`. */
 function CenteredTitle({

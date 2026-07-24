@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { CompareBlock as CompareBlockType } from '@/payload-types'
+import type { CompareBlock as CompareBlockType } from '@/types/blocks'
 
 type Column = CompareBlockType['before']
 

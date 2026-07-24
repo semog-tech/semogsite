@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Parallax } from '@/motion/Parallax'
 import { Reveal } from '@/motion/reveal'
 import { Words } from '@/motion/Words'
-import type { HumanQuoteBlock as HumanQuoteBlockType, Media } from '@/payload-types'
+import type { HumanQuoteBlock as HumanQuoteBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /**
  * Fiel à `.human` de `_reference/index.html:747-756`: citação gigante com

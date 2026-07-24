@@ -1,6 +1,6 @@
 import { RichText as LexicalRichText } from '@payloadcms/richtext-lexical/react'
 import { Container } from '@/components/ui/Container'
-import type { RichTextBlock as RichTextBlockType } from '@/payload-types'
+import type { RichTextBlock as RichTextBlockType } from '@/types/blocks'
 
 /**
  * Renderiza o lexical do campo `content` via `RichText` de

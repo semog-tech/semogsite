@@ -2,14 +2,9 @@ import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type {
-  BlogFeaturedBlock as BlogFeaturedBlockType,
-  Category,
-  Media,
-  Post,
-} from '@/payload-types'
+import type { BlogFeaturedBlock as BlogFeaturedBlockType, BlogPostRef } from '@/types/blocks'
 
-function metaLine(post: Post): string {
+function metaLine(post: BlogPostRef): string {
   return post.readingTime ? `Equipe Semog · ${post.readingTime} min de leitura` : 'Equipe Semog'
 }
 
@@ -34,13 +29,13 @@ function metaLine(post: Post): string {
  */
 export function BlogFeaturedBlock({ post }: BlogFeaturedBlockType) {
   if (!post || typeof post !== 'object') return null
-  const featured = post as Post
-  const category = featured.category as Category | number | null | undefined
+  // `post` já está estreitado pra `BlogPostRef` aqui (o `typeof !== 'object'`
+  // acima descarta o outro membro da union, `number`) — sem cast.
+  const featured = post
+  const category = featured.category
   const categoryTitle = category && typeof category === 'object' ? category.title : null
   const image =
-    featured.heroImage && typeof featured.heroImage === 'object'
-      ? (featured.heroImage as Media)
-      : undefined
+    featured.heroImage && typeof featured.heroImage === 'object' ? featured.heroImage : undefined
 
   return (
     <Section light className="!pt-[clamp(2.5rem,5vw,4rem)] !pb-0">

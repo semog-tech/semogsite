@@ -2,7 +2,7 @@ import { Container } from '@/components/ui/Container'
 import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { SelfServeBlock as SelfServeBlockType } from '@/payload-types'
+import type { SelfServeBlock as SelfServeBlockType } from '@/types/blocks'
 
 type Item = NonNullable<SelfServeBlockType['items']>[number]
 

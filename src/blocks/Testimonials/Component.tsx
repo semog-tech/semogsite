@@ -3,7 +3,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { TestimonialsBlock as TestimonialsBlockType } from '@/payload-types'
+import type { TestimonialsBlock as TestimonialsBlockType } from '@/types/blocks'
 
 /**
  * Grid de depoimentos fiel a `.depo-card`/`.depo-grid` das páginas de

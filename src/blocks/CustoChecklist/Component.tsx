@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { GradientText } from '@/components/ui/GradientText'
 import { Reveal } from '@/motion/reveal'
-import type { CustoChecklistBlock as CustoChecklistBlockType } from '@/payload-types'
+import type { CustoChecklistBlock as CustoChecklistBlockType } from '@/types/blocks'
 
 /**
  * Título com o trecho final em `.gx` (a seção é sempre clara, `.sec-light

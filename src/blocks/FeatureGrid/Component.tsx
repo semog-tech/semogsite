@@ -3,7 +3,7 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Reveal, Stagger } from '@/motion/reveal'
-import type { FeatureGridBlock as FeatureGridBlockType } from '@/payload-types'
+import type { FeatureGridBlock as FeatureGridBlockType } from '@/types/blocks'
 
 type Feature = NonNullable<FeatureGridBlockType['features']>[number]
 

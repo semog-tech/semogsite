@@ -1,5 +1,5 @@
 import { Container } from '@/components/ui/Container'
-import type { LegalHeroBlock as LegalHeroBlockType } from '@/payload-types'
+import type { LegalHeroBlock as LegalHeroBlockType } from '@/types/blocks'
 
 /**
  * Fiel a `.legal-hero` de `_reference/privacidade.html`/`termos.html` (ver

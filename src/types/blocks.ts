@@ -649,10 +649,13 @@ export interface CustoChecklistBlock {
  * Nó lexical genérico — não modelamos o schema completo do editor rich text
  * (fora do escopo desta task, só blocos); só o suficiente pra tipar o
  * conteúdo serializado que `@payloadcms/richtext-lexical/react` consome hoje.
+ * `type`/`version` são obrigatórios (não `?`) porque `SerializedLexicalNode`
+ * (pacote `lexical`) os exige assim em todo nó, incluindo `root` — confirmado
+ * pelo `tsc` da Task 3 ao tipar `RichText/Component.tsx` contra este tipo.
  */
 interface LexicalNode {
-  type?: string
-  version?: number
+  type: string
+  version: number
   [key: string]: unknown
 }
 
@@ -664,10 +667,10 @@ export interface RichTextBlock {
     root: {
       type: string
       children: LexicalNode[]
-      direction?: ('ltr' | 'rtl') | null
-      format?: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent?: number
-      version?: number
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
     }
     [key: string]: unknown
   } | null
@@ -684,9 +687,18 @@ export interface RichTextBlock {
  * que `BlogListBlock`/`BlogFeaturedBlock` (Component.tsx) leem hoje — título,
  * slug, resumo, categoria, capa, tempo de leitura e data. O `Post`/`Category`
  * completos do Payload ficam fora do escopo desta task (só tipos de bloco).
+ * Exportado (diferente dos demais campos aninhados deste arquivo) porque
+ * `BlogFeatured/Component.tsx` e `BlogList/Component.tsx` precisam dele por
+ * nome pra tipar a variável já estreitada (`post as ...`/`typeof === 'object'`).
+ *
+ * `id: number` (obrigatório, sem `| string | null` como a convenção de
+ * `block.id` no topo do arquivo) porque este é o id de uma linha de banco
+ * (post), não o id de instância de bloco — `BlogListBlock.Component.tsx`
+ * repassa `excludePost.id` direto pra `getRecentPosts(limit, excludeId?:
+ * number)` (`src/lib/payload.ts`), que exige `number`.
  */
-interface BlogPostRef {
-  id?: string | number | null
+export interface BlogPostRef {
+  id: number
   title: string
   slug: string
   excerpt?: string | null

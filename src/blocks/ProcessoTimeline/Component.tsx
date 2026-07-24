@@ -2,7 +2,7 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { ProcessoTimelineBlock as ProcessoTimelineBlockType } from '@/payload-types'
+import type { ProcessoTimelineBlock as ProcessoTimelineBlockType } from '@/types/blocks'
 
 type Item = NonNullable<ProcessoTimelineBlockType['items']>[number]
 

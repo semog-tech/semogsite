@@ -1,5 +1,5 @@
 import { Marquee } from '@/motion/Marquee'
-import type { ValuesMarqueeBlock as ValuesMarqueeBlockType } from '@/payload-types'
+import type { ValuesMarqueeBlock as ValuesMarqueeBlockType } from '@/types/blocks'
 
 /**
  * Fiel à `.values-strip` de `_reference/index.html:541-548`: envolve o

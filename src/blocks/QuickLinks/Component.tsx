@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Stagger } from '@/motion/reveal'
-import type { QuickLinksBlock as QuickLinksBlockType } from '@/payload-types'
+import type { QuickLinksBlock as QuickLinksBlockType } from '@/types/blocks'
 
 type Item = NonNullable<QuickLinksBlockType['items']>[number]
 

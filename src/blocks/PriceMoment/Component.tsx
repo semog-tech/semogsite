@@ -1,6 +1,6 @@
 import { Container } from '@/components/ui/Container'
 import { Reveal } from '@/motion/reveal'
-import type { PriceMomentBlock as PriceMomentBlockType } from '@/payload-types'
+import type { PriceMomentBlock as PriceMomentBlockType } from '@/types/blocks'
 
 /**
  * Fiel a `.g-one` de `_reference/garante.html:335-342` (markup) +

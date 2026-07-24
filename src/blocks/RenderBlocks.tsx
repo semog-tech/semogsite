@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { Page } from '@/payload-types'
+import type { Block } from '@/types/blocks'
 import { AppShowcaseBlock } from './AppShowcase/Component'
 import { BairrosBlock } from './Bairros/Component'
 import { BenefitsBlock } from './Benefits/Component'
@@ -42,7 +42,6 @@ import { TrustPanelBlock } from './TrustPanel/Component'
 import { ValuesMarqueeBlock } from './ValuesMarquee/Component'
 import { WordsSectionBlock } from './WordsSection/Component'
 
-type Block = NonNullable<Page['layout']>[number]
 // biome-ignore lint/suspicious/noExplicitAny: cada componente valida seu próprio bloco
 const map: Record<string, (props: any) => React.ReactNode> = {
   hero: HeroBlock,

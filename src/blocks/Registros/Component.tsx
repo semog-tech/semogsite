@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Stagger } from '@/motion/reveal'
-import type { RegistrosBlock as RegistrosBlockType } from '@/payload-types'
+import type { RegistrosBlock as RegistrosBlockType } from '@/types/blocks'
 
 /**
  * Faixa discreta de registros/selos, fiel a `.creds`/`.badges` das landings

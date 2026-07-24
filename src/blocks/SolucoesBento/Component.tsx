@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, SolucoesBentoBlock as SolucoesBentoBlockType } from '@/payload-types'
+import type { SolucoesBentoBlock as SolucoesBentoBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type Card = NonNullable<SolucoesBentoBlockType['cards']>[number]
 

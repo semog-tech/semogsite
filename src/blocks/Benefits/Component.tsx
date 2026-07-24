@@ -4,7 +4,8 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { GradientText } from '@/components/ui/GradientText'
 import { Section } from '@/components/ui/Section'
 import { Stagger } from '@/motion/reveal'
-import type { BenefitsBlock as BenefitsBlockType, Media } from '@/payload-types'
+import type { BenefitsBlock as BenefitsBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 type Item = NonNullable<BenefitsBlockType['items']>[number]
 

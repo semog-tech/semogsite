@@ -1,7 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Reveal } from '@/motion/reveal'
 import { Words } from '@/motion/Words'
-import type { DevQuoteBlock as DevQuoteBlockType } from '@/payload-types'
+import type { DevQuoteBlock as DevQuoteBlockType } from '@/types/blocks'
 
 /**
  * Fiel a `.dev-quote` de `_reference/incorporadoras.html:125-136,311-317`

@@ -3,7 +3,8 @@ import { Container } from '@/components/ui/Container'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Section } from '@/components/ui/Section'
 import { Reveal } from '@/motion/reveal'
-import type { Media, SociosBlock as SociosBlockType } from '@/payload-types'
+import type { SociosBlock as SociosBlockType } from '@/types/blocks'
+import type { Media } from '@/types/media'
 
 /**
  * Fiel à seção "Empresa humana" de `_reference/semog.html` (`.founders`):
