@@ -103,7 +103,10 @@ export function StatsBlock({ eyebrow, title, items, variant }: StatsBlockType) {
               key={item.id ?? item.label}
               className="@container border-l border-line px-[1.6rem] pt-[0.6rem]"
             >
-              <StatValue item={item} className="text-[length:clamp(2.1rem,22cqi,4.5rem)] leading-none" />
+              <StatValue
+                item={item}
+                className="text-[length:clamp(2.1rem,22cqi,4.5rem)] leading-none"
+              />
               <p className="mt-[0.9rem] text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-fg-3">
                 {item.label}
               </p>

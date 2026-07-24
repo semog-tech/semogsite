@@ -3400,6 +3400,37 @@
     margin-block: 1em;
     padding-left: 1.3rem;
   }
+
+  /* Controle de pausa do fundo de vídeo do hero (WCAG 2.2.2). Canto inferior
+     ESQUERDO da seção (não direito) de propósito: o hero ocupa a viewport
+     inteira (`min-height:100dvh`, `Hero/Component.tsx`), então o canto
+     inferior direito deste botão absoluto coincide, na prática, com o canto
+     inferior direito da tela — exatamente onde `.wa-float` (fixed,
+     `right:22px;bottom:22px`) sempre fica. Conferido com
+     `getBoundingClientRect()` em 390×844 e 1440×900: com `right`, os dois
+     retângulos se sobrepõem nos dois tamanhos (o `.wa-float` não tem
+     variante responsiva que o tire do canto). Ficando à esquerda, nunca
+     colide. Acima do scrim (`z-[2]`) e abaixo do conteúdo (`z-[3]`) — não
+     compete com os CTAs, que também ficam à esquerda mas acima do fold. */
+  .hero-video-pause {
+    position: absolute;
+    left: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    color: var(--text);
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+  }
+  .hero-video-pause:hover,
+  .hero-video-pause:focus-visible {
+    opacity: 1;
+  }
 }
 
 /* ── Stats · Mapa do Brasil (variant ledger "feature") ───────────────────

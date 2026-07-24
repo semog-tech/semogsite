@@ -5,6 +5,8 @@
     "ignoreUnknown": true,
     "includes": [
       "src/**",
+      "tests/**",
+      "scripts/**",
       "!src/app/(payload)/**",
       "!src/payload-types.ts",
       "!src/migrations/**",

@@ -58,11 +58,7 @@ export const getRecentPosts = cache(async (limit = 6, excludeId?: number): Promi
  * (mesmo shape consumido por `getRecentPosts`/`BlogList`).
  */
 export const getRelatedPosts = cache(
-  async (
-    categoryId: number | undefined,
-    excludeId: number,
-    limit = 3,
-  ): Promise<Post[]> => {
+  async (categoryId: number | undefined, excludeId: number, limit = 3): Promise<Post[]> => {
     const payload = await getPayloadClient()
 
     const sameCategory = categoryId

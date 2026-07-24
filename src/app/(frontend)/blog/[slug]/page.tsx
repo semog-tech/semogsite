@@ -2,8 +2,8 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ImageMedia } from '@/components/Media/ImageMedia'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
+import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { getPostBySlug, getRelatedPosts, getSiteSettings } from '@/lib/payload'
@@ -68,11 +68,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const category = post.category as Category | number | null | undefined
   const categoryTitle = category && typeof category === 'object' ? category.title : null
-  const categoryId = category
-    ? typeof category === 'object'
-      ? category.id
-      : category
-    : undefined
+  const categoryId = category ? (typeof category === 'object' ? category.id : category) : undefined
   const hero =
     post.heroImage && typeof post.heroImage === 'object' ? (post.heroImage as Media) : undefined
   const date = formatDate(post.publishedAt)
@@ -91,7 +87,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <Section light>
         <Container>
           <Link href="/blog" className="article-back">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
+            >
               <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Voltar para o Blog
@@ -155,7 +157,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
             <Link href="/proposta" className="article-cta__btn">
               Pedir proposta
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                aria-hidden="true"
+              >
                 <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Link>
@@ -178,7 +186,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 const rpCategoryTitle =
                   rpCategory && typeof rpCategory === 'object' ? rpCategory.title : null
                 const rpImage =
-                  rp.heroImage && typeof rp.heroImage === 'object' ? (rp.heroImage as Media) : undefined
+                  rp.heroImage && typeof rp.heroImage === 'object'
+                    ? (rp.heroImage as Media)
+                    : undefined
                 const meta = relatedMeta(rp)
                 return (
                   <a key={rp.id} href={`/blog/${rp.slug}`} className="post">

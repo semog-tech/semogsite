@@ -102,6 +102,21 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: csp },
         ],
       },
+      {
+        // O Next serve /public com `public, max-age=0, must-revalidate`, o que
+        // faz o browser revalidar cada clipe a cada volta do ciclo do hero e
+        // rebaixar o arquivo inteiro. Cache longo corta esse re-download —
+        // MAS os nomes dos arquivos são semânticos (`recife.mp4` etc.), não
+        // versionados por hash/conteúdo. Trocar um clipe no lugar (mesmo
+        // nome, conteúdo novo) faz visitantes recorrentes ficarem até 1 ano
+        // com o clipe antigo, sem forma de invalidar. Pra trocar um clipe:
+        // renomear o arquivo E atualizar as 3 listas que citam o nome —
+        // `HERO_SEQUENCE` (`src/blocks/Hero/Component.tsx`), `SRC` do script
+        // de poster (`scripts/gen-hero-poster.mjs`) e `CLIP_FILES` do e2e
+        // (`tests/e2e/hero-video.e2e.spec.ts`).
+        source: '/hero/:file*.mp4',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
   },
   async redirects() {
