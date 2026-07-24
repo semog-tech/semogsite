@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import type {
+  AppShowcaseBlock,
   CitiesBlock,
   CTABandBlock,
   GaranteBlock,
@@ -15,29 +16,55 @@ import type {
 } from '@/payload-types'
 import { getMediaId } from './lib/media'
 
+// Mesmo número usado em `src/seed/pages.ts` (globals/ContactInfo/TrustPanel) —
+// a home é conteúdo estático de seed, não lê o global `company` em runtime,
+// então o número fica hardcoded aqui também. Dígitos puros, ver `wa.me`.
+const WHATSAPP_URL = 'https://wa.me/551130034506'
+
 /**
- * Seed idempotente da Page `home`, em fidelidade total à ORDEM e ao CONTEÚDO
- * de `_reference/index.html`, 11 blocos (`.superpowers/sdd/fidelity-diagnosis.md`,
- * seção A.1 — a 12ª seção visual é o Footer, um global fora do `layout`):
+ * Seed idempotente da Page `home`.
  *
- * 1. **Hero** (`.hero`) — headline/subhead/CTAs + `tag` (`.hero-tagbox`),
- *    fundo `background: 'gradient'`: aurora animada reativa ao mouse
- *    (`src/motion/GradientBackground.tsx`), no lugar do vídeo/poster.
- * 2. **Stats** (`.stats-grid`) — 5 contadores (35/+650/+70mil/+100/3 Estados).
+ * Até jul/2026 este seed reproduzia `_reference/index.html` em fidelidade
+ * total (11 blocos, ver histórico em `.superpowers/sdd/fidelity-diagnosis.md`
+ * seção A.1). A partir do redesign da Home (Plano 2 do `redesign/02-home`),
+ * a home DIVERGE deliberadamente do `_reference`: ganhou uma faixa de prova
+ * no hero, os stats viraram faixa horizontal, os pilares viraram colunas e
+ * o aplicativo ganhou seção própria — nenhuma dessas mudanças existe no
+ * `_reference`, que passa a valer só para as páginas ainda não redesenhadas.
+ *
+ * Ordem atual, 12 blocos (a 13ª seção visual é o Footer, um global fora do
+ * `layout`):
+ *
+ * 1. **Hero** (`.hero`) — headline/subhead/CTAs + `proofItems` (faixa de
+ *    prova: nota do app, condomínios, clientes, anos de mercado — substitui
+ *    a antiga `tag`), fundo `background: 'videoSequence'`.
+ * 2. **Stats** (`.stats-grid`) variante `band` — faixa horizontal de 5,
+ *    sem o mapa do Brasil que a variante `feature` usava.
  * 3. **ValuesMarquee** (`.values-strip`) — TRANSPARÊNCIA / RETIDÃO / DINÂMICA.
  * 4. **WordsSection** (`.manifesto`) — parágrafo com scrub palavra-a-palavra.
- * 5. **Pillars** (`.pillars`) — 3 `.pillar-row` (Condomínios/Métricas/Organização).
+ * 5. **Pillars** (`.pillars`) variante `columns` — grade auto-fit, no lugar
+ *    das 3 `.pillar-row` empilhadas.
  * 6. **SolucoesBento** (`.solutions`) — bento Residencial (alto) + Comercial +
  *    Associações, com `residencial.webp`/`comercial.webp`/`associacoes.webp`.
  * 7. **ProdutosGrid** (`.prods.sec-light.white`) — 4 `.prod-card` (Prestação de
- *    Contas on-white, Semog Garante on-navy, Aplicativo on-deep, Semog One
- *    on-white) com `c-prestacao`/`c-garante`/`c-app`/`c-one.webp`.
- * 8. **Garante** variante banda (`.g-band-home`) — vídeo `garante.mp4` com
+ *    Contas on-white, Semog Garante on-navy, Aplicativo on-deep → agora aponta
+ *    para `/aplicativo`, Semog One on-white) com
+ *    `c-prestacao`/`c-garante`/`c-app`/`c-one.webp`.
+ * 8. **AppShowcase** tema `deep` — seção própria do aplicativo, com as duas
+ *    telas reais (`app-inicio.webp`/`app-encomenda.webp`), nota das lojas e
+ *    selos (`StoreBadges`). Novo nesta ordem.
+ * 9. **Garante** variante banda (`.g-band-home`) — vídeo `garante.mp4` com
  *    poster `garante.webp`, chip de vidro "1%".
- * 9. **Cities** (`.cities-acc`) — 4 cidades com foto (`recife`/`joao-pessoa`/
+ * 10. **Cities** (`.cities-acc`) — 4 cidades com foto (`recife`/`joao-pessoa`/
  *    `campina-grande`/`belem.webp`); UF por extenso, como no ref.
- * 10. **HumanQuote** (`.human`) — citação + foto `equipe.webp` em parallax.
- * 11. **CTABand** variante `centered` (`.final-cta`) — CTA final da home.
+ * 11. **HumanQuote** (`.human`) — citação + foto `equipe.webp` em parallax.
+ * 12. **CTABand** variante `centered` (`.final-cta`) — CTA final da home,
+ *    agora com `secondaryCta` (WhatsApp) ao lado do CTA principal.
+ *
+ * `testimonials` entra aqui, entre `garante` e `cities`, assim que houver 3
+ * depoimentos reais com nome, cargo, condomínio e cidade autorizados pelo
+ * cliente. Depoimento inventado num site que vende confiança é pior que
+ * seção nenhuma — ver seção 8 da spec.
  *
  * Toda mídia é resolvida via `getMediaId(payload, filename)`
  * (`src/seed/lib/media.ts`), que busca o `id` do doc `media` já semeado por
@@ -67,6 +94,8 @@ async function seedHome() {
     campinaGrandeId,
     belemId,
     equipeId,
+    appTela1Id,
+    appTela2Id,
   ] = await Promise.all([
     getMediaId(payload, 'residencial.webp'),
     getMediaId(payload, 'comercial.webp'),
@@ -82,17 +111,26 @@ async function seedHome() {
     getMediaId(payload, 'campina-grande.webp'),
     getMediaId(payload, 'belem.webp'),
     getMediaId(payload, 'equipe.webp'),
+    getMediaId(payload, 'app-inicio.webp'),
+    getMediaId(payload, 'app-encomenda.webp'),
   ])
 
   const heroBlock: Omit<HeroBlock, 'id' | 'blockName'> = {
     blockType: 'hero',
     headline: HERO_HEADLINE,
     subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
-    tag: 'Condomínios. Métricas. Organização.',
     background: 'videoSequence',
+    // Substitui a antiga `tag` (`.hero-tagbox`) — mesma faixa de vidro, agora
+    // com prova em número em vez de só um rótulo.
+    proofItems: [
+      { value: '4,8', label: 'no app, 1.133 avaliações', stars: true },
+      { value: '+650', label: 'condomínios sob gestão' },
+      { value: '+70 mil', label: 'clientes atendidos' },
+      { value: '35 anos', label: 'em 3 estados, desde 1991' },
+    ],
     ctas: [
       { label: 'Solicitar proposta', href: '/proposta', variant: 'white' },
-      { label: 'Conhecer soluções', href: '/solucoes', variant: 'glass' },
+      { label: 'Ver o aplicativo', href: '/aplicativo', variant: 'glass' },
     ],
   }
 
@@ -100,7 +138,7 @@ async function seedHome() {
     blockType: 'stats',
     eyebrow: 'A líder do Nordeste',
     title: 'Liderança não se declara. Se comprova.',
-    variant: 'feature',
+    variant: 'band',
     items: [
       { value: 35, label: 'Anos de mercado', detail: 'Desde 1991, sempre no Nordeste.' },
       {
@@ -139,6 +177,7 @@ async function seedHome() {
 
   const pillarsBlock: Omit<PillarsBlock, 'id' | 'blockName'> = {
     blockType: 'pillars',
+    variant: 'columns',
     items: [
       {
         title: 'Condomínios',
@@ -206,10 +245,10 @@ async function seedHome() {
       {
         image: cAppId,
         theme: 'on-deep',
-        tag: 'Aplicativo Semog',
+        tag: 'Aplicativo Semog · 4,8 ★',
         title: 'O condomínio inteiro na palma da mão.',
         text: 'Boletos, reservas, assembleias e avisos em uma interface que o morador realmente usa.',
-        href: '/solucoes#aplicativo',
+        href: '/aplicativo',
       },
       {
         image: cOneId,
@@ -220,6 +259,34 @@ async function seedHome() {
         href: '/solucoes#tecnologia',
       },
     ],
+  }
+
+  // Seção própria do app, tema `deep` (Task 5 do Plano 2). As duas telas são
+  // prints reais das lojas com o nome do condomínio de demonstração ("Teste
+  // Gruvi") apagado — provisórios até o cliente regravar prints limpos do
+  // app em produção (ver comentário em `src/seed/lib/media.ts`).
+  const appShowcaseBlock: Omit<AppShowcaseBlock, 'id' | 'blockName'> = {
+    blockType: 'appShowcase',
+    theme: 'deep',
+    eyebrow: 'Aplicativo Semog',
+    title: 'O condomínio inteiro na palma da mão.',
+    text: 'Boleto, reserva, assembleia, encomenda e portaria. O morador resolve sozinho, sem ligar para a administradora.',
+    image: appTela1Id,
+    imageSecondary: appTela2Id,
+    features: [
+      { title: 'Taxa do condomínio', description: 'Boleto do mês, 2ª via e comprovante.' },
+      { title: 'Reserva de áreas comuns', description: 'Calendário com o que está livre.' },
+      { title: 'Assembleia virtual', description: 'Participação e voto pelo aplicativo.' },
+      { title: 'Encomendas', description: 'Aviso de chegada e QR de retirada.' },
+      { title: 'Visitantes e prestadores', description: 'Liberação por link, antes de chegar.' },
+      { title: 'Documentos e comunicados', description: 'Convenção, atas e avisos oficiais.' },
+    ],
+    rating: { score: '4,8', label: '1.133 avaliações na App Store e no Google Play' },
+    stores: {
+      appStore: 'https://apps.apple.com/br/app/semog-condom%C3%ADnios/id6504202916',
+      playStore: 'https://play.google.com/store/apps/details?id=br.com.semog',
+    },
+    cta: { label: 'Conhecer o app', href: '/aplicativo' },
   }
 
   const garanteBlock: Omit<GaranteBlock, 'id' | 'blockName'> = {
@@ -264,6 +331,9 @@ async function seedHome() {
     cta: { label: 'Solicitar proposta', href: '/proposta' },
     headingMaxWidth: '16ch',
     headingFontSize: 'clamp(2.4rem, 5.6vw, 4.6rem)',
+    // Segundo caminho pra quem não quer preencher formulário — mesmo número
+    // usado no site inteiro (ver `WHATSAPP_URL` no topo do arquivo).
+    secondaryCta: { label: 'Falar no WhatsApp', href: WHATSAPP_URL },
   }
 
   const layout = [
@@ -274,6 +344,7 @@ async function seedHome() {
     pillarsBlock,
     solucoesBentoBlock,
     produtosGridBlock,
+    appShowcaseBlock,
     garanteBlock,
     citiesBlock,
     humanQuoteBlock,
