@@ -1,4 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
 import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 import path from 'path'
@@ -267,7 +266,7 @@ const nextConfig: NextConfig = {
 // about the missing token instead of failing the build). This keeps
 // `pnpm build` green with an empty Sentry env, which is the state until a
 // DSN + auth token are provisioned.
-export default withSentryConfig(withPayload(nextConfig, { devBundleServerPackages: false }), {
+export default withSentryConfig(nextConfig, {
   silent: true,
   widenClientFileUpload: false,
   disableLogger: true,
