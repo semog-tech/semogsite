@@ -92,4 +92,16 @@ test.describe('Vídeo de fundo do hero', () => {
 
     expect(urls.size).toBeLessThanOrEqual(1)
   })
+
+  test('pode pausar e retomar o vídeo de fundo', async ({ page }) => {
+    await page.goto('http://localhost:3000/')
+    const button = page.getByRole('button', { name: /pausar vídeo de fundo/i })
+    await expect(button).toBeVisible()
+
+    await button.click()
+    await expect(page.getByRole('button', { name: /retomar vídeo de fundo/i })).toBeVisible()
+
+    const isPaused = await page.locator('section video').first().evaluate((v: HTMLVideoElement) => v.paused)
+    expect(isPaused).toBe(true)
+  })
 })

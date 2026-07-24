@@ -52,7 +52,10 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
   // (o efeito usa só `seq.length` deles) — ficam inertes, sem custo de rede.
   const refs = useRef<(HTMLVideoElement | null)[]>([])
   const [paused, setPaused] = useState(false)
-  // ^ ainda sem uso aqui — a Task 4 liga um botão de pausa a este estado.
+  // Vira `true` só dentro do `onClick` do botão — nunca no efeito que lê este
+  // valor (veja o efeito abaixo). É o que impede aquele efeito de agir no
+  // mount, mesmo sob Strict Mode (que invoca o efeito 2x de propósito).
+  const userToggledPause = useRef(false)
 
   useEffect(() => {
     // `matchMedia` só existe no cliente; o efeito já não roda no servidor.
@@ -138,24 +141,85 @@ export function VideoSequenceBackground({ videos, poster, className }: Props) {
     }
   }, [videos])
 
+  // Aplica o estado de pausa a TODOS os elementos (não só o ativo): pausar
+  // tem que parar o visível de imediato, e como está num efeito separado do
+  // sequenciador acima, não sabe com certeza se algum outro já ficou tocando
+  // por trás de um crossfade em andamento. Retomar, ao contrário, só o
+  // elemento hoje visível (`style.opacity !== '0'`, escrito pelo efeito do
+  // sequenciador) — os demais estão em opacity 0 (crossfade ainda não
+  // chegou neles, ou — no mobile — nunca recebem `src`) e devem seguir
+  // pausados; chamar `.play()` neles tocaria vídeo invisível ou, no caso do
+  // mobile, um elemento sem `src`. Efeito separado do principal por design:
+  // religar `[videos]` como dependência reiniciaria toda a sequência (troca
+  // de `src`, zera `currentTime`) a cada clique no botão.
+  //
+  // O `if (!userToggledPause.current) return` no topo é a correção de uma
+  // regressão medida (mesmo teste de CDP `Network.dataReceived` do efeito
+  // acima, ~400-500KB a mais): sem ele, este efeito roda também no mount
+  // (`paused` começa em `false`, e um efeito roda ao montar mesmo sem
+  // mudança de dependência) e cai no `else`, chamando `.play()` no elemento
+  // 0 ANTES do `canplay` — ou seja, antes do `readyState` avançar do
+  // `.load()` que o efeito do sequenciador acabou de disparar. Pela spec,
+  // `play()` num elemento com `networkState` ainda `NETWORK_EMPTY` também
+  // invoca o algoritmo de seleção de recurso — um segundo disparo, paralelo
+  // ao do `.load()` explícito, que soma bytes de faixas sobrepostas do
+  // clipe 0 e estoura o orçamento de 1.15x do teste acima. Não há esse risco
+  // depois do mount: a essa altura o clipe já está buffering (ou pausado de
+  // fato), então retomar com `.play()` é seguro.
+  useEffect(() => {
+    if (!userToggledPause.current) return
+    for (const v of refs.current) {
+      if (!v) continue
+      if (paused) v.pause()
+      else if (v.style.opacity !== '0') v.play().catch(() => {})
+    }
+  }, [paused])
+
   return (
-    <div className={className} aria-hidden="true">
-      {videos.map((_, i) => (
-        <video
-          // biome-ignore lint/suspicious/noArrayIndexKey: `videos` é estática por render.
-          key={i}
-          ref={(el) => {
-            refs.current[i] = el
-          }}
-          muted
-          playsInline
-          loop={i === 0}
-          preload="none"
-          poster={i === 0 ? poster : undefined}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ opacity: i === 0 ? 1 : 0 }}
-        />
-      ))}
-    </div>
+    <>
+      <div className={className} aria-hidden="true">
+        {videos.map((_, i) => (
+          <video
+            // biome-ignore lint/suspicious/noArrayIndexKey: `videos` é estática por render.
+            key={i}
+            ref={(el) => {
+              refs.current[i] = el
+            }}
+            muted
+            playsInline
+            loop={i === 0}
+            preload="none"
+            poster={i === 0 ? poster : undefined}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ opacity: i === 0 ? 1 : 0 }}
+          />
+        ))}
+      </div>
+      {/* Fora do `div aria-hidden` de propósito: é o controle exigido pela
+          WCAG 2.2.2 (parar movimento automático com mais de 5s) e, dentro do
+          container oculto a leitores de tela, ficaria inalcançável por
+          teclado/AT. Autoplay continua ligado — decisão do dono do site
+          registrada no cabeçalho deste arquivo; isto só abre a saída. */}
+      <button
+        type="button"
+        className="hero-video-pause liquid-glass"
+        onClick={() => {
+          userToggledPause.current = true
+          setPaused((v) => !v)
+        }}
+        aria-label={paused ? 'Retomar vídeo de fundo' : 'Pausar vídeo de fundo'}
+      >
+        {paused ? (
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+            <path d="M1 1.2v11.6a.5.5 0 00.77.42l9-5.8a.5.5 0 000-.84l-9-5.8A.5.5 0 001 1.2z" />
+          </svg>
+        ) : (
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor" aria-hidden="true">
+            <rect x="1" y="1" width="3.6" height="12" rx="1" />
+            <rect x="7.4" y="1" width="3.6" height="12" rx="1" />
+          </svg>
+        )}
+      </button>
+    </>
   )
 }
