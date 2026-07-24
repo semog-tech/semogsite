@@ -18,7 +18,7 @@ import { Pool, type QueryResultRow } from 'pg'
 const globalForPool = globalThis as unknown as { __cmsLeadsPool?: Pool }
 
 function createPool(): Pool {
-  return new Pool({
+  const newPool = new Pool({
     connectionString: process.env.DATABASE_URI,
     // Pool pequeno: mesma instância Supabase compartilhada com o Payload
     // (`max: 5` lá) — não competir por conexões do plano free/pequeno.
@@ -28,6 +28,20 @@ function createPool(): Pool {
     // SELF_SIGNED_CERT_IN_CHAIN (mesma config de `src/payload.config.ts`).
     ssl: { rejectUnauthorized: false },
   })
+
+  // A conexão passa pelo proxy HAProxy da VPS, que derruba conexões ociosas
+  // do backend por timeout. Quando isso acontece com um client ocioso do
+  // pool, o `pg` emite `'error'` no próprio `Pool` — e um `EventEmitter` sem
+  // listener pra `'error'` lança exceção não capturada (derrubaria a
+  // instância serverless / causaria 500 intermitente no caminho do form).
+  // Registrar aqui, uma única vez por instância do `Pool` (dentro de
+  // `createPool`, não a cada import do módulo), evita tanto o crash quanto
+  // listeners duplicados no reload de HMR (`MaxListenersExceededWarning`).
+  newPool.on('error', (err) => {
+    console.error('[db] erro em client ocioso do pool', err)
+  })
+
+  return newPool
 }
 
 /**

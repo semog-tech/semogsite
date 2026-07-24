@@ -19,17 +19,27 @@ import { query } from '@/lib/db'
  * Admin do Workspace pro client-id da SA). `CRON_SECRET` (Bearer). Roda
  * 1×/dia (vercel.json).
  *
- * Idempotência: a coluna `cms.leads.uploaded_to_ads` (default `false`) é a
- * fonte de verdade — o SELECT já filtra `uploaded_to_ads = false`, então um
- * lead nunca é considerado 2x, mesmo que o cron rode mais de uma vez no dia
- * ou que um lead antigo saia da janela e volte a entrar (não volta: a janela
- * só encolhe o universo, quem decide é a flag). A janela de `WINDOW_DAYS`
- * continua como cinto-e-suspensório (evita reprocessar todo o histórico se a
- * flag um dia for resetada por engano) e bate com o comportamento anterior.
- * A cada lead soltamos o UPDATE só **depois** da resposta do Google vir OK —
- * se o upload falhar (ou o cron cair no meio), o lead continua com
- * `uploaded_to_ads = false` e é retentado no próximo dia; nunca marcamos
- * antes de confirmar, pra nunca perder uma conversão silenciosamente.
+ * Idempotência: o backstop de verdade contra conversão duplicada é o
+ * `transactionId` (= `String(lead.id)`, estável entre retries) que vai em
+ * cada evento pra Data Manager API — o Google dedupe por esse campo, então
+ * mesmo que o mesmo lead seja enviado 2x (ex.: corrida entre execuções do
+ * cron), o Ads não conta a conversão duas vezes. A coluna
+ * `cms.leads.uploaded_to_ads` é só a otimização que evita reenviar o que já
+ * foi confirmado (o SELECT filtra `uploaded_to_ads = false`), reduzindo
+ * volume de chamadas — não é a única linha de defesa. A janela de
+ * `WINDOW_DAYS` continua como cinto-e-suspensório (evita reprocessar todo o
+ * histórico se a flag um dia for resetada por engano) e bate com o
+ * comportamento anterior. O UPDATE que marca os leads só roda **depois** da
+ * resposta do Google vir OK, e é um único `update ... where id = any($1)`
+ * (todos os ids do lote de uma vez, não um loop de UPDATEs sequenciais) —
+ * assim a marcação é tudo-ou-nada no banco: não há como o processo morrer no
+ * meio de N updates individuais e deixar alguns leads já enviados mas ainda
+ * `uploaded_to_ads = false` (o que os faria reaparecer no SELECT de amanhã e
+ * reenviar — o `transactionId` estável cobriria esse caso também, mas o
+ * update atômico evita depender só disso). Se o upload falhar (ou o cron
+ * cair antes do UPDATE), nenhum lead é marcado e todos são retentados no
+ * próximo dia; nunca marcamos antes de confirmar, pra nunca perder uma
+ * conversão silenciosamente.
  */
 
 export const runtime = 'nodejs'
@@ -131,10 +141,18 @@ export async function GET(req: Request): Promise<Response> {
     // status por evento individual (é uma chamada "tudo ou nada"), então uma
     // resposta OK cobre todos os leads deste lote; uma falha não marca
     // nenhum, e eles voltam a aparecer no SELECT de amanhã (retry natural).
+    // Um único UPDATE com `= any($1)` (não um loop de N UPDATEs) — se
+    // fizéssemos um por lead, uma exceção (ou a função morrendo) no meio do
+    // loop deixaria leads já enviados ao Google mas ainda com
+    // `uploaded_to_ads = false`, reentrando no SELECT de amanhã e sendo
+    // reenviados (double-count). Com `any($1::bigint[])` a marcação do lote
+    // inteiro é uma operação só no Postgres: ou marca todos, ou (se der erro)
+    // não marca nenhum — sem estado parcial.
     if (res.ok) {
-      for (const lead of leads) {
-        await query('update cms.leads set uploaded_to_ads = true where id = $1', [lead.id])
-      }
+      const uploadedIds = leads.map((lead) => lead.id)
+      await query('update cms.leads set uploaded_to_ads = true where id = any($1::bigint[])', [
+        uploadedIds,
+      ])
     }
 
     return NextResponse.json({

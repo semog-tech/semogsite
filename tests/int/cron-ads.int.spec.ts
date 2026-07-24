@@ -137,12 +137,15 @@ describe('cron upload-ads-conversions — lê cms.leads via pg (sem Payload)', (
     // eventTimestamp deriva do created_at do lead, não de Date.now().
     expect(body.events[0].eventTimestamp).toBe(new Date(leadComGclid.created_at).toISOString())
 
-    // UPDATE só depois do upload confirmado — 2ª chamada de `query`.
+    // UPDATE só depois do upload confirmado — 2ª chamada de `query`, uma
+    // única atualização em lote (`= any($1)`), não um UPDATE por lead.
     expect(queryMock).toHaveBeenCalledTimes(2)
     const [updateSql, updateParams] = queryMock.mock.calls[1] as [string, unknown[]]
     expect(updateSql).toMatch(/update cms\.leads/i)
     expect(updateSql).toMatch(/uploaded_to_ads\s*=\s*true/i)
-    expect(updateParams).toContain(leadComGclid.id)
+    expect(updateSql).toMatch(/where id = any\(\$1(::bigint\[\])?\)/i)
+    expect(updateParams).toHaveLength(1)
+    expect(updateParams[0]).toEqual([leadComGclid.id])
   })
 
   it('Google recusa o upload (res.ok=false): NÃO marca uploaded_to_ads (retry natural amanhã)', async () => {
@@ -161,18 +164,41 @@ describe('cron upload-ads-conversions — lê cms.leads via pg (sem Payload)', (
     expect(queryMock).toHaveBeenCalledTimes(1)
   })
 
-  it('múltiplos leads: cada um marcado individualmente após upload bem-sucedido', async () => {
+  it('múltiplos leads: um único UPDATE em lote (`= any($1)`) com todos os ids, não um por lead', async () => {
     const lead2 = { ...leadComGclid, id: '43', gclid: 'outro-gclid-fake' }
     queryMock.mockResolvedValueOnce({ rows: [leadComGclid, lead2] })
     queryMock.mockResolvedValue({ rows: [] })
 
     await GET(fakeRequest(ENV_VARS.CRON_SECRET))
 
-    // 1 SELECT + 2 UPDATEs (um por lead).
-    expect(queryMock).toHaveBeenCalledTimes(3)
-    const updatedIds = queryMock.mock.calls
-      .slice(1)
-      .map(([, params]) => (params as unknown[])[0] as string)
-    expect(updatedIds.sort()).toEqual([leadComGclid.id, lead2.id].sort())
+    // 1 SELECT + 1 único UPDATE atômico (não N UPDATEs sequenciais) — evita
+    // estado parcial se o processo morrer no meio de um loop de updates.
+    expect(queryMock).toHaveBeenCalledTimes(2)
+    const [updateSql, updateParams] = queryMock.mock.calls[1] as [string, unknown[]]
+    expect(updateSql).toMatch(/update cms\.leads/i)
+    expect(updateSql).toMatch(/where id = any\(\$1(::bigint\[\])?\)/i)
+    expect(updateParams).toHaveLength(1)
+    expect(updateParams[0]).toEqual([leadComGclid.id, lead2.id])
+  })
+
+  it('cenário de update parcial não é possível: a marcação é um único array-update, não N updates individuais que poderiam falhar no meio', async () => {
+    // Regressão do bug: um loop `for (lead of leads) await query(update ... id = $1)`
+    // permitiria a exceção da 2ª chamada deixar o 1º lead já enviado ao Google
+    // mas ainda com uploaded_to_ads=false — reentrando no SELECT de amanhã e
+    // sendo reenviado (double-count). Com o update em lote isso não é possível
+    // porque só existe UMA chamada de UPDATE pra todo o lote.
+    const lead2 = { ...leadComGclid, id: '43', gclid: 'outro-gclid-fake' }
+    queryMock.mockResolvedValueOnce({ rows: [leadComGclid, lead2] }) // SELECT
+    queryMock.mockRejectedValueOnce(new Error('conexão caiu no meio do UPDATE')) // UPDATE falha
+
+    const res = await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+    const json = (await res.json()) as { error: string }
+
+    // A rota nunca lança (contrato "never throws") — erro vira 500 com corpo,
+    // mas o ponto chave é que não existe uma 2ª/3ª chamada de UPDATE que
+    // pudesse ter marcado só parte do lote antes da falha.
+    expect(res.status).toBe(500)
+    expect(json.error).toContain('conexão caiu no meio do UPDATE')
+    expect(queryMock).toHaveBeenCalledTimes(2) // 1 SELECT + 1 UPDATE (que falhou) — nunca um 3º
   })
 })
