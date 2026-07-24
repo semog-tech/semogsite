@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
+import { getPageBySlug } from '@/lib/content'
 import { OG_CONTENT_TYPE, OG_SITE_NAME, OG_SIZE, OgCard } from '@/lib/og'
-import { getPageBySlug } from '@/lib/payload'
 
 export const alt = OG_SITE_NAME
 export const size = OG_SIZE
@@ -9,10 +9,11 @@ export const contentType = OG_CONTENT_TYPE
 /**
  * OG por-página, uma única rota que cobre qualquer `page` de slug único
  * (`solucoes`, `semog`, etc. — hoje nenhuma `page` usa slug com mais de um
- * segmento). Título via Local API (`meta.title` do plugin-seo > `title`
- * bruto), espelhando a prioridade de `buildMetadata` em `src/lib/seo.ts`.
- * Nunca lança — se o DB estiver fora do ar ou a page não existir, cai no
- * nome do site.
+ * segmento). Título via `getPageBySlug` (`@/lib/content`, índice estático de
+ * `content/pages`): `meta.title` > `title` bruto, espelhando a prioridade de
+ * `buildMetadata` em `src/lib/seo.ts`. Nunca lança — se a page não existir,
+ * cai no nome do site (o try/catch não tem mais I/O real por trás, mas
+ * mantém a mesma garantia defensiva de antes).
  *
  * Fica em `src/app/[slug]/opengraph-image.tsx` (raiz do App Router), não em
  * `src/app/(frontend)/[[...slug]]/opengraph-image.tsx` — por dois motivos:

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { Media } from '@/payload-types'
+import type { Media } from '@/types/media'
 
 const DEFAULT_SITE_URL = 'https://www.semog.com.br'
 const FALLBACK_TITLE = 'Semog Administradora de Condomínios'
@@ -11,11 +11,13 @@ const SOCIAL_PROFILES = [
 ]
 
 /**
- * Fonte de uma imagem de SEO: o `Media` populado do Payload (posts, ainda no
- * Payload até a Fase 2), o id numérico não-resolvido (depth 0, ignorado por
- * `resolveImageSource`) ou uma URL pronta (string) — o formato das páginas
+ * Fonte de uma imagem de SEO: o `Media` resolvido (`@/types/media` — mesmo
+ * shape usado por `heroImage` dos posts, `src/lib/blog.ts`), o id numérico
+ * não-resolvido (herança do depth 0 do Payload, ignorado por
+ * `resolveImageSource` — mantido só por compatibilidade retroativa, nada mais
+ * produz esse formato) ou uma URL pronta (string) — o formato das páginas
  * estáticas (`PageData.meta.image`/`SiteConfig.ogImage`, ver `@/types/content`
- * e `content/site.ts`), que não têm mais um doc `Media` do CMS pra resolver.
+ * e `content/site.ts`).
  */
 type ImageSource = (number | null) | Media | string
 
@@ -38,9 +40,9 @@ export interface SeoDoc {
 
 /**
  * Forma mínima do global de configurações do site que `buildMetadata` lê
- * (título/descrição/OG padrão) — compatível tanto com o `SiteSettings` do
- * Payload (posts, via `src/lib/payload.ts`) quanto com o `SiteConfig` estático
- * das páginas (`content/site.ts`, Fase 1), sem depender de nenhum dos dois.
+ * (título/descrição/OG padrão) — compatível com o `SiteConfig` estático
+ * (`content/site.ts`, Fase 1, via `getSiteSettings` de `@/lib/content`), sem
+ * depender do tipo concreto.
  */
 export interface SeoSettings {
   defaultTitle?: string | null

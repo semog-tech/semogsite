@@ -1,8 +1,8 @@
 'use client'
 import { usePathname } from 'next/navigation'
+import type { FooterConfig } from '@/../content/site'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
-import type { Footer } from '@/payload-types'
 
 /** Blurb fixo da marca (semog.css: `.footer-brand p`) — texto de `_reference/index.html`. */
 const BRAND_BLURB =
@@ -10,9 +10,9 @@ const BRAND_BLURB =
 
 const LEGAL_PATHS = new Set(['/privacidade', '/termos'])
 
-type Column = NonNullable<Footer['columns']>[number]
-type LegalLink = NonNullable<Footer['legalLinks']>[number]
-type FootCta = NonNullable<Footer['footCta']>
+type Column = FooterConfig['columns'][number]
+type LegalLink = FooterConfig['legalLinks'][number]
+type FootCta = FooterConfig['footCta']
 
 /**
  * Ilha client só pra decidir a variante do rodapé pelo pathname — mesmo

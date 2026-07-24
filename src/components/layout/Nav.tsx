@@ -1,10 +1,10 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import type { HeaderConfig } from '@/../content/site'
 import { Button } from '@/components/ui/Button'
-import type { Header } from '@/payload-types'
 
-type NavItem = NonNullable<Header['navItems']>[number]
+type NavItem = HeaderConfig['navItems'][number]
 type Cta = { label?: string | null; href?: string | null }
 type ClientArea = { label?: string | null; href?: string | null }
 
