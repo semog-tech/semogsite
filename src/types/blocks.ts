@@ -527,6 +527,84 @@ export interface AppShowcaseBlock {
 }
 
 // ---------------------------------------------------------------------------
+// AppHero
+// ---------------------------------------------------------------------------
+
+export interface AppHeroBlock {
+  blockType: 'appHero'
+  id?: string | number | null
+  blockName?: string | null
+  eyebrow?: string | null
+  headline: string
+  lead?: string | null
+  /** Nota pública nas lojas. Só preencher enquanto bater com App Store e Google Play. */
+  rating?: {
+    /** Ex.: "4,8" */
+    score?: string | null
+    label?: string | null
+  }
+  stores?: {
+    appStore?: string | null
+    playStore?: string | null
+  }
+  /** Linha pequena abaixo dos selos (ex.: "Grátis para o morador."). */
+  footnote?: string | null
+  /** Telas do app. Com duas, aparecem sobrepostas com rotação leve (`.app-screens`, igual ao `appShowcase`). Máx. 2. */
+  screens?:
+    | {
+        image: Media
+        id?: string | null
+      }[]
+    | null
+}
+
+// ---------------------------------------------------------------------------
+// LearnCenter
+// ---------------------------------------------------------------------------
+
+export interface LearnCenterBlock {
+  blockType: 'learnCenter'
+  id?: string | number | null
+  blockName?: string | null
+  eyebrow?: string | null
+  title: string
+  lead?: string | null
+  /** Sem `videoUrl`, o card aparece inativo (vídeo ainda não gravado). */
+  videos?:
+    | {
+        title: string
+        text?: string | null
+        /** Ex.: "1:40" */
+        duration?: string | null
+        videoUrl?: string | null
+        id?: string | null
+      }[]
+    | null
+  guides?:
+    | {
+        title: string
+        steps: {
+          text: string
+          id?: string | null
+        }[]
+        /** Ressalva ao fim do guia. */
+        note?: string | null
+        id?: string | null
+      }[]
+    | null
+  materials?:
+    | {
+        /** Ex.: "PDF A3", "Texto" */
+        kind?: string | null
+        title: string
+        text?: string | null
+        file?: Media | null
+        id?: string | null
+      }[]
+    | null
+}
+
+// ---------------------------------------------------------------------------
 // Testimonials
 // ---------------------------------------------------------------------------
 
@@ -592,9 +670,10 @@ export interface CTABandBlock {
   blockType: 'ctaBand'
   id?: string | number | null
   blockName?: string | null
-  variant?: ('band' | 'centered') | null
+  /** `dual` = dois caminhos lado a lado (ver `paths`), usada em `/aplicativo`. Sem `paths` preenchido, se comporta como `centered`. */
+  variant?: ('band' | 'centered' | 'dual') | null
   title: string
-  /** Trecho final de `title` a destacar em gradiente. Só no variant `centered`. */
+  /** Trecho final de `title` a destacar em gradiente. Só no variant `centered`/`dual`. */
   titleAccent?: string | null
   text?: string | null
   cta: {
@@ -612,6 +691,18 @@ export interface CTABandBlock {
   headingMaxWidth?: string | null
   /** Só no variant `centered`. `font-size` do `.final-cta h2`. Vazio = tamanho padrão de `h2`. */
   headingFontSize?: string | null
+  /** Só no variant `dual`, máximo 2. Dois públicos apresentados como iguais, cada um com seu CTA. Vazio = cai no comportamento `centered`. */
+  paths?:
+    | {
+        title: string
+        text?: string | null
+        cta?: {
+          label?: string | null
+          href?: string | null
+        }
+        id?: string | null
+      }[]
+    | null
 }
 
 // ---------------------------------------------------------------------------
@@ -1013,7 +1104,9 @@ export interface LegalHeroBlock {
 }
 
 // ---------------------------------------------------------------------------
-// Union — todos os 41 blocos (mesma ordem do `layout` de `Page` em payload-types.ts)
+// Union — todos os 43 blocos (mesma ordem do `layout` de `Page` em payload-types.ts;
+// `appHero`/`learnCenter` entraram depois, na página `/aplicativo`, por isso ficam
+// logo após `appShowcase` em vez de no fim)
 // ---------------------------------------------------------------------------
 
 export type Block =
@@ -1036,6 +1129,8 @@ export type Block =
   | SociosBlock
   | RegistrosBlock
   | AppShowcaseBlock
+  | AppHeroBlock
+  | LearnCenterBlock
   | TestimonialsBlock
   | FaqBlock
   | CTABandBlock

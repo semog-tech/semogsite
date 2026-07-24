@@ -1,5 +1,6 @@
 import type React from 'react'
 import type { Block } from '@/types/blocks'
+import { AppHeroBlock } from './AppHero/Component'
 import { AppShowcaseBlock } from './AppShowcase/Component'
 import { BairrosBlock } from './Bairros/Component'
 import { BenefitsBlock } from './Benefits/Component'
@@ -18,6 +19,7 @@ import { FormEmbedBlock } from './FormEmbed/Component'
 import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
+import { LearnCenterBlock } from './LearnCenter/Component'
 import { LegalHeroBlock } from './LegalHero/Component'
 import { NewsletterBlock } from './Newsletter/Component'
 import { PartnerSplitBlock } from './PartnerSplit/Component'
@@ -63,6 +65,8 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   socios: SociosBlock,
   registros: RegistrosBlock,
   appShowcase: AppShowcaseBlock,
+  appHero: AppHeroBlock,
+  learnCenter: LearnCenterBlock,
   testimonials: TestimonialsBlock,
   faq: FaqBlock,
   ctaBand: CTABandBlock,

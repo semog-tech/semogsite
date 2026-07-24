@@ -49,6 +49,14 @@ function CenteredTitle({
  *   só porta o genérico; `headingMaxWidth`/`headingFontSize` (campos do
  *   bloco, ver `CTABand/config.ts`) entram via `style` no `h2` pras 2
  *   páginas com números próprios.
+ * - `dual` — CTA final de `/aplicativo`: dois públicos (síndico/morador)
+ *   apresentados como iguais, cada um com seu card e seu CTA (`paths`, no
+ *   máx. 2). Reusa o mesmo `<section className="final-cta">` do `centered`
+ *   (mesmo glow radial de fundo) e só acrescenta `.final-cta-dual` com os
+ *   cards. Sem `paths` preenchido não tem o que mostrar de diferente do
+ *   `centered`, então cai nele — é por isso que o `if` abaixo testa
+ *   `paths.length > 0` antes de desviar pro branch dedicado, e o branch
+ *   seguinte aceita `'centered' || 'dual'`.
  */
 export function CTABandBlock({
   title,
@@ -60,8 +68,45 @@ export function CTABandBlock({
   buttonVariant,
   headingMaxWidth,
   headingFontSize,
+  paths,
 }: CTABandBlockType) {
-  if (variant === 'centered') {
+  if (variant === 'dual' && paths && paths.length > 0) {
+    return (
+      <section className="final-cta">
+        <Container className="relative z-[2]">
+          <CenteredTitle title={title} accent={titleAccent} />
+          {text && (
+            <Reveal as="p" delay={0.1}>
+              {text}
+            </Reveal>
+          )}
+          <div className="final-cta-dual">
+            {paths.map((p, i) => (
+              <Reveal key={p.id ?? p.title} delay={0.2 + i * 0.08}>
+                <div className="final-cta-path">
+                  <h3>{p.title}</h3>
+                  {p.text && <p>{p.text}</p>}
+                  {p.cta?.label && p.cta.href && (
+                    <Button
+                      href={p.cta.href}
+                      variant={i === 0 ? 'white' : 'glass'}
+                      size="lg"
+                      withArrow
+                      magnetic={i === 0}
+                    >
+                      {p.cta.label}
+                    </Button>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
+    )
+  }
+
+  if (variant === 'centered' || variant === 'dual') {
     const headingStyle: CSSProperties | undefined =
       headingMaxWidth || headingFontSize
         ? { maxWidth: headingMaxWidth || undefined, fontSize: headingFontSize || undefined }
