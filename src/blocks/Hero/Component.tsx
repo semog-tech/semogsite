@@ -32,6 +32,37 @@ const VIDEO_SEQUENCE_OVERLAY =
   'linear-gradient(180deg, rgba(5,8,26,0.30) 0%, rgba(5,8,26,0.24) 42%, rgba(5,8,26,0.74) 100%)'
 
 /**
+ * Faixa de prova no rodapé do hero. Colada na borda inferior da `Section`,
+ * acima do scrim, com fundo escuro translúcido para os números ficarem
+ * legíveis sobre qualquer frame do vídeo. Substitui a `.hero-tagbox` na home:
+ * as duas ocupavam o mesmo canto, e quatro números verificáveis valem mais
+ * acima da dobra que três substantivos.
+ */
+function ProofBar({ items }: { items: NonNullable<HeroBlockType['proofItems']> }) {
+  return (
+    <div className="hero-proof relative z-[3]">
+      <Container>
+        <div className="hero-proof-grid">
+          {items.map((item) => (
+            <div key={item.id ?? item.label} className="hero-proof-item">
+              <span className="hero-proof-n">
+                {item.stars && (
+                  <span className="hero-proof-stars" aria-hidden="true">
+                    ★★★★★
+                  </span>
+                )}
+                {item.value}
+              </span>
+              <span className="hero-proof-l">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </div>
+  )
+}
+
+/**
  * Clipes drone das filiais/matriz para `background: 'videoSequence'`, servidos
  * de `public/hero/`. Ordem = matriz primeiro (Recife), depois as filiais.
  */
@@ -60,6 +91,12 @@ const HERO_POSTER = '/hero/poster.webp'
  * `.hero-grid` de 2 colunas e a coluna direita (`.hero-tagcol`) recebe o chip
  * de vidro `.hero-tagbox` (fade 1400ms, como `_reference/index.html:505-506`).
  * Sem `tag`, o layout permanece de 1 coluna (comportamento anterior).
+ *
+ * `proofItems` (a faixa de prova — nota do app, nº de condomínios etc.)
+ * disputa o mesmo canto que `tag`: com a faixa preenchida, a `.hero-tagbox`
+ * some (quatro números verificáveis valem mais que três substantivos) e a
+ * `ProofBar` renderiza colada no rodapé da `Section`, acima do scrim. Sem
+ * `proofItems`, `tag` continua funcionando como antes.
  *
  * `priceChip` (só com `video`) reproduz o hero `.g-hero`/`.g-price` de
  * `_reference/garante.html:59-104` (estilo inline da própria página): liga a
@@ -114,6 +151,7 @@ export function HeroBlock({
   headline,
   subhead,
   tag,
+  proofItems,
   video,
   poster,
   background,
@@ -176,6 +214,11 @@ export function HeroBlock({
   )
 
   const hasPriceChip = !!videoUrl && !!priceChip?.value
+
+  // A faixa de prova e a tagbox disputam o mesmo canto do hero; com prova
+  // preenchida, a tagbox sai.
+  const proof = proofItems && proofItems.length > 0 ? proofItems : null
+  const showTag = !proof && !!tag
 
   return (
     <Section
@@ -271,7 +314,7 @@ export function HeroBlock({
               {priceChip?.label && <small>{priceChip.label}</small>}
             </Fade>
           </div>
-        ) : tag ? (
+        ) : showTag ? (
           <div className="hero-grid">
             <div>{subheadAndCtas}</div>
             <div className="hero-tagcol">
@@ -284,6 +327,7 @@ export function HeroBlock({
           subheadAndCtas
         )}
       </Container>
+      {proof && <ProofBar items={proof} />}
     </Section>
   )
 }

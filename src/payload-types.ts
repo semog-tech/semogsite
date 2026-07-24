@@ -262,6 +262,23 @@ export interface HeroBlock {
    * Coluna de vidro à direita do hero (`.hero-tagbox`), ex.: "Condomínios. Métricas. Organização." Opcional — sem valor, o layout fica de 1 coluna como antes.
    */
   tag?: string | null;
+  /**
+   * Faixa de prova colada no rodapé do hero (ex.: nota do app, nº de condomínios). Vazio = não renderiza. Quando preenchida, substitui a `tag` — as duas ocupam o mesmo canto.
+   */
+  proofItems?:
+    | {
+        /**
+         * Ex.: "4,8", "+650"
+         */
+        value: string;
+        label: string;
+        /**
+         * Mostra 5 estrelas antes do valor (só faz sentido em nota).
+         */
+        stars?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   video?: (number | null) | Media;
   poster?: (number | null) | Media;
   /**
@@ -1737,6 +1754,14 @@ export interface HeroBlockSelect<T extends boolean = true> {
   headline?: T;
   subhead?: T;
   tag?: T;
+  proofItems?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        stars?: T;
+        id?: T;
+      };
   video?: T;
   poster?: T;
   background?: T;

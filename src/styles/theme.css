@@ -397,6 +397,69 @@
     }
   }
 
+  /* Faixa de prova do hero — quatro números colados no rodapé da seção,
+     sobre o vídeo. Fundo escuro translúcido porque o frame por baixo varia
+     e os números precisam de contraste em qualquer um deles. Ocupa o mesmo
+     canto que `.hero-tagbox` acima (nunca aparecem juntas — ver `showTag`
+     em `Hero/Component.tsx`). */
+  .hero-proof {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    background: rgba(5, 8, 26, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .hero-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .hero-proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1.35rem 1.6rem;
+    border-left: 1px solid var(--line);
+  }
+  .hero-proof-item:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .hero-proof-n {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Estrelas na cor de acento da marca (`--color-ice-400`), não um dourado
+     literal: a paleta é navy/ice/silver e não tem token de "gold" — usar um
+     hex fora do @theme quebraria a disciplina de tokens só por causa de um
+     convencionalismo (★ dourada) que não é obrigatório fora dele. */
+  .hero-proof-stars {
+    color: var(--color-ice-400);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+  }
+  .hero-proof-l {
+    font-size: 0.78rem;
+    color: var(--text-3);
+  }
+  @media (max-width: 820px) {
+    .hero-proof-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-proof-item:nth-child(3) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .hero-proof-item:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
   /* ---------- Hero de vídeo com chip "1%" (.g-hero / .g-price) — fiel a
      `_reference/garante.html:59-104` (estilo inline da própria página)
      ----------
