@@ -23,6 +23,7 @@ export function CitiesBlock({ eyebrow, title, items }: CitiesBlockType) {
       city: item.city,
       uf: item.uf,
       role: item.role,
+      href: item.href,
       image: item.image as Media,
     }))
 

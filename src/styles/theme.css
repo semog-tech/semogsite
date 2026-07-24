@@ -1463,10 +1463,11 @@
     transition: flex 0.85s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     min-width: 0;
-    /* reset do UA stylesheet — `.city-panel` agora é um <button> nativo
-       (a11y, Task 8), não mais o `<a>` do ref. */
+    /* reset do UA stylesheet — o painel é <a> (quando tem página da unidade)
+       ou <button> nativo (a11y, Task 8). */
     display: block;
     width: 100%;
+    text-decoration: none;
     padding: 0;
     background: none;
     text-align: left;
@@ -1536,14 +1537,28 @@
       opacity 0.5s ease 0.22s,
       transform 0.5s ease 0.22s;
   }
+  /* Dica de que o painel leva pra página da unidade — só no painel aberto,
+     pra não poluir os fechados (que ficam com ~1 linha visível). */
+  .city-panel .go {
+    margin-top: 0.6rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.5s ease 0.28s,
+      transform 0.5s ease 0.28s;
+  }
   .city-panel.is-open .role,
-  .city-panel.is-open .uf {
+  .city-panel.is-open .uf,
+  .city-panel.is-open .go {
     opacity: 1;
     transform: none;
   }
-  .city-panel.hq {
-    outline: 1px solid rgba(173, 213, 235, 0.35);
-    outline-offset: -1px;
+  .city-panel.is-open:hover .go,
+  .city-panel.is-open:focus-visible .go {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   /* Painéis de cidade ficam sobre foto escura — texto sempre claro,
      independente da seção (`Cities` usa `Section light`), fiel a
@@ -1554,7 +1569,8 @@
   .city-panel .uf {
     color: #c5cde4 !important;
   }
-  .city-panel .role {
+  .city-panel .role,
+  .city-panel .go {
     color: var(--color-ice-400) !important;
   }
   @media (max-width: 860px) {

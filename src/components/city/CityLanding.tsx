@@ -494,7 +494,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
               style={{ color: '#3b54be' }}
             >
-              {data.city} · {data.role}
+              Unidade {data.city}
             </p>
             <h2
               className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
@@ -535,7 +535,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
             >
               <div>
                 <div className="text-[0.78rem]" style={{ color: '#6a7396' }}>
-                  Unidade {data.city}
+                  Endereço
                 </div>
                 <div className="text-[0.98rem] font-medium" style={{ color: INK }}>
                   {data.unit.address}

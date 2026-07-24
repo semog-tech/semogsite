@@ -279,7 +279,7 @@ export const solucoes: PageData = {
         {
           question: 'Em quais cidades a Semog atua?',
           answer:
-            'Matriz em Recife (PE) e filiais em João Pessoa (PB), Campina Grande (PB) e Belém (PA), com equipes locais em cada unidade.',
+            'Unidades em Recife (PE), João Pessoa (PB), Campina Grande (PB) e Belém (PA), com equipe local em cada cidade.',
         },
         {
           question: 'Como migrar meu condomínio para a Semog?',

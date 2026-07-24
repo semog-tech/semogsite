@@ -14,7 +14,6 @@ export type CityLandingData = {
   city: string
   uf: string
   ufFull: string
-  role: 'Matriz' | 'Filial'
   /** Foto aérea em `public/cities/<slug-curto>.jpg`. */
   image: string
   heroSubhead: string
@@ -69,12 +68,11 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Recife',
     uf: 'PE',
     ufFull: 'Pernambuco',
-    role: 'Matriz',
     image: '/cities/recife.jpg',
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
     localContext:
-      'Capital pernambucana e maior economia do Norte-Nordeste, o Recife concentra uma verticalização intensa — de Boa Viagem à orla, passando por Casa Forte, Graças e Espinheiro — onde a boa gestão condominial faz diferença real no valor do imóvel. É aqui que nascem os 35 anos da Semog: como matriz, reunimos financeiro, jurídico e contábil próprios e a tecnologia que hoje atende todo o Nordeste e o Norte. Do prédio na praia ao condomínio de bairro, a administração é conduzida por quem conhece o mercado imobiliário do Recife de perto.',
+      'Capital pernambucana e maior economia do Norte-Nordeste, o Recife concentra uma verticalização intensa — de Boa Viagem à orla, passando por Casa Forte, Graças e Espinheiro — onde a boa gestão condominial faz diferença real no valor do imóvel. É aqui que nascem os 35 anos da Semog: a unidade do Recife reúne financeiro, jurídico e contábil próprios e a tecnologia que hoje atende todo o Nordeste e o Norte. Do prédio na praia ao condomínio de bairro, a administração é conduzida por quem conhece o mercado imobiliário do Recife de perto.',
     coverageText:
       'Da Região Metropolitana do Recife ao interior de Pernambuco, sua gestão é local de ponta a ponta. Presença especialmente forte em:',
     neighborhoods: [
@@ -124,7 +122,6 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'João Pessoa',
     uf: 'PB',
     ufFull: 'Paraíba',
-    role: 'Filial',
     image: '/cities/joao-pessoa.jpg',
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
@@ -179,7 +176,6 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Campina Grande',
     uf: 'PB',
     ufFull: 'Paraíba',
-    role: 'Filial',
     image: '/cities/campina-grande.jpg',
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
@@ -234,7 +230,6 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Belém',
     uf: 'PA',
     ufFull: 'Pará',
-    role: 'Filial',
     image: '/cities/belem.jpg',
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',

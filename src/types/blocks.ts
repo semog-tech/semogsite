@@ -350,6 +350,8 @@ export interface CitiesBlock {
         city: string
         uf: string
         role?: string | null
+        /** Página da unidade; com ela o painel inteiro vira link. */
+        href?: string | null
         image?: (number | null) | Media
         id?: string | null
       }[]

@@ -215,15 +215,34 @@ export const home: PageData = {
       eyebrow: 'Presença',
       title: 'Do Nordeste ao Norte, perto de você.',
       items: [
-        { city: 'Recife', uf: 'Pernambuco', role: 'Matriz', image: img('recife.webp') },
-        { city: 'João Pessoa', uf: 'Paraíba', role: 'Filial', image: img('joao-pessoa.webp') },
+        {
+          city: 'Recife',
+          uf: 'Pernambuco',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-recife',
+          image: img('recife.webp'),
+        },
+        {
+          city: 'João Pessoa',
+          uf: 'Paraíba',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-joao-pessoa',
+          image: img('joao-pessoa.webp'),
+        },
         {
           city: 'Campina Grande',
           uf: 'Paraíba',
-          role: 'Filial',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-campina-grande',
           image: img('campina-grande.webp'),
         },
-        { city: 'Belém', uf: 'Pará', role: 'Filial', image: img('belem.webp') },
+        {
+          city: 'Belém',
+          uf: 'Pará',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-belem',
+          image: img('belem.webp'),
+        },
       ],
     },
     {

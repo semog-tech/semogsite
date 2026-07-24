@@ -133,7 +133,7 @@ const footer: FooterConfig = {
     {
       title: 'Onde estamos',
       links: [
-        { label: 'Recife · Matriz', href: '/administradora-de-condominios-recife' },
+        { label: 'Recife', href: '/administradora-de-condominios-recife' },
         { label: 'João Pessoa', href: '/administradora-de-condominios-joao-pessoa' },
         { label: 'Campina Grande', href: '/administradora-de-condominios-campina-grande' },
         { label: 'Belém', href: '/administradora-de-condominios-belem' },

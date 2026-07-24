@@ -87,12 +87,12 @@ export const semog: PageData = {
         {
           date: '2010',
           title: 'Expansão pela Paraíba',
-          text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e a mesma governança da matriz.',
+          text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e o mesmo padrão de governança.',
         },
         {
           date: '2018',
           title: 'Norte no mapa',
-          text: 'A filial de Belém do Pará leva o método Semog para além do Nordeste.',
+          text: 'A unidade de Belém do Pará leva o método Semog para além do Nordeste.',
         },
         {
           date: '2019',
