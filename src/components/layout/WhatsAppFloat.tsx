@@ -1,29 +1,12 @@
-import { getPayloadClient } from '@/lib/payload'
-
-/**
- * Número da matriz (Recife) do botão flutuante em `_reference/index.html` —
- * usado quando o global `company` está vazio ou inacessível (rota sem banco).
- */
-const FALLBACK_WHATSAPP = '5581999999999'
-
-async function getWhatsapp(): Promise<string> {
-  try {
-    const payload = await getPayloadClient()
-    const company = await payload.findGlobal({ slug: 'company' })
-    return company?.whatsapp || FALLBACK_WHATSAPP
-  } catch {
-    // Sem banco de dados (ex.: rota /styleguide sem .env) — segue com o fallback.
-    return FALLBACK_WHATSAPP
-  }
-}
+import { site } from '@/../content/site'
 
 /**
  * Botão flutuante do WhatsApp (semog.css:467-478), fiel ao markup de
- * `_reference/index.html`. O número é editável via global `company` (campo
- * `whatsapp`) — nunca hardcoded no componente.
+ * `_reference/index.html`. O número vem do global `company` de
+ * `content/site.ts` (Fase 2 — fora do CMS, sem `findGlobal`/banco).
  */
 export async function WhatsAppFloat() {
-  const whatsapp = await getWhatsapp()
+  const { whatsapp } = site.company
 
   return (
     <a className="wa-float" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener">
