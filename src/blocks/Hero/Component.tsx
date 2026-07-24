@@ -42,6 +42,9 @@ const HERO_SEQUENCE = [
   '/hero/belem.mp4',
 ]
 
+/** Primeiro frame de `recife.mp4`, para o hero não abrir preto. */
+const HERO_POSTER = '/hero/poster.webp'
+
 /**
  * Fiel a `.hero`/`.hero-video`/`.hero-layout` de `_reference/index.html`:
  * `Section` full-bleed (padding-block zerado via `!py-0`, já que o próprio
@@ -186,7 +189,11 @@ export function HeroBlock({
       {isGradient ? (
         <GradientBackground className="absolute inset-0 z-[1]" />
       ) : isVideoSequence ? (
-        <VideoSequenceBackground className="absolute inset-0 z-[1]" videos={HERO_SEQUENCE} />
+        <VideoSequenceBackground
+          className="absolute inset-0 z-[1]"
+          videos={HERO_SEQUENCE}
+          poster={HERO_POSTER}
+        />
       ) : videoUrl ? (
         <video
           autoPlay

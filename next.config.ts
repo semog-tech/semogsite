@@ -102,6 +102,14 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: csp },
         ],
       },
+      {
+        // O Next serve /public com `public, max-age=0, must-revalidate`, o que
+        // faz o browser revalidar cada clipe a cada volta do ciclo do hero e
+        // rebaixar o arquivo inteiro. Os clipes são estáticos e versionados
+        // pelo nome — cache longo é seguro e corta o re-download.
+        source: '/hero/:file*.mp4',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
   },
   async redirects() {
