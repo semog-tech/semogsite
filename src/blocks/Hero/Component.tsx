@@ -32,15 +32,18 @@ const VIDEO_SEQUENCE_OVERLAY =
   'linear-gradient(180deg, rgba(5,8,26,0.30) 0%, rgba(5,8,26,0.24) 42%, rgba(5,8,26,0.74) 100%)'
 
 /**
- * Faixa de prova no rodapé do hero. Colada na borda inferior da `Section`,
- * acima do scrim, com fundo escuro translúcido para os números ficarem
- * legíveis sobre qualquer frame do vídeo. Substitui a `.hero-tagbox` na home:
- * as duas ocupavam o mesmo canto, e quatro números verificáveis valem mais
- * acima da dobra que três substantivos.
+ * Faixa de prova no rodapé do hero. Renderiza como o último item do wrapper
+ * flex-column (ver comentário acima do `Container`, mais abaixo) — não com
+ * `position: absolute`, que sobreporia subhead/CTAs em vez de lhes tomar
+ * espaço; sendo um item de flex normal, ela sempre fica colada embaixo sem
+ * cobrir nada. Fundo escuro translúcido pros números ficarem legíveis sobre
+ * qualquer frame do vídeo. Substitui a `.hero-tagbox` na home: as duas
+ * ocupavam o mesmo canto, e quatro números verificáveis valem mais acima da
+ * dobra que três substantivos.
  */
 function ProofBar({ items }: { items: NonNullable<HeroBlockType['proofItems']> }) {
   return (
-    <div className="hero-proof relative z-[3]">
+    <div className="hero-proof">
       <Container>
         <div className="hero-proof-grid">
           {items.map((item) => (
@@ -281,53 +284,69 @@ export function HeroBlock({
           style={{ background: gradient }}
         />
       )}
-      <Container
-        className={`relative z-[3] flex flex-col justify-end pt-[110px] ${
-          isPageHero ? '' : 'pb-[clamp(3rem,5vw,4.5rem)]'
-        }`}
-        style={{
-          minHeight: isPageHero ? minHeight : '100dvh',
-          ...(isPageHero ? { paddingBottom } : {}),
-        }}
+      {/*
+        Wrapper flex-column local ao Hero (não é o `Container` da UI, que só
+        cuida de max-width/gutter) — o `min-height` que antes vivia direto no
+        `Container` sobe pra cá, e o `Container` vira `flex-1` (ocupa o
+        espaço que sobrar). Sem isso, uma `ProofBar` teria que disputar
+        altura via `position: absolute`, sobrepondo subhead/CTAs em vez de
+        empurrá-los pra cima — no grid de 2 colunas do mobile (`@media
+        max-width:820px` em `theme.css`), a faixa fica mais alta e SEM esse
+        wrapper ela cobriria o botão. Com `flex-1`, o conteúdo sempre recebe
+        exatamente o espaço que sobra acima da faixa, em qualquer tamanho.
+        Sem `proofItems`, o wrapper tem um único filho (`Container` com
+        `flex-1`) e o resultado é idêntico ao layout anterior (`Container`
+        ocupava `min-height` inteiro sozinho).
+      */}
+      <div
+        className="relative z-[3] flex flex-col"
+        style={{ minHeight: isPageHero ? minHeight : '100dvh' }}
       >
-        {eyebrow && (
-          <Fade delay={600}>
-            <Eyebrow>{eyebrow}</Eyebrow>
-          </Fade>
-        )}
-        <Chars
-          as="h1"
-          className={
-            hasPriceChip
-              ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-normal [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
-              : 'mb-[1.4rem] text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-normal [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
-          }
-          style={pageHeroHeadlineMaxWidth ? { maxWidth: pageHeroHeadlineMaxWidth } : undefined}
+        <Container
+          className={`flex flex-1 flex-col justify-end pt-[110px] ${
+            isPageHero ? '' : 'pb-[clamp(3rem,5vw,4.5rem)]'
+          }`}
+          style={isPageHero ? { paddingBottom } : undefined}
         >
-          {headline}
-        </Chars>
-        {hasPriceChip ? (
-          <div className="row">
-            <div>{subheadAndCtas}</div>
-            <Fade delay={1500} duration={1000} className="g-price liquid-glass">
-              <span className="n">{priceChip?.value}</span>
-              {priceChip?.label && <small>{priceChip.label}</small>}
+          {eyebrow && (
+            <Fade delay={600}>
+              <Eyebrow>{eyebrow}</Eyebrow>
             </Fade>
-          </div>
-        ) : showTag ? (
-          <div className="hero-grid">
-            <div>{subheadAndCtas}</div>
-            <div className="hero-tagcol">
-              <Fade delay={1400} duration={1000}>
-                <div className="hero-tagbox liquid-glass">{tag}</div>
+          )}
+          <Chars
+            as="h1"
+            className={
+              hasPriceChip
+                ? 'mb-[1.2rem] max-w-[12ch] text-[clamp(3rem,8.5vw,7.5rem)] tracking-normal [text-shadow:0_2px_48px_rgba(5,8,26,0.5)]'
+                : 'mb-[1.4rem] text-[clamp(2.6rem,6.4vw,5.8rem)] tracking-normal [text-shadow:0_2px_40px_rgba(5,8,26,0.45)]'
+            }
+            style={pageHeroHeadlineMaxWidth ? { maxWidth: pageHeroHeadlineMaxWidth } : undefined}
+          >
+            {headline}
+          </Chars>
+          {hasPriceChip ? (
+            <div className="row">
+              <div>{subheadAndCtas}</div>
+              <Fade delay={1500} duration={1000} className="g-price liquid-glass">
+                <span className="n">{priceChip?.value}</span>
+                {priceChip?.label && <small>{priceChip.label}</small>}
               </Fade>
             </div>
-          </div>
-        ) : (
-          subheadAndCtas
-        )}
-      </Container>
-      {proof && <ProofBar items={proof} />}
+          ) : showTag ? (
+            <div className="hero-grid">
+              <div>{subheadAndCtas}</div>
+              <div className="hero-tagcol">
+                <Fade delay={1400} duration={1000}>
+                  <div className="hero-tagbox liquid-glass">{tag}</div>
+                </Fade>
+              </div>
+            </div>
+          ) : (
+            subheadAndCtas
+          )}
+        </Container>
+        {proof && <ProofBar items={proof} />}
+      </div>
     </Section>
   )
 }

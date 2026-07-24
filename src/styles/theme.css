@@ -401,9 +401,15 @@
      sobre o vídeo. Fundo escuro translúcido porque o frame por baixo varia
      e os números precisam de contraste em qualquer um deles. Ocupa o mesmo
      canto que `.hero-tagbox` acima (nunca aparecem juntas — ver `showTag`
-     em `Hero/Component.tsx`). */
+     em `Hero/Component.tsx`).
+     Sem `position`/`margin-top: auto`: a faixa é o último item de flex do
+     wrapper flex-column que o `Hero/Component.tsx` monta em volta do
+     `Container` (`Container` vira `flex-1`, a faixa fica com sua altura
+     natural) — assim ela sempre recebe espaço reservado embaixo em vez de
+     sobrepor subhead/CTAs quando cresce (ex.: grid de 2 colunas no mobile,
+     abaixo). Cola sozinha porque é o próximo item de flex após um irmão
+     `flex-1`; nenhuma propriedade de posicionamento é necessária aqui. */
   .hero-proof {
-    margin-top: auto;
     border-top: 1px solid var(--line);
     background: rgba(5, 8, 26, 0.5);
     backdrop-filter: blur(16px);
@@ -450,6 +456,29 @@
   @media (max-width: 820px) {
     .hero-proof-grid {
       grid-template-columns: repeat(2, 1fr);
+      /* Reserva espaço do `.wa-float` (fixed, `right:22px`, 56px de largura
+         — 78px de "zona de exclusão" a partir da borda direita), que sempre
+         fica no canto inferior direito, exatamente onde cai a 2ª coluna
+         aqui (mesmo problema que `.hero-tagbox` já resolve com
+         `margin-right` no seu próprio breakpoint, acima). Como o texto é
+         alinhado à esquerda dentro de cada item, padding no PRÓPRIO item
+         não adianta (o texto termina bem antes da borda direita do item,
+         então sobra vazio, não desloca nada); é o grid inteiro que precisa
+         encolher, o que empurra o início da 2ª coluna pra esquerda.
+         48px foi o ponto de equilíbrio validado com getBoundingClientRect()
+         em várias larguras (320–820px): dá folga real (≈19–23px) sem
+         quebrar linha em ≥390px (a maioria esmagadora do tráfego mobile);
+         em 360px (largura "padrão" de boa parte do Android) o valor
+         quebra em 2 linhas — pior que caber numa linha, melhor que
+         sobrepor um botão flutuante clicável. Só resta um resíduo de
+         ~5px de sobreposição em 320px (iPhone SE de 1ª geração e
+         equivalentes): a partir de certo ponto o valor da célula já é
+         limitado pelo min-content da própria coluna (`repeat(2,1fr)` vira
+         `minmax(auto,1fr)`), e mais padding só força mais quebra de linha
+         sem ganhar distância nenhuma — confirmado testando também com 64,
+         128 e 168px, todos com a mesma folga em 320px. Aceito como caso
+         extremo (tráfego irrelevante nesse device). */
+      padding-right: 48px;
     }
     .hero-proof-item:nth-child(3) {
       border-left: 0;
