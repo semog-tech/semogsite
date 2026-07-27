@@ -72,7 +72,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
     localContext:
-      'Capital pernambucana e maior economia do Norte-Nordeste, o Recife concentra uma verticalização intensa — de Boa Viagem à orla, passando por Casa Forte, Graças e Espinheiro — onde a boa gestão condominial faz diferença real no valor do imóvel. É aqui que nascem os 35 anos da Semog: a unidade do Recife reúne financeiro, jurídico e contábil próprios e a tecnologia que hoje atende todo o Nordeste e o Norte. Do prédio na praia ao condomínio de bairro, a administração é conduzida por quem conhece o mercado imobiliário do Recife de perto.',
+      'Capital pernambucana e maior economia do Norte-Nordeste, o Recife concentra uma verticalização intensa — de Boa Viagem à orla, passando por Casa Forte, Graças e Espinheiro — onde a boa gestão condominial faz diferença real no valor do imóvel. É aqui que nascem os 35 anos da Semog: a unidade do Recife reúne financeiro e contábil próprios, suporte jurídico com escritório parceiro e a tecnologia que hoje atende todo o Nordeste e o Norte. Do prédio na praia ao condomínio de bairro, a administração é conduzida por quem conhece o mercado imobiliário do Recife de perto.',
     coverageText:
       'Da Região Metropolitana do Recife ao interior de Pernambuco, sua gestão é local de ponta a ponta. Presença especialmente forte em:',
     neighborhoods: [
@@ -217,7 +217,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       },
       {
         quote:
-          'Relatórios claros e time jurídico próprio. Resolveu questões que se arrastavam há anos.',
+          'Relatórios claros e suporte jurídico ágil. Resolveu questões que se arrastavam há anos.',
         name: 'Fernando Lira',
         role: 'Síndico · Res. Parque da Prata',
       },

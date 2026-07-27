@@ -71,8 +71,8 @@ const SOLUCOES: { icon: string; title: string; text: string; span: string; exclu
     },
     {
       icon: IC.scale,
-      title: 'Assessoria jurídica',
-      text: 'Contratos, convenções e conflitos com time próprio.',
+      title: 'Suporte jurídico com parceiro',
+      text: 'Contratos, convenções e conflitos com escritório parceiro.',
       span: 'lg:col-span-2',
     },
     {
@@ -109,7 +109,7 @@ const DIFERENCIAIS = [
   {
     icon: IC.chat,
     title: 'Gente na relação',
-    text: 'Equipe local especializada, sempre por perto. Financeiro, jurídico e contábil próprios, à sua disposição.',
+    text: 'Equipe local especializada, sempre por perto. Financeiro e contábil próprios, com suporte jurídico de escritório parceiro.',
   },
 ]
 
@@ -350,9 +350,10 @@ export function CityLanding({ data }: { data: CityLandingData }) {
           <span className="text-[0.78rem] uppercase tracking-[0.14em]" style={{ color: '#7e88ac' }}>
             Confiança de quem gesta com a gente
           </span>
-          {/* SECOVI sem a sigla do estado: a filiação é ao Secovi-PE, então exibir
-              "SECOVI · PB"/"· PA" nas outras praças afirmaria filiação que não existe. */}
-          {['SECOVI', 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
+          {/* Selos sem a sigla do estado: a filiação ao Secovi é a de PE, então
+              exibir "SECOVI · PB"/"· PA" nas outras praças afirmaria filiação que
+              não existe. Mesmo critério para os demais registros. */}
+          {['CRECI', 'CRA', 'SECOVI', 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
             <span key={s} className="text-[0.98rem] font-medium" style={{ color: '#b4bdd9' }}>
               {s}
             </span>

@@ -35,7 +35,7 @@ export const semog: PageData = {
     // reproduz o destaque em ice do ref.
     {
       blockType: 'wordsSection',
-      text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
+      text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, burocracia ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
     },
     // Ledger editorial (variant 'feature'), mesmo tratamento da home. Sem
     // eyebrow/title: entra logo após o manifesto acima, que já dá o contexto.
@@ -62,7 +62,7 @@ export const semog: PageData = {
           value: 100,
           prefix: '+',
           label: 'Colaboradores',
-          detail: 'Time próprio: financeiro, jurídico, contábil.',
+          detail: 'Time próprio: financeiro, contábil, operações.',
         },
         { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
       ],

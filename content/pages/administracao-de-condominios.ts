@@ -22,7 +22,7 @@ export const administracaoDeCondominios: PageData = {
       eyebrow: 'O serviço principal da Semog',
       headline: 'Administração de condomínios, por inteiro.',
       subhead:
-        'Do boleto à assembleia, assumimos a operação para o síndico decidir com tranquilidade e o morador só morar.',
+        'Do boleto à assembleia, auxiliamos em toda a operação para o síndico decidir com tranquilidade e o morador só morar.',
       poster: img('c-chave.webp'),
       pageHeroOverlay: true,
       pageHeroMinHeight: '88dvh',
@@ -71,9 +71,9 @@ export const administracaoDeCondominios: PageData = {
         },
         {
           iconSvg: '<path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6Z"/>',
-          title: 'Jurídico condominial',
+          title: 'Suporte jurídico com parceiro',
           description:
-            'Convenção, regimento, notificações, acordos e suporte em conflitos, com advogados especializados.',
+            'Convenção, regimento, notificações, acordos e suporte em conflitos, conduzidos por escritório de advocacia parceiro.',
         },
         {
           iconSvg:
@@ -166,7 +166,7 @@ export const administracaoDeCondominios: PageData = {
         {
           question: 'O que faz uma administradora de condomínios?',
           answer:
-            'Ela assume a operação do condomínio: finanças e cobrança, contabilidade e prestação de contas, departamento pessoal, jurídico, assembleias, fornecedores, manutenção e seguros. O síndico continua decidindo; a administradora executa com método e responde por prazos.',
+            'Ela auxilia o condomínio em toda a operação: finanças e cobrança, contabilidade e prestação de contas, departamento pessoal, assembleias, fornecedores, manutenção e seguros. O síndico continua decidindo; a administradora executa com método e responde por prazos.',
         },
         {
           question: 'Quanto custa contratar?',

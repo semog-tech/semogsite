@@ -19,7 +19,7 @@ export const solucoes: PageData = {
       blockType: 'hero',
       headline: 'Tudo que um condomínio precisa. E o que nenhum outro oferece.',
       subhead:
-        'Gestão financeira, contábil, jurídica e de pessoas, com a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
+        'Gestão financeira, contábil e de pessoas, com suporte jurídico por escritório parceiro, a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
       poster: img('residencial.webp'),
       pageHeroOverlay: true,
       pageHeroHeadlineMaxWidth: '16ch',
@@ -35,12 +35,11 @@ export const solucoes: PageData = {
           variant: 'split',
           kicker: 'Condomínios Residenciais',
           title: 'O prédio funciona. O morador nem percebe.',
-          text: 'Assumimos toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
+          text: 'Auxiliamos em toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
           tags: [
             { label: 'Gestão financeira' },
             { label: 'Cobrança e boletos' },
             { label: 'Folha e RH do condomínio' },
-            { label: 'Assessoria jurídica' },
             { label: 'Assembleias' },
             { label: 'Manutenção preventiva' },
             { label: 'Seguros obrigatórios' },
@@ -264,7 +263,7 @@ export const solucoes: PageData = {
         {
           question: 'O que a Semog administra?',
           answer:
-            'Condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. A gestão cobre financeiro, contabilidade, jurídico, pessoal, assembleias, manutenção e seguros.',
+            'Condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. A gestão cobre financeiro, contabilidade, pessoal, assembleias, manutenção e seguros.',
         },
         {
           question: 'Como funciona o Semog Garante?',

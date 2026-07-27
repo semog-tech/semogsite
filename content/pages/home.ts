@@ -78,7 +78,7 @@ export const home: PageData = {
           value: 100,
           prefix: '+',
           label: 'Especialistas',
-          detail: 'Time próprio: financeiro, jurídico, contábil.',
+          detail: 'Time próprio: financeiro, contábil, operações.',
         },
         { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
       ],
