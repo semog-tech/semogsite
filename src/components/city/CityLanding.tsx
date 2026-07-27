@@ -350,7 +350,9 @@ export function CityLanding({ data }: { data: CityLandingData }) {
           <span className="text-[0.78rem] uppercase tracking-[0.14em]" style={{ color: '#7e88ac' }}>
             Confiança de quem gesta com a gente
           </span>
-          {[`SECOVI · ${data.uf}`, 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
+          {/* SECOVI sem a sigla do estado: a filiação é ao Secovi-PE, então exibir
+              "SECOVI · PB"/"· PA" nas outras praças afirmaria filiação que não existe. */}
+          {['SECOVI', 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
             <span key={s} className="text-[0.98rem] font-medium" style={{ color: '#b4bdd9' }}>
               {s}
             </span>
