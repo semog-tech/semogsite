@@ -261,9 +261,9 @@ export const solucoes: PageData = {
       title: 'Perguntas frequentes.',
       items: [
         {
-          question: 'O que a Semog administra?',
+          question: 'Em que a Semog assessora o condomínio?',
           answer:
-            'Condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. A gestão cobre financeiro, contabilidade, pessoal, assembleias, manutenção e seguros.',
+            'Atendemos condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. Auxiliamos na gestão financeira, na contabilidade, no departamento pessoal, nas assembleias, na manutenção e nos seguros — a administração do condomínio cabe ao síndico, que decide e responde por ele; a Semog assessora e executa com método.',
         },
         {
           question: 'Como funciona o Semog Garante?',
