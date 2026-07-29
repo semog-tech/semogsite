@@ -96,7 +96,7 @@ describe('cron upload-ads-conversions — lê cms.leads via pg (sem Payload)', (
     expect(queryMock).not.toHaveBeenCalled()
   })
 
-  it('SELECT filtra gclid presente, form proposta e uploaded_to_ads=false', async () => {
+  it('SELECT filtra gclid presente, form de captação e uploaded_to_ads=false', async () => {
     queryMock.mockResolvedValueOnce({ rows: [] })
     await GET(fakeRequest(ENV_VARS.CRON_SECRET))
 
@@ -105,6 +105,18 @@ describe('cron upload-ads-conversions — lê cms.leads via pg (sem Payload)', (
     expect(sql).toMatch(/gclid is not null/i)
     expect(sql).toMatch(/uploaded_to_ads\s*=\s*false/i)
     expect(sql).toMatch(/form\s*=\s*'proposta'/i)
+  })
+
+  it('SELECT inclui contato só quando assunto = proposta-comercial (atendimento fica de fora)', async () => {
+    queryMock.mockResolvedValueOnce({ rows: [] })
+    await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+
+    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
+    // O form "contato" é majoritariamente atendimento a quem já é cliente
+    // (segunda via de boleto, CND, acordo…). Só pode entrar acompanhado do
+    // filtro de assunto — nunca `form = 'contato'` sozinho.
+    expect(sql).toMatch(/form\s*=\s*'contato'\s*and\s*data->>'assunto'\s*=\s*'proposta-comercial'/i)
+    expect(sql).not.toMatch(/form\s*=\s*'contato'\s*\)/i)
   })
 
   it('sem leads com gclid pendente: não chama fetch nem UPDATE', async () => {

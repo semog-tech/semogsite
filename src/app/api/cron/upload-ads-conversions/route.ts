@@ -80,13 +80,24 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   try {
-    // Leads com gclid, do form "proposta" (mesmo escopo de antes — só a
-    // Proposta tem ação de conversão dedicada no Ads), ainda não enviados
+    // Leads com gclid que são de fato CAPTAÇÃO, ainda não enviados
     // (`uploaded_to_ads = false`) e dentro da janela de retenção.
+    //
+    // O form "proposta" é captação por definição. O form "contato" **não**:
+    // 7 dos 9 `ASSUNTO_OPTIONS` (`src/lib/form-schemas.ts`) são atendimento a
+    // condômino que já é cliente — segunda via de boleto, CND, acordo de
+    // pagamento, alteração de titularidade, declaração de quitação, reserva de
+    // área comum, dúvida geral. Subir isso como conversão ensinaria o Smart
+    // Bidding a comprar clique de quem já é cliente — exatamente o erro que a
+    // conta tinha antes (otimizar por pageview/rota no mapa). Só
+    // `assunto = 'proposta-comercial'` é pedido de proposta, e aí sim conta,
+    // na mesma ação `Proposta (servidor) - gclid` (mesma intenção de compra).
     const cutoff = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
     const { rows: leads } = await query<LeadRow>(
       `select id, created_at, gclid, email from cms.leads
-       where gclid is not null and form = 'proposta' and created_at > $1 and uploaded_to_ads = false
+       where gclid is not null
+         and (form = 'proposta' or (form = 'contato' and data->>'assunto' = 'proposta-comercial'))
+         and created_at > $1 and uploaded_to_ads = false
        order by created_at desc`,
       [cutoff],
     )
