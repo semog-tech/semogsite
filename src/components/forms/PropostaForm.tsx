@@ -77,7 +77,13 @@ type Status = 'idle' | 'success' | 'error'
  * ter selecionado um cargo. `cargo` já é opcional em `propostaSchema`, então
  * esconder o campo não quebra validação nenhuma.
  */
-export function PropostaForm({ compact = false }: { compact?: boolean } = {}) {
+export function PropostaForm({
+  compact = false,
+  withCityField = false,
+}: {
+  compact?: boolean
+  withCityField?: boolean
+} = {}) {
   const {
     register,
     handleSubmit,
@@ -179,10 +185,28 @@ export function PropostaForm({ compact = false }: { compact?: boolean } = {}) {
   if (compact) {
     return (
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-        <input
-          type="hidden"
-          {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
-        />
+        {/*
+          Fora das landings de cidade (home, por exemplo) não há slug pra
+          preencher `cidade` sozinho — e sem cidade a notificação interna cai no
+          endereço genérico em vez de ir pro consultor da região
+          (`PROPOSTA_CIDADE_TO` em `submit-form.ts`). Nesses casos o campo
+          aparece de verdade; nas landings continua oculto e automático.
+        */}
+        {withCityField ? (
+          <Field
+            as="select"
+            label="Cidade do condomínio"
+            placeholder="Selecione"
+            options={CIDADE_OPTIONS}
+            error={errors.cidade?.message}
+            {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
+          />
+        ) : (
+          <input
+            type="hidden"
+            {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
+          />
+        )}
         <Field
           label="Seu nome"
           required

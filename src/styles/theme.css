@@ -545,7 +545,10 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 40;
+    /* Acima do overlay do menu mobile (`.nav-mobile`, z-index 50). Estava em
+       40: o overlay cobria o próprio botão que vira "X", e quem abrisse o menu
+       no celular não tinha como fechá-lo — só navegando para outra página. */
+    z-index: 60;
     padding: 1.1rem clamp(1.25rem, 4vw, 3rem) 0;
     display: flex;
     align-items: center;
@@ -670,6 +673,16 @@
     opacity: 1;
     visibility: visible;
   }
+  /* Com o menu aberto o header mostra só logo + "X": o acesso do cliente e o
+     CTA já aparecem dentro do overlay, em tamanho cheio. */
+  .nav.is-menu-open .nav-actions {
+    display: none;
+  }
+  /* O overlay começa abaixo do header pra não passar por trás da pílula de
+     vidro (que agora fica por cima) — os links continuam centralizados. */
+  .nav-mobile {
+    padding-top: 5.5rem;
+  }
   .nav-mobile a {
     font-family: var(--font-display);
     font-size: 2rem;
@@ -694,11 +707,46 @@
     .nav-links {
       display: none;
     }
-    .nav-inner .nav-actions {
+    /* "Área do cliente" CONTINUA visível no celular — é o link mais clicado do
+       site inteiro (233 cliques em 23-29/07/2026, contra 45 no WhatsApp e 6
+       leads: ~27% das sessões), e estava só dentro do menu hambúrguer, a dois
+       toques de quem só quer a 2ª via do boleto. O CTA de proposta é que sai
+       daqui — esse público chega pelo conteúdo da página, não pelo topo. */
+    .nav-inner .nav-actions .nav-cta {
       display: none;
+    }
+    /* O `gap: 2rem` do header foi desenhado para 4 filhos com os links no meio;
+       com os links ocultos ele sobra e empurra o hambúrguer para fora da tela
+       (medido: x=398 numa janela de 390). */
+    .nav-inner {
+      gap: 0.6rem;
+    }
+    .nav-inner .nav-actions {
+      gap: 0.35rem;
+    }
+    .nav-inner .nav-secondary {
+      padding-inline: 0.7rem;
+      font-size: 0.78rem;
+      white-space: nowrap;
     }
     .nav-burger {
       display: flex;
+    }
+  }
+  /* Em telas de 360px (Galaxy A e afins) os três elementos só cabem com o logo
+     um pouco menor — vale mais que perder o acesso do cliente. */
+  @media (max-width: 400px) {
+    .nav-inner .nav-logo img {
+      height: 18px;
+    }
+    .nav-inner {
+      padding-left: 1rem;
+    }
+  }
+  /* Abaixo disso (iPhone SE e menores) não cabe mesmo: o botão volta pro menu. */
+  @media (max-width: 339px) {
+    .nav-inner .nav-actions {
+      display: none;
     }
   }
 
