@@ -35,6 +35,7 @@ export function Section({
   className = '',
   style,
   ariaLabel,
+  id,
 }: {
   children: ReactNode
   light?: boolean
@@ -43,16 +44,23 @@ export function Section({
   style?: CSSProperties
   /** `aria-label` do `<section>` — ex.: `.quick`/`.selfserve` de `_reference/contato.html:208,234`. */
   ariaLabel?: string
+  /**
+   * Âncora da seção (`/solucoes#prestacao` etc.). Ganha `scroll-margin-top`
+   * junto, senão o header flutuante (pílula fixa de ~90px) cobre o título de
+   * quem chega pelo link.
+   */
+  id?: string
 }) {
   const cls = [
     'relative flow-root py-[clamp(5rem,10vw,9rem)]',
+    id && 'scroll-mt-28',
     light && (white ? 'sec-light white' : 'sec-light'),
     className,
   ]
     .filter(Boolean)
     .join(' ')
   return (
-    <section className={cls} style={style} aria-label={ariaLabel}>
+    <section id={id} className={cls} style={style} aria-label={ariaLabel}>
       {children}
     </section>
   )

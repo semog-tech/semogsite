@@ -16,11 +16,12 @@ export function ClubeBeneficiosBlock({
   text,
   items,
   note,
+  anchor,
 }: ClubeBeneficiosBlockType) {
   if (!items || items.length === 0) return null
 
   return (
-    <Section light white className="club">
+    <Section id={anchor ?? undefined} light white className="club">
       <Container>
         <Reveal className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}

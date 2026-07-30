@@ -50,7 +50,7 @@ function MediaCol({ item, dir }: { item: Item; dir: 'left' | 'right' }) {
  */
 function SplitItem({ item }: { item: Item }) {
   return (
-    <Section light className="vertical">
+    <Section id={item.anchor ?? undefined} light className="vertical">
       <Container>
         <div className="split">
           {item.reversed ? (
@@ -78,7 +78,7 @@ function SplitItem({ item }: { item: Item }) {
 function AssocItem({ item }: { item: Item }) {
   const image = item.image && typeof item.image === 'object' ? (item.image as Media) : undefined
   return (
-    <Section light className="vertical">
+    <Section id={item.anchor ?? undefined} light className="vertical">
       <Container>
         <Reveal dir="scale" className="assoc">
           {image && <ImageMedia resource={image} fill sizes="(min-width: 1024px) 1120px, 100vw" />}

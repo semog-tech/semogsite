@@ -229,6 +229,12 @@ export interface SolutionSplitBlock {
     /** Link-arrow — só na variante full-bleed. */
     ctaLabel?: string | null
     ctaHref?: string | null
+    /**
+     * Âncora da seção deste item (ex.: `residenciais` para
+     * `/solucoes#residenciais`). Fica no item, não no bloco, porque cada item
+     * vira uma `<section>` própria e os links da home apontam pra uma delas.
+     */
+    anchor?: string | null
     id?: string | null
   }[]
 }
@@ -377,6 +383,8 @@ export interface HumanQuoteBlock {
 // ---------------------------------------------------------------------------
 
 export interface PrestacaoBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'prestacao'
   id?: string | number | null
   blockName?: string | null
@@ -397,6 +405,8 @@ export interface PrestacaoBlock {
 // ---------------------------------------------------------------------------
 
 export interface TecnologiaRoadmapBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'tecnologiaRoadmap'
   id?: string | number | null
   blockName?: string | null
@@ -433,6 +443,8 @@ export interface TecnologiaRoadmapBlock {
 // ---------------------------------------------------------------------------
 
 export interface ClubeBeneficiosBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'clubeBeneficios'
   id?: string | number | null
   blockName?: string | null
@@ -493,6 +505,8 @@ export interface RegistrosBlock {
 // ---------------------------------------------------------------------------
 
 export interface AppShowcaseBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'appShowcase'
   id?: string | number | null
   blockName?: string | null

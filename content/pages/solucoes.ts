@@ -33,6 +33,7 @@ export const solucoes: PageData = {
       items: [
         {
           variant: 'split',
+          anchor: 'residenciais',
           kicker: 'Condomínios Residenciais',
           title: 'O prédio funciona. O morador nem percebe.',
           text: 'Auxiliamos em toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
@@ -49,6 +50,7 @@ export const solucoes: PageData = {
         },
         {
           variant: 'split',
+          anchor: 'comerciais',
           kicker: 'Condomínios Comerciais',
           title: 'Eficiência que valoriza o metro quadrado.',
           text: 'Edifícios corporativos e centros empresariais exigem previsibilidade de custos, rateios impecáveis e fornecedores sob controle. A Semog entrega relatórios gerenciais que o conselho entende e aprova.',
@@ -65,6 +67,7 @@ export const solucoes: PageData = {
         },
         {
           variant: 'assoc',
+          anchor: 'associacoes',
           kicker: 'Associações',
           title: 'Governança para comunidades inteiras.',
           text: 'Loteamentos, associações de moradores e clubes têm regras próprias, receitas próprias e desafios próprios. Estruturamos estatutos, contribuições e conselhos que funcionam.',
@@ -113,6 +116,7 @@ export const solucoes: PageData = {
     // `#prestacao`, `_reference/solucoes.html:522-555`.
     {
       blockType: 'prestacao',
+      anchor: 'prestacao',
       title: 'A prestação de contas que nenhuma outra administradora tem.',
       text: 'Desenvolvida pela Semog, ela transforma o balancete em algo que qualquer condômino entende e confia.',
       image: img('prestacao-contas.webp'),
@@ -134,6 +138,30 @@ export const solucoes: PageData = {
           text: 'O condômino consulta quando quiser, sem pedir a ninguém.',
         },
       ],
+    },
+    // Captação no meio da leitura: a página tem 15 telas no celular e os três
+    // CTAs existentes levavam todos pra outra página. Aqui, logo depois da
+    // prestação de contas — o argumento racional mais forte da página —, com
+    // ~45% da rolagem, que é onde ainda há gente lendo.
+    {
+      blockType: 'propostaBand',
+      background: 'gradiente',
+      eyebrow: 'Proposta',
+      title: 'Faz sentido para o seu condomínio?',
+      text: 'Diga onde fica e como é o condomínio. Um consultor da unidade mais próxima responde em até 24 horas úteis.',
+      highlight: {
+        value: '24h',
+        label: 'é o prazo da resposta, em dias úteis.',
+      },
+      proofs: [
+        { label: 'Prestação de contas digital, com documento anexado em cada lançamento.' },
+        { label: 'Proposta sem compromisso — e sem letra miúda.' },
+        { label: 'Número nenhum antes de olhar sua convenção e seu orçamento.' },
+      ],
+      whatsapp: {
+        label: 'Prefere conversar agora? Falar no WhatsApp',
+        href: 'https://wa.me/551130034506',
+      },
     },
     // `#garante`, `_reference/solucoes.html:557-616` — banda com vídeo,
     // mesmo padrão `.g-band-home` da home, ANTES do App.
@@ -173,6 +201,7 @@ export const solucoes: PageData = {
     // `app-phone.webp`.
     {
       blockType: 'appShowcase',
+      anchor: 'aplicativo',
       eyebrow: 'Aplicativo',
       title: 'Um aplicativo que o morador usa de verdade.',
       text: 'Nada de portal que ninguém acessa. O app da Semog concentra o dia a dia do condomínio em uma interface simples, no bolso de cada morador.',
@@ -189,6 +218,7 @@ export const solucoes: PageData = {
     // `#tecnologia`, `_reference/solucoes.html:645-691`.
     {
       blockType: 'tecnologiaRoadmap',
+      anchor: 'tecnologia',
       title: 'Software de dono, não de prateleira.',
       text: 'A Semog tem equipe de desenvolvimento própria desde a década passada — em 2019, criamos o primeiro chatbot do setor. Hoje, toda a operação roda no Semog One, a plataforma que construímos sobre o nosso ERP.',
       intro: {
@@ -234,6 +264,7 @@ export const solucoes: PageData = {
     // `#beneficios` (Clube de benefícios), `_reference/solucoes.html:693-724`.
     {
       blockType: 'clubeBeneficios',
+      anchor: 'beneficios',
       title: 'Ser Semog também vale fora do boleto.',
       text: 'Condomínios e moradores Semog têm acesso a um clube de vantagens negociado pela nossa escala de 650 condomínios.',
       items: [
