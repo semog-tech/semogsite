@@ -22,8 +22,15 @@ import type { Media } from '@/types/media'
  * `background`:
  * - `gradiente` — `--grad-band` + brilho radial ice, a textura de banda do
  *   próprio site (a mesma de `.g-band` nas landings).
- * - `foto` — imagem em `image` com overlay escuro, no espírito do hero das
- *   landings.
+ * - `foto` — **só no desktop**: a imagem entra por cima do gradiente, com
+ *   overlay direcional. No celular ela não entra, e não é nem baixada: o layer
+ *   nasce `display:none` (navegador não busca `background-image` de elemento
+ *   oculto), então o gradiente fica valendo sozinho.
+ *
+ * O corte é medido, não estético: numa tela de 390px a parte clara do overlay
+ * cai fora do enquadramento e a seção vira um retângulo escuro — idêntica ao
+ * gradiente, só que 124 KB mais pesada, baixados no load (não ao aproximar da
+ * seção). Foto onde ela aparece; peso zero onde ela não aparece.
  */
 function mediaUrl(resource?: number | Media | null): string | undefined {
   if (!resource || typeof resource === 'number') return undefined
@@ -57,14 +64,14 @@ export function PropostaBandBlock({
   return (
     <section
       className="relative isolate overflow-hidden border-y border-line py-[clamp(4rem,8vw,7rem)]"
-      style={usaFoto ? undefined : { background: FUNDO_GRADIENTE }}
+      style={{ background: FUNDO_GRADIENTE }}
       aria-label="Solicitar proposta"
     >
       {usaFoto && (
         <>
           <div
             aria-hidden="true"
-            className="-z-20 absolute inset-0 bg-cover bg-[position:70%_center]"
+            className="-z-20 absolute inset-0 hidden bg-cover bg-[position:70%_center] lg:block"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />
           {/*
@@ -75,7 +82,7 @@ export function PropostaBandBlock({
           */}
           <div
             aria-hidden="true"
-            className="-z-10 absolute inset-0"
+            className="-z-10 absolute inset-0 hidden lg:block"
             style={{
               background:
                 'linear-gradient(100deg, rgba(5,8,26,0.96) 0%, rgba(5,8,26,0.9) 34%, rgba(8,13,38,0.62) 68%, rgba(16,26,72,0.5) 100%)',
