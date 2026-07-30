@@ -504,7 +504,19 @@
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    background: linear-gradient(180deg, rgba(5, 8, 26, 0.25) 0%, transparent 40%, rgba(5, 8, 26, 0.72) 100%);
+    /* O degradê antigo (`transparent` em 40% → 0.72 no fim) deixava a tarja
+       "Semog Garante · uma parceria…" praticamente ilegível no celular: ela
+       cai a ~39% da tela, exatamente onde o overlay ainda era transparente, e
+       é texto branco sobre a parte clara do escudo de vidro. A rampa agora
+       começa antes e sobe mais, cobrindo toda a faixa de texto (tarja, h1,
+       subhead, CTA e chip) sem apagar o topo da imagem, que segue limpo. */
+    background: linear-gradient(
+      180deg,
+      rgba(5, 8, 26, 0.28) 0%,
+      rgba(5, 8, 26, 0.04) 22%,
+      rgba(5, 8, 26, 0.5) 42%,
+      rgba(5, 8, 26, 0.88) 100%
+    );
   }
   .g-hero .row {
     display: flex;

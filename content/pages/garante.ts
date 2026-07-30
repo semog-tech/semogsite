@@ -109,6 +109,32 @@ export const garante: PageData = {
         ],
       },
     },
+    // Captação no pico do argumento: depois de "Como funciona", do preço e da
+    // comparação do dia a dia, e antes das seções de reasseguro (parceria,
+    // FAQ). Até 30/07/2026 a página inteira não tinha o que fazer — os dois
+    // únicos caminhos (hero e faixa final) mandavam pra outra página, e ela
+    // rejeitava 82% sem gerar nenhum contato. Mesma faixa da home, com texto
+    // do produto: quem chega aqui já sabe o que é inadimplência zero.
+    {
+      blockType: 'propostaBand',
+      background: 'gradiente',
+      eyebrow: 'Semog Garante',
+      title: 'Quanto o seu condomínio deixa de arrecadar por mês?',
+      text: 'Diga onde fica e como é o condomínio. A proposta vem com o número do seu caso, não com uma tabela genérica.',
+      highlight: {
+        value: '1%',
+        label: 'da arrecadação. Sem adesão, sem letra miúda.',
+      },
+      proofs: [
+        { label: 'O condomínio recebe 100% do previsto — chova, atrase quem atrasar.' },
+        { label: 'A cobrança vira problema nosso: o síndico sai da conversa difícil.' },
+        { label: 'Proposta sem compromisso, com um consultor da sua região.' },
+      ],
+      whatsapp: {
+        label: 'Prefere conversar agora? Falar no WhatsApp',
+        href: 'https://wa.me/551130034506',
+      },
+    },
     // `.g-partner.sec-light`, `_reference/garante.html:197-201,376-392` —
     // "Quem garante a garantia".
     {
