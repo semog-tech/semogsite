@@ -116,6 +116,14 @@ const nextConfig: NextConfig = {
         source: '/hero/:file*.mp4',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      {
+        // Mesma regra (e mesma ressalva de nome semântico) para os vídeos de
+        // fundo dos blocos — hoje só `/media/garante.mp4`, que saiu do bucket
+        // do Supabase pra CDN da Vercel. Para trocar o clipe: renomear o
+        // arquivo e atualizar `LOCAL_BY_FILENAME` em `content/media.ts`.
+        source: '/media/:file*.mp4',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
   },
   async redirects() {
