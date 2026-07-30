@@ -62,10 +62,11 @@ export async function POST(req: Request): Promise<Response> {
     // fallback (entrou orgânico numa visita, voltou pelo anúncio e clicou).
     const gclid = attr?.first?.gclid ?? attr?.last?.gclid ?? null
 
-    await query(
-      'insert into cms.whatsapp_clicks (gclid, page, section) values ($1, $2, $3)',
-      [gclid, page, section],
-    )
+    await query('insert into cms.whatsapp_clicks (gclid, page, section) values ($1, $2, $3)', [
+      gclid,
+      page,
+      section,
+    ])
   } catch (err) {
     // Medição nunca derruba a experiência: loga e segue.
     console.error('[api/track/whatsapp] erro ao gravar clique:', err)
