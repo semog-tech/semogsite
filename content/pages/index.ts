@@ -15,9 +15,11 @@ import { contato } from './contato'
 import { garante } from './garante'
 import { home } from './home'
 import { incorporadoras } from './incorporadoras'
+import { prestacaoDeContasCondominio } from './prestacao-de-contas-condominio'
 import { privacidade } from './privacidade'
 import { proposta } from './proposta'
 import { semog } from './semog'
+import { softwareDeGestaoCondominial } from './software-de-gestao-condominial'
 import { solucoes } from './solucoes'
 import { termos } from './termos'
 
@@ -28,6 +30,8 @@ export const pages: Record<string, PageData> = {
   'administracao-de-condominios': administracaoDeCondominios,
   garante,
   incorporadoras,
+  'prestacao-de-contas-condominio': prestacaoDeContasCondominio,
+  'software-de-gestao-condominial': softwareDeGestaoCondominial,
   blog,
   contato,
   proposta,

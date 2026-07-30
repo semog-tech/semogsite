@@ -125,9 +125,9 @@ const footer: FooterConfig = {
       links: [
         { label: 'Administração de condomínios', href: '/administracao-de-condominios' },
         { label: 'Semog Garante', href: '/garante' },
-        { label: 'Prestação de contas', href: '/solucoes#prestacao' },
+        { label: 'Prestação de contas', href: '/prestacao-de-contas-condominio' },
         { label: 'Aplicativo', href: '/solucoes#aplicativo' },
-        { label: 'Semog One', href: '/solucoes#tecnologia' },
+        { label: 'Semog One', href: '/software-de-gestao-condominial' },
         { label: 'Benefícios', href: '/solucoes#beneficios' },
       ],
     },

@@ -173,7 +173,7 @@ export const home: PageData = {
           tag: 'Prestação de Contas Digital',
           title: 'O balancete que todos os condôminos entendem.',
           text: '100% digital, com documentos anexados, gráficos claros e assinatura digital com validade jurídica.',
-          href: '/solucoes#prestacao',
+          href: '/prestacao-de-contas-condominio',
         },
         {
           image: img('c-garante.webp'),
@@ -197,7 +197,7 @@ export const home: PageData = {
           tag: 'Semog One',
           title: 'A plataforma própria que construímos sobre o nosso ERP.',
           text: 'Equipe de desenvolvimento própria e uma plataforma única que evolui toda semana.',
-          href: '/solucoes#tecnologia',
+          href: '/software-de-gestao-condominial',
         },
       ],
     },
