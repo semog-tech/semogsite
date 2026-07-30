@@ -14,7 +14,7 @@ import type { FormEmbedBlock as FormEmbedBlockType } from '@/types/blocks'
  * este bloco precisa funcionar solto em qualquer página, não só em
  * `/proposta`.
  */
-export function FormEmbedBlock({ formType, eyebrow, title, text, compact }: FormEmbedBlockType) {
+export function FormEmbedBlock({ formType, eyebrow, title, text }: FormEmbedBlockType) {
   if (!formType) return null
 
   return (
@@ -34,14 +34,7 @@ export function FormEmbedBlock({ formType, eyebrow, title, text, compact }: Form
           )}
           <div className="rounded-card border border-line-strong bg-[rgba(10,16,46,0.55)] p-[clamp(1.8rem,4vw,2.8rem)] shadow-card backdrop-blur-md">
             {formType === 'contato' && <ContactForm />}
-            {/*
-              `withCityField` acompanha o `compact` porque este bloco roda em
-              página sem slug de cidade (home): sem o campo, o lead perde o
-              roteamento por região que `submit-form.ts` faz.
-            */}
-            {formType === 'proposta' && (
-              <PropostaForm compact={Boolean(compact)} withCityField={Boolean(compact)} />
-            )}
+            {formType === 'proposta' && <PropostaForm />}
           </div>
         </div>
       </Container>

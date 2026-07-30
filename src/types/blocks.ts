@@ -808,12 +808,43 @@ export interface FormEmbedBlock {
   eyebrow?: string | null
   title?: string | null
   text?: string | null
-  /**
-   * Variante enxuta do formulário de proposta (5 campos), a mesma das landings
-   * de cidade — que convertem 7-12% contra 1,6% da home (GA4, 23-29/07/2026).
-   * Só afeta `formType: 'proposta'`.
-   */
-  compact?: boolean | null
+}
+
+// ---------------------------------------------------------------------------
+// PropostaBand
+// ---------------------------------------------------------------------------
+
+/**
+ * Faixa full-bleed de captação (argumento à esquerda, formulário em card de
+ * vidro à direita) — a composição das landings de cidade trazida pra home.
+ * Diferente de `formEmbed`, que é o card centralizado da `/proposta`.
+ */
+export interface PropostaBandBlock {
+  blockType: 'propostaBand'
+  id?: string | number | null
+  blockName?: string | null
+  eyebrow?: string | null
+  title: string
+  text?: string | null
+  /** Número gigante em gradiente ice (mesmo recurso do "1%" do Garante). */
+  highlight?: {
+    value?: string | null
+    label?: string | null
+  }
+  /** Provas curtas com filete no topo, ecoando as colunas de pilares. */
+  proofs?:
+    | {
+        label: string
+        id?: string | null
+      }[]
+    | null
+  whatsapp?: {
+    label?: string | null
+    href?: string | null
+  }
+  /** `gradiente` usa a textura de banda do site; `foto` usa `image` com overlay. */
+  background?: ('gradiente' | 'foto') | null
+  image?: (number | null) | Media
 }
 
 // ---------------------------------------------------------------------------
@@ -1056,6 +1087,7 @@ export type Block =
   | BenefitsBlock
   | ContactInfoBlock
   | FormEmbedBlock
+  | PropostaBandBlock
   | PriceMomentBlock
   | CompareBlock
   | PartnerSplitBlock

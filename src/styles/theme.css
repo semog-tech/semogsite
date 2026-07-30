@@ -545,7 +545,10 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 40;
+    /* Acima do overlay do menu mobile (`.nav-mobile`, z-index 50). Estava em
+       40: o overlay cobria o próprio botão que vira "X", e quem abrisse o menu
+       no celular não tinha como fechá-lo — só navegando para outra página. */
+    z-index: 60;
     padding: 1.1rem clamp(1.25rem, 4vw, 3rem) 0;
     display: flex;
     align-items: center;
@@ -669,6 +672,16 @@
   .nav-mobile.is-open {
     opacity: 1;
     visibility: visible;
+  }
+  /* Com o menu aberto o header mostra só logo + "X": o acesso do cliente e o
+     CTA já aparecem dentro do overlay, em tamanho cheio. */
+  .nav.is-menu-open .nav-actions {
+    display: none;
+  }
+  /* O overlay começa abaixo do header pra não passar por trás da pílula de
+     vidro (que agora fica por cima) — os links continuam centralizados. */
+  .nav-mobile {
+    padding-top: 5.5rem;
   }
   .nav-mobile a {
     font-family: var(--font-display);
