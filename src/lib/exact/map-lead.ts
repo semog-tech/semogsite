@@ -35,6 +35,9 @@ const REGIAO_POR_CIDADE: Record<string, string> = {
 const CANAL_FIELD = 'origem — Canal (origem)'
 const LANDING_FIELD = 'origem — Página de entrada'
 
+/** Base pra transformar a página de entrada em URL clicável no CRM. */
+const SITE_URL = 'https://www.semog.com.br'
+
 /**
  * Corpo do lead (`LeadEstruturaCriacaoODataDTO`). Vai aninhado em
  * `{ lead: … }` no `POST /LeadsAdd` — ver `client.ts`.
@@ -87,6 +90,18 @@ function nonEmpty(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
+/**
+ * A atribuição guarda a página de entrada como CAMINHO (`/` ou
+ * `/administradora-de-condominios-belem`), e caminho solto no CRM não é
+ * clicável — visto nos dois primeiros leads reais (2026-07-30). Completa com o
+ * domínio; se já vier URL absoluta, devolve como está.
+ */
+function urlAbsoluta(valor: string | undefined): string | undefined {
+  if (!valor) return undefined
+  if (/^https?:\/\//i.test(valor)) return valor
+  return `${SITE_URL}${valor.startsWith('/') ? '' : '/'}${valor}`
+}
+
 /** Tudo que veio da atribuição, em linhas legíveis pra `description`. */
 function linhasDeOrigem(data: Record<string, string>): string[] {
   return Object.entries(data)
@@ -136,7 +151,7 @@ export function mapLead(
       industry: REGIAO_POR_CIDADE[nonEmpty(data.cidade) ?? ''],
       ddiPhone: phone?.ddi,
       phone: phone?.nacional,
-      mktLink: nonEmpty(data[LANDING_FIELD]),
+      mktLink: urlAbsoluta(nonEmpty(data[LANDING_FIELD])),
       description: descricao.join('\n'),
     },
     person: {

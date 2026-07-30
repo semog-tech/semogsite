@@ -14,8 +14,10 @@ import type { FormType } from '@/lib/forms'
  * motivo continua legível em `exact_error`, e o lead nunca se perde, porque
  * está em `cms.leads` e já gerou e-mail pra equipe no momento do envio.
  *
- * Roda 1×/dia (`vercel.json`) porque o plano pode ser Hobby, que limita cron a
- * uma execução diária. Em Pro, subir a frequência é só mudar o `schedule`.
+ * Roda **de hora em hora** (`vercel.json`, minuto 15) — a conta é Pro, que não
+ * tem o limite de 1×/dia do Hobby. Importa porque o lead vale mais quente:
+ * esperar até o dia seguinte pra reenviar um lead que caiu num timeout é perder
+ * o dia de contato.
  */
 
 export const runtime = 'nodejs'

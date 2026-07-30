@@ -93,7 +93,27 @@ describe('mapLead — lead', () => {
       ...propostaData,
       'origem — Página de entrada': 'https://semog.com.br/administradora-de-condominios-joao-pessoa',
     }
-    expect(mapLead('proposta', comLanding, SDR).lead.mktLink).toContain('joao-pessoa')
+    expect(mapLead('proposta', comLanding, SDR).lead.mktLink).toBe(
+      'https://semog.com.br/administradora-de-condominios-joao-pessoa',
+    )
+  })
+
+  it('página de entrada em caminho relativo vira URL absoluta (clicável no CRM)', () => {
+    // A atribuição guarda caminho, não URL — visto nos 2 primeiros leads reais.
+    const raiz = { ...propostaData, 'origem — Página de entrada': '/' }
+    expect(mapLead('proposta', raiz, SDR).lead.mktLink).toBe('https://www.semog.com.br/')
+
+    const landing = {
+      ...propostaData,
+      'origem — Página de entrada': '/administradora-de-condominios-belem',
+    }
+    expect(mapLead('proposta', landing, SDR).lead.mktLink).toBe(
+      'https://www.semog.com.br/administradora-de-condominios-belem',
+    )
+  })
+
+  it('sem página de entrada não inventa mktLink', () => {
+    expect(mapLead('proposta', propostaData, SDR).lead.mktLink).toBeUndefined()
   })
 
   it('funil e SDR são fixos', () => {
