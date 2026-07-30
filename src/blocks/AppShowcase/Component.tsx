@@ -46,13 +46,18 @@ export function AppShowcaseBlock({
   stores,
   features,
   cta,
+  anchor,
 }: AppShowcaseBlockType) {
   const media = image && typeof image === 'object' ? (image as Media) : undefined
   const secondary =
     imageSecondary && typeof imageSecondary === 'object' ? (imageSecondary as Media) : undefined
 
   return (
-    <Section light={theme !== 'deep'} className={theme === 'deep' ? 'bg-navy-950' : undefined}>
+    <Section
+      id={anchor ?? undefined}
+      light={theme !== 'deep'}
+      className={theme === 'deep' ? 'bg-navy-950' : undefined}
+    >
       <Container
         className={
           media

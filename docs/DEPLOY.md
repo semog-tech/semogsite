@@ -83,6 +83,25 @@ Em **dev/preview**, use as chaves de teste oficiais da Cloudflare (sempre passam
 checagem real — já estão em `.env.example`). Em **produção**, crie um site em
 dash.cloudflare.com → Turnstile → Add site e use as chaves reais geradas lá.
 
+### Exact Spotter — CRM (opcional; sem elas a integração fica desligada)
+
+| Variável | Obrigatório | Client-exposed | Descrição |
+|---|---|---|---|
+| `EXACT_SPOTTER_BASE_URL` | Opcional | Não | Base da API v3 — `https://api.exactspotter.com/v3`. É o default no código (`src/lib/exact/client.ts`); só definir se mudar. |
+| `EXACT_SPOTTER_TOKEN` | Opcional | Não | Token gerado no Exact em Configurações → Integrações (o mesmo do `.env.api` do `semogapp`). **É a chave que liga a integração:** sem ela, `pushLeadToExact` é no-op e o formulário funciona como antes. |
+| `EXACT_SDR_EMAIL` | Opcional | Não | E-mail da pré-vendedora que recebe os leads do site. Default `daiane@semog.com.br` — precisa ser um SDR **ativo** no Exact. |
+
+Configurar **só no environment Production**. Em Preview elas devem ficar ausentes, senão cada
+teste em branch de preview cria lead de verdade no CRM. O deploy pode subir antes das variáveis
+existirem — ligar a integração é ação de configuração, não de código.
+
+O que a integração faz: toda submissão de **Proposta** (e de **Contato** com
+`assunto = proposta-comercial`) cria um lead no funil Padrão do Exact, com contato principal, logo
+depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fica em
+`cms.leads.exact_error` e o cron `/api/cron/push-exact-leads` (diário, 07:00) retenta por 48 h.
+Detalhes do contrato da API — que diverge do PDF oficial da Exact — em
+`scripts/probe-exact-create-lead.ts`.
+
 ### Sentry (opcional)
 
 | Variável | Obrigatório | Client-exposed | Descrição |

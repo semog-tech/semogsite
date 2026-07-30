@@ -17,7 +17,7 @@ export const PRELOAD_LEAD_S = 3
 
 /**
  * No mobile, um clipe só: o ciclo completo custa ~2,9 MB, o que é caro demais
- * em rede móvel para um fundo decorativo. O primeiro clipe é a matriz (Recife).
+ * em rede móvel para um fundo decorativo. O primeiro clipe é o do Recife.
  */
 export function sequenceFor(videos: string[], isMobile: boolean): string[] {
   if (!isMobile) return videos

@@ -3,6 +3,7 @@
 import Script from 'next/script'
 import { useEffect } from 'react'
 import { useConsent } from '@/providers/ConsentProvider'
+import { IS_MEASURABLE_HOST_JS } from './measurableHost'
 
 const CLARITY_ID = 'xr14d4ih79'
 
@@ -19,6 +20,9 @@ const CLARITY_ID = 'xr14d4ih79'
  * ⚠️ Os domínios do Clarity (`*.clarity.ms`, `c.bing.com`) precisam estar
  * liberados no CSP do `next.config.ts` — sem isso o script é bloqueado igual o
  * gtag ficou (bug 23/07). O ID de projeto do Clarity é público (vai no HTML).
+ *
+ * A lib só carrega nos hosts de produção (ver `IS_MEASURABLE_HOST_JS`), pra não
+ * gravar sessão de `next dev`/preview no meio dos heatmaps.
  */
 export function Clarity() {
   const { consent, decided } = useConsent()
@@ -36,7 +40,7 @@ export function Clarity() {
         {`window.clarity=window.clarity||function(){(window.clarity.q=window.clarity.q||[]).push(arguments)};`}
       </Script>
       <Script id="ms-clarity" strategy="afterInteractive">
-        {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${CLARITY_ID}");`}
+        {`if(${IS_MEASURABLE_HOST_JS}){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${CLARITY_ID}");}`}
       </Script>
     </>
   )

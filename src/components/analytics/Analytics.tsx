@@ -3,6 +3,7 @@
 import Script from 'next/script'
 import { useEffect } from 'react'
 import { useConsent } from '@/providers/ConsentProvider'
+import { IS_MEASURABLE_HOST_JS } from './measurableHost'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
@@ -18,6 +19,11 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID
  * e o **Enhanced Measurement** do fluxo Web cobre as navegações SPA (history
  * events do App Router) — por isso NÃO enviamos `page_view` manual (evita
  * duplicação). No-op sem `NEXT_PUBLIC_GA_ID`.
+ *
+ * O `gtag.js` só é carregado nos hosts de produção (ver `IS_MEASURABLE_HOST_JS`):
+ * fora deles o `config` nem roda, então `next dev` e preview não geram sessão.
+ * O `consent default` continua sendo definido em todo host — é só estado local,
+ * não gera hit, e mantém o shim/fila coerentes.
  */
 export function Analytics() {
   const { consent, decided } = useConsent()
@@ -43,12 +49,8 @@ export function Analytics() {
         {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'granted'});`}
       </Script>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="afterInteractive"
-      />
       <Script id="ga-init" strategy="afterInteractive">
-        {`gtag('js',new Date());gtag('config','${GA_ID}');`}
+        {`if(${IS_MEASURABLE_HOST_JS}){var s=document.createElement('script');s.async=1;s.src='https://www.googletagmanager.com/gtag/js?id=${GA_ID}';document.head.appendChild(s);gtag('js',new Date());gtag('config','${GA_ID}');}`}
       </Script>
     </>
   )

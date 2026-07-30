@@ -14,6 +14,11 @@ const sendMailMock = vi.fn()
 const verifyTurnstileMock = vi.fn()
 const headersMock = vi.fn()
 const cookiesMock = vi.fn()
+const pushLeadMock = vi.fn()
+
+vi.mock('@/lib/exact/push-lead', () => ({
+  pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
+}))
 
 vi.mock('@/lib/db', () => ({
   query: (...args: unknown[]) => queryMock(...args),
@@ -55,10 +60,13 @@ const contatoValido = {
 describe('submitForm — grava lead em cms.leads (sem Payload)', () => {
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [], rowCount: 1 })
+    // O INSERT usa `returning id` — o id é o que liga a linha ao push do Exact.
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    // Default: lead não elegível pro CRM (é o caso dos contatos deste bloco).
+    pushLeadMock.mockResolvedValue(null)
   })
 
   it('contato válido faz INSERT em cms.leads com form/data/email corretos', async () => {
@@ -135,5 +143,96 @@ describe('submitForm — grava lead em cms.leads (sem Payload)', () => {
 
     expect(result.ok).toBe(false)
     expect(result.message).toBeDefined()
+  })
+})
+
+/**
+ * Depois do INSERT, a submissão elegível é empurrada pro CRM (Exact) em
+ * best-effort — o `pushLeadToExact` é mockado aqui; o mapeamento e o HTTP têm
+ * testes próprios (`exact-map-lead` / `exact-push-lead`).
+ */
+describe('submitForm — push pro Exact', () => {
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'João Pessoa e região',
+  }
+
+  /** O `update cms.leads` que grava o resultado do push (2ª chamada de query). */
+  function updateDoExact() {
+    return queryMock.mock.calls.find(([sql]) => /update cms\.leads/i.test(sql as string)) as
+      | [string, unknown[]]
+      | undefined
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+  })
+
+  it('proposta empurra pro Exact e grava o id', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.20'))
+    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 51199001 })
+
+    const result = await submitForm('proposta', proposta, 'test-token')
+
+    expect(result.ok).toBe(true)
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+
+    const [formType, data] = pushLeadMock.mock.calls[0] as [string, Record<string, string>]
+    expect(formType).toBe('proposta')
+    expect(data.nomeCondominio).toBe('Residencial Aurora')
+
+    const update = updateDoExact()
+    expect(update).toBeDefined()
+    expect((update as [string, unknown[]])[1]).toEqual([51199001, null, '99'])
+  })
+
+  it('falha no Exact não derruba a submissão e grava o erro', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.21'))
+    pushLeadMock.mockResolvedValue({ ok: false, error: 'Exact POST /LeadsAdd falhou (500)' })
+
+    const result = await submitForm('proposta', proposta, 'test-token')
+
+    expect(result.ok).toBe(true)
+    const params = (updateDoExact() as [string, unknown[]])[1]
+    expect(params[0]).toBeNull()
+    expect(params[1]).toMatch(/500/)
+  })
+
+  it('contato criado sem o contato principal guarda o aviso, não o erro', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.24'))
+    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 7, personError: 'PersonsAdd (500)' })
+
+    await submitForm('proposta', proposta, 'test-token')
+
+    const params = (updateDoExact() as [string, unknown[]])[1]
+    expect(params[0]).toBe(7)
+    expect(params[1]).toMatch(/PersonsAdd/)
+  })
+
+  it('exceção inesperada no push não derruba a submissão', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.22'))
+    pushLeadMock.mockRejectedValue(new Error('boom'))
+
+    const result = await submitForm('proposta', proposta, 'test-token')
+
+    expect(result.ok).toBe(true)
+  })
+
+  it('lead não elegível (push devolve null) não faz UPDATE', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.23'))
+    pushLeadMock.mockResolvedValue(null)
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(updateDoExact()).toBeUndefined()
   })
 })

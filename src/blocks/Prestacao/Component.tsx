@@ -13,12 +13,12 @@ import type { Media } from '@/types/media'
  * do gutter; `.prestacao`/`.showcase`/`.prest-grid` (CSS portado em
  * `theme.css`) reproduzem o restante do layout do ref.
  */
-export function PrestacaoBlock({ eyebrow, title, text, image, list }: PrestacaoBlockType) {
+export function PrestacaoBlock({ eyebrow, title, text, image, list, anchor }: PrestacaoBlockType) {
   const media = image && typeof image === 'object' ? (image as Media) : undefined
   if (!media || !list || list.length === 0) return null
 
   return (
-    <Section className="prestacao">
+    <Section id={anchor ?? undefined} className="prestacao">
       <Container>
         <Reveal className="max-w-2xl">
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}

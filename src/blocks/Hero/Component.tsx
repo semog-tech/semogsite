@@ -67,8 +67,8 @@ function ProofBar({ items }: { items: NonNullable<HeroBlockType['proofItems']> }
 }
 
 /**
- * Clipes drone das filiais/matriz para `background: 'videoSequence'`, servidos
- * de `public/hero/`. Ordem = matriz primeiro (Recife), depois as filiais.
+ * Clipes drone das unidades para `background: 'videoSequence'`, servidos
+ * de `public/hero/`. Ordem = Recife primeiro, depois as demais cidades.
  */
 const HERO_SEQUENCE = [
   '/hero/recife.mp4',

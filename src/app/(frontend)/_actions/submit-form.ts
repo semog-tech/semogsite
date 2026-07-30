@@ -9,6 +9,7 @@ import {
   parseAttributionCookie,
 } from '@/lib/attribution'
 import { query } from '@/lib/db'
+import { pushLeadToExact } from '@/lib/exact/push-lead'
 import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, propostaSchema } from '@/lib/form-schemas'
 import { extractLeadColumns, FORMS } from '@/lib/forms'
@@ -99,14 +100,15 @@ async function getClientIp(): Promise<string | undefined> {
 /**
  * Server Action de submit dos formulários "Contato"/"Proposta" (config
  * estática em `@/lib/forms`). Pipeline: valida com Zod → Turnstile → rate
- * limit por IP → grava em `cms.leads` (via `pg`, `@/lib/db`) → e-mail
- * (best-effort).
+ * limit por IP → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no
+ * CRM (Exact, só quando é captação) → e-mail. Os dois últimos são
+ * best-effort.
  *
- * **Nunca lança** — cada etapa arriscada (Turnstile, DB, SendGrid) fica
+ * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
  * vez de deixar o erro subir. O `INSERT` em `cms.leads` é o único passo que
- * precisa ter sucesso pra `ok: true` — falha de e-mail depois disso é só
- * logada.
+ * precisa ter sucesso pra `ok: true` — falha de CRM ou de e-mail depois disso
+ * é só registrada (no banco e no log).
  */
 export async function submitForm(
   formType: FormType,
@@ -155,12 +157,36 @@ export async function submitForm(
 
     const { gclid, email } = extractLeadColumns(leadData)
 
-    await query('insert into cms.leads (form, data, gclid, email) values ($1, $2, $3, $4)', [
-      formType,
-      leadData,
-      gclid ?? null,
-      email ?? null,
-    ])
+    const { rows: inserted } = await query<{ id: string }>(
+      'insert into cms.leads (form, data, gclid, email) values ($1, $2, $3, $4) returning id',
+      [formType, leadData, gclid ?? null, email ?? null],
+    )
+    const leadRowId = inserted[0]?.id
+
+    // CRM (Exact) é best-effort, igual aos e-mails: o lead já está salvo acima.
+    // Um CRM fora do ar — ou um payload que ele recuse — não pode virar erro
+    // pra quem preencheu o formulário; o cron `push-exact-leads` retenta
+    // depois. Só passa por aqui quem é captação de verdade (o próprio
+    // `pushLeadToExact` devolve `null` pro resto e pra integração desligada).
+    if (leadRowId) {
+      try {
+        const push = await pushLeadToExact(formType, leadData)
+        if (push) {
+          await query(
+            `update cms.leads
+                set exact_lead_id = $1, exact_error = $2, exact_attempts = exact_attempts + 1
+              where id = $3`,
+            [
+              push.ok ? push.exactLeadId : null,
+              push.ok ? (push.personError ?? null) : push.error,
+              leadRowId,
+            ],
+          )
+        }
+      } catch (exactErr) {
+        console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
+      }
+    }
 
     // E-mail é best-effort: a submissão já está salva acima, então uma
     // falha de SendGrid (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`)

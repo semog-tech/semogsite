@@ -10,6 +10,21 @@ import { useConsent } from '@/providers/ConsentProvider'
  * navegável), então usamos `role="dialog"` sem `aria-modal`, mas movemos o
  * foco pra ele no mount para leitores de tela notarem a região dinâmica.
  * Entrada anima com slide-up; `motion-reduce:` desliga a transição.
+ *
+ * **Barra fina, não card** (30/07/2026): a versão anterior era um card de
+ * 42rem com título, parágrafo de quatro linhas e três ações — ~430px de altura
+ * no celular, quase metade da tela, bem em cima do CTA do hero. Todo visitante
+ * novo via isso antes de ver o site. Agora:
+ *
+ * - o texto foi para uma frase (o detalhamento vive na Política de
+ *   Privacidade, que continua linkada — é o que a LGPD pede);
+ * - o título virou `sr-only`: dizia o óbvio pra quem enxerga e continua
+ *   nomeando o diálogo pra quem usa leitor de tela;
+ * - no desktop tudo cabe em uma linha; no celular, texto em cima e as ações
+ *   numa fileira só.
+ *
+ * O painel de preferências (opt-in por toggle) continua igual — quem clica em
+ * "Preferências" está pedindo a versão detalhada, e aí o espaço se justifica.
  */
 export function CookieBanner() {
   const { consent, decided, rejectNonEssential, save } = useConsent()
@@ -54,22 +69,52 @@ export function CookieBanner() {
         entered ? 'translate-y-0' : 'translate-y-[110%]'
       }`}
     >
-      <div className="mx-auto max-w-[42rem] rounded-card border border-white/10 bg-navy-950/70 p-[clamp(1.25rem,3vw,1.75rem)] shadow-card backdrop-blur-xl">
-        <h2 id={headingId} className="mb-2 text-[1.05rem] font-semibold text-fg">
+      <div className="mx-auto max-w-[64rem] rounded-card border border-white/10 bg-navy-950/80 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.85rem,2vw,1.1rem)] shadow-card backdrop-blur-xl">
+        <h2 id={headingId} className="sr-only">
           Sua privacidade
         </h2>
-        <p id={descId} className="mb-4 text-[0.92rem] leading-relaxed text-fg-2">
-          Usamos cookies necessários para o site funcionar e cookies de análise — agregados e sem
-          publicidade — para entender o uso e melhorar sua experiência. Você pode recusar a análise
-          quando quiser. Saiba mais na nossa{' '}
-          <a href="/privacidade" className="text-fg underline underline-offset-2 hover:text-accent">
-            Política de Privacidade
-          </a>
-          .
-        </p>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <p id={descId} className="m-0 text-[0.86rem] leading-snug text-fg-2">
+            Cookies de análise — agregados e sem publicidade — para melhorar o site.{' '}
+            <a
+              href="/privacidade"
+              className="text-fg underline underline-offset-2 hover:text-accent"
+            >
+              Política de Privacidade
+            </a>
+            .
+          </p>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => save({ analytics: true, marketing: false })}
+            >
+              Entendi
+            </Button>
+            <Button variant="ghost" size="sm" onClick={rejectNonEssential}>
+              Recusar
+            </Button>
+            {showPreferences ? (
+              <Button variant="glass" size="sm" onClick={handleSave}>
+                Salvar
+              </Button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPreferences(true)}
+                className="px-1 text-[0.84rem] font-medium text-fg-2 underline underline-offset-2 transition-colors duration-200 hover:text-fg"
+              >
+                Preferências
+              </button>
+            )}
+          </div>
+        </div>
 
         {showPreferences && (
-          <div className="mb-4 space-y-3 rounded-input border border-line bg-navy-900/60 p-4">
+          <div className="mt-3 space-y-3 rounded-input border border-line bg-navy-900/60 p-4">
             <ToggleRow
               label="Cookies necessários"
               description="Sempre ativos — essenciais para o funcionamento do site."
@@ -90,35 +135,6 @@ export function CookieBanner() {
             />
           </div>
         )}
-
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => save({ analytics: true, marketing: false })}
-            >
-              Entendi
-            </Button>
-            <Button variant="ghost" size="sm" onClick={rejectNonEssential}>
-              Recusar análise
-            </Button>
-            {showPreferences && (
-              <Button variant="glass" size="sm" onClick={handleSave}>
-                Salvar preferências
-              </Button>
-            )}
-          </div>
-          {!showPreferences && (
-            <button
-              type="button"
-              onClick={() => setShowPreferences(true)}
-              className="text-[0.88rem] font-medium text-fg-2 underline underline-offset-2 transition-colors duration-200 hover:text-fg"
-            >
-              Preferências
-            </button>
-          )}
-        </div>
       </div>
     </div>
   )

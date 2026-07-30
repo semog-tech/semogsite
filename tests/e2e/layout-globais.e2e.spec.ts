@@ -37,7 +37,9 @@ test.describe('footer (global content/site.ts)', () => {
     await page.goto('http://localhost:3000/')
     const grid = page.locator('.footer-grid')
 
-    const institucional = grid.locator('div', { has: page.getByRole('heading', { name: 'Institucional' }) })
+    const institucional = grid.locator('div', {
+      has: page.getByRole('heading', { name: 'Institucional' }),
+    })
     await expect(institucional.locator('a[href="/semog"]')).toContainText('A Semog')
     await expect(institucional.locator('a[href="/blog"]')).toContainText('Blog')
 
@@ -47,7 +49,9 @@ test.describe('footer (global content/site.ts)', () => {
       'Administração de condomínios',
     )
 
-    const ondeEstamos = grid.locator('div', { has: page.getByRole('heading', { name: 'Onde estamos' }) })
+    const ondeEstamos = grid.locator('div', {
+      has: page.getByRole('heading', { name: 'Onde estamos' }),
+    })
     await expect(
       ondeEstamos.locator('a[href="/administradora-de-condominios-recife"]'),
     ).toContainText('Recife')
@@ -70,9 +74,6 @@ test.describe('footer (global content/site.ts)', () => {
 test.describe('WhatsApp float (global content/site.ts)', () => {
   test('botão flutuante aponta pro número real da Semog', async ({ page }) => {
     await page.goto('http://localhost:3000/')
-    await expect(page.locator('.wa-float')).toHaveAttribute(
-      'href',
-      'https://wa.me/551130034506',
-    )
+    await expect(page.locator('.wa-float')).toHaveAttribute('href', 'https://wa.me/551130034506')
   })
 })

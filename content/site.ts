@@ -63,6 +63,7 @@ export interface CompanyAddress {
   address: string
   phone: string
   creci: string
+  cra: string
   abadi: string
   secovi: string
 }
@@ -124,16 +125,16 @@ const footer: FooterConfig = {
       links: [
         { label: 'Administração de condomínios', href: '/administracao-de-condominios' },
         { label: 'Semog Garante', href: '/garante' },
-        { label: 'Prestação de contas', href: '/solucoes#prestacao' },
+        { label: 'Prestação de contas', href: '/prestacao-de-contas-condominio' },
         { label: 'Aplicativo', href: '/solucoes#aplicativo' },
-        { label: 'Semog One', href: '/solucoes#tecnologia' },
+        { label: 'Semog One', href: '/software-de-gestao-condominial' },
         { label: 'Benefícios', href: '/solucoes#beneficios' },
       ],
     },
     {
       title: 'Onde estamos',
       links: [
-        { label: 'Recife · Matriz', href: '/administradora-de-condominios-recife' },
+        { label: 'Recife', href: '/administradora-de-condominios-recife' },
         { label: 'João Pessoa', href: '/administradora-de-condominios-joao-pessoa' },
         { label: 'Campina Grande', href: '/administradora-de-condominios-campina-grande' },
         { label: 'Belém', href: '/administradora-de-condominios-belem' },
@@ -148,8 +149,10 @@ const footer: FooterConfig = {
 }
 
 // Port fiel de `companyData` em `src/seed/globals.ts` — endereços e telefones
-// reais das 4 unidades; `creci`/`abadi`/`secovi` seguem genéricos (sem número
-// de registro informado pelo cliente até jul/2026).
+// reais das 4 unidades; `creci`/`cra`/`abadi`/`secovi` seguem genéricos (sem
+// número de registro informado pelo cliente até jul/2026) e **sem a sigla do
+// estado**: a filiação ao Secovi é a de PE, então exibir a UF em cada praça
+// afirmaria filiação que não existe.
 const company: CompanyConfig = {
   addresses: [
     {
@@ -157,7 +160,8 @@ const company: CompanyConfig = {
       uf: 'PE',
       address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE · CEP 50610-190',
       phone: '(81) 3316-0265',
-      creci: 'CRECI/PE',
+      creci: 'CRECI',
+      cra: 'CRA',
       abadi: 'ABADI',
       secovi: 'SECOVI',
     },
@@ -166,7 +170,8 @@ const company: CompanyConfig = {
       uf: 'PB',
       address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB · CEP 58038-140',
       phone: '(83) 3224-1228',
-      creci: 'CRECI/PB',
+      creci: 'CRECI',
+      cra: 'CRA',
       abadi: 'ABADI',
       secovi: 'SECOVI',
     },
@@ -175,7 +180,8 @@ const company: CompanyConfig = {
       uf: 'PB',
       address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB · CEP 58410-193',
       phone: '(83) 3201-9039',
-      creci: 'CRECI/PB',
+      creci: 'CRECI',
+      cra: 'CRA',
       abadi: 'ABADI',
       secovi: 'SECOVI',
     },
@@ -184,7 +190,8 @@ const company: CompanyConfig = {
       uf: 'PA',
       address: 'Av. Alcindo Cacela, 2351 · Sl 201, Cremação, Belém/PA · CEP 66040-273',
       phone: '(91) 3115-4700',
-      creci: 'CRECI/PA',
+      creci: 'CRECI',
+      cra: 'CRA',
       abadi: 'ABADI',
       secovi: 'SECOVI',
     },

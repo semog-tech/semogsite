@@ -186,7 +186,6 @@ const WHATSAPP_E164 = '+551130034506'
 interface SeoUnit {
   slug: string
   city: string
-  role: 'Matriz' | 'Filial'
   street: string
   region: string
   regionFull: string
@@ -201,7 +200,6 @@ const UNITS: SeoUnit[] = [
   {
     slug: 'administradora-de-condominios-recife',
     city: 'Recife',
-    role: 'Matriz',
     street: 'R. Bartolomeu de Gusmão, 217, Madalena',
     region: 'PE',
     regionFull: 'Pernambuco',
@@ -222,7 +220,6 @@ const UNITS: SeoUnit[] = [
   {
     slug: 'administradora-de-condominios-joao-pessoa',
     city: 'João Pessoa',
-    role: 'Filial',
     street: 'Av. Guarabira, 834, Manaíra',
     region: 'PB',
     regionFull: 'Paraíba',
@@ -244,7 +241,6 @@ const UNITS: SeoUnit[] = [
   {
     slug: 'administradora-de-condominios-campina-grande',
     city: 'Campina Grande',
-    role: 'Filial',
     street: 'R. José Adnoste Roberto, 1001, Catolé',
     region: 'PB',
     regionFull: 'Paraíba',
@@ -265,7 +261,6 @@ const UNITS: SeoUnit[] = [
   {
     slug: 'administradora-de-condominios-belem',
     city: 'Belém',
-    role: 'Filial',
     street: 'Av. Alcindo Cacela, 2351, Sl 201, Cremação',
     region: 'PA',
     regionFull: 'Pará',
@@ -297,7 +292,7 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
     // fica no `address`. Padronizado no plural ("Condomínios"), que é o
     // correto e traz a keyword exata — renomear as 4 fichas do GBP p/ bater.
     name: 'Semog Administradora de Condomínios',
-    description: `Administradora de condomínios em ${unit.city}/${unit.region} — ${unit.role.toLowerCase()} da Semog, líder do Nordeste há 35 anos.`,
+    description: `Administradora de condomínios em ${unit.city}/${unit.region} — unidade da Semog, líder do Nordeste há 35 anos, com equipe local.`,
     url,
     image: absoluteUrl(`${unit.slug}/opengraph-image`),
     telephone: unit.phoneE164,
@@ -327,12 +322,17 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
 /**
  * JSON-LD `Organization` + `WebSite` (schema.org `@graph`) exibido na home.
  * Fatos válidos em 2026 (fundada em 1991 → 35 anos, 700 condomínios, 70 mil
- * clientes); endereço/telefone da matriz e as 4 unidades vêm de `UNITS` (NAP
- * real). URL base segue `NEXT_PUBLIC_SITE_URL` (preview/staging).
+ * clientes); as 4 unidades vêm de `UNITS` (NAP real). URL base segue
+ * `NEXT_PUBLIC_SITE_URL` (preview/staging).
+ *
+ * `Organization` aceita UM `address`/`telephone` — usamos o da unidade do
+ * Recife (a primeira da lista, onde a Semog nasceu em 1991) só porque o schema
+ * exige um endereço único, sem hierarquia de matriz/filial: cada unidade tem
+ * seu próprio `LocalBusiness` completo na landing da cidade.
  */
 export function getOrganizationJsonLd(): Record<string, unknown> {
   const root = absoluteUrl('')
-  const matriz = UNITS.find((u) => u.role === 'Matriz') ?? UNITS[0]
+  const principal = UNITS[0]
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -348,14 +348,14 @@ export function getOrganizationJsonLd(): Record<string, unknown> {
         description:
           'Administradora de condomínios líder do Nordeste, com 35 anos de mercado, mais de 700 condomínios administrados e 70 mil clientes.',
         numberOfEmployees: { '@type': 'QuantitativeValue', value: 100 },
-        telephone: matriz.phoneE164,
+        telephone: principal.phoneE164,
         areaServed: UNITS.map((u) => u.city),
         address: {
           '@type': 'PostalAddress',
-          streetAddress: matriz.street,
-          addressLocality: matriz.city,
-          addressRegion: matriz.region,
-          postalCode: matriz.postalCode,
+          streetAddress: principal.street,
+          addressLocality: principal.city,
+          addressRegion: principal.region,
+          postalCode: principal.postalCode,
           addressCountry: 'BR',
         },
         contactPoint: {

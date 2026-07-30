@@ -28,6 +28,7 @@ import { PrestacaoBlock } from './Prestacao/Component'
 import { PriceMomentBlock } from './PriceMoment/Component'
 import { ProcessoTimelineBlock } from './ProcessoTimeline/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
+import { PropostaBandBlock } from './PropostaBand/Component'
 import { QuickLinksBlock } from './QuickLinks/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
@@ -79,6 +80,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   benefits: BenefitsBlock,
   contactInfo: ContactInfoBlock,
   formEmbed: FormEmbedBlock,
+  propostaBand: PropostaBandBlock,
   priceMoment: PriceMomentBlock,
   compare: CompareBlock,
   partnerSplit: PartnerSplitBlock,

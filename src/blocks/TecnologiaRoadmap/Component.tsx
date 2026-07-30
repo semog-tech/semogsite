@@ -25,6 +25,7 @@ export function TecnologiaRoadmapBlock({
   intro,
   roadmapLabel,
   steps,
+  anchor,
 }: TecnologiaRoadmapBlockType) {
   if (!steps || steps.length === 0) return null
   const image = intro?.image && typeof intro.image === 'object' ? (intro.image as Media) : undefined
@@ -34,7 +35,7 @@ export function TecnologiaRoadmapBlock({
   const nameHead = nameParts.join(' ')
 
   return (
-    <Section className="tech">
+    <Section id={anchor ?? undefined} className="tech">
       <Container>
         <Reveal className="mb-[clamp(2.5rem,6vw,4.5rem)] max-w-2xl">
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}

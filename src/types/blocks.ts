@@ -229,6 +229,12 @@ export interface SolutionSplitBlock {
     /** Link-arrow — só na variante full-bleed. */
     ctaLabel?: string | null
     ctaHref?: string | null
+    /**
+     * Âncora da seção deste item (ex.: `residenciais` para
+     * `/solucoes#residenciais`). Fica no item, não no bloco, porque cada item
+     * vira uma `<section>` própria e os links da home apontam pra uma delas.
+     */
+    anchor?: string | null
     id?: string | null
   }[]
 }
@@ -350,6 +356,8 @@ export interface CitiesBlock {
         city: string
         uf: string
         role?: string | null
+        /** Página da unidade; com ela o painel inteiro vira link. */
+        href?: string | null
         image?: (number | null) | Media
         id?: string | null
       }[]
@@ -375,6 +383,8 @@ export interface HumanQuoteBlock {
 // ---------------------------------------------------------------------------
 
 export interface PrestacaoBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'prestacao'
   id?: string | number | null
   blockName?: string | null
@@ -395,6 +405,8 @@ export interface PrestacaoBlock {
 // ---------------------------------------------------------------------------
 
 export interface TecnologiaRoadmapBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'tecnologiaRoadmap'
   id?: string | number | null
   blockName?: string | null
@@ -431,6 +443,8 @@ export interface TecnologiaRoadmapBlock {
 // ---------------------------------------------------------------------------
 
 export interface ClubeBeneficiosBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'clubeBeneficios'
   id?: string | number | null
   blockName?: string | null
@@ -491,6 +505,8 @@ export interface RegistrosBlock {
 // ---------------------------------------------------------------------------
 
 export interface AppShowcaseBlock {
+  /** Âncora da seção (ex.: `prestacao` para `/solucoes#prestacao`). */
+  anchor?: string | null
   blockType: 'appShowcase'
   id?: string | number | null
   blockName?: string | null
@@ -900,6 +916,43 @@ export interface FormEmbedBlock {
 }
 
 // ---------------------------------------------------------------------------
+// PropostaBand
+// ---------------------------------------------------------------------------
+
+/**
+ * Faixa full-bleed de captação (argumento à esquerda, formulário em card de
+ * vidro à direita) — a composição das landings de cidade trazida pra home.
+ * Diferente de `formEmbed`, que é o card centralizado da `/proposta`.
+ */
+export interface PropostaBandBlock {
+  blockType: 'propostaBand'
+  id?: string | number | null
+  blockName?: string | null
+  eyebrow?: string | null
+  title: string
+  text?: string | null
+  /** Número gigante em gradiente ice (mesmo recurso do "1%" do Garante). */
+  highlight?: {
+    value?: string | null
+    label?: string | null
+  }
+  /** Provas curtas com filete no topo, ecoando as colunas de pilares. */
+  proofs?:
+    | {
+        label: string
+        id?: string | null
+      }[]
+    | null
+  whatsapp?: {
+    label?: string | null
+    href?: string | null
+  }
+  /** `gradiente` usa a textura de banda do site; `foto` usa `image` com overlay. */
+  background?: ('gradiente' | 'foto') | null
+  image?: (number | null) | Media
+}
+
+// ---------------------------------------------------------------------------
 // PriceMoment
 // ---------------------------------------------------------------------------
 
@@ -1143,6 +1196,7 @@ export type Block =
   | BenefitsBlock
   | ContactInfoBlock
   | FormEmbedBlock
+  | PropostaBandBlock
   | PriceMomentBlock
   | CompareBlock
   | PartnerSplitBlock

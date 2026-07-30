@@ -30,12 +30,16 @@ export const semog: PageData = {
         'linear-gradient(180deg, rgba(5,8,26,0.55) 0%, rgba(10,16,46,0.35) 50%, var(--color-navy-900) 100%)',
       pageHeroPaddingBottom: 'clamp(3rem, 6vw, 5rem)',
       pageHeroHeadlineMaxWidth: '14ch',
+      // A página não tinha caminho nenhum até 85% da rolagem. O convite aqui é
+      // leve de propósito: quem chega numa página institucional está avaliando
+      // a empresa, não comprando — "falar" cabe, "solicitar proposta" não.
+      ctas: [{ label: 'Falar com a gente', href: '/contato', variant: 'glass' }],
     },
     // `.manifesto .big`, `_reference/semog.html:248-253` — `<em>` embutido
     // reproduz o destaque em ice do ref.
     {
       blockType: 'wordsSection',
-      text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, jurídico ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
+      text: 'A Semog existe para que síndicos e moradores nunca precisem entender de contabilidade, burocracia ou manutenção. <em>Esse trabalho é nosso.</em> O de vocês é viver bem.',
     },
     // Ledger editorial (variant 'feature'), mesmo tratamento da home. Sem
     // eyebrow/title: entra logo após o manifesto acima, que já dá o contexto.
@@ -62,7 +66,7 @@ export const semog: PageData = {
           value: 100,
           prefix: '+',
           label: 'Colaboradores',
-          detail: 'Time próprio: financeiro, jurídico, contábil.',
+          detail: 'Time próprio: financeiro, contábil, operações.',
         },
         { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
       ],
@@ -87,12 +91,12 @@ export const semog: PageData = {
         {
           date: '2010',
           title: 'Expansão pela Paraíba',
-          text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e a mesma governança da matriz.',
+          text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e o mesmo padrão de governança.',
         },
         {
           date: '2018',
           title: 'Norte no mapa',
-          text: 'A filial de Belém do Pará leva o método Semog para além do Nordeste.',
+          text: 'A unidade de Belém do Pará leva o método Semog para além do Nordeste.',
         },
         {
           date: '2019',
@@ -158,13 +162,29 @@ export const semog: PageData = {
       image: img('equipe.webp'),
       caption: 'Acesso fácil aos sócios. Regra da casa desde 1991.',
     },
-    // `.final-cta`, `_reference/semog.html:388-399` — `variant:'centered'`.
+    // Substitui o `.final-cta` genérico (`_reference/semog.html:388-399`): quem
+    // leu a história inteira, os números e os sócios está no melhor momento
+    // pra pedir a proposta — e mandá-lo pra outra página aqui era jogar fora
+    // essa leitura. Mesmo bloco da home e do /garante.
     {
-      blockType: 'ctaBand',
-      variant: 'centered',
+      blockType: 'propostaBand',
+      background: 'gradiente',
+      eyebrow: 'Proposta',
       title: 'Venha conhecer a Semog por dentro.',
       text: 'Converse com a nossa equipe e receba uma proposta sob medida para o seu condomínio.',
-      cta: { label: 'Solicitar proposta', href: '/proposta' },
+      highlight: {
+        value: '35',
+        label: 'anos administrando condomínios no Nordeste, desde 1991.',
+      },
+      proofs: [
+        { label: 'Fala com um consultor da unidade mais próxima, não com um call center.' },
+        { label: 'Acesso fácil aos sócios — regra da casa desde 1991.' },
+        { label: 'Proposta sem compromisso — e sem letra miúda.' },
+      ],
+      whatsapp: {
+        label: 'Prefere conversar agora? Falar no WhatsApp',
+        href: 'https://wa.me/551130034506',
+      },
     },
   ],
 }

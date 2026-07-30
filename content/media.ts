@@ -94,6 +94,24 @@ const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> 
   'app-encomenda.webp': { width: 532, height: 1187 },
 }
 
+/**
+ * Arquivos servidos do próprio repositório (`public/`) em vez do bucket.
+ *
+ * `garante.mp4` saiu do Supabase em 30/07/2026 por dois motivos medidos: o
+ * arquivo no bucket era o export cru (1080p a 9,7 Mbps, **7,3 MB** para 6
+ * segundos de loop decorativo) e o bucket responde mais devagar que a CDN da
+ * Vercel (TTFB 464ms × 210ms). A versão local tem 272 KB — 27× menor, sem
+ * diferença visível atrás do gradiente da banda.
+ *
+ * Mesma ressalva do `/hero/:file*.mp4` em `next.config.ts`: o nome é semântico,
+ * não versionado por hash, e o arquivo vai com cache imutável de 1 ano. Para
+ * trocar o clipe, **renomear o arquivo** e atualizar o caminho aqui — sobrepor
+ * o mesmo nome deixaria visitantes recorrentes com o clipe antigo por até 1 ano.
+ */
+const LOCAL_BY_FILENAME: Record<string, string> = {
+  'garante.mp4': '/media/garante.mp4',
+}
+
 /** Monta `{url, alt, width?, height?}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */
 export function img(file: string): { url: string; alt: string; width?: number; height?: number } {
   const alt = ALT_BY_FILENAME[file]
@@ -101,5 +119,6 @@ export function img(file: string): { url: string; alt: string; width?: number; h
     throw new Error(`content/media: alt não mapeado para "${file}" — adicione em ALT_BY_FILENAME`)
   }
   const dims = DIMENSIONS_BY_FILENAME[file]
-  return { url: BASE + file, alt, ...(dims ? { width: dims.width, height: dims.height } : {}) }
+  const url = LOCAL_BY_FILENAME[file] ?? BASE + file
+  return { url, alt, ...(dims ? { width: dims.width, height: dims.height } : {}) }
 }

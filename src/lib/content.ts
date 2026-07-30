@@ -1,5 +1,5 @@
 import { pages } from '@/../content/pages'
-import { site, type SiteConfig } from '@/../content/site'
+import { type SiteConfig, site } from '@/../content/site'
 import { findPostBySlug, listRecentPosts, listRelatedPosts, type PostData } from '@/lib/blog'
 import type { PageData } from '@/types/content'
 

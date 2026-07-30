@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/upload-ads-conversions",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/push-exact-leads",
+      "schedule": "15 * * * *"
     }
   ]
 }

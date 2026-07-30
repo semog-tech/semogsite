@@ -106,7 +106,7 @@ export const contato: PageData = {
       items: [
         {
           city: 'Semog Recife',
-          chip: 'Matriz · Pernambuco',
+          chip: 'Unidade · Pernambuco',
           address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE',
           phone: '(81) 3316-0265',
           whatsappDisplay: '(11) 3003-4506',
@@ -117,7 +117,7 @@ export const contato: PageData = {
         },
         {
           city: 'Semog João Pessoa',
-          chip: 'Filial · Paraíba',
+          chip: 'Unidade · Paraíba',
           address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB',
           phone: '(83) 3224-1228',
           whatsappDisplay: '(11) 3003-4506',
@@ -128,7 +128,7 @@ export const contato: PageData = {
         },
         {
           city: 'Semog Campina Grande',
-          chip: 'Filial · Paraíba',
+          chip: 'Unidade · Paraíba',
           address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB',
           phone: '(83) 3201-9039',
           whatsappDisplay: '(11) 3003-4506',
@@ -140,7 +140,7 @@ export const contato: PageData = {
         },
         {
           city: 'Semog Belém',
-          chip: 'Filial · Pará',
+          chip: 'Unidade · Pará',
           address: 'Av. Alcindo Cacela, 2351, Sl 201, Cremação, Belém/PA',
           phone: '(91) 3115-4700',
           whatsappDisplay: '(11) 3003-4506',
@@ -169,25 +169,25 @@ export const contato: PageData = {
       items: [
         {
           city: 'Recife',
-          uf: 'PE · Matriz',
+          uf: 'PE',
           address: 'R. Bartolomeu de Gusmão, 217, Madalena, Recife/PE',
           phone: '(81) 3316-0265',
         },
         {
           city: 'João Pessoa',
-          uf: 'PB · Filial',
+          uf: 'PB',
           address: 'Av. Guarabira, 834, Manaíra, João Pessoa/PB',
           phone: '(83) 3224-1228',
         },
         {
           city: 'Campina Grande',
-          uf: 'PB · Filial',
+          uf: 'PB',
           address: 'R. José Adnoste Roberto, 1001, Catolé, Campina Grande/PB',
           phone: '(83) 3201-9039',
         },
         {
           city: 'Belém',
-          uf: 'PA · Filial',
+          uf: 'PA',
           address: 'Av. Alcindo Cacela, 2351, Sl 201, Cremação, Belém/PA',
           phone: '(91) 3115-4700',
         },

@@ -14,12 +14,19 @@ describe('tipos de bloco', () => {
   })
 
   it('StatsBlock aceita a variante band', () => {
-    const b: StatsBlock = { blockType: 'stats', variant: 'band', items: [{ value: 35, label: 'Anos' }] }
+    const b: StatsBlock = {
+      blockType: 'stats',
+      variant: 'band',
+      items: [{ value: 35, label: 'Anos' }],
+    }
     expect(b.variant).toBe('band')
   })
 
   it('a union Block aceita qualquer bloco', () => {
-    const bs: Block[] = [{ blockType: 'hero', headline: 'x' }, { blockType: 'stats', items: [] }]
+    const bs: Block[] = [
+      { blockType: 'hero', headline: 'x' },
+      { blockType: 'stats', items: [] },
+    ]
     expect(bs).toHaveLength(2)
   })
 

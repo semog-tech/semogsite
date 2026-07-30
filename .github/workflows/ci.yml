@@ -55,7 +55,13 @@ jobs:
           NODE_OPTIONS: --no-deprecation
         run: pnpm exec vitest run --config ./vitest.config.mts
 
-      # `next build` is intentionally NOT run in this workflow: it fetches
-      # data from Payload/Postgres at build time for the site's pages, and
-      # CI has no live database available. Build verification happens via
-      # the preview/deploy pipeline instead.
+      # `next build` roda no CI desde a remoção do Payload: o build ficou livre
+      # de banco (páginas 100% estáticas lidas de `content/*.ts`, sem fetch do
+      # Postgres em build time), então compila sem banco e sem secrets. Pega
+      # regressão de build — tipo de rota, import quebrado, página que não gera
+      # — antes do deploy na Vercel. `SITE_ALLOW_INDEX` e os `NEXT_PUBLIC_*`
+      # ausentes viram `undefined` (site noindex, form em modo teste) e o
+      # Sentry sem `SENTRY_AUTH_TOKEN` só pula o upload de source map: nada
+      # disso falha o build. `pnpm build` já seta o NODE_OPTIONS (cross-env).
+      - name: Next build (verificação)
+        run: pnpm build

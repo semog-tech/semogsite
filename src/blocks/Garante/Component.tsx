@@ -1,3 +1,4 @@
+import { GaranteBackgroundVideo } from '@/blocks/Garante/BackgroundVideo'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
@@ -87,16 +88,11 @@ export function GaranteBlock({
     return (
       <section className="g-band-home" aria-label="Semog Garante">
         {videoUrl ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
+          <GaranteBackgroundVideo
+            src={videoUrl}
             poster={posterUrl}
             className="absolute inset-0 z-[1] h-full w-full object-cover"
-          >
-            <source src={videoUrl} type="video/mp4" />
-          </video>
+          />
         ) : (
           posterMedia && (
             <ImageMedia

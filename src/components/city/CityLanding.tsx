@@ -71,8 +71,8 @@ const SOLUCOES: { icon: string; title: string; text: string; span: string; exclu
     },
     {
       icon: IC.scale,
-      title: 'Assessoria jurídica',
-      text: 'Contratos, convenções e conflitos com time próprio.',
+      title: 'Suporte jurídico com parceiro',
+      text: 'Contratos, convenções e conflitos com escritório parceiro.',
       span: 'lg:col-span-2',
     },
     {
@@ -109,7 +109,7 @@ const DIFERENCIAIS = [
   {
     icon: IC.chat,
     title: 'Gente na relação',
-    text: 'Equipe local especializada, sempre por perto. Financeiro, jurídico e contábil próprios, à sua disposição.',
+    text: 'Equipe local especializada, sempre por perto. Financeiro e contábil próprios, com suporte jurídico de escritório parceiro.',
   },
 ]
 
@@ -350,7 +350,10 @@ export function CityLanding({ data }: { data: CityLandingData }) {
           <span className="text-[0.78rem] uppercase tracking-[0.14em]" style={{ color: '#7e88ac' }}>
             Confiança de quem gesta com a gente
           </span>
-          {[`SECOVI · ${data.uf}`, 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
+          {/* Selos sem a sigla do estado: a filiação ao Secovi é a de PE, então
+              exibir "SECOVI · PB"/"· PA" nas outras praças afirmaria filiação que
+              não existe. Mesmo critério para os demais registros. */}
+          {['CRECI', 'CRA', 'SECOVI', 'ABADI', 'Superlógica G20', 'Empresa filiada'].map((s) => (
             <span key={s} className="text-[0.98rem] font-medium" style={{ color: '#b4bdd9' }}>
               {s}
             </span>
@@ -494,7 +497,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
               style={{ color: '#3b54be' }}
             >
-              {data.city} · {data.role}
+              Unidade {data.city}
             </p>
             <h2
               className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
@@ -535,7 +538,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
             >
               <div>
                 <div className="text-[0.78rem]" style={{ color: '#6a7396' }}>
-                  Unidade {data.city}
+                  Endereço
                 </div>
                 <div className="text-[0.98rem] font-medium" style={{ color: INK }}>
                   {data.unit.address}

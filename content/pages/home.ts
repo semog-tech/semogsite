@@ -78,7 +78,7 @@ export const home: PageData = {
           value: 100,
           prefix: '+',
           label: 'Especialistas',
-          detail: 'Time próprio: financeiro, jurídico, contábil.',
+          detail: 'Time próprio: financeiro, contábil, operações.',
         },
         { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
       ],
@@ -109,6 +109,32 @@ export const home: PageData = {
           text: 'Processos claros, prazos cumpridos e documentação impecável, sempre ao seu alcance.',
         },
       ],
+    },
+    {
+      // Faixa de captação no primeiro terço da página, e não só no CTA final:
+      // medido no GA4 (23-29/07/2026), a home converte 1,6% enquanto as
+      // landings de cidade — mesmo público, mesmo formulário, só que embutido
+      // — convertem 7-12%. E só 6% dos pageviews chegam a 90% de rolagem, ou
+      // seja, quase ninguém alcançava a faixa final, única chamada forte.
+      blockType: 'propostaBand',
+      background: 'foto',
+      image: img('hero-towers.webp'),
+      eyebrow: 'Proposta',
+      title: 'O primeiro passo leva dois minutos.',
+      text: 'Diga onde fica e como é o condomínio. O resto a gente conversa com calma.',
+      highlight: {
+        value: '24h',
+        label: 'é o prazo da resposta, em dias úteis.',
+      },
+      proofs: [
+        { label: 'Fala com um consultor da unidade mais próxima, não com um call center.' },
+        { label: 'Proposta sem compromisso — e sem letra miúda.' },
+        { label: 'Número nenhum antes de olhar sua convenção e seu orçamento.' },
+      ],
+      whatsapp: {
+        label: 'Prefere conversar agora? Falar no WhatsApp',
+        href: WHATSAPP_URL,
+      },
     },
     {
       blockType: 'solucoesBento',
@@ -147,7 +173,7 @@ export const home: PageData = {
           tag: 'Prestação de Contas Digital',
           title: 'O balancete que todos os condôminos entendem.',
           text: '100% digital, com documentos anexados, gráficos claros e assinatura digital com validade jurídica.',
-          href: '/solucoes#prestacao',
+          href: '/prestacao-de-contas-condominio',
         },
         {
           image: img('c-garante.webp'),
@@ -171,7 +197,7 @@ export const home: PageData = {
           tag: 'Semog One',
           title: 'A plataforma própria que construímos sobre o nosso ERP.',
           text: 'Equipe de desenvolvimento própria e uma plataforma única que evolui toda semana.',
-          href: '/solucoes#tecnologia',
+          href: '/software-de-gestao-condominial',
         },
       ],
     },
@@ -215,15 +241,34 @@ export const home: PageData = {
       eyebrow: 'Presença',
       title: 'Do Nordeste ao Norte, perto de você.',
       items: [
-        { city: 'Recife', uf: 'Pernambuco', role: 'Matriz', image: img('recife.webp') },
-        { city: 'João Pessoa', uf: 'Paraíba', role: 'Filial', image: img('joao-pessoa.webp') },
+        {
+          city: 'Recife',
+          uf: 'Pernambuco',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-recife',
+          image: img('recife.webp'),
+        },
+        {
+          city: 'João Pessoa',
+          uf: 'Paraíba',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-joao-pessoa',
+          image: img('joao-pessoa.webp'),
+        },
         {
           city: 'Campina Grande',
           uf: 'Paraíba',
-          role: 'Filial',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-campina-grande',
           image: img('campina-grande.webp'),
         },
-        { city: 'Belém', uf: 'Pará', role: 'Filial', image: img('belem.webp') },
+        {
+          city: 'Belém',
+          uf: 'Pará',
+          role: 'Unidade',
+          href: '/administradora-de-condominios-belem',
+          image: img('belem.webp'),
+        },
       ],
     },
     {

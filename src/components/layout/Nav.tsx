@@ -67,12 +67,30 @@ export function Nav({
     setOpen(false)
   }, [pathname])
 
+  // Esc fecha o menu. Até 30/07/2026 não havia saída de teclado nenhuma: o
+  // overlay (`z-index: 50`) cobria o próprio botão que vira "X" (header em
+  // `z-index: 40`), então quem abria o menu só saía navegando para outra
+  // página. O `z-index` foi corrigido em `theme.css`; isto fecha o caminho
+  // pelo teclado, exigido pra qualquer overlay modal.
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open])
+
   const hasCta = Boolean(cta.label && cta.href)
   const hasClientArea = Boolean(clientArea.label && clientArea.href)
 
   return (
     <>
-      <header className={scrolled ? 'nav is-scrolled' : 'nav'}>
+      <header
+        className={['nav', scrolled && 'is-scrolled', open && 'is-menu-open']
+          .filter(Boolean)
+          .join(' ')}
+      >
         <div className="nav-inner liquid-glass">
           <a href="/" className="nav-logo" aria-label="Semog, página inicial">
             {/* biome-ignore lint/performance/noImgElement: sem next/image (localPatterns não cobre /public fora de /api/media) */}

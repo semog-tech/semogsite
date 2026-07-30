@@ -32,13 +32,7 @@ describe('PillarsBlock — variante columns', () => {
   })
 
   it('funciona com 2 itens (página do aplicativo)', () => {
-    render(
-      <PillarsBlock
-        blockType="pillars"
-        variant="columns"
-        items={[items[0], items[1]]}
-      />,
-    )
+    render(<PillarsBlock blockType="pillars" variant="columns" items={[items[0], items[1]]} />)
     expect(screen.getByText('Condomínios')).toBeDefined()
     expect(screen.getByText('Métricas')).toBeDefined()
   })
