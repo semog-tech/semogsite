@@ -1,7 +1,16 @@
 # Lead do site → Exact Spotter
 
 **Data:** 2026-07-29
-**Status:** aprovado (design)
+**Status:** implementado — ver plano em `docs/superpowers/plans/2026-07-29-lead-do-site-para-o-exact.md`
+
+> **Correção pós-probe (2026-07-29).** O contrato da API que este design assumiu
+> (tirado do PDF da Exact) estava errado em três pontos, corrigidos abaixo e
+> documentados em `scripts/probe-exact-create-lead.ts`:
+> `POST /Leads` não existe (é `/LeadsAdd`, contato `/PersonsAdd`); o corpo é
+> aninhado em `{ lead: … }`; `source`/`industry`/`subSource` são **strings**, não
+> ids. E **não há como gravar campo personalizado pela v3** — isso só existia na
+> v2 (`api.exactsales.com.br`), que responde 503. Unidades, papel e tipo de
+> condomínio passaram todos pra `description`.
 
 ## Problema
 
@@ -88,14 +97,14 @@ trabalho "em background" depois do `return` não é confiável; melhor pagar os
 |---|---|
 | `name` (obrigatório) | `nomeCondominio`; se vazio, `nome` da pessoa |
 | `ddiPhone` / `phone` | split do E.164 com `libphonenumber-js` (já é dependência): `+5583999501388` → `55` + `83999501388` |
-| `industry` | `cidade` → id da região; "Outra cidade" → omitido |
-| `source` | `Anúncio` (135724) se houver gclid/gbraid/wbraid/fbclid/msclkid; senão `Site` (137471) |
+| `industry` | `cidade` → **nome** da região ("João Pessoa", "Recife", …); "Outra cidade" → omitido |
+| `source` | **string** `"Anúncio"` se houver gclid/gbraid/wbraid/msclkid ou canal pago; senão `"Site"` |
 | `mktLink` | página de entrada (`attribution.first.landing`) |
 | `funnelId` | 24653 (sem `stage` → cai em "Entrada") |
 | `sdrEmail` | env `EXACT_SDR_EMAIL`, default `daiane@semog.com.br` |
-| `duplicityValidation` | `false` — sempre cria |
+| `duplicityValidation` | `false` — sempre cria (vai fora do objeto `lead`) |
 | `description` | mensagem + origem + **valores crus** informados no site |
-| `customFields` | `125381` unidades · `125366` papel · `125373` tipo |
+| ~~`customFields`~~ | **impossível pela v3** — unidades/papel/tipo vão na `description` |
 
 Mapa aproximado (decisão explícita: não mexer nas opções do form agora):
 
@@ -106,14 +115,14 @@ Mapa aproximado (decisão explícita: não mexer nas opções do form agora):
   Condomínio comercial → *Comercial* · Associação → *Outra modalidade* ·
   Incorporadora → *Outra modalidade*.
 
-Duas dessas conversões são chutes: "Síndico(a)" não distingue morador de
-profissional, e "Condomínio residencial" não distingue vertical de horizontal.
-Por isso a `description` do lead carrega **sempre** o valor cru — "Papel
-informado: Síndico(a) · Tipo: Condomínio residencial · 84 unidades" — junto da
-mensagem e da origem. Se o chute estiver errado, o dado real está na tela do
-lead, a um clique de quem for qualificar.
+**Isso ficou sem efeito.** Como a v3 não grava campo personalizado, o mapa
+aproximado não é usado: papel, tipo e unidades vão **crus** na `description`
+("Informado no site — papel: Síndico(a) · tipo: Condomínio residencial ·
+unidades: 84"), junto da mensagem e da origem. Some a ambiguidade (nada é
+chutado) e some também o preenchimento automático dos campos que alimentam o
+filtro de qualificação — quem qualificar preenche na tela, lendo a descrição.
 
-Contato principal (`POST /Persons`): `leadId`, `name`, `email`, `jobTitle` =
+Contato principal (`POST /PersonsAdd`): `leadId`, `name`, `email`, `jobTitle` =
 cargo cru, `ddiPhone1`/`phone1`, `mainContact: true`.
 
 ## Dados

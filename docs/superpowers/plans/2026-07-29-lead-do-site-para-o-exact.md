@@ -10,6 +10,15 @@
 
 **Spec:** `docs/superpowers/specs/2026-07-29-lead-do-site-para-o-exact-design.md`
 
+> **Status (2026-07-29): Tasks 1–5 executadas.** A Task 1 (probe) derrubou a
+> premissa do contrato: o endpoint é `POST /LeadsAdd` com corpo aninhado em
+> `{ lead: … }`, `source`/`industry` são **strings**, e **campo personalizado
+> não é gravável pela v3** — unidades/papel/tipo foram todos pra `description`.
+> O código implementado segue o contrato real (ver
+> `scripts/probe-exact-create-lead.ts`), não os trechos das Tasks 2 e 3 abaixo,
+> que estão preservados como registro do que se acreditava antes do probe.
+> Falta só a Task 6 (ligar em produção).
+
 ## Global Constraints
 
 - Base do Exact: `https://api.exactspotter.com/v3`; auth por header `token_exact: <token>`; rate limit 30 req/20 s (irrelevante no volume atual, mas não fazer loops apertados).
