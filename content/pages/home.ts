@@ -117,7 +117,8 @@ export const home: PageData = {
       // — convertem 7-12%. E só 6% dos pageviews chegam a 90% de rolagem, ou
       // seja, quase ninguém alcançava a faixa final, única chamada forte.
       blockType: 'propostaBand',
-      background: 'gradiente',
+      background: 'foto',
+      image: img('hero-towers.webp'),
       eyebrow: 'Proposta',
       title: 'O primeiro passo leva dois minutos.',
       text: 'Diga onde fica e como é o condomínio. O resto a gente conversa com calma.',

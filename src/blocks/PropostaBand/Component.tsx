@@ -64,15 +64,21 @@ export function PropostaBandBlock({
         <>
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-20 bg-center bg-cover"
+            className="-z-20 absolute inset-0 bg-cover bg-[position:70%_center]"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />
+          {/*
+            Overlay direcional: quase opaco onde mora o texto (esquerda) e mais
+            leve à direita, deixando a foto aparecer atrás do card. Um overlay
+            uniforme escuro o bastante pra segurar o contraste do texto apagava
+            a imagem inteira — aí a foto não valia o download.
+          */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10"
+            className="-z-10 absolute inset-0"
             style={{
               background:
-                'linear-gradient(105deg, rgba(5,8,26,0.94) 0%, rgba(5,8,26,0.86) 45%, rgba(16,26,72,0.72) 100%)',
+                'linear-gradient(100deg, rgba(5,8,26,0.96) 0%, rgba(5,8,26,0.9) 34%, rgba(8,13,38,0.62) 68%, rgba(16,26,72,0.5) 100%)',
             }}
           />
         </>
