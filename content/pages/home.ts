@@ -111,6 +111,19 @@ export const home: PageData = {
       ],
     },
     {
+      // Formulário no primeiro terço da página, e não só no CTA final: medido
+      // no GA4 (23-29/07/2026), a home converte 1,6% enquanto as landings de
+      // cidade — mesmo público, mesmo formulário, só que embutido — convertem
+      // 7-12%. E só 6% dos pageviews chegam a 90% de rolagem, ou seja, quase
+      // ninguém alcança a faixa final onde ficava a única chamada forte.
+      blockType: 'formEmbed',
+      formType: 'proposta',
+      compact: true,
+      eyebrow: 'Proposta',
+      title: 'Receba uma proposta sob medida.',
+      text: 'Um consultor da sua região responde em até 24 horas úteis.',
+    },
+    {
       blockType: 'solucoesBento',
       eyebrow: 'Soluções',
       title: 'Uma gestão para cada comunidade.',

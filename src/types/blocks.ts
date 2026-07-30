@@ -808,6 +808,12 @@ export interface FormEmbedBlock {
   eyebrow?: string | null
   title?: string | null
   text?: string | null
+  /**
+   * Variante enxuta do formulário de proposta (5 campos), a mesma das landings
+   * de cidade — que convertem 7-12% contra 1,6% da home (GA4, 23-29/07/2026).
+   * Só afeta `formType: 'proposta'`.
+   */
+  compact?: boolean | null
 }
 
 // ---------------------------------------------------------------------------
