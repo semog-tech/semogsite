@@ -133,9 +133,19 @@ export function mapLead(
     nonEmpty(data.email) && `e-mail: ${data.email}`,
   ].filter(Boolean) as string[]
 
+  // Qual formulário originou o lead muda o que esperar dele: "proposta" é
+  // pedido explícito com os campos do condomínio; "contato" é alguém que
+  // escreveu pedindo proposta pela página de atendimento, normalmente com
+  // menos dados e mais texto livre. Quem for qualificar precisa saber disso.
+  const origemFormulario =
+    formType === 'proposta'
+      ? 'Origem: formulário de proposta do site.'
+      : 'Origem: formulário de contato do site (assunto proposta comercial).'
+
   const descricao = [
     nonEmpty(data.mensagem),
     informado.length ? `Informado no site — ${informado.join(' · ')}` : undefined,
+    origemFormulario,
     ...linhasDeOrigem(data),
   ].filter(Boolean) as string[]
 

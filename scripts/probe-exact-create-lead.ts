@@ -34,9 +34,10 @@
 //
 // Limpeza: `/LeadsDelete` não aceita POST (404) — descarte via `POST /LeadsLost`.
 
-const baseUrl = (
-  process.env.EXACT_SPOTTER_BASE_URL ?? 'https://api.exactspotter.com/v3'
-).replace(/\/$/, '')
+const baseUrl = (process.env.EXACT_SPOTTER_BASE_URL ?? 'https://api.exactspotter.com/v3').replace(
+  /\/$/,
+  '',
+)
 const token = process.env.EXACT_SPOTTER_TOKEN
 
 if (!token) {
@@ -108,7 +109,10 @@ async function main() {
   console.log(JSON.stringify(lead, null, 2).slice(0, 2000))
 
   const contatos = await call(`/Persons?$filter=leadId eq ${leadId}`, 'GET')
-  console.log('\ncontatos:', JSON.stringify((contatos.body as { value?: unknown[] }).value).slice(0, 500))
+  console.log(
+    '\ncontatos:',
+    JSON.stringify((contatos.body as { value?: unknown[] }).value).slice(0, 500),
+  )
 
   const descarte = await call('/LeadsLost', 'POST', {
     leadId,

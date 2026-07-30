@@ -65,7 +65,6 @@ export function GaranteBackgroundVideo({ src, poster, className, ...rest }: Prop
   }, [src])
 
   return (
-    // biome-ignore lint/a11y/useMediaCaption: vídeo decorativo, sem áudio nem informação
     <video
       ref={ref}
       poster={poster}

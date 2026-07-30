@@ -56,13 +56,19 @@ describe('mapLead — lead', () => {
     const { lead } = mapLead('proposta', { ...propostaData, telefone: '' }, SDR)
     expect(lead.ddiPhone).toBeUndefined()
     expect(lead.phone).toBeUndefined()
-    expect(mapLead('proposta', { ...propostaData, telefone: 'não é telefone' }, SDR).lead.phone).toBeUndefined()
+    expect(
+      mapLead('proposta', { ...propostaData, telefone: 'não é telefone' }, SDR).lead.phone,
+    ).toBeUndefined()
   })
 
   it('mapeia a cidade do form para o nome da região (industry, string)', () => {
     expect(mapLead('proposta', propostaData, SDR).lead.industry).toBe('João Pessoa')
-    expect(mapLead('proposta', { ...propostaData, cidade: 'Recife e região' }, SDR).lead.industry).toBe('Recife')
-    expect(mapLead('proposta', { ...propostaData, cidade: 'Belém e região' }, SDR).lead.industry).toBe('Belém')
+    expect(
+      mapLead('proposta', { ...propostaData, cidade: 'Recife e região' }, SDR).lead.industry,
+    ).toBe('Recife')
+    expect(
+      mapLead('proposta', { ...propostaData, cidade: 'Belém e região' }, SDR).lead.industry,
+    ).toBe('Belém')
   })
 
   it('"Outra cidade" não define industry', () => {
@@ -91,7 +97,8 @@ describe('mapLead — lead', () => {
   it('página de entrada vira mktLink', () => {
     const comLanding = {
       ...propostaData,
-      'origem — Página de entrada': 'https://semog.com.br/administradora-de-condominios-joao-pessoa',
+      'origem — Página de entrada':
+        'https://semog.com.br/administradora-de-condominios-joao-pessoa',
     }
     expect(mapLead('proposta', comLanding, SDR).lead.mktLink).toBe(
       'https://semog.com.br/administradora-de-condominios-joao-pessoa',
@@ -164,6 +171,17 @@ describe('mapLead — descrição', () => {
     expect(lead.name).toBe('João')
     expect(lead.description).toContain('proposta-comercial')
     expect(lead.description).toContain('3 prédios')
+  })
+
+  it('diz de qual formulário o lead veio', () => {
+    // Muda o que esperar do lead: "proposta" traz os campos do condomínio;
+    // "contato" costuma vir com menos dado e mais texto livre.
+    expect(mapLead('proposta', propostaData, SDR).lead.description).toContain(
+      'formulário de proposta',
+    )
+    expect(
+      mapLead('contato', { nome: 'João', assunto: 'proposta-comercial' }, SDR).lead.description,
+    ).toContain('formulário de contato')
   })
 
   it('lead sem mensagem nem origem ainda tem descrição válida', () => {

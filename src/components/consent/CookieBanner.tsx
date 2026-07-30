@@ -10,6 +10,21 @@ import { useConsent } from '@/providers/ConsentProvider'
  * navegável), então usamos `role="dialog"` sem `aria-modal`, mas movemos o
  * foco pra ele no mount para leitores de tela notarem a região dinâmica.
  * Entrada anima com slide-up; `motion-reduce:` desliga a transição.
+ *
+ * **Barra fina, não card** (30/07/2026): a versão anterior era um card de
+ * 42rem com título, parágrafo de quatro linhas e três ações — ~430px de altura
+ * no celular, quase metade da tela, bem em cima do CTA do hero. Todo visitante
+ * novo via isso antes de ver o site. Agora:
+ *
+ * - o texto foi para uma frase (o detalhamento vive na Política de
+ *   Privacidade, que continua linkada — é o que a LGPD pede);
+ * - o título virou `sr-only`: dizia o óbvio pra quem enxerga e continua
+ *   nomeando o diálogo pra quem usa leitor de tela;
+ * - no desktop tudo cabe em uma linha; no celular, texto em cima e as ações
+ *   numa fileira só.
+ *
+ * O painel de preferências (opt-in por toggle) continua igual — quem clica em
+ * "Preferências" está pedindo a versão detalhada, e aí o espaço se justifica.
  */
 export function CookieBanner() {
   const { consent, decided, rejectNonEssential, save } = useConsent()

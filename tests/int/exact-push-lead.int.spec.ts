@@ -112,7 +112,9 @@ describe('pushLeadToExact', () => {
   })
 
   it('erro no POST /LeadsAdd devolve ok:false com o status', async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse(400, { error: { message: 'The request is invalid.' } }))
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(400, { error: { message: 'The request is invalid.' } }),
+    )
 
     const result = await pushLeadToExact('proposta', proposta)
 

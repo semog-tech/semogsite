@@ -46,7 +46,9 @@ describe('POST /api/track/whatsapp', () => {
       attribCookie({ first: { gclid: 'gclid-do-cookie' }, last: { gclid: 'gclid-last' } }),
     )
 
-    const res = await POST(req({ page: '/administradora-de-condominios-recife', section: 'conteudo' }))
+    const res = await POST(
+      req({ page: '/administradora-de-condominios-recife', section: 'conteudo' }),
+    )
 
     expect(res.status).toBe(204)
     expect(queryMock).toHaveBeenCalledTimes(1)

@@ -51,7 +51,11 @@ async function main() {
         `update cms.leads
             set exact_lead_id = $1, exact_error = $2, exact_attempts = exact_attempts + 1
           where id = $3`,
-        [push.ok ? push.exactLeadId : null, push.ok ? (push.personError ?? null) : push.error, lead.id],
+        [
+          push.ok ? push.exactLeadId : null,
+          push.ok ? (push.personError ?? null) : push.error,
+          lead.id,
+        ],
       )
       console.log(
         push.ok
