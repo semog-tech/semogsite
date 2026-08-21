@@ -656,7 +656,7 @@ git commit -m "feat(experience): alts das mídias do evento"
 
 **Atenção:** hoje `src/app/(frontend)/layout.tsx` é o **root layout** (declara `<html>`/`<body>`). Um segundo route group irmão precisa declarar os seus também — dois root layouts é padrão suportado pelo Next.js, e é o que dá a página sem header/rodapé sem gambiarra de CSS.
 
-- [ ] **Step 1: Escrever o teste e2e que falha**
+- [x] **Step 1: Escrever o teste e2e que falha**
 
 Criar `tests/e2e/experience.e2e.spec.ts`:
 
@@ -687,12 +687,12 @@ test.describe('Landing do Experience', () => {
 
 Antes de rodar, confirmar os seletores reais: `grep -n "className" src/components/layout/HeaderServer.tsx src/components/layout/FooterServer.tsx src/components/layout/WhatsAppFloat.tsx` e ajustar `site-header`/`site-footer`/`data-whatsapp-float` para o que existe de fato.
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm exec playwright test tests/e2e/experience.e2e.spec.ts`
 Expected: FAIL — `/experience` dá 404
 
-- [ ] **Step 3: Criar o layout isolado**
+- [x] **Step 3: Criar o layout isolado**
 
 Criar `src/app/(evento)/layout.tsx`. Espelhar `src/app/(frontend)/layout.tsx` (abrir e copiar a estrutura de `<html>`, classes de fonte e provedores), **mantendo**: fontes (`clash`, `satoshi`), `theme.css`, `ConsentProvider`, `CookieBanner`, `Analytics`, `Clarity`, `AttributionTracker`. **Removendo**: `HeaderServer`, `FooterServer`, `WhatsAppFloat`, `Preloader`, `Grain`, `LenisProvider`.
 
@@ -739,7 +739,17 @@ export default function EventoLayout({ children }: { children: React.ReactNode }
 
 Conferir o caminho relativo de `fonts`/`styles` contra o que `(frontend)/layout.tsx` usa — os dois grupos estão na mesma profundidade, então `../../` vale para ambos.
 
-- [ ] **Step 4: Criar a página**
+> **Corrigido na implementação:** no snippet acima `Analytics` e `Clarity`
+> estão FORA do `ConsentProvider`, e assim a página quebra em runtime — os
+> dois chamam `useConsent()`, que lança `useConsent must be used within a
+> <ConsentProvider>` quando o contexto é `null`
+> (`src/providers/ConsentProvider.tsx`). Os três (com o `AttributionTracker`,
+> por paridade) foram para dentro do provider, na mesma ordem de
+> `(frontend)/layout.tsx`. O caminho `../../fonts` e `../../styles/theme.css`
+> do plano está certo — conferido: o `<html class>` e o chunk de CSS servidos
+> em `/experience` são idênticos aos da home.
+
+- [x] **Step 4: Criar a página**
 
 Criar `src/app/(evento)/experience/page.tsx`:
 
@@ -776,7 +786,7 @@ export default function ExperiencePage() {
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 ```bash
 pnpm run build && pnpm run start &
@@ -784,12 +794,34 @@ pnpm exec playwright test tests/e2e/experience.e2e.spec.ts
 ```
 Expected: PASS (3 testes). Encerrar o servidor depois.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/app/\(evento\)/ tests/e2e/experience.e2e.spec.ts
 git commit -m "feat(experience): rota isolada /experience com layout próprio"
 ```
+
+> **Nota da Task 5 (executada):** três registros.
+> (1) **Seletores do e2e.** O Step 1 manda confirmar antes de rodar:
+> `site-header`/`site-footer`/`[data-whatsapp-float]` não existem no projeto.
+> Os reais são `header.nav` (`Nav.tsx`), `footer.footer` (`FooterView.tsx`) e
+> `.wa-float` (`WhatsAppFloat.tsx`) — conferidos no HTML servido. Com os nomes
+> do plano os três `toHaveCount(0)` passariam por vacuidade, sem testar nada.
+> (2) **URLs absolutas no `page.goto`.** `baseURL` está comentado em
+> `playwright.config.ts`, então `page.goto('/experience')` seria "invalid URL".
+> Todos os specs de `tests/e2e/` usam `http://localhost:3000/...`; segui a
+> convenção. Acrescentei também `footer.footer` ao teste de controle da home
+> (o plano só conferia o header) — o vazamento do layout novo derrubaria os dois.
+> (3) **Sem conflito com o catch-all.** O `next build` lista `/experience` como
+> rota estática (○) ao lado de `● /[[...slug]]`: rota explícita vence a
+> dinâmica mesmo em route group irmão, sem erro de rotas paralelas.
+>
+> Verificação: e2e do Experience 3/3 verde; suíte e2e completa 49 passed / 1
+> failed — o único vermelho é `hero-video.e2e.spec.ts` ("não baixa nenhum clipe
+> mais de uma vez"), um teste de orçamento de banda da home com margem de 1,15x
+> que estourou ~5% sob a carga da suíte inteira e **passa 4/4 isolado** — flaky
+> pré-existente, sem relação com `/experience`. `test:int` 175/175,
+> `tsc --noEmit` limpo, Biome limpo, `next build` sem erro.
 
 ---
 
