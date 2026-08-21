@@ -1,0 +1,404 @@
+<title>Semog Experience 2026</title>
+
+<style>
+  @font-face{font-family:"Clash Display";src:url(__F_CLASH_500__) format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"Clash Display";src:url(__F_CLASH_600__) format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"Satoshi";src:url(__F_SATOSHI_400__) format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"Satoshi";src:url(__F_SATOSHI_500__) format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"Satoshi";src:url(__F_SATOSHI_700__) format("woff2");font-weight:700;font-display:swap}
+
+  :root{
+    --navy-950:#05081a; --navy-900:#0a102e; --navy-850:#0d1439; --navy-800:#101a48;
+    --navy-600:#1b2d70; --navy-500:#2a3f96; --navy-400:#3b54be;
+    --ice-300:#d8ecf7; --ice-400:#add5eb; --ice-500:#7fb8db; --ice-600:#5895bd;
+    --paper:#f4f6fb; --paper-2:#ffffff;
+    --display:"Clash Display","Helvetica Neue",Arial,sans-serif;
+    --body:"Satoshi","Helvetica Neue",Arial,sans-serif;
+    --wrap:78rem;
+  }
+
+  /* Superfícies: cada seção declara a sua e todo texto herda dos tokens dela.
+     Nenhuma cor é escrita direto — some a pergunta "qual é o fundo aqui mesmo?". */
+  .s-dark{--bg:var(--navy-900);--fg:#edf1fa;--fg-2:#b4bdd9;--fg-3:#7e88ac;
+          --line:rgba(173,213,235,.14);--line-2:rgba(173,213,235,.30);--accent:var(--ice-400);--accent-2:var(--ice-500)}
+  .s-deep{--bg:var(--navy-950);--fg:#edf1fa;--fg-2:#b4bdd9;--fg-3:#7e88ac;
+          --line:rgba(173,213,235,.14);--line-2:rgba(173,213,235,.30);--accent:var(--ice-400);--accent-2:var(--ice-500)}
+  .s-paper{--bg:var(--paper);--fg:var(--navy-900);--fg-2:#4a5578;--fg-3:#6b7699;
+           --line:rgba(27,45,112,.13);--line-2:rgba(27,45,112,.26);--accent:var(--navy-500);--accent-2:var(--navy-500)}
+  .s-white{--bg:var(--paper-2);--fg:var(--navy-900);--fg-2:#4a5578;--fg-3:#6b7699;
+           --line:rgba(27,45,112,.13);--line-2:rgba(27,45,112,.26);--accent:var(--navy-500);--accent-2:var(--navy-500)}
+  .s-brand{--bg:var(--navy-600);--fg:#fff;--fg-2:var(--ice-300);--fg-3:var(--ice-500);
+           --line:rgba(255,255,255,.18);--line-2:rgba(255,255,255,.34);--accent:#fff;--accent-2:var(--ice-300)}
+  .s-dark,.s-deep,.s-paper,.s-white,.s-brand{background:var(--bg);color:var(--fg)}
+
+  *{box-sizing:border-box}
+  body{background:var(--navy-900);color:#edf1fa;font-family:var(--body);font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding-inline:clamp(1.15rem,4vw,3rem)}
+  section{padding-block:clamp(4rem,8vw,7rem)}
+
+  .eyebrow{font-family:var(--body);font-weight:700;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-2)}
+  .sec-title{font-family:var(--display);font-weight:600;font-size:clamp(1.8rem,4vw,2.9rem);line-height:1.06;letter-spacing:-.025em;margin:0;text-wrap:balance;color:var(--fg)}
+  .sec-title em{font-style:normal;color:var(--accent)}
+
+  .btn{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--body);font-weight:700;font-size:.95rem;padding:1rem 1.75rem;border-radius:999px;border:1px solid transparent;text-decoration:none;cursor:pointer;transition:transform .18s ease,background-color .18s ease}
+  .btn svg{width:1.05em;height:1.05em;flex:none}
+  .btn-primary{background:var(--navy-400);color:#fff}
+  .btn-primary:hover{background:#4a63d4;transform:translateY(-2px)}
+  .btn-light{background:#fff;color:var(--navy-600)}
+  .btn-light:hover{transform:translateY(-2px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  /* ---------- topo ---------- */
+  .topbar{position:absolute;inset-inline:0;top:0;z-index:5}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:1.5rem;gap:1rem}
+  .logo{height:1.55rem;width:auto}
+  .topbar .btn{padding:.7rem 1.3rem;font-size:.8rem;white-space:nowrap}
+  @media (max-width:34rem){.topbar .btn{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:min(94vh,52rem);display:flex;align-items:flex-end;padding-block:9rem clamp(2.5rem,5vw,4rem);isolation:isolate}
+  .hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 42%}
+  .hero-veil{position:absolute;inset:0;z-index:-1;background:
+    linear-gradient(180deg,rgba(5,8,26,.66) 0%,rgba(5,8,26,.10) 28%,rgba(5,8,26,.16) 50%,rgba(10,16,46,.92) 100%),
+    linear-gradient(100deg,rgba(5,8,26,.88) 0%,rgba(5,8,26,.62) 30%,rgba(5,8,26,.20) 58%,transparent 80%)}
+  .hero > .wrap{width:100%;display:grid;gap:clamp(1.6rem,3vw,2.4rem)}
+  .hero h1{font-family:var(--display);font-weight:600;font-size:clamp(3.1rem,10.5vw,8.2rem);line-height:.88;letter-spacing:-.035em;margin:0;text-transform:uppercase}
+  .hero h1 span{display:block;color:var(--ice-400)}
+  .hero .tag{font-family:var(--display);font-weight:500;font-size:clamp(.95rem,1.9vw,1.28rem);letter-spacing:.26em;text-transform:uppercase;color:var(--fg-2);margin:0}
+  .hero .lede{max-width:38ch;color:var(--fg-2);font-size:clamp(1rem,1.5vw,1.14rem);margin:0}
+
+  .meta{display:flex;flex-wrap:wrap;gap:clamp(1.4rem,4vw,3.5rem);padding-block:.4rem}
+  .meta-item{display:flex;gap:.85rem;align-items:flex-start}
+  .meta-item svg{width:1.35rem;height:1.35rem;color:var(--ice-500);flex:none;margin-top:.15rem}
+  .meta-label{font-size:.63rem;letter-spacing:.19em;text-transform:uppercase;color:var(--fg-3);font-weight:700}
+  .meta-value{font-family:var(--display);font-weight:500;font-size:1.02rem;margin-top:.15rem}
+  .meta-value small{display:block;font-family:var(--body);font-weight:400;font-size:.82rem;color:var(--fg-2)}
+
+  .hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.4rem}
+  .seats{display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--fg-2)}
+  .seats svg{width:.95rem;height:.95rem;color:var(--ice-500)}
+
+  .badge35{position:absolute;right:clamp(1.15rem,4vw,3rem);bottom:clamp(2.5rem,5vw,4rem);display:flex;align-items:center;gap:1rem;z-index:2}
+  .badge35 .num{font-family:var(--display);font-weight:600;font-size:1.75rem;line-height:1;padding:.85rem 1.05rem;border:1px solid rgba(173,213,235,.30);border-radius:.7rem;background:rgba(5,8,26,.55);backdrop-filter:blur(6px);text-align:center}
+  .badge35 .num small{display:block;font-family:var(--body);font-weight:500;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:#b4bdd9;margin-top:.3rem}
+  .badge35 p{margin:0;font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:#b4bdd9;line-height:1.75;max-width:19ch}
+  @media (max-width:60rem){.badge35{display:none}}
+
+  /* ---------- pilares ---------- */
+  .pillars .head{text-align:center;max-width:46ch;margin:0 auto clamp(2.5rem,5vw,3.5rem)}
+  .pillars .head p{color:var(--fg-2);margin:.9rem 0 0}
+  .pillar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:1rem;overflow:hidden}
+  .pillar{background:var(--bg);padding:clamp(2rem,4vw,2.75rem) clamp(1.4rem,3vw,2rem);text-align:center;display:flex;flex-direction:column;align-items:center;gap:.9rem}
+  .pillar svg{width:2.5rem;height:2.5rem;color:var(--accent)}
+  .pillar h3{font-family:var(--display);font-weight:500;font-size:1.02rem;letter-spacing:.16em;text-transform:uppercase;margin:.3rem 0 0;color:var(--fg)}
+  .pillar p{margin:0;color:var(--fg-2);font-size:.95rem;max-width:26ch}
+
+  /* ---------- programação ---------- */
+  .program .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(2.5rem,5vw,4.5rem);align-items:center}
+  @media (max-width:64rem){.program .grid{grid-template-columns:1fr}}
+  .program .eyebrow{display:block;margin-bottom:.7rem}
+  .sched{list-style:none;margin:2rem 0 0;padding:0}
+  .sched li{display:grid;grid-template-columns:4.6rem 1px 1fr;align-items:center;gap:1.25rem;padding-block:.85rem;border-bottom:1px solid var(--line)}
+  .sched li:last-child{border-bottom:none}
+  .sched .h{font-family:var(--display);font-weight:500;font-size:1rem;color:var(--accent);font-variant-numeric:tabular-nums}
+  .sched .r{width:1px;height:1.5rem;background:var(--line-2)}
+  .sched .t{color:var(--fg-2)}
+  .place{position:relative;border-radius:1rem;overflow:hidden;margin:0;box-shadow:0 24px 60px -30px rgba(10,16,46,.55)}
+  .place img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/10}
+  .place figcaption{position:absolute;inset:auto 0 0 0;padding:clamp(1.4rem,3vw,2rem);background:linear-gradient(0deg,rgba(5,8,26,.94) 12%,transparent 100%);display:flex;gap:.85rem;align-items:flex-start;color:#edf1fa}
+  .place figcaption svg{width:1.35rem;height:1.35rem;color:var(--ice-400);flex:none;margin-top:.2rem}
+  .place .pname{font-family:var(--display);font-weight:500;font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase;line-height:1.35}
+  .place .pnote{font-size:.87rem;color:#b4bdd9;margin:.35rem 0 0;max-width:34ch}
+
+  /* ---------- vídeo (Reel vertical, tocado aqui) ---------- */
+  .video .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,20rem);gap:clamp(2.5rem,5vw,4.5rem);align-items:center}
+  @media (max-width:64rem){.video .grid{grid-template-columns:1fr;justify-items:start}}
+  .video p{color:var(--fg-2)}
+  .video .note{border-left:2px solid var(--ice-600);padding-left:1.1rem;font-size:.95rem;margin-top:1.5rem}
+  .reel{width:min(20rem,100%);border-radius:1.1rem;overflow:hidden;border:1px solid var(--line-2);background:#000;box-shadow:0 30px 70px -34px rgba(0,0,0,.9)}
+  .reel video{width:100%;height:auto;display:block;aspect-ratio:9/16;object-fit:cover;background:#000}
+  .reel-cap{font-size:.75rem;color:var(--fg-3);margin:.8rem 0 0;text-align:center}
+
+  /* ---------- faixa ---------- */
+  .band .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2rem;padding-block:clamp(2.5rem,5vw,3.25rem)}
+  .band h2{font-family:var(--display);font-weight:500;font-size:clamp(1.35rem,2.6vw,1.85rem);line-height:1.22;margin:0;max-width:20ch}
+  .band .side{display:flex;flex-direction:column;gap:.7rem;align-items:flex-start}
+  .band .side p{margin:0;color:var(--fg-2);font-size:.92rem;max-width:32ch}
+
+  /* ---------- inscrição ---------- */
+  .signup .grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(2.5rem,5vw,4.5rem)}
+  @media (max-width:64rem){.signup .grid{grid-template-columns:1fr}}
+  .signup .intro p{color:var(--fg-2)}
+  .facts{list-style:none;margin:1.6rem 0 0;padding:0;display:flex;flex-direction:column;gap:.75rem}
+  .facts li{display:flex;gap:.75rem;align-items:flex-start;font-size:.95rem;color:var(--fg-2)}
+  .facts svg{width:1.05rem;height:1.05rem;color:var(--accent);flex:none;margin-top:.35rem}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:1.1rem;padding:clamp(1.5rem,3vw,2.25rem);box-shadow:0 24px 60px -34px rgba(10,16,46,.35)}
+  form{display:grid;gap:1.1rem}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+  @media (max-width:40rem){.row{grid-template-columns:1fr}}
+  .field{display:grid;gap:.45rem}
+  .field label{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--fg-3);font-weight:700}
+  .field label .opt{text-transform:none;letter-spacing:0;font-weight:400;font-size:.78rem}
+  .field input,.field select{width:100%;font-family:var(--body);font-size:1rem;color:var(--fg);background:var(--paper);border:1px solid var(--line-2);border-radius:.55rem;padding:.85rem 1rem}
+  .field input::placeholder{color:var(--fg-3)}
+  .field input:focus,.field select:focus{outline:2px solid var(--navy-400);outline-offset:1px;border-color:transparent}
+  .check{display:flex;gap:.8rem;align-items:flex-start;padding:1rem 1.1rem;border:1px solid var(--line);border-radius:.55rem;background:var(--paper)}
+  .check input{width:1.15rem;height:1.15rem;flex:none;margin-top:.15rem;accent-color:var(--navy-400)}
+  .check span{font-size:.88rem;color:var(--fg-2);line-height:1.5}
+  .check a{color:var(--navy-500)}
+  form .btn{justify-content:center;width:100%}
+  .formnote{font-size:.78rem;color:var(--fg-3);text-align:center;margin:0}
+
+  /* ---------- patrocinadores ---------- */
+  .sponsors .wrap{display:flex;flex-direction:column;align-items:center;gap:1.5rem;text-align:center}
+  .sponsors .rule{width:2.5rem;height:2px;background:var(--navy-400)}
+  .sponsor-row{display:flex;flex-wrap:wrap;gap:clamp(2rem,6vw,4.5rem);align-items:center;justify-content:center;padding-block:1rem}
+  .sponsor{display:block;text-decoration:none;opacity:.92;transition:opacity .2s ease,transform .2s ease}
+  .sponsor:hover{opacity:1;transform:translateY(-2px)}
+  .sponsors .aside{font-size:.85rem;color:var(--fg-2);margin:0}
+  .sponsors .aside a{color:var(--navy-500)}
+
+  /* ---------- rodapé ---------- */
+  footer{padding-block:clamp(2.75rem,5vw,3.75rem)}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2rem}
+  .fcol{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;font-size:.87rem;color:var(--fg-2)}
+  /* sem isto o <img> estica pra largura da coluna (align-items:stretch) e,
+     como o SVG preserva proporcao, a arte fica centralizada no meio do vao. */
+  .fcol .logo{align-self:flex-start}
+  .fcol strong{font-family:var(--display);font-weight:500;font-size:.78rem;letter-spacing:.17em;text-transform:uppercase;color:var(--fg-3);margin-bottom:.35rem}
+  footer a{color:var(--fg-2);text-decoration:none}
+  footer a:hover{color:var(--ice-400)}
+  .copy{margin-top:2.25rem;padding-top:1.4rem;border-top:1px solid var(--line);font-size:.78rem;color:var(--fg-3)}
+
+  .protonote{background:#1f1405;color:#f5d9a8;font-size:.82rem;text-align:center;padding:.7rem 1rem}
+  .protonote b{color:#ffc978}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="protonote">
+  Protótipo para validação — logo, fontes e paleta reais. O <b>vídeo é o do Experience 2025</b>; a <b>inscrição ainda não envia</b>.
+</div>
+
+<header class="hero s-dark">
+  <div class="topbar">
+    <div class="wrap">
+      <a href="#"><img class="logo" src="__LOGO_SEMOG_LIGHT__" alt="Semog Administradora de Condomínios"></a>
+      <a class="btn btn-primary" href="#inscricao">Faça sua inscrição</a>
+    </div>
+  </div>
+
+  <div class="hero-bg"><img src="__HERO__" alt="Grupo em aula de alongamento na areia da praia ao nascer do sol"></div>
+  <div class="hero-veil"></div>
+
+  <div class="wrap">
+    <div>
+      <p class="tag">Movimento. Saúde. Conexão.</p>
+      <h1>Semog<span>Experience</span></h1>
+    </div>
+    <p class="lede">Uma manhã inteira dedicada a cuidar de quem cuida do condomínio. Ao ar livre, à beira-mar, e por nossa conta.</p>
+
+    <div class="meta">
+      <div class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <div><div class="meta-label">Data</div><div class="meta-value">26 de setembro de 2026<small>sábado</small></div></div>
+      </div>
+      <div class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <div><div class="meta-label">Horário</div><div class="meta-value">07h às 12h<small>chegue 15 min antes</small></div></div>
+      </div>
+      <div class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <div><div class="meta-label">Local</div><div class="meta-value">Praia do Cabo Branco<small>João Pessoa, PB</small></div></div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#inscricao">Garantir minha vaga
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <span class="seats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        Gratuito · 200 vagas
+      </span>
+    </div>
+  </div>
+
+  <div class="badge35">
+    <div class="num">+35<small>anos</small></div>
+    <p>De história cuidando de pessoas e valorizando lugares</p>
+  </div>
+</header>
+
+<section class="pillars s-paper">
+  <div class="wrap">
+    <div class="head">
+      <h2 class="sec-title">Um evento para cuidar do mais importante: <em>você</em>.</h2>
+      <p>Síndicos, conselheiros, moradores e parceiros. A gente passa o ano resolvendo o prédio — este dia é para o corpo.</p>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 21c0-5 3-8 3-11a3 3 0 0 0-6 0c0 3 3 6 3 11Z"/><path d="M12 21c-3.5-1-7-3.5-7-7 2.5 0 5 1.4 6 3.5M12 21c3.5-1 7-3.5 7-7-2.5 0-5 1.4-6 3.5"/></svg>
+        <h3>Bem-estar</h3>
+        <p>Atividades físicas ao ar livre para corpo e mente.</p>
+      </div>
+      <div class="pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M3.5 19c.6-3 2.9-4.6 5.5-4.6S13.9 16 14.5 19M16 14.6c2.1.2 3.7 1.6 4.2 4.4"/></svg>
+        <h3>Conexão</h3>
+        <p>Encontre pessoas, troque ideias e fortaleça relações.</p>
+      </div>
+      <div class="pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7-1.8c.6 1 .7 2.3.4 3.4"/><path d="M14 14h2.5l1.5-2.5L20 17l1.5-3H23"/></svg>
+        <h3>Saúde</h3>
+        <p>Cuidados que fazem diferença na sua qualidade de vida.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="program s-white">
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <span class="eyebrow">Programação</span>
+        <h2 class="sec-title">Manhã <em>wellness</em></h2>
+        <ol class="sched">
+          <li><span class="h">07h00</span><span class="r"></span><span class="t">Recepção e alongamento inicial</span></li>
+          <li><span class="h">07h30</span><span class="r"></span><span class="t">Aula de pilates</span></li>
+          <li><span class="h">08h15</span><span class="r"></span><span class="t">Treino funcional</span></li>
+          <li><span class="h">09h00</span><span class="r"></span><span class="t">Alongamento e relaxamento</span></li>
+          <li><span class="h">09h30</span><span class="r"></span><span class="t">Hidratação: água de coco</span></li>
+          <li><span class="h">10h00</span><span class="r"></span><span class="t">Avaliação física e orientações</span></li>
+          <li><span class="h">11h30</span><span class="r"></span><span class="t">Encerramento</span></li>
+        </ol>
+      </div>
+      <figure class="place">
+        <img src="__LOCAL__" alt="Vista aérea da orla de João Pessoa com a falésia do Cabo Branco ao fundo">
+        <figcaption>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <div>
+            <div class="pname">Praia do Cabo Branco<br>João Pessoa — PB</div>
+            <p class="pnote">O ponto mais oriental das Américas, onde o sol nasce primeiro no continente.</p>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="video s-deep">
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <span class="eyebrow">Edição anterior</span>
+        <h2 class="sec-title">Assista como foi o <em>Experience 2025</em></h2>
+        <p style="margin-top:1.1rem">Reviva os melhores momentos e sinta a energia que nos move.</p>
+        <p class="note">Em 2025 o formato foi um <strong>campeonato de beach tennis</strong>. O Experience muda de cara a cada edição — o que não muda é juntar quem faz o condomínio funcionar, fora do condomínio.</p>
+      </div>
+      <div>
+        <div class="reel">
+          <video controls playsinline preload="none" poster="__REEL_POSTER__">
+            <source src="__REEL_VIDEO__" type="video/mp4">
+            Seu navegador não reproduz este vídeo.
+          </video>
+        </div>
+        <p class="reel-cap">Semog Experience 2025 · João Pessoa</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band s-brand" style="padding-block:0">
+  <div class="wrap">
+    <h2>Participe de uma manhã incrível e transforme seu bem-estar.</h2>
+    <div class="side">
+      <a class="btn btn-light" href="#inscricao">Quero me inscrever
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <p>Evento gratuito e aberto a clientes, parceiros e amigos da Semog. Vagas limitadas.</p>
+    </div>
+  </div>
+</section>
+
+<section class="signup s-paper" id="inscricao">
+  <div class="wrap">
+    <div class="grid">
+      <div class="intro">
+        <span class="eyebrow">Inscrição</span>
+        <h2 class="sec-title">Garanta a sua vaga</h2>
+        <p style="margin-top:1.1rem">São 200 vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e disposição — o resto é com a gente.</p>
+        <ul class="facts">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Pilates, funcional e alongamento com profissionais</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Avaliação física individual sem custo</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Água de coco e hidratação durante toda a manhã</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Você pode trazer até 3 acompanhantes</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <form onsubmit="event.preventDefault();alert('Protótipo: a inscrição ainda não é enviada.')">
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input id="nome" type="text" placeholder="Como quer ser chamado no credenciamento" required>
+          </div>
+          <div class="row">
+            <div class="field"><label for="email">E-mail</label><input id="email" type="email" placeholder="voce@exemplo.com.br" required></div>
+            <div class="field"><label for="tel">WhatsApp</label><input id="tel" type="tel" placeholder="(83) 90000-0000" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="cond">Condomínio <span class="opt">(opcional)</span></label><input id="cond" type="text" placeholder="Nome do seu condomínio"></div>
+            <div class="field"><label for="acomp">Acompanhantes <span class="opt">(opcional)</span></label>
+              <select id="acomp"><option value="">Vou sozinho(a)</option><option>+1 pessoa</option><option>+2 pessoas</option><option>+3 pessoas</option></select>
+            </div>
+          </div>
+          <label class="check" for="img">
+            <input id="img" type="checkbox" required>
+            <span>Autorizo o uso da minha imagem em fotos e vídeos do evento, conforme a <a href="#">política de privacidade</a>.</span>
+          </label>
+          <button class="btn btn-primary" type="submit">Garantir minha vaga
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="formnote">Ao se inscrever você não entra em nenhuma lista comercial.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sponsors s-white">
+  <div class="wrap">
+    <span class="eyebrow">Patrocínio</span>
+    <span class="rule"></span>
+    <div class="sponsor-row">
+      <a class="sponsor" href="https://www.superlogica.com/" target="_blank" rel="noopener noreferrer">
+        <img src="__LOGO_SL__" alt="Superlógica" width="260">
+      </a>
+    </div>
+    <p class="aside">Quer apoiar o Semog Experience? Fale com a gente pelo <a href="mailto:contato@semog.com.br">contato@semog.com.br</a>.</p>
+  </div>
+</section>
+
+<footer class="s-deep">
+  <div class="wrap">
+    <div class="fcol">
+      <img class="logo" src="__LOGO_SEMOG_LIGHT__" alt="Semog Administradora de Condomínios" style="margin-bottom:.7rem">
+      <span style="max-width:30ch">Há mais de 35 anos cuidando de pessoas e valorizando lugares.</span>
+    </div>
+    <div class="fcol">
+      <strong>O evento</strong>
+      <span>26 de setembro de 2026 · sábado</span>
+      <span>07h às 12h</span>
+      <span>Praia do Cabo Branco — João Pessoa, PB</span>
+    </div>
+    <div class="fcol">
+      <strong>Contato</strong>
+      <a href="tel:+558321060400">(83) 2106-0400</a>
+      <a href="mailto:contato@semog.com.br">contato@semog.com.br</a>
+      <a href="#">Política de privacidade</a>
+    </div>
+  </div>
+  <div class="wrap"><div class="copy">© 2026 Semog Administração de Condomínios. Todos os direitos reservados.</div></div>
+</footer>

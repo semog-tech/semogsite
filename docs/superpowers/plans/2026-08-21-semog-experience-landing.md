@@ -22,6 +22,36 @@
 - **Paleta:** tokens de `src/styles/theme.css` (navy `#0a102e`/`#1b2d70`, acento ice `#add5eb`). Não inventar cor nova.
 - **Executar comandos com `pnpm`** (o projeto usa pnpm; `npm run build` também funciona).
 
+
+## Assets já prontos (não refazer)
+
+**Protótipo aprovado pelo cliente:** `docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`
+— HTML completo, com todo o CSS final, a estrutura de superfícies (`.s-dark`,
+`.s-deep`, `.s-paper`, `.s-white`, `.s-brand`) e os textos aprovados. **A Task 6
+deve portar este arquivo para componentes React, não redesenhar.** Os
+placeholders `__HERO__`, `__LOCAL__`, `__REEL_POSTER__`, `__REEL_VIDEO__`,
+`__LOGO_SEMOG_LIGHT__`, `__LOGO_SL__` e `__F_*__` são do protótipo: no site as
+fontes já vêm do layout e as mídias das URLs abaixo.
+
+**Mídias no bucket** (base: `https://qvxlkovrxfqigeaopvui.supabase.co/storage/v1/object/public/media/`),
+já enviadas e verificadas (HTTP 206, content-type correto):
+
+| Arquivo | O que é |
+|---|---|
+| `experience-hero.webp` | Grupo em alongamento na praia ao nascer do sol (banco de imagens) |
+| `experience-local.webp` | Orla de João Pessoa com a falésia do Cabo Branco — **frame do vídeo real** |
+| `experience-2025-poster.webp` | Capa do vídeo (jogada de beach tennis) |
+| `experience-2025.mp4` | Reel do Experience 2025 — **vertical 9:16**, 1min08s, com áudio, 5,1 MB |
+
+**Logo da Superlógica:** já em `public/sponsors/logo-superlogica-color.svg`.
+
+**Vídeo: decidido e resolvido.** O Reel foi baixado e hospedado no bucket — **não
+embutir o Instagram e não mexer no CSP**. O player é `<video controls playsinline
+preload="none" poster>` com proporção **9:16**; um Reel vertical dentro de
+moldura 16:9 fica com tarjas pretas.
+
+⚠️ **A edição anterior foi em 2025, não 2024.**
+
 ---
 
 ### Task 1: Schema e registro do formulário de inscrição
@@ -517,72 +547,49 @@ git commit -m "feat(experience): dados do evento e patrocinadores"
 
 ---
 
-### Task 4: Imagens de banco para o hero e a programação
+### Task 4: Mapear os alts das mídias novas
 
 **Files:**
 - Modify: `content/media.ts` (acrescentar entradas em `ALT_BY_FILENAME`)
-- Upload: dois arquivos no bucket público do Supabase
+- Test: rodar o `img()` e conferir que não lança
 
 **Interfaces:**
-- Consumes: `img(filename)` de `content/media.ts`
-- Produces: `img('experience-hero.webp')` e `img('experience-local.webp')` resolvem sem lançar
+- Produces: `img('experience-hero.webp')`, `img('experience-local.webp')`, `img('experience-2025-poster.webp')` e `img('experience-2025.mp4')` resolvem sem lançar
 
-**Contexto:** o hero **não** usa foto do evento de 2025 — aquela edição foi beach tennis e esta é wellness; a foto comunicaria o evento errado. Ver o spec.
+**Os arquivos JÁ ESTÃO no bucket** (ver "Assets já prontos"). Esta task é só o
+mapeamento de alt, que `content/media.ts` exige — `img()` lança se o filename
+não estiver mapeado, de propósito, para o alt nunca se perder.
 
-- [ ] **Step 1: Escolher as imagens**
-
-Buscar em Unsplash ou Pexels (ambos com licença de uso comercial sem atribuição obrigatória — ainda assim, registrar a origem no commit).
-
-- **Hero** (`experience-hero.webp`): grupo em alongamento, yoga ou treino funcional **em praia**, luz de amanhecer, pessoas em movimento e de corpo inteiro. Precisa ter espaço "morto" à esquerda ou no topo para o texto do hero respirar.
-- **Local** (`experience-local.webp`): orla urbana com coqueiros ao amanhecer, evocando o Cabo Branco.
-
-Evitar: sorriso posado para a câmera, academia coberta, fundo branco de estúdio, marca d'água.
-
-- [ ] **Step 2: Converter e otimizar**
-
-```bash
-# largura máxima 2000px, webp qualidade 82
-npx sharp-cli -i entrada.jpg -o experience-hero.webp resize 2000 --withoutEnlargement -f webp -q 82
-```
-
-Alvo: cada arquivo abaixo de 400 KB. Conferir com `ls -lh`.
-
-- [ ] **Step 3: Subir para o bucket**
-
-Mesmo bucket público do resto da mídia (`BASE` em `content/media.ts`):
-`https://qvxlkovrxfqigeaopvui.supabase.co/storage/v1/object/public/media/`
-
-Subir pelo painel do Supabase (Storage → bucket `media`) ou via API. Conferir que a URL pública abre no navegador antes de seguir.
-
-- [ ] **Step 4: Mapear o alt**
+- [ ] **Step 1: Acrescentar os alts**
 
 Em `content/media.ts`, dentro de `ALT_BY_FILENAME`:
 
 ```ts
   'experience-hero.webp':
-    'Grupo alongando o corpo na areia da praia ao amanhecer, durante o Semog Experience',
+    'Grupo alongando o corpo na areia da praia ao nascer do sol',
   'experience-local.webp':
-    'Orla do Cabo Branco em João Pessoa ao amanhecer, com coqueiros e o mar ao fundo',
+    'Vista aérea da orla de João Pessoa com a falésia do Cabo Branco ao fundo',
+  'experience-2025-poster.webp':
+    'Jogada de beach tennis na areia durante o Semog Experience 2025',
+  'experience-2025.mp4':
+    'Vídeo com os melhores momentos do Semog Experience 2025, em João Pessoa',
 ```
 
-Alt descreve o que se vê, não o que se quer vender — é acessibilidade, lido em voz alta por leitor de tela.
+O alt descreve o que se vê, não o que se quer vender — é lido em voz alta por
+leitor de tela.
 
-- [ ] **Step 5: Verificar que resolve**
+- [ ] **Step 2: Verificar que resolvem**
 
 ```bash
-pnpm exec tsx -e "import {img} from './content/media.ts'; console.log(img('experience-hero.webp'), img('experience-local.webp'))"
+pnpm exec tsx -e "import {img} from './content/media.ts'; for (const f of ['experience-hero.webp','experience-local.webp','experience-2025-poster.webp','experience-2025.mp4']) console.log(img(f))"
 ```
-Expected: imprime as duas URLs com o alt. Se lançar, o filename no `ALT_BY_FILENAME` não bate com o que foi subido.
+Expected: imprime as quatro URLs com alt. Se lançar, o filename não bate.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
 git add content/media.ts
-git commit -m "feat(experience): imagens do hero e do local
-
-Banco de imagens com licença comercial, não fotos do evento de 2025:
-aquela edição foi beach tennis e esta é wellness.
-Origem: <colar as URLs do Unsplash/Pexels aqui>"
+git commit -m "feat(experience): alts das mídias do evento"
 ```
 
 ---
