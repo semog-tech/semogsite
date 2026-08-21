@@ -7,7 +7,7 @@
 
 Página de divulgação e captação de inscrições do **Semog Experience 2026** — uma
 manhã wellness gratuita na Praia do Cabo Branco, em João Pessoa. Substitui em
-propósito o evento de 2024 (campeonato de beach tennis), que vira prova social
+propósito o evento de 2025 (campeonato de beach tennis), que vira prova social
 via vídeo.
 
 A página é **isolada do site**: sem header, sem rodapé de navegação, sem botão
@@ -92,7 +92,7 @@ Segue o mockup aprovado, com a paleta real da marca (`theme.css`: navy
    horário e local, CTA de inscrição, selo "+35 anos"
 2. **Três pilares** — Bem-estar · Conexão · Saúde
 3. **Programação** — linha do tempo da manhã + foto do Cabo Branco
-4. **Vídeo do Experience 2024** — prova social do beach tennis
+4. **Vídeo do Experience 2025** — prova social do beach tennis
 5. **Faixa de CTA** — inscrição gratuita, vagas limitadas
 6. **Formulário de inscrição** — âncora `#inscricao`, alvo de todos os CTAs
 7. **Patrocinadores**
@@ -105,7 +105,7 @@ horários são o próprio marcador — não há numeração decorativa.
 
 **Decisão do Leandro (21/08):** o hero e a programação usam **fotos de banco de
 imagens com licença comercial** (Unsplash/Pexels), não registros do evento
-passado. O motivo é de conteúdo, não de estética: **2024 foi um campeonato de
+passado. O motivo é de conteúdo, não de estética: **2025 foi um campeonato de
 beach tennis e 2026 é uma manhã wellness** — foto de quadra de areia
 comunicaria o evento errado.
 
@@ -118,7 +118,7 @@ Cada imagem baixada vai para o bucket do Supabase, como o resto da mídia do
 site, com `alt` descritivo obrigatório (`content/media.ts` lança se o arquivo
 não tiver alt mapeado). A licença de cada arquivo fica registrada no commit.
 
-**O vídeo de 2024 continua**, mas com enquadramento honesto: a seção diz
+**O vídeo de 2025 continua**, mas com enquadramento honesto: a seção diz
 explicitamente que a edição passada foi um campeonato de beach tennis e que o
 formato muda a cada ano. Isso transforma uma incoerência potencial ("o vídeo não
 é do que estão anunciando") em argumento — o Experience é uma série, e a energia

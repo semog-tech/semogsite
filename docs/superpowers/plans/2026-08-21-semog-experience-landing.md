@@ -458,12 +458,12 @@ export const EXPERIENCE_EVENT = {
   ] satisfies ScheduleItem[],
 
   /**
-   * Edição anterior, usada como prova social. O formato mudou (2024 foi
+   * Edição anterior, usada como prova social. O formato mudou (2025 foi
    * campeonato de beach tennis, 2026 é manhã wellness) e a página diz isso
    * com todas as letras — ver `ExperienceVideo`.
    */
   video: {
-    previousYear: 2024,
+    previousYear: 2025,
     previousFormat: 'campeonato de beach tennis',
     reelUrl: 'https://www.instagram.com/reel/DRm_ivskVfC/',
     /** Preenchido quando o arquivo original subir pro bucket. */
@@ -527,7 +527,7 @@ git commit -m "feat(experience): dados do evento e patrocinadores"
 - Consumes: `img(filename)` de `content/media.ts`
 - Produces: `img('experience-hero.webp')` e `img('experience-local.webp')` resolvem sem lançar
 
-**Contexto:** o hero **não** usa foto do evento de 2024 — aquela edição foi beach tennis e esta é wellness; a foto comunicaria o evento errado. Ver o spec.
+**Contexto:** o hero **não** usa foto do evento de 2025 — aquela edição foi beach tennis e esta é wellness; a foto comunicaria o evento errado. Ver o spec.
 
 - [ ] **Step 1: Escolher as imagens**
 
@@ -580,7 +580,7 @@ Expected: imprime as duas URLs com o alt. Se lançar, o filename no `ALT_BY_FILE
 git add content/media.ts
 git commit -m "feat(experience): imagens do hero e do local
 
-Banco de imagens com licença comercial, não fotos do evento de 2024:
+Banco de imagens com licença comercial, não fotos do evento de 2025:
 aquela edição foi beach tennis e esta é wellness.
 Origem: <colar as URLs do Unsplash/Pexels aqui>"
 ```
@@ -783,7 +783,7 @@ describe('ExperienceVideo', () => {
   it('diz que a edição anterior teve outro formato', () => {
     render(<ExperienceVideo />)
     expect(screen.getByText(/beach tennis/i)).toBeInTheDocument()
-    expect(screen.getByText(/2024/)).toBeInTheDocument()
+    expect(screen.getByText(/2025/)).toBeInTheDocument()
   })
 })
 
@@ -812,7 +812,7 @@ Seguir a estrutura visual do mockup aprovado (`docs` do spec). Pontos obrigatór
 
 **`ExperienceProgram`** — `<ol>` de `E.schedule`, com `<li>` por bloco; horário em `font-variant-numeric: tabular-nums`. Ao lado, `img('experience-local.webp')` com legenda do local. **A ordem cronológica é a informação** — não acrescentar numeração decorativa (01/02/03) por cima do horário.
 
-**`ExperienceVideo`** — título "Assista como foi o Semog Experience 2024" e um parágrafo que diz **explicitamente** que aquela edição foi um campeonato de beach tennis e que o formato muda a cada ano. Enquanto `E.video.fileUrl` for `null`, renderizar capa clicável que abre `E.video.reelUrl` em nova aba (`target="_blank" rel="noopener noreferrer"`); quando o arquivo existir, trocar por `<video controls poster>`. Escrever os dois ramos agora — o `if` é uma linha e evita voltar aqui depois.
+**`ExperienceVideo`** — título "Assista como foi o Semog Experience 2025" e um parágrafo que diz **explicitamente** que aquela edição foi um campeonato de beach tennis e que o formato muda a cada ano. Enquanto `E.video.fileUrl` for `null`, renderizar capa clicável que abre `E.video.reelUrl` em nova aba (`target="_blank" rel="noopener noreferrer"`); quando o arquivo existir, trocar por `<video controls poster>`. Escrever os dois ramos agora — o `if` é uma linha e evita voltar aqui depois.
 
 **`ExperienceCta`** — faixa em `--color-navy-600` com a chamada e botão para `#inscricao`. Texto: gratuito, `{E.seats}` vagas.
 
