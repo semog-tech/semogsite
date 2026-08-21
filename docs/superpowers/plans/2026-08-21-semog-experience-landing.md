@@ -368,7 +368,7 @@ git commit -m "feat(experience): server action aceita inscrição e nunca envia 
 **Interfaces:**
 - Produces: `EXPERIENCE_EVENT` (objeto com `date`, `dateLabel`, `timeLabel`, `venue`, `city`, `seats`, `pillars`, `schedule`, `video`), `EXPERIENCE_SPONSORS` (array de `{ name, logo, url, width }`)
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `tests/int/experience-data.int.spec.ts`:
 
@@ -413,12 +413,12 @@ describe('EXPERIENCE_SPONSORS', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-data.int.spec.ts`
 Expected: FAIL — módulos não existem
 
-- [ ] **Step 3: Copiar a logo oficial**
+- [x] **Step 3: Copiar a logo oficial**
 
 O kit já foi baixado do site oficial da Superlógica e extraído em:
 `C:\Users\lekoc\AppData\Local\Temp\claude\C--Users-lekoc-semogapp-semogsite\dda01789-d9c8-46c6-8544-77dd25f22686\scratchpad\logos-superlogica\`
@@ -433,7 +433,9 @@ Se a pasta do scratchpad não existir mais, rebaixar:
 
 **Usar a versão `color`, não a `white` nem a `black`** — as diretrizes da marca definem a colorida como primária e restringem a monocromática a caso excepcional com aprovação prévia deles.
 
-- [ ] **Step 4: Criar os dados do evento**
+> **Conferido na implementação:** nada a copiar — `public/sponsors/logo-superlogica-color.svg` já entrou no repositório no commit `7cf4df4`, e o arquivo é **byte a byte idêntico** ao do kit no scratchpad (mesmo md5 `9cdfd08c…`). É a versão `color` (`viewBox="0 0 1322 200"`, `#1034f2` + `#1c1f24`), como manda a diretriz. Proporção ≈ 6,61:1 — com `width: 190` a altura de exibição fica ~29px (útil na Task 6).
+
+- [x] **Step 4: Criar os dados do evento**
 
 Criar `src/data/experienceEvent.ts`:
 
@@ -504,7 +506,31 @@ export const EXPERIENCE_EVENT = {
 } as const
 ```
 
-- [ ] **Step 5: Criar os patrocinadores**
+> **Divergência deliberada no bloco `video`:** o `fileUrl: null` (com fallback de
+> capa clicável para o Instagram) está desatualizado dentro do próprio plano —
+> "Assets já prontos" diz que o Reel **já foi baixado e hospedado no bucket**
+> (`experience-2025.mp4` + `experience-2025-poster.webp`) e o protótipo aprovado
+> traz um `<video controls playsinline preload="none" poster>` nativo, sem
+> Instagram. O que foi implementado, então:
+>
+> ```ts
+> video: {
+>   previousYear: 2025,
+>   previousFormat: 'campeonato de beach tennis',
+>   /** Post original, mantido só como crédito/origem — o site não embute o Instagram. */
+>   reelUrl: 'https://www.instagram.com/reel/DRm_ivskVfC/',
+>   file: 'experience-2025.mp4',
+>   poster: 'experience-2025-poster.webp',
+>   /** O material é um Reel vertical: em moldura 16:9 sobram tarjas pretas. */
+>   aspectRatio: '9 / 16',
+> }
+> ```
+>
+> São **filenames**, não URLs: quem sabe a base do bucket e guarda o alt é
+> `img()` (`content/media.ts`, alts na Task 4). Guardar a URL crua aqui
+> duplicaria as duas coisas.
+
+- [x] **Step 5: Criar os patrocinadores**
 
 Criar `src/data/experienceSponsors.ts`:
 
@@ -535,12 +561,12 @@ export const EXPERIENCE_SPONSORS: Sponsor[] = [
 ]
 ```
 
-- [ ] **Step 6: Rodar e ver passar**
+- [x] **Step 6: Rodar e ver passar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-data.int.spec.ts`
 Expected: PASS (6 testes)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/data/experienceEvent.ts src/data/experienceSponsors.ts public/sponsors/ tests/int/experience-data.int.spec.ts
@@ -822,6 +848,13 @@ Seguir a estrutura visual do mockup aprovado (`docs` do spec). Pontos obrigatór
 **`ExperienceProgram`** — `<ol>` de `E.schedule`, com `<li>` por bloco; horário em `font-variant-numeric: tabular-nums`. Ao lado, `img('experience-local.webp')` com legenda do local. **A ordem cronológica é a informação** — não acrescentar numeração decorativa (01/02/03) por cima do horário.
 
 **`ExperienceVideo`** — título "Assista como foi o Semog Experience 2025" e um parágrafo que diz **explicitamente** que aquela edição foi um campeonato de beach tennis e que o formato muda a cada ano. Enquanto `E.video.fileUrl` for `null`, renderizar capa clicável que abre `E.video.reelUrl` em nova aba (`target="_blank" rel="noopener noreferrer"`); quando o arquivo existir, trocar por `<video controls poster>`. Escrever os dois ramos agora — o `if` é uma linha e evita voltar aqui depois.
+
+> **Corrigido na Task 3:** não há dois ramos. `E.video.fileUrl` não existe — o
+> arquivo está no bucket e o campo virou `E.video.file` /
+> `E.video.poster` (filenames para `img()`) + `E.video.aspectRatio` (`'9 / 16'`).
+> Renderizar direto o `<video controls playsinline preload="none" poster>` do
+> protótipo aprovado. `E.video.reelUrl` fica só como crédito da origem — **não
+> embutir o Instagram** (mexeria no CSP, ver Global Constraints).
 
 **`ExperienceCta`** — faixa em `--color-navy-600` com a chamada e botão para `#inscricao`. Texto: gratuito, `{E.seats}` vagas.
 
