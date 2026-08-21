@@ -11,6 +11,11 @@ export const incorporadoras: PageData = {
   slug: 'incorporadoras',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Para Incorporadoras',
+  meta: {
+    title: 'Implantação de Condomínios para Incorporadoras | Semog',
+    description:
+      'A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente final e a sua marca.',
+  },
   layout: [
     // `.page-hero`, `_reference/incorporadoras.html:50-70`: 80dvh, opacidade
     // 0.55, `background-position: center`, gradiente com parada

@@ -10,6 +10,11 @@ export const proposta: PageData = {
   slug: 'proposta',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Solicitar Proposta',
+  meta: {
+    title: 'Solicitar Proposta para o seu Condomínio | Semog',
+    description:
+      'Conte sobre o seu condomínio em dois minutos e receba uma proposta da Semog. Nossa equipe comercial responde em até 24 horas úteis.',
+  },
   layout: [
     // `.proposal-wrap`, `_reference/proposta.html:38-45,154-166`: SEM
     // `poster` nem vídeo — `pageHeroOverlay` liga o mesmo tratamento de

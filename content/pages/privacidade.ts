@@ -13,6 +13,11 @@ export const privacidade: PageData = {
   slug: 'privacidade',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Política de Privacidade',
+  meta: {
+    title: 'Política de Privacidade | Semog',
+    description:
+      'Como a Semog coleta, usa, armazena e protege os dados pessoais de condôminos, síndicos e visitantes do site.',
+  },
   layout: [
     { blockType: 'legalHero', headline: page.title, updatedText: page.updatedText },
     { blockType: 'richText', legal: true, body: page.body },

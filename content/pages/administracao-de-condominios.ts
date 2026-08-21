@@ -12,6 +12,11 @@ export const administracaoDeCondominios: PageData = {
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages) —
   // fallback de `<title>`/nome do breadcrumb quando `meta.title` está vazio.
   title: 'Administração de condomínios',
+  meta: {
+    title: 'Administração de Condomínios: tudo em um só contrato | Semog',
+    description:
+      'Gestão financeira, cobrança de inadimplência, contabilidade e prestação de contas digital em um só contrato. Veja como a Semog auxilia o síndico na operação.',
+  },
   layout: [
     // `.page-hero`, `_reference/administracao-de-condominios.html:61-77`:
     // números próprios desta página (88dvh, opacidade 0.85,

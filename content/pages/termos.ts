@@ -12,6 +12,11 @@ export const termos: PageData = {
   slug: 'termos',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Termos de Uso',
+  meta: {
+    title: 'Termos de Uso | Semog',
+    description:
+      'Condições de uso do site e dos canais digitais da Semog Administradora de Condomínios.',
+  },
   layout: [
     { blockType: 'legalHero', headline: page.title, updatedText: page.updatedText },
     { blockType: 'richText', legal: true, body: page.body },

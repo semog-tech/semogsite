@@ -11,6 +11,11 @@ export const contato: PageData = {
   slug: 'contato',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Contato',
+  meta: {
+    title: 'Contato Semog: telefone e WhatsApp das quatro unidades',
+    description:
+      'Fale com a Semog em Recife, João Pessoa, Campina Grande ou Belém: telefone, WhatsApp e e-mail de cada unidade, com resposta em horário comercial.',
+  },
   layout: [
     // `.page-hero`, `_reference/contato.html:76-88,198-205`: SEM `poster`,
     // 46dvh (igual ao blog), radial-gradient a 85% (à direita — o blog usa

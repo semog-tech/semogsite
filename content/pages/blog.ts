@@ -18,6 +18,11 @@ export const blog: PageData = {
   slug: 'blog',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Blog',
+  meta: {
+    title: 'Blog da Semog: gestão de condomínios na prática',
+    description:
+      'Artigos práticos sobre prestação de contas, inadimplência, assembleias e escolha de administradora, escritos por quem administra 650 condomínios.',
+  },
   layout: [
     // `.page-hero` de `_reference/blog.html:37-46`: SEM `poster` — só o
     // gradiente, 46dvh, h1 sozinho (sem eyebrow/subhead/CTAs).

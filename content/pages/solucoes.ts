@@ -11,6 +11,11 @@ export const solucoes: PageData = {
   slug: 'solucoes',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Soluções',
+  meta: {
+    title: 'Soluções para Condomínios: gestão completa | Semog',
+    description:
+      'Gestão financeira, contábil e de pessoas, com suporte jurídico por escritório parceiro, prestação de contas 100% digital e garantia de inadimplência zero.',
+  },
   layout: [
     // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo
     // `residencial.webp` do `.bg` (reaproveitado também na vertical

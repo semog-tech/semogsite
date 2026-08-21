@@ -10,6 +10,11 @@ export const garante: PageData = {
   slug: 'garante',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Semog Garante',
+  meta: {
+    title: 'Semog Garante: o condomínio recebe 100% da arrecadação',
+    description:
+      'Com o Semog Garante, o condomínio recebe toda a arrecadação prevista todos os meses, independentemente da inadimplência. Veja como funciona.',
+  },
   layout: [
     // `.g-hero`, `_reference/garante.html:59-104,268-293` — hero de vídeo
     // full-bleed (100dvh) com o chip de vidro "1%".

@@ -9,6 +9,11 @@ export const semog: PageData = {
   slug: 'semog',
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'A Semog',
+  meta: {
+    title: 'A Semog: da fundação no Recife em 1991 à liderança do Nordeste',
+    description:
+      'Fundada no Recife em 1991, a Semog administra 650 condomínios e atende 70 mil clientes em Recife, João Pessoa, Campina Grande e Belém. Conheça a história.',
+  },
   layout: [
     // `.page-hero`, `_reference/semog.html:43-63,236-245` — só imagem de
     // fundo (`.bg`), sem vídeo nesta página interna. Números próprios desta

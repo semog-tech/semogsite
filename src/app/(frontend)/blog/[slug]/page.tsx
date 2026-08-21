@@ -25,10 +25,21 @@ export async function generateMetadata({
       // Canonical e openGraph são omitidos intencionalmente: um 404 não deve emitir canonical apontando para si ou OG image.
       return { title: 'Página não encontrada — Semog', description: undefined }
     }
-    // `PostData` (MDX) não tem um `meta` de SEO próprio por doc — `buildMetadata`
-    // cai pro `title`/descrição padrão do site + OG dinâmica, mesmo fallback de
-    // quando um Post do Payload não tinha `meta` preenchido.
-    return buildMetadata({ doc: { title: post.title }, settings, path, ogType: 'article' })
+    // `PostData` (MDX) não tem grupo `meta` de SEO por doc, mas o `excerpt` do
+    // frontmatter já É uma meta description — sem passá-lo aqui, todos os posts
+    // herdavam a MESMA descrição genérica do site (`defaultDescription`), que é
+    // o que derruba o CTR na busca. O sufixo curto evita o título truncado: o
+    // fallback de `buildMetadata` acrescenta a marca inteira, e os títulos dos
+    // posts já são longos. Se um post ficar sem `excerpt`, cai no padrão.
+    return buildMetadata({
+      doc: {
+        title: post.title,
+        meta: { title: `${post.title} | Semog`, description: post.excerpt },
+      },
+      settings,
+      path,
+      ogType: 'article',
+    })
   } catch {
     // DB indisponível — não derruba o render, cai no fallback embutido em `buildMetadata`.
     return buildMetadata({ doc: null, settings: null, path, ogType: 'article' })
