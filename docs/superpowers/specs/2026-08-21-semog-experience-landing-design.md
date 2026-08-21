@@ -1,7 +1,7 @@
 # Landing do Semog Experience 2026 — design
 
 **Data:** 21/08/2026
-**Status:** aguardando revisão do Leandro
+**Status:** aprovado pelo Leandro em 21/08/2026
 
 ## O que é
 
@@ -18,7 +18,7 @@ e se inscrever.
 
 | | |
 |---|---|
-| Data | **26/09/2026 (sábado)** — ⚠️ ver "Pendências" |
+| Data | **26/09/2026 (sábado)** — confirmada pelo Leandro |
 | Horário | 07h às 12h |
 | Local | Praia do Cabo Branco, João Pessoa/PB |
 | Preço | Gratuito |
@@ -101,6 +101,29 @@ Segue o mockup aprovado, com a paleta real da marca (`theme.css`: navy
 A numeração da programação é cronológica de verdade (07h00 → 11h30), então os
 horários são o próprio marcador — não há numeração decorativa.
 
+## Imagens: banco de imagens, não fotos do evento anterior
+
+**Decisão do Leandro (21/08):** o hero e a programação usam **fotos de banco de
+imagens com licença comercial** (Unsplash/Pexels), não registros do evento
+passado. O motivo é de conteúdo, não de estética: **2024 foi um campeonato de
+beach tennis e 2026 é uma manhã wellness** — foto de quadra de areia
+comunicaria o evento errado.
+
+Critério de seleção: alongamento, pilates ou treino funcional ao ar livre, em
+praia, com luz de amanhecer (o evento começa 07h) e pessoas reais em movimento.
+Evitar banco de imagem óbvio — sorriso posado para a câmera, academia coberta,
+fundo branco.
+
+Cada imagem baixada vai para o bucket do Supabase, como o resto da mídia do
+site, com `alt` descritivo obrigatório (`content/media.ts` lança se o arquivo
+não tiver alt mapeado). A licença de cada arquivo fica registrada no commit.
+
+**O vídeo de 2024 continua**, mas com enquadramento honesto: a seção diz
+explicitamente que a edição passada foi um campeonato de beach tennis e que o
+formato muda a cada ano. Isso transforma uma incoerência potencial ("o vídeo não
+é do que estão anunciando") em argumento — o Experience é uma série, e a energia
+é o que se repete.
+
 ## Vídeo: hospedar em vez de embutir
 
 O material é um Reel do Instagram
@@ -135,13 +158,9 @@ galeria de fotos · integração com o Exact.
 
 ## Pendências do cliente
 
-1. ⚠️ **Confirmar a data.** 26/09/2026 cai num sábado, o que é coerente com um
-   evento de manhã, mas veio de memória ("acredito que dia 26"). A data fica num
-   único ponto de configuração e é trocada em segundos — **mas a página não deve
-   ir ao ar sem confirmação.**
-2. **Fotos reais do Experience 2024** para o hero. A imagem do mockup é gerada
-   por IA e entrega isso de perto (o acabamento das pessoas com "SEMOG" nas
-   costas). Foto real de evento com público é o que convence alguém a se
-   inscrever.
-3. **Arquivo original do vídeo** do beach tennis, se existir.
-4. Confirmar se a **Superlógica** aprova aparecer como patrocinadora nesta peça.
+1. **Arquivo original do vídeo** do beach tennis, se existir — senão, capa
+   clicável para o Reel.
+2. Confirmar se a **Superlógica** aprova aparecer como patrocinadora nesta peça.
+
+Resolvidas em 21/08: data confirmada (26/09/2026) e decisão de usar banco de
+imagens em vez de fotos do evento anterior.
