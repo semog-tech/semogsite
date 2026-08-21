@@ -845,7 +845,7 @@ git commit -m "feat(experience): rota isolada /experience com layout próprio"
 
 **Antes de escrever CSS:** abrir `src/components/city/CityLanding.tsx` e o CSS que ele usa. Seguir a mesma convenção de classes e os mesmos tokens de `theme.css`. Não introduzir biblioteca de UI nova.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `tests/int/experience-sections.int.spec.tsx`:
 
@@ -885,12 +885,12 @@ describe('ExperienceSponsors', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-sections.int.spec.tsx`
 Expected: FAIL — componentes não existem
 
-- [ ] **Step 3: Escrever as seções**
+- [x] **Step 3: Escrever as seções**
 
 Seguir a estrutura visual do mockup aprovado (`docs` do spec). Pontos obrigatórios:
 
@@ -917,28 +917,91 @@ Seguir a estrutura visual do mockup aprovado (`docs` do spec). Pontos obrigatór
 
 **`experience.css`** — importado pela página. Usar exclusivamente tokens de `theme.css`. Respeitar `prefers-reduced-motion` em qualquer transição. Toda imagem com `max-width: 100%`.
 
-- [ ] **Step 4: Compor na página**
+- [x] **Step 4: Compor na página**
 
 Substituir o corpo de `src/app/(evento)/experience/page.tsx` pelas seções, na ordem: Hero → Pillars → Program → Video → Cta → (formulário, Task 7) → Sponsors → Footer.
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-sections.int.spec.tsx`
 Expected: PASS (3 testes)
 
-- [ ] **Step 6: Conferir com os próprios olhos**
+- [x] **Step 6: Conferir com os próprios olhos**
 
 ```bash
 pnpm run build && pnpm run start
 ```
 Abrir `http://localhost:3000/experience` e conferir, em 1440px e em 390px: nada estoura na horizontal; o texto do hero fica legível sobre a foto; a faixa de patrocinadores tem fundo claro; o logo da Superlógica não está sobre imagem nem com sombra.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/experience/ src/app/\(evento\)/experience/page.tsx tests/int/experience-sections.int.spec.tsx
 git commit -m "feat(experience): seções da landing"
 ```
+
+> **Nota da Task 6 (executada) — porte, não redesign.** Cada seção é o markup
+> do protótipo aprovado convertido em server component; classes, textos e
+> superfícies (`.s-dark`/`.s-deep`/`.s-paper`/`.s-white`/`.s-brand`) vieram de
+> lá sem retoque. O que divergiu, e por quê:
+>
+> 1. **O teste do Step 1 não roda como escrito.** O projeto **não tem
+>    `@testing-library/jest-dom`** (ver `vitest.setup.ts`), então
+>    `toBeInTheDocument`/`toHaveAttribute`/`toHaveTextContent` não existem —
+>    seriam `TypeError`, não falha de asserção. O spec usa
+>    `toBeDefined()`/`getAttribute`/`textContent`, como os outros de
+>    `tests/int/`. **Vale para a Task 7**, cujo teste também usa `jest-dom`
+>    (`toBeInTheDocument`, `toBeChecked`): ou se instala a dependência (mexe na
+>    suíte inteira) ou se traduzem as asserções.
+> 2. **`getByText(/2025/)` encontraria três elementos** (título, nota e legenda
+>    citam o ano) e o singular lança "found multiple elements". Virou
+>    `getAllByText`, com o ano vindo de `EXPERIENCE_EVENT.video.previousYear`.
+> 3. **`E.video.fileUrl` não existe** (já registrado na Task 3): não há dois
+>    ramos nem capa clicável — é o `<video controls playsinline preload="none"
+>    poster>` do protótipo, servido do bucket. Conferido tocando de verdade:
+>    68,5s, 406×720 (9:16), sem erro de console e sem violação de CSP.
+> 4. **Rodapé — dado de contato corrigido.** O protótipo trazia
+>    `(83) 2106-0400` e `contato@semog.com.br`. O telefone não é da Semog em
+>    lugar nenhum (`content/site.ts` lista as quatro unidades; a de João Pessoa
+>    é `(83) 3224-1228`) e o e-mail é o do site ANTIGO, trocado por
+>    `ola@semog.com.br` na migração. Publicar qualquer um dos dois daria ao
+>    inscrito um canal que não atende. O telefone agora sai de
+>    `content/site.ts`, da unidade que sedia o evento. Pelo mesmo motivo o
+>    `©` diz "Semog Administradora de Condomínios" (razão usada no site e no
+>    JSON-LD da Task 8), não "Administração". **Confirmar com o cliente** — ver
+>    "Antes de publicar".
+> 5. **Faixa (`ExperienceCta`)**: o plano pedia repetir "gratuito, {seats}
+>    vagas"; ficou o texto do protótipo ("Evento gratuito … Vagas limitadas").
+>    O número já está no hero e volta na seção de inscrição.
+> 6. **Logo do topo não é link.** No protótipo era `href="#"` (placeholder), e
+>    a página é isolada de propósito — a única saída é a inscrição.
+> 7. **`<main>` e `<h1>`**: o protótipo era um arquivo solto, sem landmark; a
+>    página envolve as seções em `<main>` (o `<footer>` fora dele, senão não é
+>    `contentinfo`). E o `<h1>` ganhou o espaço que faltava entre "Semog" e
+>    `<span>Experience</span>` — sem ele o nome acessível era "SemogExperience".
+> 8. **`experience.css` é escopado em `.exp`** e não repete cor nenhuma: cada
+>    valor aponta para token de `theme.css`. Três substituições estão
+>    documentadas no topo do arquivo; a que não é cosmética é o texto
+>    terciário claro (#6b7699 do protótipo mede 4,08:1 sobre a superfície clara
+>    e reprova no AA — usa-se o #5a6488 que o tema já tinha corrigido).
+>    Conferido no build: o CSS sai em chunk próprio, só em `/experience`, e o
+>    chunk compartilhado não tem uma regra `.exp` sequer.
+> 9. **`.place` e `.hero-bg` viraram `next/image` com `fill`**, então o
+>    `aspect-ratio` 16/10 saiu do `<img>` e foi para a moldura (com `fill` a
+>    imagem é `position:absolute` e não sustenta altura nenhuma).
+> 10. **O e2e da Task 5 precisou de escopo.** Data, local e vagas passaram a
+>    aparecer em três lugares e o modo estrito do Playwright derrubava
+>    `getByText`. O teste agora olha dentro de `.hero` — o que ele prova
+>    (a informação antes da dobra) fica até mais forte. **A Task 7 vai
+>    reintroduzir o problema** ao escrever "São 200 vagas" na seção de
+>    inscrição, então convém rodar o spec depois.
+>
+> Verificação: `experience-sections` 6/6; `test:int` 181/181 (30 arquivos);
+> `experience.e2e` 3/3 contra o build de produção; `tsc --noEmit` limpo; Biome
+> limpo (três `biome-ignore` no CSS, justificados no próprio arquivo);
+> `pnpm run build` sem erro, `/experience` continua rota estática. Nada estoura
+> na horizontal em 1440px nem em 390px (`scrollWidth === clientWidth` nos dois,
+> zero elementos passando da borda).
 
 ---
 
@@ -1026,6 +1089,30 @@ Na `page.tsx`, entre `ExperienceCta` e `ExperienceSponsors`:
   <ExperienceForm />
 </section>
 ```
+
+> **Corrigido na Task 6:** `.experience-inscricao` não existe. O protótipo
+> aprovado tem a seção inteira, e o CSS dela **já está** em
+> `src/components/experience/experience.css` (`.signup`, `.facts`, `.card`,
+> `.row`, `.field`, `.check`, `.formnote`) — falta só o markup. A seção é uma
+> grade de duas colunas: à esquerda a `.intro` (eyebrow "Inscrição", título
+> "Garanta a sua vaga", parágrafo e a lista `.facts` de quatro itens com o
+> ícone de check), à direita o `.card` com o formulário. Copiar do protótipo
+> (`docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`, seção
+> `signup`), lendo o número de vagas de `EXPERIENCE_EVENT.seats`:
+>
+> ```tsx
+> <section className="signup s-paper" id="inscricao">
+>   <div className="wrap">
+>     <div className="grid">
+>       <div className="intro">…</div>
+>       <div className="card"><ExperienceForm /></div>
+>     </div>
+>   </div>
+> </section>
+> ```
+>
+> Entra entre `<ExperienceCta />` e `<ExperienceSponsors />` em
+> `src/app/(evento)/experience/page.tsx`, dentro do `<main>`.
 
 Conferir que os botões do hero e do CTA apontam para `#inscricao`.
 
@@ -1163,6 +1250,16 @@ git commit -m "feat(experience): JSON-LD de evento e entrada no sitemap"
 ## Antes de publicar
 
 - [ ] Confirmar com a **Superlógica** que ela aparece como patrocinadora nesta peça
-- [ ] Trocar a capa do vídeo pelo arquivo original, se ele existir (`E.video.fileUrl`)
+- [ ] ~~Trocar a capa do vídeo pelo arquivo original~~ — feito: o Reel está no
+      bucket e toca na página (`E.video.file`/`E.video.poster`)
+- [ ] **Confirmar telefone e e-mail do rodapé.** O protótipo trazia
+      `(83) 2106-0400` e `contato@semog.com.br`; a Task 6 publicou o telefone da
+      unidade de João Pessoa (`content/site.ts`) e `ola@semog.com.br`, que são
+      os dados vivos do site. Se o evento tiver linha ou caixa própria, ela
+      entra em `content/site.ts` / `ExperienceFooter` — não pode ficar um canal
+      que ninguém atende
+- [ ] Decidir a largura de exibição do logo da Superlógica: o protótipo mostrava
+      260px, `EXPERIENCE_SPONSORS` fixou 190 (≈29px de altura). É um número em
+      `src/data/experienceSponsors.ts`
 - [ ] Conferir a data uma última vez com quem organiza — ela está em `src/data/experienceEvent.ts` e some da página inteira se estiver errada
 - [ ] Decidir se `/experience` entra no menu do site ou fica só como link de divulgação (hoje é só link — a página é isolada de propósito)

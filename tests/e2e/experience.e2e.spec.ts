@@ -25,11 +25,18 @@ test.describe('Landing do Experience', () => {
     await expect(page.locator('.wa-float')).toHaveCount(0)
   })
 
+  /**
+   * Escopado no hero de propósito. Data, local e vagas se repetem pela página
+   * (rodapé, legenda da foto do local, seção de inscrição) e sem o escopo o
+   * modo estrito do Playwright derruba o teste por ambiguidade — o que ele
+   * precisa provar é que a informação aparece ANTES da dobra, sem rolagem.
+   */
   test('anuncia data, local e vagas', async ({ page }) => {
     await page.goto(URL_EXPERIENCE)
-    await expect(page.getByText('26 de setembro de 2026')).toBeVisible()
-    await expect(page.getByText('Praia do Cabo Branco')).toBeVisible()
-    await expect(page.getByText(/200 vagas/i)).toBeVisible()
+    const hero = page.locator('.hero')
+    await expect(hero.getByText('26 de setembro de 2026')).toBeVisible()
+    await expect(hero.getByText('Praia do Cabo Branco')).toBeVisible()
+    await expect(hero.getByText(/200 vagas/i)).toBeVisible()
   })
 
   test('a home continua com header e rodapé', async ({ page }) => {

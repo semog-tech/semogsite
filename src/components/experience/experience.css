@@ -1,0 +1,851 @@
+/*
+ * Landing do Semog Experience — porte 1:1 do CSS do protótipo aprovado pelo
+ * cliente (`docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`).
+ * NÃO é um redesign: classes, estrutura e medidas vêm de lá.
+ *
+ * Duas adaptações de sistema, feitas de propósito:
+ *
+ * 1. TUDO É ESCOPADO EM `.exp`. O protótipo era um arquivo solto e podia usar
+ *    seletores de elemento (`section`, `footer`, `form`) e nomes genéricos
+ *    (`.wrap`, `.btn`, `.card`, `.row`). Aqui o `theme.css` do site carrega
+ *    junto (o layout `(evento)` importa os dois) e o `CookieBanner` vive no
+ *    mesmo documento — sem o escopo, `section{padding-block:…}` cairia sobre
+ *    ele e `.hero`/`.pillar`/`.btn` disputariam com as ~4.200 linhas do tema.
+ *
+ * 2. NENHUMA COR NOVA. O protótipo redeclarava a paleta (`--navy-900` etc.);
+ *    aqui cada valor aponta para o token de `src/styles/theme.css`
+ *    (`--color-navy-*`, `--color-ice-*`) ou para um valor que já existe lá.
+ *    O que o protótipo escrevia à mão e virou token:
+ *      - superfície clara       #f4f6fb -> #f2f4f9 (o mesmo de `.sec-light`)
+ *      - texto secundário claro #4a5578 -> #4b557a (`.sec-light --text-2`)
+ *      - texto terciário claro  #6b7699 -> #5a6488 (`.sec-light --text-3`)
+ *        — este não é cosmético: #6b7699 mede 4,08:1 sobre a superfície clara
+ *        e reprova no AA de texto pequeno, que é exatamente onde ele é usado
+ *        (rótulos e nota do formulário). O tema já tinha resolvido isso.
+ *
+ * O resto (`--fg`, `--fg-2`, `--line`, `--accent`…) é o sistema de superfícies
+ * do protótipo: cada seção declara a sua (`.s-dark`, `.s-deep`, `.s-paper`,
+ * `.s-white`, `.s-brand`) e todo texto herda dos tokens dela. Nenhuma cor é
+ * escrita direto dentro das regras — some a pergunta "qual é o fundo aqui?".
+ */
+
+.exp {
+  --paper: #f2f4f9;
+  --paper-2: #ffffff;
+  --wrap: 78rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* Superfícies escuras: `--line` NÃO é redeclarado de propósito — o valor do
+   protótipo, rgba(173,213,235,.14), é exatamente o `--line` de `:root` no
+   theme.css, e reescrevê-lo como `var(--line)` seria auto-referência
+   inválida. `--line-2` mapeia para `--line-strong` (.28 contra .30 do
+   protótipo, diferença invisível). */
+.exp .s-dark {
+  --bg: var(--color-navy-900);
+  --fg: var(--text);
+  --fg-2: var(--text-2);
+  --fg-3: var(--text-3);
+  --line-2: var(--line-strong);
+  --accent: var(--color-ice-400);
+  --accent-2: var(--color-ice-500);
+}
+.exp .s-deep {
+  --bg: var(--color-navy-950);
+  --fg: var(--text);
+  --fg-2: var(--text-2);
+  --fg-3: var(--text-3);
+  --line-2: var(--line-strong);
+  --accent: var(--color-ice-400);
+  --accent-2: var(--color-ice-500);
+}
+.exp .s-paper {
+  --bg: var(--paper);
+  --fg: var(--color-navy-900);
+  --fg-2: #4b557a;
+  --fg-3: #5a6488;
+  --line: rgba(16, 26, 72, 0.12);
+  --line-2: rgba(16, 26, 72, 0.24);
+  --accent: var(--color-navy-500);
+  --accent-2: var(--color-navy-500);
+}
+.exp .s-white {
+  --bg: var(--paper-2);
+  --fg: var(--color-navy-900);
+  --fg-2: #4b557a;
+  --fg-3: #5a6488;
+  --line: rgba(16, 26, 72, 0.12);
+  --line-2: rgba(16, 26, 72, 0.24);
+  --accent: var(--color-navy-500);
+  --accent-2: var(--color-navy-500);
+}
+.exp .s-brand {
+  --bg: var(--color-navy-600);
+  --fg: #fff;
+  --fg-2: var(--color-ice-300);
+  --fg-3: var(--color-ice-500);
+  --line: rgba(255, 255, 255, 0.18);
+  --line-2: rgba(255, 255, 255, 0.34);
+  --accent: #fff;
+  --accent-2: var(--color-ice-300);
+}
+.exp .s-dark,
+.exp .s-deep,
+.exp .s-paper,
+.exp .s-white,
+.exp .s-brand {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.exp .wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-inline: clamp(1.15rem, 4vw, 3rem);
+}
+.exp section {
+  padding-block: clamp(4rem, 8vw, 7rem);
+}
+
+.exp .eyebrow {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+.exp .sec-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 4vw, 2.9rem);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  margin: 0;
+  text-wrap: balance;
+  color: var(--fg);
+}
+.exp .sec-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.exp .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 1rem 1.75rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease;
+}
+.exp .btn svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+}
+.exp .btn-primary {
+  background: var(--color-navy-400);
+  color: #fff;
+}
+.exp .btn-primary:hover {
+  background: #4a63d4;
+  transform: translateY(-2px);
+}
+.exp .btn-light {
+  background: #fff;
+  color: var(--color-navy-600);
+}
+.exp .btn-light:hover {
+  transform: translateY(-2px);
+}
+.exp .btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+/* O `:focus-visible` global do theme.css usa `--color-accent` (ice-400), que
+   sobre superfície clara mede ~1,5:1 — invisível. Nas seções claras o anel
+   segue o acento da própria superfície (navy-500). */
+.exp .s-paper :focus-visible,
+.exp .s-white :focus-visible {
+  outline-color: var(--accent);
+}
+
+/* ---------- topo ---------- */
+.exp .topbar {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 5;
+}
+.exp .topbar .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.5rem;
+  gap: 1rem;
+}
+.exp .logo {
+  height: 1.55rem;
+  width: auto;
+}
+.exp .topbar .btn {
+  padding: 0.7rem 1.3rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+@media (max-width: 34rem) {
+  .exp .topbar .btn {
+    display: none;
+  }
+}
+
+/* ---------- hero ---------- */
+.exp .hero {
+  position: relative;
+  min-height: min(94vh, 52rem);
+  display: flex;
+  align-items: flex-end;
+  padding-block: 9rem clamp(2.5rem, 5vw, 4rem);
+  isolation: isolate;
+}
+.exp .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+.exp .hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+.exp .hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 8, 26, 0.66) 0%,
+      rgba(5, 8, 26, 0.1) 28%,
+      rgba(5, 8, 26, 0.16) 50%,
+      rgba(10, 16, 46, 0.92) 100%
+    ),
+    linear-gradient(
+      100deg,
+      rgba(5, 8, 26, 0.88) 0%,
+      rgba(5, 8, 26, 0.62) 30%,
+      rgba(5, 8, 26, 0.2) 58%,
+      transparent 80%
+    );
+}
+.exp .hero > .wrap {
+  width: 100%;
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 2.4rem);
+}
+.exp .hero h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(3.1rem, 10.5vw, 8.2rem);
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+  margin: 0;
+  text-transform: uppercase;
+}
+.exp .hero h1 span {
+  display: block;
+  color: var(--color-ice-400);
+}
+.exp .hero .tag {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(0.95rem, 1.9vw, 1.28rem);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  margin: 0;
+}
+.exp .hero .lede {
+  max-width: 38ch;
+  color: var(--fg-2);
+  font-size: clamp(1rem, 1.5vw, 1.14rem);
+  margin: 0;
+}
+
+.exp .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.4rem, 4vw, 3.5rem);
+  padding-block: 0.4rem;
+}
+.exp .meta-item {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+.exp .meta-item svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--color-ice-500);
+  flex: none;
+  margin-top: 0.15rem;
+}
+.exp .meta-label {
+  font-size: 0.63rem;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  font-weight: 700;
+}
+.exp .meta-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.02rem;
+  margin-top: 0.15rem;
+}
+.exp .meta-value small {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--fg-2);
+}
+
+.exp .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.4rem;
+}
+.exp .seats {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--fg-2);
+}
+.exp .seats svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--color-ice-500);
+}
+
+.exp .badge35 {
+  position: absolute;
+  right: clamp(1.15rem, 4vw, 3rem);
+  bottom: clamp(2.5rem, 5vw, 4rem);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 2;
+}
+.exp .badge35 .num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid rgba(173, 213, 235, 0.3);
+  border-radius: 0.7rem;
+  background: rgba(5, 8, 26, 0.55);
+  backdrop-filter: blur(6px);
+  text-align: center;
+}
+.exp .badge35 .num small {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #b4bdd9;
+  margin-top: 0.3rem;
+}
+.exp .badge35 p {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #b4bdd9;
+  line-height: 1.75;
+  max-width: 19ch;
+}
+@media (max-width: 60rem) {
+  .exp .badge35 {
+    display: none;
+  }
+}
+
+/* ---------- pilares ---------- */
+.exp .pillars .head {
+  text-align: center;
+  max-width: 46ch;
+  margin: 0 auto clamp(2.5rem, 5vw, 3.5rem);
+}
+.exp .pillars .head p {
+  color: var(--fg-2);
+  margin: 0.9rem 0 0;
+}
+.exp .pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.exp .pillar {
+  background: var(--bg);
+  padding: clamp(2rem, 4vw, 2.75rem) clamp(1.4rem, 3vw, 2rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.exp .pillar svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--accent);
+}
+.exp .pillar h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.02rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0.3rem 0 0;
+  color: var(--fg);
+}
+.exp .pillar p {
+  margin: 0;
+  color: var(--fg-2);
+  font-size: 0.95rem;
+  max-width: 26ch;
+}
+
+/* ---------- programação ---------- */
+.exp .program .grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
+  align-items: center;
+}
+@media (max-width: 64rem) {
+  .exp .program .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.exp .program .eyebrow {
+  display: block;
+  margin-bottom: 0.7rem;
+}
+.exp .sched {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+.exp .sched li {
+  display: grid;
+  grid-template-columns: 4.6rem 1px 1fr;
+  align-items: center;
+  gap: 1.25rem;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.exp .sched li:last-child {
+  border-bottom: none;
+}
+.exp .sched .h {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.exp .sched .r {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--line-2);
+}
+.exp .sched .t {
+  color: var(--fg-2);
+}
+/* No protótipo o `aspect-ratio` estava no `<img>`; aqui a imagem é
+   `next/image` com `fill` (position:absolute), então quem precisa segurar a
+   proporção é a moldura — mesmo resultado na tela. */
+.exp .place {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin: 0;
+  box-shadow: 0 24px 60px -30px rgba(10, 16, 46, 0.55);
+}
+.exp .place img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.exp .place figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  background: linear-gradient(0deg, rgba(5, 8, 26, 0.94) 12%, transparent 100%);
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  /* Legenda sobre gradiente escuro DENTRO de uma seção clara: as duas cores
+     aqui são as do tema para fundo escuro (`--text` e `--text-2` de `:root`),
+     escritas à mão porque a superfície local é a clara. */
+  color: #edf1fa;
+}
+.exp .place figcaption svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--color-ice-400);
+  flex: none;
+  margin-top: 0.2rem;
+}
+.exp .place .pname {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+.exp .place .pnote {
+  font-size: 0.87rem;
+  color: #b4bdd9;
+  margin: 0.35rem 0 0;
+  max-width: 34ch;
+}
+
+/* ---------- vídeo (Reel vertical, tocado aqui) ---------- */
+.exp .video .grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
+  align-items: center;
+}
+@media (max-width: 64rem) {
+  .exp .video .grid {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+}
+.exp .video p {
+  color: var(--fg-2);
+}
+.exp .video .note {
+  border-left: 2px solid var(--color-ice-600);
+  padding-left: 1.1rem;
+  font-size: 0.95rem;
+  margin-top: 1.5rem;
+}
+.exp .reel {
+  width: min(20rem, 100%);
+  border-radius: 1.1rem;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  background: #000;
+  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.9);
+}
+/* A proporção vem do dado (`EXPERIENCE_EVENT.video.aspectRatio`), inline no
+   elemento: o material é um Reel 9:16 e trocar a fonte do vídeo não pode
+   exigir editar CSS. */
+.exp .reel video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  background: #000;
+}
+.exp .reel-cap {
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  margin: 0.8rem 0 0;
+  text-align: center;
+}
+
+/* ---------- faixa ---------- */
+.exp .band {
+  padding-block: 0;
+}
+.exp .band .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-block: clamp(2.5rem, 5vw, 3.25rem);
+}
+.exp .band h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  line-height: 1.22;
+  margin: 0;
+  max-width: 20ch;
+}
+.exp .band .side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+.exp .band .side p {
+  margin: 0;
+  color: var(--fg-2);
+  font-size: 0.92rem;
+  max-width: 32ch;
+}
+
+/* ---------- inscrição (o markup entra na Task 7) ---------- */
+.exp .signup .grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2.5rem, 5vw, 4.5rem);
+}
+@media (max-width: 64rem) {
+  .exp .signup .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.exp .signup .intro p {
+  color: var(--fg-2);
+}
+.exp .facts {
+  list-style: none;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.exp .facts li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.95rem;
+  color: var(--fg-2);
+}
+.exp .facts svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--accent);
+  flex: none;
+  margin-top: 0.35rem;
+}
+.exp .card {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  box-shadow: 0 24px 60px -34px rgba(10, 16, 46, 0.35);
+}
+.exp form {
+  display: grid;
+  gap: 1.1rem;
+}
+.exp .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+@media (max-width: 40rem) {
+  .exp .row {
+    grid-template-columns: 1fr;
+  }
+}
+.exp .field {
+  display: grid;
+  gap: 0.45rem;
+}
+.exp .field label {
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  font-weight: 700;
+}
+.exp .field label .opt {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+.exp .field input,
+.exp .field select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--fg);
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: 0.55rem;
+  padding: 0.85rem 1rem;
+}
+.exp .field input::placeholder {
+  color: var(--fg-3);
+}
+.exp .field input:focus,
+.exp .field select:focus {
+  outline: 2px solid var(--color-navy-400);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.exp .check {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--paper);
+}
+.exp .check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  margin-top: 0.15rem;
+  accent-color: var(--color-navy-400);
+}
+/* biome-ignore lint/style/noDescendingSpecificity: o seletor mais específico que vem antes é `.exp .hero h1 span`, outra subárvore — os dois nunca disputam o mesmo elemento */
+.exp .check span {
+  font-size: 0.88rem;
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+.exp .check a {
+  color: var(--color-navy-500);
+}
+.exp form .btn {
+  justify-content: center;
+  width: 100%;
+}
+.exp .formnote {
+  font-size: 0.78rem;
+  color: var(--fg-3);
+  text-align: center;
+  margin: 0;
+}
+
+/* ---------- patrocinadores ---------- */
+.exp .sponsors .wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+.exp .sponsors .rule {
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-navy-400);
+}
+.exp .sponsor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(2rem, 6vw, 4.5rem);
+  align-items: center;
+  justify-content: center;
+  padding-block: 1rem;
+}
+.exp .sponsor {
+  display: block;
+  text-decoration: none;
+  opacity: 0.92;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.exp .sponsor:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+.exp .sponsors .aside {
+  font-size: 0.85rem;
+  color: var(--fg-2);
+  margin: 0;
+}
+/* O `theme.css` zera o sublinhado de TODO `a`; no protótipo estes eram links
+   dentro de texto corrido e vinham sublinhados do navegador. Sem sublinhado
+   sobraria só a cor para distingui-los do texto ao redor. */
+.exp .sponsors .aside a,
+.exp .check a {
+  color: var(--color-navy-500);
+  text-decoration: underline;
+}
+
+/* ---------- rodapé ---------- */
+.exp footer {
+  padding-block: clamp(2.75rem, 5vw, 3.75rem);
+}
+.exp footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.exp .fcol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.87rem;
+  color: var(--fg-2);
+}
+/* sem isto o <img> estica pra largura da coluna (align-items:stretch) e,
+   como o SVG preserva proporção, a arte fica centralizada no meio do vão. */
+.exp .fcol .logo {
+  align-self: flex-start;
+}
+.exp .fcol strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 0.35rem;
+}
+/* biome-ignore lint/style/noDescendingSpecificity: o seletor mais específico que vem antes é `.exp .check a` (dentro do formulário), outra subárvore — os dois nunca disputam o mesmo elemento */
+.exp footer a {
+  color: var(--fg-2);
+  text-decoration: none;
+}
+.exp footer a:hover {
+  color: var(--color-ice-400);
+}
+.exp .copy {
+  margin-top: 2.25rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--fg-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp *,
+  .exp *::before,
+  .exp *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: sem `!important` esta regra (0,1,0) perde para `.exp .btn`/`.exp .sponsor` (0,2,0) e o corte de movimento simplesmente não acontece */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: idem — a declaração precisa vencer a transição declarada nos próprios componentes */
+    transition: none !important;
+  }
+}
