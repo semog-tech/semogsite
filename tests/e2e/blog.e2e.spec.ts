@@ -44,7 +44,11 @@ test.describe('Blog (MDX, sem Payload)', () => {
     await expect(page.locator('.legal-body')).toContainText(
       'Esta Política de Privacidade descreve como a Semog',
     )
-    await expect(page.locator('.legal-body a[href^="mailto:"]')).toBeVisible()
+    // `.first()`: a política passou a citar o canal de privacidade em mais de
+    // uma seção (direitos do titular e imagem em eventos) e o modo estrito do
+    // Playwright derruba o locator com dois resultados. O que o teste prova é
+    // que o MDX renderiza com canal de contato — não quantos links existem.
+    await expect(page.locator('.legal-body a[href^="mailto:"]').first()).toBeVisible()
   })
 
   test('/termos renderiza o texto legal em MDX', async ({ page }) => {

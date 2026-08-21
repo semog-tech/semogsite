@@ -1457,16 +1457,29 @@ git commit -m "feat(experience): JSON-LD de evento e entrada no sitemap"
       os dados vivos do site. Se o evento tiver linha ou caixa própria, ela
       entra em `content/site.ts` / `ExperienceFooter` — não pode ficar um canal
       que ninguém atende
-- [ ] Decidir a largura de exibição do logo da Superlógica: o protótipo mostrava
-      260px, `EXPERIENCE_SPONSORS` fixou 190 (≈29px de altura). É um número em
-      `src/data/experienceSponsors.ts`
-- [ ] **Decidir o e-mail que o inscrito recebe.** Hoje sai o auto-reply
-      genérico do site (`ContactAutoReply`): assunto "Recebemos seu contato —
-      Semog" e o corpo prometendo que *"em breve alguém vai retornar pra
-      você"* — o que não é verdade para uma inscrição em evento. Ou se cria um
-      `ExperienceAutoReply` (que repetiria data, horário e local, e aí a tela
-      de sucesso pode mencioná-lo) ou se suprime o auto-reply para
-      `formType === 'experience'` em `submit-form.ts`
+- [x] ~~Decidir a largura de exibição do logo da Superlógica~~ — voltou aos
+      260px da peça aprovada (`src/data/experienceSponsors.ts`); a redução para
+      190 não tinha sido validada com o patrocinador
+- [x] ~~Decidir o e-mail que o inscrito recebe~~ — criado
+      `src/emails/ExperienceAutoReply.tsx` ("Inscrição recebida — Semog
+      Experience", com data/horário/local de `EXPERIENCE_EVENT` e a frase de
+      que não há lista comercial); `submit-form.ts` escolhe o template por
+      `formType`. A tela de sucesso continua sem prometer e-mail — se quiserem
+      que ela mencione, agora pode
+- [ ] **Confirmar o texto do aceite de uso de imagem.** O protótipo aprovado
+      dizia "Autorizo o uso da minha imagem em fotos e vídeos **do evento**"; o
+      que foi publicado é "**O evento é fotografado e filmado.** Autorizo o uso
+      da minha imagem em fotos e vídeos **do Semog Experience**, conforme a
+      política de privacidade". A frase a mais é mais segura do ponto de vista
+      de LGPD (avisa antes de pedir o consentimento) e o link agora aponta para
+      `/privacidade`, que ganhou a seção 6 sobre imagem em eventos — mas a peça
+      aprovada e a publicada não podem ter textos diferentes sem ninguém saber
+- [ ] **Registrar a mudança no véu do hero e na legenda da foto do local.** As
+      duas divergem do protótipo por legibilidade, não por gosto: medido no
+      navegador, `.hero .lede` marcava 1,26:1 e `.place .pname` 1,70:1 contra os
+      4,5:1 do WCAG AA. O véu do hero fechou na faixa do meio e a legenda ficou
+      opaca; a foto continua visível nas duas. Vale mostrar ao cliente lado a
+      lado
 - [ ] **Marcar `experience_signup` como evento-chave no GA4** se o evento for
       anunciado em mídia paga. É de propósito que a inscrição NÃO dispara
       `generate_lead` (misturaria com a captação comercial), então sem esse

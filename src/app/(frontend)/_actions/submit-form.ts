@@ -3,6 +3,7 @@
 import { cookies, headers } from 'next/headers'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
+import ExperienceAutoReply from '@/emails/ExperienceAutoReply'
 import {
   ATTRIBUTION_COOKIE,
   buildAttributionFields,
@@ -129,7 +130,7 @@ async function getClientIp(): Promise<string | undefined> {
 /**
  * Server Action de submit dos formulários "Contato"/"Proposta"/"Inscrição —
  * Semog Experience" (config estática em `@/lib/forms`). Pipeline: valida com
- * Zod → Turnstile → rate limit por IP → grava em `cms.leads` (via `pg`,
+ * Zod → rate limit por formulário+IP → Turnstile → grava em `cms.leads` (via `pg`,
  * `@/lib/db`) → cria o lead no CRM (Exact, só quando é captação) → e-mail. Os
  * dois últimos são best-effort.
  *
@@ -157,14 +158,21 @@ export async function submitForm(
   try {
     const ip = await getClientIp()
 
+    // Rate limit ANTES do Turnstile, de propósito. `verifyTurnstile` é uma
+    // chamada de rede ao siteverify da Cloudflare: na ordem inversa, uma
+    // enxurrada de tokens inválidos nunca chegava a contar e cada tentativa
+    // ainda custava uma requisição de saída. A chave leva o formulário na
+    // frente (como pede o docblock de `rateLimit`) para que uma rajada na
+    // landing do evento não consuma a cota de quem está preenchendo Contato ou
+    // Proposta do mesmo IP — escritório inteiro sai por um NAT só.
+    const rate = rateLimit(`${formType}:${ip ?? 'anon'}`, { max: 5, windowMs: 60_000 })
+    if (!rate.ok) {
+      return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
+    }
+
     const turnstileOk = await verifyTurnstile(turnstileToken, ip)
     if (!turnstileOk) {
       return { ok: false, message: 'Verificação anti-spam falhou.' }
-    }
-
-    const rate = rateLimit(ip ?? 'anon', { max: 5, windowMs: 60_000 })
-    if (!rate.ok) {
-      return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
     }
 
     const formTitle = FORMS[formType].title
@@ -267,10 +275,27 @@ export async function submitForm(
         )
       }
 
+      // Auto-reply: a inscrição no evento tem o seu, e não é firula. O
+      // genérico diz "Recebemos seu contato" e promete que "em breve alguém
+      // vai retornar pra você" — para quem se inscreveu num evento gratuito
+      // isso é falso (ninguém vai retornar) e contradiz a frase que o próprio
+      // formulário mostra acima do botão. O do evento confirma a inscrição
+      // repetindo data, horário e local de `EXPERIENCE_EVENT`.
+      const autoReply =
+        formType === 'experience'
+          ? {
+              subject: 'Inscrição recebida — Semog Experience',
+              react: ExperienceAutoReply({ name: data.nome }),
+            }
+          : {
+              subject: 'Recebemos seu contato — Semog',
+              react: ContactAutoReply({ name: data.nome }),
+            }
+
       const autoReplyResult = await sendMail({
         to: data.email,
-        subject: 'Recebemos seu contato — Semog',
-        react: ContactAutoReply({ name: data.nome }),
+        subject: autoReply.subject,
+        react: autoReply.react,
       })
       if (autoReplyResult.ok === false) {
         console.error('[submit-form] sendMail falhou:', autoReplyResult.error)

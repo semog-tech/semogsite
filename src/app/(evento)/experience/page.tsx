@@ -13,7 +13,23 @@ import { absoluteUrl } from '@/lib/seo'
 import '@/components/experience/experience.css'
 
 const title = 'Semog Experience 2026 — manhã wellness na Praia do Cabo Branco'
-const description = `Movimento, saúde e conexão em ${E.dateLabel}, das 7h às 12h, na ${E.venue}, em ${E.city}. Pilates, treino funcional, alongamento e avaliação física. Gratuito, com ${E.seats} vagas.`
+/**
+ * O horário sai de `E.timeLabel`, como todo o resto: este texto vai para a
+ * `<meta description>`, para o `og:description`, para o `twitter:description`
+ * E para o JSON-LD do evento (é o mesmo `description` reusado abaixo). Digitado
+ * à mão, uma troca de horário em `experienceEvent.ts` arrumaria a página
+ * inteira e deixaria o snippet da busca e o rich result mentindo.
+ */
+const description = `Movimento, saúde e conexão em ${E.dateLabel}, das ${E.timeLabel}, na ${E.venue}, em ${E.city}. Pilates, treino funcional, alongamento e avaliação física. Gratuito, com ${E.seats} vagas.`
+
+/**
+ * A foto do hero também é o card social. O route group `(evento)` é um root
+ * layout IRMÃO de `(frontend)`, então não herda o `src/app/[slug]/opengraph-image.tsx`
+ * que serve as rotas do site — sem declarar a imagem aqui, esta seria a única
+ * página sem `og:image`, e o link do evento (divulgado justamente em WhatsApp
+ * e Instagram) apareceria sem imagem nenhuma.
+ */
+const heroImage = img('experience-hero.webp')
 
 export const metadata: Metadata = {
   title,
@@ -25,6 +41,13 @@ export const metadata: Metadata = {
     title,
     description,
     locale: 'pt_BR',
+    images: [heroImage.url],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: [heroImage.url],
   },
 }
 
@@ -55,7 +78,7 @@ const eventJsonLd = {
   endDate: `${E.date}T${E.endTime}:00-03:00`,
   eventStatus: 'https://schema.org/EventScheduled',
   eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-  image: [img('experience-hero.webp').url],
+  image: [heroImage.url],
   location: {
     '@type': 'Place',
     name: E.venue,
@@ -140,7 +163,8 @@ export default function ExperiencePage() {
                     São {E.seats} vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e
                     disposição — o resto é com a gente.
                   </p>
-                  <ul className="facts">
+                  {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
+                  <ul className="facts" role="list">
                     {BENEFICIOS.map((beneficio) => (
                       <li key={beneficio}>
                         <svg

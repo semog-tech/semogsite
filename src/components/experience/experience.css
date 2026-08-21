@@ -78,6 +78,8 @@
   --fg-3: #5a6488;
   --line: rgba(16, 26, 72, 0.12);
   --line-2: rgba(16, 26, 72, 0.24);
+  /* Limite de controle de formulário — ver `.exp .field input`. */
+  --field-line: rgba(16, 26, 72, 0.55);
   --accent: var(--color-navy-500);
   --accent-2: var(--color-navy-500);
 }
@@ -88,6 +90,7 @@
   --fg-3: #5a6488;
   --line: rgba(16, 26, 72, 0.12);
   --line-2: rgba(16, 26, 72, 0.24);
+  --field-line: rgba(16, 26, 72, 0.55);
   --accent: var(--color-navy-500);
   --accent-2: var(--color-navy-500);
 }
@@ -228,6 +231,28 @@
   padding-block: 9rem clamp(2.5rem, 5vw, 4rem);
   isolation: isolate;
 }
+/*
+ * A barra de cookies é `position: fixed` e não ocupa espaço no fluxo. Num
+ * 390x844 ela pegava y=711..844 enquanto o hero terminava em 799: o botão
+ * ficava 11px coberto e a linha "Gratuito · 200 vagas" — a prova de que o
+ * evento é grátis, a última coisa acima da dobra no protótipo — sumia inteira
+ * atrás dela. Aqui o rodapé do hero reserva a altura real da barra
+ * (`--consent-bar-h`, publicada pelo `CookieBanner` enquanto ela está no ar) e
+ * o topo devolve parte do espaço: os 9rem existem só para o `.topbar`
+ * absoluto, que no celular ocupa ~4,6rem — daí o piso de 5rem. Some quando a
+ * pessoa decide (a variável deixa de existir e o `0px` do fallback restaura o
+ * espaçamento original). Só no celular: no desktop não há colisão.
+ *
+ * Medido: 390x844 resolve (a linha das vagas termina em 695, a barra começa em
+ * 711). Em 360x780 a barra quebra em duas fileiras e ocupa 183px de 780 — não
+ * cabe tudo acima dela nem zerando o topo; ali o conteúdo sobe o que dá.
+ */
+@media (max-width: 48rem) {
+  .exp .hero {
+    padding-top: max(5rem, calc(9rem - var(--consent-bar-h, 0px)));
+    padding-bottom: calc(clamp(2.5rem, 5vw, 4rem) + var(--consent-bar-h, 0px));
+  }
+}
 .exp .hero-bg {
   position: absolute;
   inset: 0;
@@ -240,6 +265,16 @@
   object-fit: cover;
   object-position: center 42%;
 }
+/*
+ * DIVERGE DO PROTÓTIPO, por legibilidade. As paradas do meio eram .10 (28%) e
+ * .16 (50%) — a faixa em que o bloco de texto cai no celular, e ela abria
+ * justo sobre o céu do amanhecer, quase branco. Medido no navegador (print do
+ * bounding box com o texto escondido, pior pixel do fundo contra a cor
+ * computada do texto): `.hero .lede` marcava 1,26:1 a 390px e `.hero .tag`
+ * 1,54:1 a 1440px, contra os 4,5:1 que o AA exige. Fechar o véu na faixa do
+ * meio é o que devolve o texto — a foto continua aberta no topo, acima da
+ * primeira linha.
+ */
 .exp .hero-veil {
   position: absolute;
   inset: 0;
@@ -247,10 +282,11 @@
   background:
     linear-gradient(
       180deg,
-      rgba(5, 8, 26, 0.66) 0%,
-      rgba(5, 8, 26, 0.1) 28%,
-      rgba(5, 8, 26, 0.16) 50%,
-      rgba(10, 16, 46, 0.92) 100%
+      rgba(5, 8, 26, 0.72) 0%,
+      rgba(5, 8, 26, 0.45) 12%,
+      rgba(5, 8, 26, 0.66) 30%,
+      rgba(5, 8, 26, 0.68) 62%,
+      rgba(10, 16, 46, 0.95) 100%
     ),
     linear-gradient(
       100deg,
@@ -278,18 +314,21 @@
   display: block;
   color: var(--color-ice-400);
 }
+/* `--fg` (e não `--fg-2`) nestes dois: são as linhas que caem mais alto na
+   foto, onde nem o véu reforçado chega ao 4,5:1 com o tom mais apagado. Sobre
+   superfície escura chapada `--fg-2` bastaria; sobre foto, não. */
 .exp .hero .tag {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: clamp(0.95rem, 1.9vw, 1.28rem);
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--fg-2);
+  color: var(--fg);
   margin: 0;
 }
 .exp .hero .lede {
   max-width: 38ch;
-  color: var(--fg-2);
+  color: var(--fg);
   font-size: clamp(1rem, 1.5vw, 1.14rem);
   margin: 0;
 }
@@ -312,11 +351,13 @@
   flex: none;
   margin-top: 0.15rem;
 }
+/* Mesmo motivo do `.tag`: `--fg-3` (#7e88ac) sobre foto exigiria um véu quase
+   opaco para chegar ao AA — 3,78:1 no pior pixel mesmo com o véu novo. */
 .exp .meta-label {
   font-size: 0.63rem;
   letter-spacing: 0.19em;
   text-transform: uppercase;
-  color: var(--fg-3);
+  color: var(--fg-2);
   font-weight: 700;
 }
 .exp .meta-value {
@@ -456,7 +497,7 @@
 }
 @media (max-width: 64rem) {
   .exp .program .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .exp .program .eyebrow {
@@ -514,7 +555,18 @@
   position: absolute;
   inset: auto 0 0 0;
   padding: clamp(1.4rem, 3vw, 2rem);
-  background: linear-gradient(0deg, rgba(5, 8, 26, 0.94) 12%, transparent 100%);
+  /* 0deg vai de BAIXO para cima: com a parada opaca em 12%, os 88% de cima do
+     figcaption ficavam quase transparentes — e `.pname` é a PRIMEIRA linha do
+     bloco, ou seja, exatamente ali. Medido: 1,70:1 a 1440px. A opacidade agora
+     cobre o bloco inteiro e só desmancha nos últimos pixels, para a borda não
+     virar um corte reto. */
+  background: linear-gradient(
+    0deg,
+    rgba(5, 8, 26, 0.95) 0%,
+    rgba(5, 8, 26, 0.92) 62%,
+    rgba(5, 8, 26, 0.8) 80%,
+    rgba(5, 8, 26, 0) 100%
+  );
   display: flex;
   gap: 0.85rem;
   align-items: flex-start;
@@ -554,7 +606,7 @@
 }
 @media (max-width: 64rem) {
   .exp .video .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: start;
   }
 }
@@ -584,6 +636,13 @@
   display: block;
   object-fit: cover;
   background: #000;
+}
+/* O `<video controls>` é focável pelo teclado, e o anel do `:focus-visible`
+   global (`outline-offset: 3px`, theme.css) caía inteiro fora da moldura, que
+   é `overflow: hidden` — zero pixel desenhado, WCAG 2.4.7. Offset negativo põe
+   o anel POR DENTRO, onde ninguém o recorta. */
+.exp .reel video:focus-visible {
+  outline-offset: -4px;
 }
 .exp .reel-cap {
   font-size: 0.75rem;
@@ -633,7 +692,7 @@
 }
 @media (max-width: 64rem) {
   .exp .signup .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .exp .signup .intro p {
@@ -661,7 +720,17 @@
   flex: none;
   margin-top: 0.35rem;
 }
+/*
+ * `min-width: 0` (com o `minmax(0, 1fr)` da grade quando ela colapsa) porque o
+ * widget do Turnstile tem largura fixa de 300px: pelo mínimo automático da
+ * grade (= min-content), a coluna virava uma trilha de 350px dentro de um
+ * `.wrap` de 283px em telas de 320px — e arrastava a copy e os campos para
+ * fora da tela, com o `overflow-x: hidden` do body impedindo até rolar até
+ * eles. Com o mínimo zerado, o excedente fica confinado ao widget (que abaixo
+ * de 300px de espaço renderiza em `size: 'compact'`, ver `Turnstile.tsx`).
+ */
 .exp .card {
+  min-width: 0;
   background: var(--paper-2);
   border: 1px solid var(--line);
   border-radius: 1.1rem;
@@ -670,6 +739,7 @@
 }
 .exp form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.1rem;
 }
 .exp .row {
@@ -699,6 +769,10 @@
   font-weight: 400;
   font-size: 0.78rem;
 }
+/* A borda usa `--field-line`, não `--line-2`: `--line-2` (rgba(16,26,72,.24))
+   compõe #bcc0cf sobre o campo e mede 1,81:1 contra o card branco — abaixo dos
+   3:1 que o WCAG 1.4.11 pede para o LIMITE de um controle. Mesmo azul-marinho,
+   alfa maior: 4,1:1 contra o card e 3,8:1 contra o preenchimento do campo. */
 .exp .field input,
 .exp .field select {
   width: 100%;
@@ -706,7 +780,7 @@
   font-size: 1rem;
   color: var(--fg);
   background: var(--paper);
-  border: 1px solid var(--line-2);
+  border: 1px solid var(--field-line);
   border-radius: 0.55rem;
   padding: 0.85rem 1rem;
 }

@@ -10,6 +10,10 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
  * que vem antes do quê sem precisar comparar horários. Por isso também não há
  * numeração decorativa (01/02/03) por cima do horário — seria um segundo
  * contador competindo com o relógio.
+ *
+ * O `role="list"` explícito não é redundante: `list-style: none` faz o
+ * Safari/VoiceOver remover a semântica de lista do elemento, e aí "lista de 7
+ * itens" (a ordem, que é a informação) deixa de ser anunciada.
  */
 
 /** '07:00' (ISO, ordenável no dado) -> '07h00' (como se lê em pt-BR). */
@@ -29,7 +33,8 @@ export function ExperienceProgram() {
             <h2 className="sec-title">
               Manhã <em>wellness</em>
             </h2>
-            <ol className="sched">
+            {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
+            <ol className="sched" role="list">
               {E.schedule.map((item) => (
                 <li key={item.time}>
                   <span className="h">{horaBr(item.time)}</span>

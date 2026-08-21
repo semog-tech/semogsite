@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AsYouType } from 'libphonenumber-js/min'
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { Turnstile } from '@/components/forms/Turnstile'
@@ -49,6 +49,11 @@ function ArrowIcon() {
  *
  * O aceite de uso de imagem é `z.literal(true)` no schema e **nunca** vem
  * pré-marcado: consentimento pré-marcado não é consentimento.
+ *
+ * Os campos obrigatórios levam `required` no controle mesmo com o `<form
+ * noValidate>`: o atributo é o que anuncia "obrigatório" ao leitor de tela
+ * (quem enxerga infere pela marca "(opcional)" nos outros), enquanto o
+ * `noValidate` mantém o Zod como dono das mensagens.
  */
 export function ExperienceForm() {
   const id = useId()
@@ -79,6 +84,16 @@ export function ExperienceForm() {
   const [turnstileKey, setTurnstileKey] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
+
+  // A confirmação SUBSTITUI o `<form>` — o botão que estava em foco no momento
+  // do envio some com ele e o foco cairia no `<body>`, deixando o anúncio da
+  // `role="status"` por conta da sorte. Mover o foco para o bloco (que é
+  // `tabIndex={-1}` só para poder recebê-lo) faz o leitor de tela ler a
+  // confirmação e deixa o teclado no lugar certo para continuar a navegação.
+  const doneRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (status === 'success') doneRef.current?.focus()
+  }, [status])
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
@@ -120,13 +135,14 @@ export function ExperienceForm() {
     // levar daqui — e NÃO promete e-mail de confirmação do evento: o que sai
     // hoje é o auto-reply genérico do site, que não repete nada disso.
     return (
-      <div className="signup-done" role="status">
+      <div className="signup-done" ref={doneRef} role="status" tabIndex={-1}>
         <span aria-hidden="true" className="signup-done-mark">
           <CheckIcon />
         </span>
         <h3>Inscrição recebida!</h3>
         <p>Anote na agenda — é onde a gente se encontra:</p>
-        <ul className="facts">
+        {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
+        <ul className="facts" role="list">
           <li>
             <CheckIcon /> {E.dateLabel}, {E.weekday}
           </li>
@@ -153,6 +169,7 @@ export function ExperienceForm() {
           autoComplete="name"
           id={nomeId}
           placeholder="Como quer ser chamado no credenciamento"
+          required
           type="text"
           {...register('nome')}
           aria-describedby={errors.nome ? `${nomeId}-erro` : undefined}
@@ -172,6 +189,7 @@ export function ExperienceForm() {
             autoComplete="email"
             id={emailId}
             placeholder="voce@exemplo.com.br"
+            required
             type="email"
             {...register('email')}
             aria-describedby={errors.email ? `${emailId}-erro` : undefined}
@@ -208,6 +226,7 @@ export function ExperienceForm() {
                 }}
                 placeholder="(83) 90000-0000"
                 ref={field.ref}
+                required
                 type="tel"
                 value={telefoneTexto}
               />
@@ -261,6 +280,7 @@ export function ExperienceForm() {
         <label className="check" htmlFor={aceiteId}>
           <input
             id={aceiteId}
+            required
             type="checkbox"
             {...register('aceiteImagem')}
             aria-describedby={errors.aceiteImagem ? `${aceiteId}-erro` : undefined}
@@ -278,7 +298,13 @@ export function ExperienceForm() {
         )}
       </div>
 
-      <Turnstile key={turnstileKey} onToken={setToken} />
+      {/*
+       * `theme="light"`: o default da Cloudflare é `auto`, que segue o
+       * `prefers-color-scheme` do visitante — com o sistema no escuro, o widget
+       * viraria uma caixa preta dentro deste card branco. Os outros formulários
+       * do site vivem em superfície escura e ficam no default.
+       */}
+      <Turnstile key={turnstileKey} onToken={setToken} theme="light" />
 
       {status === 'error' && message && (
         <p className="form-error" role="alert">

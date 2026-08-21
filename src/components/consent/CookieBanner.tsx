@@ -52,6 +52,31 @@ export function CookieBanner() {
     return () => cancelAnimationFrame(raf)
   }, [decided])
 
+  /**
+   * Publica a altura da barra em `--consent-bar-h` enquanto ela está no ar.
+   * A barra é `position: fixed` e não ocupa espaço no fluxo — num hero de
+   * `100svh` com conteúdo alinhado ao rodapé (a landing do Experience é o
+   * caso), ela cobria justamente a última linha acima da dobra. Quem quiser
+   * reservar o espaço soma a variável ao seu `padding-bottom`; quem não usar
+   * não muda em nada. Some no `decided` (o componente desmonta) e acompanha a
+   * quebra de linha do texto em telas estreitas via `ResizeObserver`.
+   */
+  useEffect(() => {
+    if (decided) return
+    const el = containerRef.current
+    if (!el) return
+    const root = document.documentElement
+    const publicar = () =>
+      root.style.setProperty('--consent-bar-h', `${Math.round(el.offsetHeight)}px`)
+    publicar()
+    const observer = new ResizeObserver(publicar)
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty('--consent-bar-h')
+    }
+  }, [decided])
+
   if (decided) return null
 
   const handleSave = () => {

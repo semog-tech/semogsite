@@ -19,6 +19,12 @@ export const EXPERIENCE_SPONSORS: Sponsor[] = [
     name: 'Superlógica',
     logo: '/sponsors/logo-superlogica-color.svg',
     url: 'https://www.superlogica.com/',
-    width: 190,
+    /**
+     * 260px é a largura da peça aprovada pelo cliente (o `<img … width="260">`
+     * do protótipo). Já esteve em 190 por peso óptico; voltou ao aprovado
+     * porque a faixa é exigência de marca do patrocinador e a peça publicada
+     * não pode divergir da validada sem ninguém saber.
+     */
+    width: 260,
   },
 ]

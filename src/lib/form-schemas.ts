@@ -149,6 +149,13 @@ export type PropostaInput = z.input<typeof propostaSchema>
  *
  * `aceiteImagem` é `z.literal(true)`: o evento é fotografado e filmado, então
  * a caixa é obrigatória e nunca vem pré-marcada.
+ *
+ * `nome` e `condominio` levam `.max(120)`: sem teto, uma string arbitrariamente
+ * grande (o limite real seria só o 1 MB de corpo da Server Action, cinco vezes
+ * por minuto por IP) entraria inteira no `jsonb` de `cms.leads`. Validação de
+ * servidor, então vale mesmo com o client contornado. `requiredText`, que os
+ * formulários de Contato e Proposta compartilham, continua sem teto — mexer
+ * nele é um passe à parte.
  */
 const acompanhantesField = z.preprocess(
   (value) => (value === '' || value === null || value === undefined ? undefined : value),
@@ -161,10 +168,10 @@ const acompanhantesField = z.preprocess(
 )
 
 export const experienceSchema = z.object({
-  nome: requiredText('Informe seu nome completo.'),
+  nome: requiredText('Informe seu nome completo.').max(120, 'Use no máximo 120 caracteres.'),
   email: z.email('Informe um e-mail válido.'),
   telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um telefone válido.'),
-  condominio: z.string().trim().optional(),
+  condominio: z.string().trim().max(120, 'Use no máximo 120 caracteres.').optional(),
   acompanhantes: acompanhantesField,
   aceiteImagem: z.literal(true, 'É preciso autorizar o uso de imagem para participar.'),
 })
