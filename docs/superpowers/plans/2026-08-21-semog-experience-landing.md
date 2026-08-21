@@ -1018,7 +1018,7 @@ git commit -m "feat(experience): seções da landing"
 
 **Antes de escrever:** abrir `src/components/forms/PropostaForm.tsx` e seguir o mesmo padrão — `useForm` com os três generics, `zodResolver`, `Turnstile` com `key` que reseta após submissão, estados de envio e mensagem de sucesso. Não inventar padrão novo.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `tests/int/experience-form.int.spec.tsx`:
 
@@ -1057,12 +1057,12 @@ describe('ExperienceForm', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-form.int.spec.tsx`
 Expected: FAIL — componente não existe
 
-- [ ] **Step 3: Escrever o formulário**
+- [x] **Step 3: Escrever o formulário**
 
 `src/components/forms/ExperienceForm.tsx`, client component. Requisitos:
 
@@ -1075,12 +1075,17 @@ Expected: FAIL — componente não existe
 - Erro: mensagem devolvida por `submitForm`, sem jargão
 - Resetar o `Turnstile` (via `key`) depois de cada submissão, como faz o `PropostaForm`
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-form.int.spec.tsx`
 Expected: PASS (2 testes)
 
-- [ ] **Step 5: Inserir na página**
+> **Executado:** PASS com **4** testes — os dois do plano (traduzidos, ver a
+> nota no fim da task) mais dois que fecham requisitos do Step 3 que ficariam
+> sem rede: o envio como `'experience'` com o WhatsApp já em E.164, e a tela
+> de sucesso repetindo data/horário/local **sem** a palavra "e-mail".
+
+- [x] **Step 5: Inserir na página**
 
 Na `page.tsx`, entre `ExperienceCta` e `ExperienceSponsors`:
 
@@ -1126,12 +1131,107 @@ node --env-file=.env -e "const pg=require('pg');const c=new pg.Client({connectio
 
 Expected: a linha existe, `form = 'experience'` e **`exact_lead_id` é `null`** (não foi ao CRM).
 
-- [ ] **Step 7: Commit**
+> **NÃO EXECUTADO — depende de uma pessoa.** O aviso do próprio step se
+> confirmou: com o Chromium do Playwright o widget da Cloudflare trava em
+> "Verifying… Stuck? Troubleshoot" e nunca devolve token, então `submitForm`
+> não chega a ser chamado e nenhuma linha é gravada. O que **foi** verificado
+> no build de produção (`pnpm run build && pnpm run start`), em 1440px e
+> 390px:
+> - a seção `#inscricao` existe no HTML servido, com o formulário completo,
+>   "São 200 vagas" vindo de `EXPERIENCE_EVENT.seats` e o script do Turnstile
+>   carregando;
+> - submeter vazio acende os quatro erros (nome, e-mail, WhatsApp, aceite),
+>   com borda e texto em `--err` (`rgb(176,42,63)`, medido no navegador);
+> - nada estoura na horizontal (`scrollWidth === clientWidth` nos dois
+>   tamanhos, zero elementos de `#inscricao` passando da borda);
+> - a consulta acima roda e devolve **0 linhas** hoje — o banco responde e o
+>   SQL está certo, só falta a submissão humana.
+>
+> **Para quem for publicar:** preencher uma vez no navegador de verdade e
+> rodar a consulta. É o único passo desta task que ficou em aberto.
+
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/forms/ExperienceForm.tsx src/app/\(evento\)/experience/page.tsx tests/int/experience-form.int.spec.tsx
 git commit -m "feat(experience): formulário de inscrição"
 ```
+
+> **Nota da Task 7 (executada).** O que divergiu do texto literal do plano,
+> e por quê:
+>
+> 1. **O teste do Step 1 não roda como escrito — por dois motivos.** O
+>    primeiro já vinha avisado pela Task 6: não há `@testing-library/jest-dom`,
+>    então `toBeInTheDocument`/`toBeChecked` seriam `TypeError`. O segundo é
+>    novo: **`@testing-library/user-event` também não está instalado**
+>    (`package.json` só tem `@testing-library/react`). Traduzido para
+>    `fireEvent` + `toBeDefined()` + `.checked`, sem acrescentar dependência —
+>    instalar um pacote de teste mexeria no lockfile e na suíte inteira por
+>    causa de duas asserções.
+> 2. **`{ name: /uso de imagem/i }` não casa com o texto aprovado.** O aceite
+>    do protótipo diz "Autorizo o uso **da minha** imagem…". O locator do
+>    plano encontraria zero checkboxes; virou `/uso da minha imagem/i`. O
+>    rótulo ganhou na frente "O evento é fotografado e filmado.", que é o que
+>    o Step 3 pede que o texto explique, e o link vai para `/privacidade`.
+> 3. **Não usa `Field`/`PhoneField`.** Os dois são fechados no visual das
+>    superfícies ESCURAS do site (`bg-[rgba(10,16,46,0.6)]`, erro `#F2A6B4`);
+>    este formulário vive no `.card` branco da `.s-paper`, cujo CSS
+>    (`.field`, `.row`, `.check`, `.formnote`) a Task 6 já portou. Reusá-los
+>    deixaria uma caixa escura no meio do card claro. O markup é o do
+>    protótipo, campo a campo. O plano não os lista em "Consumes", então isto
+>    segue a interface declarada.
+> 4. **WhatsApp com `Controller` + `AsYouType('BR')`.** `experienceSchema`
+>    valida com `isValidPhoneNumber`, que exige E.164 — um `<input type="tel">`
+>    cru entregaria `(83) 99999-8888` e reprovaria sempre. Mesma ideia do
+>    `PhoneField`, sem o seletor de país (evento presencial numa praia).
+> 5. **Cor de erro: `--err: #b02a3f`.** O `theme.css` **não tem token de
+>    erro** — `Field.tsx`/`PhoneField.tsx` escrevem `#E27287`/`#F2A6B4` à mão,
+>    calibrados para fundo escuro. Sobre o card branco o `#F2A6B4` mede 1,7:1
+>    e o `#E27287`, 3,0:1 (reprova no AA de texto pequeno, que é o tamanho da
+>    mensagem). `--err` é o **mesmo matiz** (~350°) escurecido até 6,5:1. Não
+>    é cor nova de paleta; é a única saída legível, e está documentada no topo
+>    do bloco `.exp` em `experience.css`. Cor também não é o único sinal: há
+>    texto com `role="alert"` e `aria-invalid` no controle.
+> 6. **Dispara `experience_signup`, nunca `generate_lead`.** O plano não pedia
+>    evento nenhum, mas o `PropostaForm` — que o Step 3 manda seguir — dispara
+>    `generate_lead` no sucesso, e copiar isso aqui inflaria o evento-chave do
+>    GA4 e a conversão importada no Ads com inscrições de evento, exatamente o
+>    que a decisão "não vai pro Exact" existe para evitar. Evento próprio,
+>    contado à parte — e o comentário no código impede a próxima cópia.
+>    **Falta marcar `experience_signup` no GA4** se alguém for anunciar o
+>    evento (ver "Antes de publicar").
+> 7. **Sucesso: "Inscrição recebida!", não "confirmada".** Não há contador de
+>    vagas ao vivo (decisão do plano), então o site não sabe se a pessoa é a
+>    de número 201 — "confirmada" seria uma promessa que ninguém checou. O
+>    bloco repete data, horário e local (de `EXPERIENCE_EVENT`) e não usa a
+>    `message` devolvida pela server action, que diz "Recebemos sua mensagem!"
+>    — copy de formulário de contato, errada para uma inscrição.
+> 8. **`acompanhantes` mantém o `value=""` do protótipo** para "Vou
+>    sozinho(a)" (= não informado), com as opções +1/+2/+3. O `0` do schema
+>    fica inalcançável pela tela, de propósito: "sozinho" e "zero
+>    acompanhantes" são a mesma linha na lista de credenciamento.
+> 9. **A seção `#inscricao` ficou dentro da `page.tsx`**, como manda a
+>    correção do Step 5, e não virou um oitavo componente: metade dela é o
+>    `<ExperienceForm />` (client) e a outra metade é texto — um invólucro só
+>    para o `<div className="card">` não pagaria por si. Os quatro benefícios
+>    da coluna esquerda ficam numa constante local (`BENEFICIOS`): é copy de
+>    venda, não dado operacional do evento.
+>
+> **Achado que esta task NÃO corrigiu (fora do escopo, precisa de decisão).**
+> A Task 2 já tinha avisado que a inscrição dispara o auto-reply genérico
+> `ContactAutoReply`. Lendo o template: além do assunto "Recebemos seu
+> contato — Semog", o corpo diz *"Sua mensagem já chegou até nossa equipe e em
+> breve alguém vai retornar pra você"*. Para quem se inscreveu num evento isso
+> é **falso** — ninguém vai retornar, a pessoa só precisa aparecer no dia. A
+> tela de sucesso não promete e-mail nenhum (o teste trava isso), mas o e-mail
+> sai. Corrigir exige um template novo (`ExperienceAutoReply`) e um ramo em
+> `submit-form.ts`, os dois fora dos arquivos desta task. Está em "Antes de
+> publicar".
+>
+> Verificação: `experience-form` 4/4; `test:int` 185/185 (31 arquivos);
+> `experience.e2e` 3/3 contra o build de produção (o escopo em `.hero` que a
+> Task 6 previu segurou o "São 200 vagas" novo); `tsc --noEmit` limpo; Biome
+> limpo; `pnpm run build` sem erro e `/experience` ainda estática (○).
 
 ---
 
@@ -1261,5 +1361,16 @@ git commit -m "feat(experience): JSON-LD de evento e entrada no sitemap"
 - [ ] Decidir a largura de exibição do logo da Superlógica: o protótipo mostrava
       260px, `EXPERIENCE_SPONSORS` fixou 190 (≈29px de altura). É um número em
       `src/data/experienceSponsors.ts`
+- [ ] **Decidir o e-mail que o inscrito recebe.** Hoje sai o auto-reply
+      genérico do site (`ContactAutoReply`): assunto "Recebemos seu contato —
+      Semog" e o corpo prometendo que *"em breve alguém vai retornar pra
+      você"* — o que não é verdade para uma inscrição em evento. Ou se cria um
+      `ExperienceAutoReply` (que repetiria data, horário e local, e aí a tela
+      de sucesso pode mencioná-lo) ou se suprime o auto-reply para
+      `formType === 'experience'` em `submit-form.ts`
+- [ ] **Marcar `experience_signup` como evento-chave no GA4** se o evento for
+      anunciado em mídia paga. É de propósito que a inscrição NÃO dispara
+      `generate_lead` (misturaria com a captação comercial), então sem esse
+      passo uma campanha do evento fica sem conversão para otimizar
 - [ ] Conferir a data uma última vez com quem organiza — ela está em `src/data/experienceEvent.ts` e some da página inteira se estiver errada
 - [ ] Decidir se `/experience` entra no menu do site ou fica só como link de divulgação (hoje é só link — a página é isolada de propósito)

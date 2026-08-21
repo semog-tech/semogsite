@@ -33,6 +33,17 @@
   --paper: #f2f4f9;
   --paper-2: #ffffff;
   --wrap: 78rem;
+  /*
+   * Vermelho de erro do formulário de inscrição. O `theme.css` não tem token
+   * de erro: `Field.tsx`/`PhoneField.tsx` escrevem #E27287 (borda) e #F2A6B4
+   * (texto) à mão, dois tons calibrados para as superfícies ESCURAS do site.
+   * O card da inscrição é branco, e ali o #F2A6B4 mede 1,7:1 (ilegível) e o
+   * #E27287, 3,0:1 (reprova no AA de texto pequeno, que é exatamente o
+   * tamanho da mensagem de erro). Este é o MESMO matiz (~350°) escurecido até
+   * 6,5:1 sobre o card — não é cor nova de paleta, é o vermelho que o projeto
+   * já usa, na versão que a superfície clara exige.
+   */
+  --err: #b02a3f;
   font-size: 1.0625rem;
   line-height: 1.6;
 }
@@ -614,7 +625,7 @@
   max-width: 32ch;
 }
 
-/* ---------- inscrição (o markup entra na Task 7) ---------- */
+/* ---------- inscrição ---------- */
 .exp .signup .grid {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -742,6 +753,81 @@
   color: var(--fg-3);
   text-align: center;
   margin: 0;
+}
+
+/* Erro de campo. Sai abaixo do controle, dentro do mesmo `.field` (gap .45rem),
+   e a borda vermelha vem do `aria-invalid` — o mesmo atributo que o leitor de
+   tela usa, sem classe paralela para manter em sincronia. Cor NUNCA é o único
+   sinal: há a mensagem em texto, com `role="alert"`. */
+.exp .field-error,
+.exp .form-error {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--err);
+  margin: 0;
+}
+.exp .field input[aria-invalid="true"],
+.exp .field select[aria-invalid="true"] {
+  border-color: var(--err);
+}
+/* O aceite de imagem é um `<label class="check">` com a caixa dentro, então o
+   erro não cabe no `.field` (cujo `label{}` deixaria o texto do consentimento
+   em maiúsculas espaçadas). Este envelope só empilha os dois. */
+.exp .checkwrap {
+  display: grid;
+  gap: 0.45rem;
+}
+.exp .checkwrap:has(input[aria-invalid="true"]) .check {
+  border-color: var(--err);
+}
+.exp .btn:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.exp .btn:disabled:hover {
+  transform: none;
+  background: var(--color-navy-400);
+}
+
+/* Confirmação, no lugar do formulário. Repete data/horário/local porque é a
+   única coisa que a pessoa precisa levar daqui. */
+.exp .signup-done {
+  display: grid;
+  gap: 0.9rem;
+  justify-items: start;
+}
+.exp .signup-done-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  color: var(--accent);
+}
+.exp .signup-done-mark svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+.exp .signup-done h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--fg);
+}
+.exp .signup-done p {
+  margin: 0;
+  color: var(--fg-2);
+}
+.exp .signup-done .facts {
+  margin: 0;
+}
+.exp .signup-done .formnote {
+  text-align: left;
 }
 
 /* ---------- patrocinadores ---------- */
