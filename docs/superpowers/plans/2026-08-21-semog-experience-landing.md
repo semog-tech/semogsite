@@ -588,7 +588,7 @@ git commit -m "feat(experience): dados do evento e patrocinadores"
 mapeamento de alt, que `content/media.ts` exige — `img()` lança se o filename
 não estiver mapeado, de propósito, para o alt nunca se perder.
 
-- [ ] **Step 1: Acrescentar os alts**
+- [x] **Step 1: Acrescentar os alts**
 
 Em `content/media.ts`, dentro de `ALT_BY_FILENAME`:
 
@@ -606,19 +606,40 @@ Em `content/media.ts`, dentro de `ALT_BY_FILENAME`:
 O alt descreve o que se vê, não o que se quer vender — é lido em voz alta por
 leitor de tela.
 
-- [ ] **Step 2: Verificar que resolvem**
+- [x] **Step 2: Verificar que resolvem**
 
 ```bash
 pnpm exec tsx -e "import {img} from './content/media.ts'; for (const f of ['experience-hero.webp','experience-local.webp','experience-2025-poster.webp','experience-2025.mp4']) console.log(img(f))"
 ```
 Expected: imprime as quatro URLs com alt. Se lançar, o filename não bate.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add content/media.ts
 git commit -m "feat(experience): alts das mídias do evento"
 ```
+
+> **Nota da Task 4 (executada):** três registros.
+> (1) **Teste durável além do comando ad hoc.** O Step 2 verifica com um `tsx -e`
+> que não deixa rastro; acrescentei `tests/int/experience-media.int.spec.ts`
+> (5 casos) para o mapeamento não se perder em silêncio depois — ele confere a
+> URL do bucket e o alt dos quatro arquivos e amarra `EXPERIENCE_EVENT.video.file`
+> / `.poster` ao mapa (renomear o arquivo lá sem mapear o alt aqui quebraria em
+> runtime, não no build). Escrito antes da implementação: os 5 falharam, depois
+> passaram.
+> (2) **Sem entrada em `DIMENSIONS_BY_FILENAME`, e está certo.** No protótipo
+> `.hero-bg img` e `.place img` são `object-fit:cover` dentro de contêiner com
+> proporção fixa (16/10 no local) — na Task 6 são `next/image` com `fill` +
+> `sizes`, que não passa pelo fallback `1200x800`. O vídeo e a capa também não
+> precisam (a capa é atributo `poster`, string crua).
+> (3) **O alt do hero diverge do protótipo, de propósito.** O protótipo (linha
+> 194) escreve "Grupo em aula de alongamento…"; o alt mapeado é o texto deste
+> plano, "Grupo alongando o corpo na areia da praia ao nascer do sol". Na Task 6
+> o alt vem de `img('experience-hero.webp').alt` — **não copiar o literal do
+> protótipo**, senão passam a existir dois alts para a mesma imagem.
+> Os quatro arquivos foram reconferidos no bucket (HTTP 206, `image/webp` ×3 e
+> `video/mp4`).
 
 ---
 
