@@ -73,6 +73,10 @@ export type MappedLead = { lead: ExactLeadInput; person: ExactPersonInput }
  * que é captação.
  */
 export function isExactEligible(formType: FormType, data: Record<string, string>): boolean {
+  // Inscrição em evento é relacionamento, não captação: nunca vira card no
+  // CRM. Explícito de propósito — sem esta linha o comportamento correto
+  // dependeria da AUSÊNCIA do campo `assunto`, o que é frágil.
+  if (formType === 'experience') return false
   if (formType === 'proposta') return true
   return data.assunto === 'proposta-comercial'
 }

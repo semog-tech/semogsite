@@ -225,7 +225,7 @@ git commit -m "feat(experience): schema e registro do formulário de inscrição
 - Consumes: `experienceSchema`, `ExperienceValues`, `FORMS.experience` (Task 1)
 - Produces: `submitForm('experience', values, token)` grava em `cms.leads` com `form = 'experience'`
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `tests/int/experience-exact-guard.int.spec.ts`:
 
@@ -258,12 +258,12 @@ describe('isExactEligible', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-exact-guard.int.spec.ts`
 Expected: FAIL no segundo teste — hoje `isExactEligible('experience', {assunto:'proposta-comercial'})` devolve `true`
 
-- [ ] **Step 3: Guardar explicitamente**
+- [x] **Step 3: Guardar explicitamente**
 
 Em `src/lib/exact/map-lead.ts`, substituir a função inteira:
 
@@ -278,12 +278,12 @@ export function isExactEligible(formType: FormType, data: Record<string, string>
 }
 ```
 
-- [ ] **Step 4: Rodar e ver passar**
+- [x] **Step 4: Rodar e ver passar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-exact-guard.int.spec.ts`
 Expected: PASS (5 testes)
 
-- [ ] **Step 5: Ligar o tipo na server action**
+- [x] **Step 5: Ligar o tipo na server action**
 
 Em `src/app/(frontend)/_actions/submit-form.ts`:
 
@@ -337,16 +337,18 @@ E o tipo de `data`:
 const data = parsed.data as ContatoValues | PropostaValues | ExperienceValues
 ```
 
-- [ ] **Step 6: Conferir o destinatário do e-mail**
+- [x] **Step 6: Conferir o destinatário do e-mail**
 
 `PROPOSTA_CIDADE_TO` roteia por cidade e só existe para `proposta`. A inscrição do Experience não tem campo `cidade`, então cai em `PROPOSTA_FALLBACK_TO` (`comercial@semog.com.br`). Isso é aceitável e não bloqueia — a notificação é best-effort e o registro já está no banco. **Não** criar roteamento novo nesta task.
 
-- [ ] **Step 7: Typecheck**
+> **Conferido na implementação:** o destinatário é `process.env.CONTACT_TO`, não o `PROPOSTA_FALLBACK_TO`. O ramo real é `if (formType === 'proposta') { … } else { notifyTo = process.env.CONTACT_TO }`, então a inscrição cai no `else` junto com o Contato. A conclusão da task não muda (aceitável, sem roteamento novo); o comentário no código foi ajustado pra dizer isso.
+
+- [x] **Step 7: Typecheck**
 
 Run: `pnpm exec tsc --noEmit -p tsconfig.json`
 Expected: sem saída. Se reclamar de `Record<keyof ExperienceValues, string>`, conferir que os seis campos do schema estão no `EXPERIENCE_LABELS`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/app/\(frontend\)/_actions/submit-form.ts src/lib/exact/map-lead.ts tests/int/experience-exact-guard.int.spec.ts
