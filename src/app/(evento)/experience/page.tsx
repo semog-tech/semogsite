@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { img } from '@/../content/media'
 import { ExperienceCta } from '@/components/experience/ExperienceCta'
 import { ExperienceFooter } from '@/components/experience/ExperienceFooter'
 import { ExperienceHero } from '@/components/experience/ExperienceHero'
@@ -25,6 +26,60 @@ export const metadata: Metadata = {
     description,
     locale: 'pt_BR',
   },
+}
+
+/**
+ * JSON-LD `Event` — é o que habilita o rich result de evento na busca (data,
+ * local e "gratuito" aparecem na própria SERP) e o que faz o Google entender
+ * a página como evento, não como mais uma página de serviço.
+ *
+ * Data e horário saem de `EXPERIENCE_EVENT`, como todo o resto da página: se
+ * a data mudar num lugar só, o structured data mentiria para o Google
+ * enquanto a página mostra o certo. `-03:00` é o fuso de João Pessoa o ano
+ * inteiro (o Brasil não tem mais horário de verão desde 2019).
+ *
+ * Duas coisas que o plano não pedia e entraram por decisão de SEO:
+ * - `image`: o Google lista a imagem como recomendada para `Event` e é ela
+ *   que aparece no card do resultado. É a mesma foto do hero, via `img()`,
+ *   para não duplicar a URL do bucket.
+ * - `organizer['@id']`: aponta para o nó `Organization` publicado na home
+ *   (`getOrganizationJsonLd`, `#org`), então o evento fica preso à mesma
+ *   entidade em vez de criar uma organização solta com nome igual.
+ */
+const eventJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: 'Semog Experience 2026',
+  description,
+  startDate: `${E.date}T${E.startTime}:00-03:00`,
+  endDate: `${E.date}T${E.endTime}:00-03:00`,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  image: [img('experience-hero.webp').url],
+  location: {
+    '@type': 'Place',
+    name: E.venue,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: E.city,
+      addressRegion: E.uf,
+      addressCountry: 'BR',
+    },
+  },
+  organizer: {
+    '@type': 'Organization',
+    '@id': `${absoluteUrl('')}#org`,
+    name: 'Semog Administradora de Condomínios',
+    url: absoluteUrl(''),
+  },
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'BRL',
+    availability: 'https://schema.org/InStock',
+    url: absoluteUrl('experience'),
+  },
+  url: absoluteUrl('experience'),
 }
 
 /**
@@ -62,50 +117,57 @@ const BENEFICIOS = [
  */
 export default function ExperiencePage() {
   return (
-    <div className="exp">
-      <ExperienceHero />
-      <main>
-        <ExperiencePillars />
-        <ExperienceProgram />
-        <ExperienceVideo />
-        <ExperienceCta />
-        <section className="signup s-paper" id="inscricao">
-          <div className="wrap">
-            <div className="grid">
-              <div className="intro">
-                <span className="eyebrow">Inscrição</span>
-                <h2 className="sec-title">Garanta a sua vaga</h2>
-                <p style={{ marginTop: '1.1rem' }}>
-                  São {E.seats} vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e
-                  disposição — o resto é com a gente.
-                </p>
-                <ul className="facts">
-                  {BENEFICIOS.map((beneficio) => (
-                    <li key={beneficio}>
-                      <svg
-                        aria-hidden="true"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M5 12.5l4.5 4.5L19 7.5" />
-                      </svg>
-                      {beneficio}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+    <>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD serializado por nós, sem input de usuário
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
+      <div className="exp">
+        <ExperienceHero />
+        <main>
+          <ExperiencePillars />
+          <ExperienceProgram />
+          <ExperienceVideo />
+          <ExperienceCta />
+          <section className="signup s-paper" id="inscricao">
+            <div className="wrap">
+              <div className="grid">
+                <div className="intro">
+                  <span className="eyebrow">Inscrição</span>
+                  <h2 className="sec-title">Garanta a sua vaga</h2>
+                  <p style={{ marginTop: '1.1rem' }}>
+                    São {E.seats} vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e
+                    disposição — o resto é com a gente.
+                  </p>
+                  <ul className="facts">
+                    {BENEFICIOS.map((beneficio) => (
+                      <li key={beneficio}>
+                        <svg
+                          aria-hidden="true"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M5 12.5l4.5 4.5L19 7.5" />
+                        </svg>
+                        {beneficio}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div className="card">
-                <ExperienceForm />
+                <div className="card">
+                  <ExperienceForm />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-        <ExperienceSponsors />
-      </main>
-      <ExperienceFooter />
-    </div>
+          </section>
+          <ExperienceSponsors />
+        </main>
+        <ExperienceFooter />
+      </div>
+    </>
   )
 }

@@ -44,4 +44,27 @@ test.describe('Landing do Experience', () => {
     await expect(page.locator('header.nav')).toHaveCount(1)
     await expect(page.locator('footer.footer')).toHaveCount(1)
   })
+
+  /**
+   * O JSON-LD é o que faz o evento aparecer como rich result de evento na
+   * busca (data, local e "gratuito" na própria SERP). `.first()` porque a
+   * página só tem um bloco: o layout do `(evento)` não injeta nenhum outro.
+   */
+  test('publica JSON-LD de evento com data e local', async ({ page }) => {
+    await page.goto(URL_EXPERIENCE)
+    const raw = await page.locator('script[type="application/ld+json"]').first().textContent()
+    const jsonLd = JSON.parse(raw ?? '{}')
+    expect(jsonLd['@type']).toBe('Event')
+    expect(jsonLd.startDate).toContain('2026-09-26')
+    expect(jsonLd.location.name).toBe('Praia do Cabo Branco')
+    expect(jsonLd.offers.price).toBe('0')
+  })
+
+  test('os CTAs levam ao formulário', async ({ page }) => {
+    await page.goto(URL_EXPERIENCE)
+    const ctas = page.locator('a[href="#inscricao"]')
+    expect(await ctas.count()).toBeGreaterThanOrEqual(2)
+    await ctas.first().click()
+    await expect(page.locator('#inscricao')).toBeInViewport()
+  })
 })

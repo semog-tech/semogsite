@@ -1245,7 +1245,7 @@ git commit -m "feat(experience): formulário de inscrição"
 **Interfaces:**
 - Consumes: `EXPERIENCE_EVENT`, `absoluteUrl`
 
-- [ ] **Step 1: Acrescentar os testes**
+- [x] **Step 1: Acrescentar os testes**
 
 Em `tests/e2e/experience.e2e.spec.ts`:
 
@@ -1268,12 +1268,36 @@ test('os CTAs levam ao formulário', async ({ page }) => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+> **Corrigido na execução, em três pontos.**
+> 1. `page.goto('/experience')` não roda aqui: `baseURL` está comentado em
+>    `playwright.config.ts` (a Task 5 já tinha topado com isso). Os dois testes
+>    usam a constante `URL_EXPERIENCE` que o arquivo já tem.
+> 2. O nome do primeiro teste promete "data **e local**", mas as asserções do
+>    plano só olhavam data e preço. Entrou
+>    `expect(jsonLd.location.name).toBe('Praia do Cabo Branco')` — sem ela o
+>    teste passaria com um JSON-LD sem lugar nenhum, que é justamente o campo
+>    obrigatório do `Event` para o Google.
+> 3. O Step 4 (sitemap) não tinha teste — só o `curl` do Step 6, que não deixa
+>    rastro. Foi acrescentado um caso em `tests/int/sitemap.int.spec.ts`
+>    (arquivo que já existe exatamente para travar essa regra: "toda página de
+>    captação tem que estar no sitemap"). Escrito antes, visto falhar
+>    (`expected [...28 URLs] to include '…/experience'`), passou depois.
+
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm exec playwright test tests/e2e/experience.e2e.spec.ts`
 Expected: FAIL — não há JSON-LD
 
-- [ ] **Step 3: Acrescentar o JSON-LD**
+> **Executado:** 1 falhou, 4 passaram. A falha é a esperada — `locator.textContent`
+> estourando o timeout à espera de um `script[type="application/ld+json"]` que
+> não existia (conferido também por `curl … | grep -c 'application/ld+json'` →
+> `0`). **Registro honesto:** o segundo teste do Step 1 ("os CTAs levam ao
+> formulário") **já nasceu verde** — os três CTAs e a âncora `#inscricao` vieram
+> das Tasks 6 e 7. Ele não é um teste vermelho desta task; é rede de regressão
+> para o dia em que alguém mexer no hero ou na faixa. O vermelho de verdade
+> foram o JSON-LD e o caso novo do sitemap.
+
+- [x] **Step 3: Acrescentar o JSON-LD**
 
 Na `page.tsx`, seguindo o padrão de `cityLandingJsonLd` (ver `src/lib/seo.ts` e como as landings de cidade injetam):
 
@@ -1315,11 +1339,35 @@ const jsonLd = {
 
 Injetar com `dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}`, com o mesmo comentário `biome-ignore` usado nas landings de cidade.
 
-- [ ] **Step 4: Acrescentar ao sitemap**
+> **Executado com dois campos a mais** (o resto é o snippet acima, literal):
+> - **`image`** — o Google lista a imagem como recomendada para `Event`, e é
+>   ela que aparece no card do resultado. Vem de
+>   `img('experience-hero.webp').url` (a mesma foto do hero), não de uma URL
+>   digitada: o `content/media.ts` é quem sabe a base do bucket.
+> - **`organizer['@id']`** — `${absoluteUrl('')}#org`, o mesmo id do nó
+>   `Organization` que a home publica (`getOrganizationJsonLd`). Sem ele o
+>   evento criaria uma organização solta com nome igual, em vez de se prender à
+>   entidade que o Google já conhece. O `name` bate com o `FALLBACK_TITLE` de
+>   `src/lib/seo.ts`, conferido.
+>
+> O objeto ficou em escopo de módulo (`const eventJsonLd`), ao lado de `title`
+> e `description`: nada nele depende de request, e assim o `description` é
+> literalmente o mesmo texto do `metadata`. O `<script>` entra num fragmento,
+> antes do `<div className="exp">` — o CSS da página é todo escopado em `.exp`,
+> então o script não pode morar dentro dele por acaso de estilo.
+
+- [x] **Step 4: Acrescentar ao sitemap**
 
 Em `src/app/(frontend)/sitemap.ts`, incluir a entrada de `/experience`. Abrir o arquivo primeiro e seguir o formato das entradas existentes (as landings de cidade já estão lá — o sitemap já esqueceu essas rotas uma vez, corrigido no commit `cba2103`; não repetir o erro).
 
-- [ ] **Step 5: Rodar tudo**
+> **Executado.** Entrada própria (`experienceEntry`), no formato das landings
+> de cidade: `changeFrequency: 'weekly'`, `priority: 0.8` — abaixo do 0.9 das
+> cidades, que são captação permanente, e acima das institucionais, porque esta
+> tem prazo. O comentário no arquivo diz por que ela precisa ser somada à mão
+> (mesmo ponto cego das cidades: rota explícita, fora de `content/pages`, e
+> ainda num route group irmão) e que a entrada sai depois de 26/09/2026.
+
+- [x] **Step 5: Rodar tudo**
 
 ```bash
 pnpm exec tsc --noEmit -p tsconfig.json
@@ -1330,7 +1378,17 @@ pnpm exec playwright test tests/e2e/experience.e2e.spec.ts
 ```
 Expected: typecheck sem saída; testes int e e2e passando; build sem erro.
 
-- [ ] **Step 6: Conferir que a rota não vazou**
+> **Executado:** `tsc --noEmit` limpo; `test:int` **186/186** (31 arquivos, +1
+> do sitemap); `pnpm run build` sem erro, com `○ /experience` ainda estática;
+> `experience.e2e` **5/5** e a suíte e2e inteira **52/52** contra o build de
+> produção. Biome limpo nos três arquivos.
+>
+> Uma armadilha de ambiente, de novo: a porta 3000 tinha um `next start` do
+> build da Task 7 e `reuseExistingServer: true` faria o Playwright testar HTML
+> velho — sem JSON-LD e sem a entrada nova no sitemap — sem avisar. Matar o
+> processo e reconstruir **antes** de rodar o e2e é parte do procedimento.
+
+- [x] **Step 6: Conferir que a rota não vazou**
 
 ```bash
 curl -s http://localhost:3000/sitemap.xml | grep experience
@@ -1338,12 +1396,53 @@ curl -s http://localhost:3000/experience | grep -o '<title>[^<]*</title>'
 ```
 Expected: a URL aparece no sitemap; o título é o do evento, não o padrão do site.
 
-- [ ] **Step 7: Commit**
+> **Executado.** `<loc>https://www.semog.com.br/experience</loc>` no sitemap
+> (uma vez só — o teste de URL duplicada continua verde) e
+> `<title>Semog Experience 2026 — manhã wellness na Praia do Cabo Branco</title>`.
+> Conferido também: `<link rel="canonical" href="…/experience">` presente,
+> **nenhum** `<meta name="robots">` de `noindex` na página, e o JSON-LD servido
+> parseia com `startDate` `2026-09-26T07:00:00-03:00`.
+>
+> O `/robots.txt` local devolve `Disallow: /` — é o comportamento correto fora
+> de produção (`src/app/robots.ts` só libera com `SITE_ALLOW_INDEX === 'true'`,
+> que já está ligado na Vercel). Não é pendência; só não dá para conferir a
+> liberação por aqui.
+
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/app/\(evento\)/experience/page.tsx src/app/\(frontend\)/sitemap.ts tests/e2e/experience.e2e.spec.ts
 git commit -m "feat(experience): JSON-LD de evento e entrada no sitemap"
 ```
+
+> **Nota da Task 8 (executada).** O que divergiu do texto literal do plano, e
+> por quê:
+>
+> 1. **`page.goto('/experience')` não roda** — `baseURL` comentado em
+>    `playwright.config.ts`; os testes usam a constante `URL_EXPERIENCE` do
+>    próprio arquivo, como os outros specs de `tests/e2e/`.
+> 2. **Uma asserção a mais no teste do JSON-LD** (`location.name`), porque o
+>    nome do teste prometia "e local" e as asserções não olhavam o campo — que
+>    é obrigatório para o Google entender a página como evento.
+> 3. **Um teste que o plano não pedia, em arquivo que o plano não lista.**
+>    `tests/int/sitemap.int.spec.ts` ganhou o caso "inclui a landing do
+>    Experience". O Step 4 só tinha o `curl` do Step 6 como verificação, e
+>    `curl` não impede ninguém de apagar a entrada amanhã — o furo das landings
+>    de cidade (que este mesmo arquivo documenta) foi exatamente esse.
+> 4. **`image` e `organizer['@id']` no JSON-LD**, justificados no Step 3.
+> 5. **O `git add` do Step 7 lista três arquivos**; foram quatro, mais o plano
+>    (o teste do sitemap e as marcações desta nota).
+>
+> Também vale registrar o que **não** foi mexido de propósito: a entrada do
+> sitemap é a única mudança fora do route group `(evento)`, e o
+> `tests/int/sitemap.int.spec.ts` continua verde nos quatro casos antigos — a
+> landing do evento não deslocou nem duplicou nenhuma URL existente.
+>
+> Verificação: `tsc --noEmit` limpo; `test:int` 186/186 (31 arquivos);
+> `pnpm run build` sem erro, `/experience` ainda estática (○);
+> `experience.e2e` 5/5 e a suíte e2e completa 52/52 contra o build de produção;
+> Biome limpo. Sitemap e `<title>` conferidos por `curl` no servidor de
+> produção local.
 
 ---
 
@@ -1374,3 +1473,9 @@ git commit -m "feat(experience): JSON-LD de evento e entrada no sitemap"
       passo uma campanha do evento fica sem conversão para otimizar
 - [ ] Conferir a data uma última vez com quem organiza — ela está em `src/data/experienceEvent.ts` e some da página inteira se estiver errada
 - [ ] Decidir se `/experience` entra no menu do site ou fica só como link de divulgação (hoje é só link — a página é isolada de propósito)
+- [ ] **Depois de 26/09/2026: decidir o destino da página.** Ela está no
+      sitemap (`src/app/(frontend)/sitemap.ts`, entrada `experienceEntry`) e
+      publica JSON-LD de `Event` com data fixa. Passado o evento, ou a data
+      vira a da edição seguinte em `src/data/experienceEvent.ts` (e tudo se
+      atualiza sozinho) ou a entrada sai do sitemap — evento vencido indexado
+      como evento futuro é resultado errado na busca
