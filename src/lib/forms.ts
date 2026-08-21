@@ -1,7 +1,7 @@
-import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
+import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 
 /**
- * Config estática dos 2 formulários (substitui a collection `forms` do
+ * Config estática dos formulários (substitui a collection `forms` do
  * Payload/form-builder, que só existia pra guardar essa mesma lista de
  * campos). `fields` é a lista de chaves do respectivo schema Zod
  * (`src/lib/form-schemas.ts`), na ordem do formulário — são exatamente as
@@ -10,7 +10,7 @@ import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
  * pt-BR). `title` é usado no assunto do e-mail de notificação (equivalente
  * ao `FORM_TITLES` que hoje vive em `submit-form.ts`).
  */
-export type FormType = 'contato' | 'proposta'
+export type FormType = 'contato' | 'proposta' | 'experience'
 
 export type FormDef<T extends Record<string, unknown>> = {
   title: string
@@ -18,7 +18,11 @@ export type FormDef<T extends Record<string, unknown>> = {
   fields: (keyof T)[]
 }
 
-export const FORMS: { contato: FormDef<ContatoValues>; proposta: FormDef<PropostaValues> } = {
+export const FORMS: {
+  contato: FormDef<ContatoValues>
+  proposta: FormDef<PropostaValues>
+  experience: FormDef<ExperienceValues>
+} = {
   contato: {
     title: 'Contato',
     fields: ['nome', 'email', 'telefone', 'assunto', 'mensagem'],
@@ -37,13 +41,23 @@ export const FORMS: { contato: FormDef<ContatoValues>; proposta: FormDef<Propost
       'mensagem',
     ],
   },
+  /**
+   * Inscrição no Semog Experience. Mesma mecânica dos outros dois — os campos
+   * viram `cms.leads.data` (jsonb), sem migration. A ordem abaixo é a ordem
+   * da tela, e o `aceiteImagem` fica por último porque é o consentimento que
+   * fecha o formulário.
+   */
+  experience: {
+    title: 'Inscrição — Semog Experience',
+    fields: ['nome', 'email', 'telefone', 'condominio', 'acompanhantes', 'aceiteImagem'],
+  },
 }
 
 /**
  * Chave literal do campo de e-mail em `cms.leads.data` — é o nome do campo
  * no schema Zod (`email`), não o rótulo pt-BR ("E-mail"), porque
  * `submit-form.ts` grava `Object.entries(data)` direto (chave = nome do
- * campo). Igual nos dois formulários.
+ * campo). Igual em todos os formulários.
  */
 export const EMAIL_FIELD = 'email'
 

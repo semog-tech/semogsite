@@ -65,7 +65,7 @@ moldura 16:9 fica com tarjas pretas.
 - Consumes: helpers já existentes em `form-schemas.ts` — `requiredText(message: string)`, `requiredPhone(requiredMessage: string, invalidMessage: string)`
 - Produces: `experienceSchema` (Zod object), `ExperienceValues = z.infer<typeof experienceSchema>`, `ExperienceInput = z.input<typeof experienceSchema>`, `FormType` passa a incluir `'experience'`, `FORMS.experience`
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `tests/int/experience-schema.int.spec.ts`:
 
@@ -134,12 +134,12 @@ describe('experienceSchema', () => {
 })
 ```
 
-- [ ] **Step 2: Rodar e ver falhar**
+- [x] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-schema.int.spec.ts`
 Expected: FAIL — `experienceSchema` não existe / `FORMS.experience` é `undefined`
 
-- [ ] **Step 3: Acrescentar o schema**
+- [x] **Step 3: Acrescentar o schema**
 
 No fim de `src/lib/form-schemas.ts`:
 
@@ -178,7 +178,7 @@ export type ExperienceValues = z.infer<typeof experienceSchema>
 export type ExperienceInput = z.input<typeof experienceSchema>
 ```
 
-- [ ] **Step 4: Registrar o formulário**
+- [x] **Step 4: Registrar o formulário**
 
 Em `src/lib/forms.ts`, trocar a linha do `FormType` e o objeto `FORMS`:
 
@@ -200,12 +200,12 @@ export const FORMS: {
 }
 ```
 
-- [ ] **Step 5: Rodar e ver passar**
+- [x] **Step 5: Rodar e ver passar**
 
 Run: `pnpm vitest run --config ./vitest.config.mts tests/int/experience-schema.int.spec.ts`
 Expected: PASS (8 testes)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/form-schemas.ts src/lib/forms.ts tests/int/experience-schema.int.spec.ts
