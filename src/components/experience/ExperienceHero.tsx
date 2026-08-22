@@ -44,8 +44,12 @@ export function ExperienceHero() {
       <div className="wrap">
         <div>
           <p className="tag">Movimento. Saúde. Conexão.</p>
-          <h1>
-            Semog <span>Experience {E.edition}</span>
+          <h1 className="titulo">
+            <span className="marca">Semog</span>
+            <span className="linha">
+              <span className="palavra">Experience</span>
+              <span className="ano">{E.edition}</span>
+            </span>
           </h1>
         </div>
         <p className="lede">

@@ -301,18 +301,61 @@
   display: grid;
   gap: clamp(1.6rem, 3vw, 2.4rem);
 }
-.exp .hero h1 {
+/* Chamada em duas famílias (variação A, aprovada em 22/08/2026): a fonte de
+   texto vira a assinatura da marca e a de display carrega o nome do evento.
+   O ano é o mesmo corpo do nome, só que vazado. */
+.exp .hero h1.titulo {
+  margin: 0;
+  line-height: 0.86;
+}
+.exp .hero .titulo .marca {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--color-ice-400);
+  margin-bottom: 1.1rem;
+  /* o tracking abre um vão à direita da última letra; compensa o começo */
+  padding-left: 0.22em;
+}
+.exp .hero .titulo .linha {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(0.6rem, 1.6vw, 1.4rem);
+  flex-wrap: wrap;
+}
+.exp .hero .titulo .palavra,
+.exp .hero .titulo .ano {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(3.1rem, 10.5vw, 8.2rem);
-  line-height: 0.88;
+  font-size: clamp(3rem, 9.6vw, 7.6rem);
   letter-spacing: -0.035em;
-  margin: 0;
   text-transform: uppercase;
 }
-.exp .hero h1 span {
-  display: block;
+.exp .hero .titulo .palavra {
+  color: var(--fg);
+}
+/* O ano nasce SÓLIDO. Só vira contorno onde o `text-stroke` existe de verdade:
+   sem esta guarda, um navegador sem suporte aplicaria `color: transparent` e
+   engoliria o "26" — texto invisível, não um fallback feio. */
+.exp .hero .titulo .ano {
   color: var(--color-ice-400);
+}
+@supports (-webkit-text-stroke: 2px currentColor) {
+  .exp .hero .titulo .ano {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--color-ice-400);
+  }
+}
+@media (max-width: 30rem) {
+  /* Abaixo disso o contorno de 2px fica grosso demais para o corpo do texto e
+     o miolo das curvas fecha; o sólido lê melhor. */
+  .exp .hero .titulo .ano {
+    color: var(--color-ice-400);
+    -webkit-text-stroke: 0;
+  }
 }
 /* `--fg` (e não `--fg-2`) nestes dois: são as linhas que caem mais alto na
    foto, onde nem o véu reforçado chega ao 4,5:1 com o tom mais apagado. Sobre
@@ -324,7 +367,9 @@
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--fg);
-  margin: 0;
+  /* A assinatura 'Semog' do título é outra linha pequena em caixa alta logo
+     abaixo: sem este respiro as duas se leem como um bloco só. */
+  margin: 0 0 clamp(1rem, 2vw, 1.6rem);
 }
 .exp .hero .lede {
   max-width: 38ch;
@@ -601,11 +646,27 @@
 }
 
 /* ---------- vídeo (Reel vertical, tocado aqui) ---------- */
+/* `--bleed` é a distância da borda da coluna até a borda da tela. Margem
+   negativa SOZINHA só desloca o item de grid — para ele crescer até a borda é
+   preciso somar a mesma medida na largura. */
+.exp .video {
+  --bleed: calc((100vw - min(100vw, var(--wrap, 78rem))) / 2 + clamp(1.15rem, 4vw, 3rem));
+  overflow: hidden;
+}
 .exp .video .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
-  gap: clamp(2.5rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
+}
+/* Título em dois níveis: a chamada recua em peso e cor, o nome da edição avança. */
+.exp .video .video-title .leve {
+  display: block;
+  font-weight: 400;
+  color: var(--fg-2);
+  font-size: 0.62em;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.15em;
 }
 @media (max-width: 64rem) {
   .exp .video .grid {
@@ -622,13 +683,29 @@
   font-size: 0.95rem;
   margin-top: 1.5rem;
 }
+/* O player passa da coluna e encosta na borda da tela: arredondado só à
+   esquerda, sem borda à direita — a moldura "continua" para fora da página. */
 .exp .reel {
-  width: min(20rem, 100%);
-  border-radius: 1.1rem;
+  position: relative;
+  width: calc(100% + var(--bleed));
+  margin-right: calc(var(--bleed) * -1);
+  border-radius: 1.2rem 0 0 1.2rem;
   overflow: hidden;
   border: 1px solid var(--line-2);
+  border-right: 0;
   background: #000;
-  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.9);
+  box-shadow: -40px 40px 90px -40px rgba(0, 0, 0, 0.95);
+}
+@media (max-width: 64rem) {
+  /* Empilhado o player já ocupa a largura toda: vazar aqui só criaria rolagem
+     lateral, sem ganho de composição. */
+  .exp .reel {
+    width: 100%;
+    max-width: 22rem;
+    margin-right: 0;
+    border-radius: 1.2rem;
+    border-right: 1px solid var(--line-2);
+  }
 }
 /* A proporção vem do dado (`EXPERIENCE_EVENT.video.aspectRatio`), inline no
    elemento: o material é um Reel 9:16 e trocar a fonte do vídeo não pode
@@ -812,7 +889,6 @@
   margin-top: 0.15rem;
   accent-color: var(--color-navy-400);
 }
-/* biome-ignore lint/style/noDescendingSpecificity: o seletor mais específico que vem antes é `.exp .hero h1 span`, outra subárvore — os dois nunca disputam o mesmo elemento */
 .exp .check span {
   font-size: 0.88rem;
   color: var(--fg-2);
