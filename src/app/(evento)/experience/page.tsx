@@ -12,7 +12,7 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { absoluteUrl } from '@/lib/seo'
 import '@/components/experience/experience.css'
 
-const title = 'Semog Experience 2026 — manhã wellness na Praia do Cabo Branco'
+const title = `${E.name} — manhã wellness na Praia do Cabo Branco`
 /**
  * O horário sai de `E.timeLabel`, como todo o resto: este texto vai para a
  * `<meta description>`, para o `og:description`, para o `twitter:description`
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
 const eventJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Event',
-  name: 'Semog Experience 2026',
+  name: E.name,
   description,
   startDate: `${E.date}T${E.startTime}:00-03:00`,
   endDate: `${E.date}T${E.endTime}:00-03:00`,

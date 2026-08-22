@@ -1,6 +1,7 @@
 'use server'
 
 import { cookies, headers } from 'next/headers'
+import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
 import ExperienceAutoReply from '@/emails/ExperienceAutoReply'
@@ -284,7 +285,7 @@ export async function submitForm(
       const autoReply =
         formType === 'experience'
           ? {
-              subject: 'Inscrição recebida — Semog Experience',
+              subject: `Inscrição recebida — ${EXPERIENCE_EVENT.name}`,
               react: ExperienceAutoReply({ name: data.nome }),
             }
           : {

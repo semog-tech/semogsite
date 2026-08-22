@@ -1,3 +1,4 @@
+import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 
 /**
@@ -48,7 +49,7 @@ export const FORMS: {
    * fecha o formulário.
    */
   experience: {
-    title: 'Inscrição — Semog Experience',
+    title: `Inscrição — ${EXPERIENCE_EVENT.name}`,
     fields: ['nome', 'email', 'telefone', 'condominio', 'acompanhantes', 'aceiteImagem'],
   },
 }

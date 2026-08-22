@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { isExactEligible } from '@/lib/exact/map-lead'
 
 describe('isExactEligible', () => {
@@ -145,7 +146,9 @@ describe('submitForm — inscrição do Experience', () => {
     await submitForm('experience', inscricao, 'test-token')
 
     const assuntos = sendMailMock.mock.calls.map(([arg]) => (arg as { subject: string }).subject)
-    expect(assuntos).toContain('Inscrição recebida — Semog Experience')
+    // Lido da fonte única: o nome carrega a edição ('Semog Experience 26') e
+    // muda todo ano — literal aqui quebraria a suíte na virada.
+    expect(assuntos).toContain(`Inscrição recebida — ${EXPERIENCE_EVENT.name}`)
     expect(assuntos).not.toContain('Recebemos seu contato — Semog')
   })
 })

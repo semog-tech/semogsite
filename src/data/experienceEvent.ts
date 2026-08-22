@@ -1,12 +1,19 @@
 /**
- * Fonte única de verdade do Semog Experience 2026. Data, horário, local e
- * vagas NÃO podem ser digitados dentro de componente: quando a data mudar,
- * muda aqui e em nenhum outro lugar.
+ * Fonte única de verdade do Semog Experience 26. Data, horário, local, vagas e
+ * o NOME da edição NÃO podem ser digitados dentro de componente: quando virar
+ * a edição, muda aqui e em nenhum outro lugar.
  */
 export type ScheduleItem = { time: string; label: string }
 export type Pillar = { icon: 'lotus' | 'people' | 'heart'; title: string; text: string }
 
 export const EXPERIENCE_EVENT = {
+  /**
+   * O evento é anual e a edição entra no nome com o ano abreviado — decisão do
+   * cliente em 22/08/2026. Use `name` em vez de escrever "Semog Experience" na
+   * mão: na virada do ano só estas duas linhas mudam.
+   */
+  edition: '26',
+  name: 'Semog Experience 26',
   /** ISO, para `<time dateTime>` e JSON-LD. 26/09/2026 é sábado. */
   date: '2026-09-26',
   dateLabel: '26 de setembro de 2026',
@@ -62,6 +69,8 @@ export const EXPERIENCE_EVENT = {
    */
   video: {
     previousYear: 2025,
+    /** Mesma convenção do `name`: a edição passada é "Semog Experience 25". */
+    previousEdition: '25',
     previousFormat: 'campeonato de beach tennis',
     /** Post original, mantido só como crédito/origem — o site não embute o Instagram. */
     reelUrl: 'https://www.instagram.com/reel/DRm_ivskVfC/',

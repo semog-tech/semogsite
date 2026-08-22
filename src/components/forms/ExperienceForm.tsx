@@ -288,7 +288,7 @@ export function ExperienceForm() {
           />
           <span>
             O evento é fotografado e filmado. Autorizo o uso da minha imagem em fotos e vídeos do
-            Semog Experience, conforme a <a href="/privacidade">política de privacidade</a>.
+            {E.name}, conforme a <a href="/privacidade">política de privacidade</a>.
           </span>
         </label>
         {errors.aceiteImagem && (

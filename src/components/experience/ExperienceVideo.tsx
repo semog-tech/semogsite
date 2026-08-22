@@ -31,7 +31,7 @@ export function ExperienceVideo() {
           <div>
             <span className="eyebrow">Edição anterior</span>
             <h2 className="sec-title">
-              Assista como foi o <em>Experience {E.video.previousYear}</em>
+              Assista como foi o <em>Experience {E.video.previousEdition}</em>
             </h2>
             <p style={{ marginTop: '1.1rem' }}>
               Reviva os melhores momentos e sinta a energia que nos move.
@@ -58,7 +58,7 @@ export function ExperienceVideo() {
               </video>
             </div>
             <p className="reel-cap">
-              Semog Experience {E.video.previousYear} · {E.city}
+              Semog Experience {E.video.previousEdition} · {E.city}
             </p>
           </div>
         </div>

@@ -430,8 +430,11 @@
   letter-spacing: 0.13em;
   text-transform: uppercase;
   color: #b4bdd9;
-  line-height: 1.75;
-  max-width: 19ch;
+  line-height: 1.6;
+  /* Em `ch` o texto quebrava em 5 linhas: o `ch` mede o "0", e caixa-alta com
+     letter-spacing ocupa bem mais. Em `rem` + balance a frase fecha em 2. */
+  max-width: 15.5rem;
+  text-wrap: balance;
 }
 @media (max-width: 60rem) {
   .exp .badge35 {

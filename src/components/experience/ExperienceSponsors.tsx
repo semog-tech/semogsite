@@ -1,3 +1,4 @@
+import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { EXPERIENCE_SPONSORS } from '@/data/experienceSponsors'
 
 /**
@@ -36,7 +37,7 @@ export function ExperienceSponsors() {
           ))}
         </div>
         <p className="aside">
-          Quer apoiar o Semog Experience? Fale com a gente pelo{' '}
+          Quer apoiar o {E.name}? Fale com a gente pelo{' '}
           <a href="mailto:ola@semog.com.br">ola@semog.com.br</a>.
         </p>
       </div>

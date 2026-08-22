@@ -45,7 +45,7 @@ export function ExperienceHero() {
         <div>
           <p className="tag">Movimento. Saúde. Conexão.</p>
           <h1>
-            Semog <span>Experience</span>
+            Semog <span>Experience {E.edition}</span>
           </h1>
         </div>
         <p className="lede">

@@ -47,7 +47,7 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>{`Inscrição recebida — Semog Experience, ${E.dateLabel}`}</Preview>
+      <Preview>{`Inscrição recebida — ${E.name}, ${E.dateLabel}`}</Preview>
       <Body style={bodyStyle}>
         <Container style={containerStyle}>
           <SemogMark />
@@ -57,8 +57,8 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
             </Heading>
             <Text style={linha}>{greeting}</Text>
             <Text style={linha}>
-              Sua inscrição no <strong style={{ color: NAVY_600 }}>Semog Experience</strong> foi
-              registrada. Anote na agenda — é onde a gente se encontra:
+              Sua inscrição no <strong style={{ color: NAVY_600 }}>{E.name}</strong> foi registrada.
+              Anote na agenda — é onde a gente se encontra:
             </Text>
             <Text style={{ ...linha, margin: '0 0 20px' }}>
               <strong>
