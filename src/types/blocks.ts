@@ -708,22 +708,6 @@ export interface BlogFeaturedBlock {
 }
 
 // ---------------------------------------------------------------------------
-// Newsletter
-// ---------------------------------------------------------------------------
-
-export interface NewsletterBlock {
-  blockType: 'newsletter'
-  id?: string | number | null
-  blockName?: string | null
-  title: string
-  text?: string | null
-  placeholder?: string | null
-  buttonLabel?: string | null
-  /** Mensagem exibida no lugar do formulário após o "envio" (client-side). */
-  successMessage?: string | null
-}
-
-// ---------------------------------------------------------------------------
 // Showcase
 // ---------------------------------------------------------------------------
 
@@ -1096,7 +1080,6 @@ export type Block =
   | RichTextBlock
   | BlogListBlock
   | BlogFeaturedBlock
-  | NewsletterBlock
   | ShowcaseBlock
   | BenefitsBlock
   | ContactInfoBlock

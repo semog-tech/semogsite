@@ -48,13 +48,5 @@ export const blog: PageData = {
       excludePost: FEATURED_SLUG,
       tightTop: true,
     },
-    {
-      blockType: 'newsletter',
-      title: 'Receba o essencial da gestão condominial.',
-      text: 'Um e-mail por mês, direto da equipe que administra 650 condomínios. Sem spam.',
-      placeholder: 'Seu melhor e-mail',
-      buttonLabel: 'Assinar',
-      successMessage: 'Inscrição recebida. Até o próximo e-mail!',
-    },
   ],
 }
