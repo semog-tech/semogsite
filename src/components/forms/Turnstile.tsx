@@ -11,6 +11,8 @@ declare global {
         options: {
           sitekey: string
           callback: (token: string) => void
+          theme?: 'light' | 'dark' | 'auto'
+          size?: 'normal' | 'compact'
           'error-callback'?: () => void
           'expired-callback'?: () => void
         },
@@ -28,6 +30,14 @@ export type TurnstileProps = {
   /** Chamado com o token assim que o desafio passa (challenge geralmente é invisível). */
   onToken: (token: string) => void
   className?: string
+  /**
+   * Tema do widget. O default da Cloudflare é `auto`, que segue o
+   * `prefers-color-scheme` do visitante — certo para as superfícies ESCURAS do
+   * site, errado dentro de um card branco (quem estiver com o sistema no modo
+   * escuro vê uma caixa preta no meio do formulário claro). Quem vive em
+   * superfície clara passa `theme="light"`.
+   */
+  theme?: 'light' | 'dark' | 'auto'
 }
 
 /**
@@ -42,7 +52,7 @@ export type TurnstileProps = {
  * declarativo `data-callback` em `window`) pra manter o callback como uma
  * prop React normal, sem poluir o escopo global.
  */
-export function Turnstile({ onToken, className }: TurnstileProps) {
+export function Turnstile({ onToken, className, theme }: TurnstileProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const [scriptReady, setScriptReady] = useState(false)
@@ -52,9 +62,20 @@ export function Turnstile({ onToken, className }: TurnstileProps) {
       return
     }
 
+    // O widget "normal" da Cloudflare tem 300px FIXOS. Num contêiner mais
+    // estreito que isso (card de formulário em tela de 320px, por exemplo) ele
+    // vazaria para fora — e o `overflow-x: hidden` do body corta o que passar,
+    // deixando parte do desafio inalcançável. `compact` (150px) é a variante
+    // oficial para esse caso. Medido no mount: o widget não é re-renderizado a
+    // cada resize, e o caso real é celular estreito, que não muda de largura.
+    const espaco = containerRef.current.clientWidth
+    const size = espaco > 0 && espaco < 300 ? 'compact' : undefined
+
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: SITE_KEY,
       callback: (token) => onToken(token),
+      ...(theme ? { theme } : {}),
+      ...(size ? { size } : {}),
       'error-callback': () => {
         if (widgetIdRef.current) {
           window.turnstile?.reset(widgetIdRef.current)
@@ -66,7 +87,7 @@ export function Turnstile({ onToken, className }: TurnstileProps) {
         }
       },
     })
-  }, [onToken])
+  }, [onToken, theme])
 
   // O script da Cloudflare pode já estar carregado (ex.: outra instância do
   // widget montada antes nessa navegação client-side) — nesse caso o evento

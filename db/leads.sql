@@ -8,7 +8,14 @@
 create table if not exists cms.leads (
   id              bigint generated always as identity primary key,
   created_at      timestamptz not null default now(),
-  form            text not null,          -- 'contato' | 'proposta'
+  -- 'contato' | 'proposta' | 'experience' (lista canônica: `FormType` em
+  -- src/lib/forms.ts). `experience` é inscrição no Semog Experience e fica
+  -- DE PROPÓSITO fora das allow-lists dos dois crons — o do CRM
+  -- (src/app/api/cron/push-exact-leads) e o do Google Ads
+  -- (src/app/api/cron/upload-ads-conversions): evento de relacionamento não
+  -- é captação comercial. Coluna é `text` sem enum/CHECK, então um formulário
+  -- novo não exige migration — o preço é este comentário precisar ser mantido.
+  form            text not null,
   data            jsonb not null,         -- todos os campos do formulário {campo: valor}
   gclid           text,                   -- extraído p/ o cron do Google Ads
   email           text,

@@ -8,9 +8,10 @@ export const revalidate = 3600
 
 /**
  * `/sitemap.xml` — páginas estáticas (`content/pages`) + landings de cidade
- * (`src/data/cityLandings.ts`) + posts (`content/blog/*.mdx`, via
- * `src/lib/blog.ts`). `lastModified` das páginas usa a data do build (não há
- * `updatedAt` no modelo estático); os posts usam a própria `date` do frontmatter.
+ * (`src/data/cityLandings.ts`) + a landing do Experience + posts
+ * (`content/blog/*.mdx`, via `src/lib/blog.ts`). `lastModified` das páginas usa
+ * a data do build (não há `updatedAt` no modelo estático); os posts usam a
+ * própria `date` do frontmatter.
  *
  * As landings de cidade **não** moram em `content/pages` (são data-driven, com
  * rota explícita própria em `src/app/(frontend)/administradora-de-condominios-*`),
@@ -41,5 +42,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(post.date),
   }))
 
-  return [...pageEntries, ...cityEntries, ...postEntries]
+  /**
+   * A landing do Semog Experience (`src/app/(evento)/experience`) cai no mesmo
+   * ponto cego das landings de cidade: rota explícita, fora de `content/pages`
+   * e ainda num route group irmão — nada aqui a varreria sozinha, e esse furo
+   * já custou ranking uma vez. `priority` abaixo das cidades porque é peça de
+   * campanha com prazo: depois de 26/09/2026 o evento passou e a entrada sai
+   * daqui (item em "Antes de publicar", no plano).
+   */
+  const experienceEntry: MetadataRoute.Sitemap = [
+    {
+      url: absoluteUrl('experience'),
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+  ]
+
+  return [...pageEntries, ...cityEntries, ...experienceEntry, ...postEntries]
 }

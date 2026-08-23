@@ -42,6 +42,17 @@ describe('sitemap.xml', () => {
     expect(new Set(urls).size).toBe(urls.length)
   })
 
+  /**
+   * A landing do Semog Experience vive num route group irmão (`(evento)`), com
+   * rota explícita própria e fora de `content/pages` — exatamente a mesma
+   * forma das landings de cidade, que foi como elas escaparam do sitemap. É
+   * página de captação (tem formulário), então entra na regra acima.
+   */
+  it('inclui a landing do Experience', async () => {
+    const entries = await sitemap()
+    expect(entries.map((e) => e.url)).toContain(absoluteUrl('experience'))
+  })
+
   it('nunca lista as URLs legadas /locais/ (elas só redirecionam)', async () => {
     const entries = await sitemap()
     expect(entries.every((e) => !e.url.includes('/locais/'))).toBe(true)

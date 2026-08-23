@@ -52,6 +52,15 @@ const ALT_BY_FILENAME: Record<string, string> = {
   // ---- Telas do aplicativo (public/app-screens/) ----
   'app-inicio.webp': 'Tela inicial do aplicativo Semog, com atalhos para Portaria e Área do condômino',
   'app-encomenda.webp': 'Detalhe de uma encomenda no aplicativo Semog, com QR code para retirada',
+  // ---- Semog Experience (bucket) ----
+  'experience-hero.webp':
+    'Grupo alongando o corpo na areia da praia ao nascer do sol',
+  'experience-local.webp':
+    'Vista aérea da orla de João Pessoa com a falésia do Cabo Branco ao fundo',
+  'experience-2025-poster.webp':
+    'Jogada de beach tennis na areia durante o Semog Experience 2025',
+  'experience-2025.mp4':
+    'Vídeo com os melhores momentos do Semog Experience 2025, em João Pessoa',
 }
 
 /**

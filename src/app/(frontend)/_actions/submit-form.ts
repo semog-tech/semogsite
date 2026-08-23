@@ -1,8 +1,10 @@
 'use server'
 
 import { cookies, headers } from 'next/headers'
+import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
+import ExperienceAutoReply from '@/emails/ExperienceAutoReply'
 import {
   ATTRIBUTION_COOKIE,
   buildAttributionFields,
@@ -10,14 +12,19 @@ import {
 } from '@/lib/attribution'
 import { query } from '@/lib/db'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
-import type { ContatoValues, PropostaValues } from '@/lib/form-schemas'
-import { contatoSchema, propostaSchema } from '@/lib/form-schemas'
-import { extractLeadColumns, FORMS } from '@/lib/forms'
+import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
+import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
+import { extractLeadColumns, FORMS, type FormType } from '@/lib/forms'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
 
-export type FormType = 'contato' | 'proposta'
+/**
+ * Reexportado de `@/lib/forms`, que é a fonte única. Antes havia aqui uma
+ * cópia literal da união — e ela divergiu em silêncio quando o `experience`
+ * entrou lá (o `tsc` não tinha como reclamar: os dois tipos são estruturais).
+ */
+export type { FormType }
 
 export type SubmitFormResult = {
   ok: boolean
@@ -47,6 +54,19 @@ const PROPOSTA_LABELS: Record<keyof PropostaValues, string> = {
 }
 
 /**
+ * Inscrição no Semog Experience. Mesmo papel dos dois acima: só o rótulo
+ * legível de cada campo no e-mail de notificação interna.
+ */
+const EXPERIENCE_LABELS: Record<keyof ExperienceValues, string> = {
+  nome: 'Nome',
+  email: 'E-mail',
+  telefone: 'WhatsApp',
+  condominio: 'Condomínio',
+  acompanhantes: 'Acompanhantes',
+  aceiteImagem: 'Autoriza uso de imagem',
+}
+
+/**
  * Roteamento da notificação interna de **Proposta** por região, a partir do
  * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
  * `src/lib/form-schemas.ts` — se o seed/enum mudar as opções, atualizar aqui).
@@ -65,6 +85,17 @@ const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, string> 
 
 /** Destino da Proposta quando `cidade` não foi preenchida (campo opcional). */
 const PROPOSTA_FALLBACK_TO = 'comercial@semog.com.br'
+
+/**
+ * Schema de validação por formulário. Mapa (e não ternário) porque com três
+ * formulários o ternário aninhado já esconde qual schema vale pra qual tipo —
+ * e porque assim o `tsc` cobra a entrada quando um `FormType` novo aparecer.
+ */
+const SCHEMAS = {
+  contato: contatoSchema,
+  proposta: propostaSchema,
+  experience: experienceSchema,
+} as const
 
 /**
  * Converte o primeiro `ZodIssue` de cada campo (`issue.path[0]`) num
@@ -98,11 +129,14 @@ async function getClientIp(): Promise<string | undefined> {
 }
 
 /**
- * Server Action de submit dos formulários "Contato"/"Proposta" (config
- * estática em `@/lib/forms`). Pipeline: valida com Zod → Turnstile → rate
- * limit por IP → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no
- * CRM (Exact, só quando é captação) → e-mail. Os dois últimos são
- * best-effort.
+ * Server Action de submit dos formulários "Contato"/"Proposta"/"Inscrição —
+ * Semog Experience" (config estática em `@/lib/forms`). Pipeline: valida com
+ * Zod → rate limit por formulário+IP → Turnstile → grava em `cms.leads` (via `pg`,
+ * `@/lib/db`) → cria o lead no CRM (Exact, só quando é captação) → e-mail. Os
+ * dois últimos são best-effort.
+ *
+ * A inscrição do Experience passa pelo mesmo pipeline, mas **nunca** chega ao
+ * CRM: `isExactEligible` a barra (evento é relacionamento, não captação).
  *
  * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
@@ -115,7 +149,7 @@ export async function submitForm(
   values: unknown,
   turnstileToken: string,
 ): Promise<SubmitFormResult> {
-  const schema = formType === 'contato' ? contatoSchema : propostaSchema
+  const schema = SCHEMAS[formType]
   const parsed = schema.safeParse(values)
 
   if (!parsed.success) {
@@ -125,18 +159,25 @@ export async function submitForm(
   try {
     const ip = await getClientIp()
 
+    // Rate limit ANTES do Turnstile, de propósito. `verifyTurnstile` é uma
+    // chamada de rede ao siteverify da Cloudflare: na ordem inversa, uma
+    // enxurrada de tokens inválidos nunca chegava a contar e cada tentativa
+    // ainda custava uma requisição de saída. A chave leva o formulário na
+    // frente (como pede o docblock de `rateLimit`) para que uma rajada na
+    // landing do evento não consuma a cota de quem está preenchendo Contato ou
+    // Proposta do mesmo IP — escritório inteiro sai por um NAT só.
+    const rate = rateLimit(`${formType}:${ip ?? 'anon'}`, { max: 5, windowMs: 60_000 })
+    if (!rate.ok) {
+      return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
+    }
+
     const turnstileOk = await verifyTurnstile(turnstileToken, ip)
     if (!turnstileOk) {
       return { ok: false, message: 'Verificação anti-spam falhou.' }
     }
 
-    const rate = rateLimit(ip ?? 'anon', { max: 5, windowMs: 60_000 })
-    if (!rate.ok) {
-      return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
-    }
-
     const formTitle = FORMS[formType].title
-    const data = parsed.data as ContatoValues | PropostaValues
+    const data = parsed.data as ContatoValues | PropostaValues | ExperienceValues
 
     // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
     // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
@@ -192,7 +233,12 @@ export async function submitForm(
     // falha de SendGrid (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`)
     // não deve derrubar o retorno `ok: true` pro usuário.
     try {
-      const labels = formType === 'contato' ? CONTATO_LABELS : PROPOSTA_LABELS
+      const labels =
+        formType === 'contato'
+          ? CONTATO_LABELS
+          : formType === 'experience'
+            ? EXPERIENCE_LABELS
+            : PROPOSTA_LABELS
       const fields = Object.entries(data)
         .filter(([, value]) => value !== undefined)
         .map(([field, value]) => ({
@@ -203,6 +249,10 @@ export async function submitForm(
       // Proposta roteia por região (campo `cidade`) pra caixa da pessoa
       // responsável; Contato continua indo pro `CONTACT_TO` (que pode estar
       // ausente em dev — cai no `else` abaixo, comportamento original).
+      // A inscrição do Experience cai no mesmo `else`: não tem `cidade` e não
+      // é pedido comercial, então a notificação vai pro `CONTACT_TO` junto com
+      // o Contato. De propósito — roteamento próprio pro evento só quando
+      // alguém pedir.
       let notifyTo: string | undefined
       if (formType === 'proposta') {
         const { cidade } = data as PropostaValues
@@ -226,10 +276,27 @@ export async function submitForm(
         )
       }
 
+      // Auto-reply: a inscrição no evento tem o seu, e não é firula. O
+      // genérico diz "Recebemos seu contato" e promete que "em breve alguém
+      // vai retornar pra você" — para quem se inscreveu num evento gratuito
+      // isso é falso (ninguém vai retornar) e contradiz a frase que o próprio
+      // formulário mostra acima do botão. O do evento confirma a inscrição
+      // repetindo data, horário e local de `EXPERIENCE_EVENT`.
+      const autoReply =
+        formType === 'experience'
+          ? {
+              subject: `Inscrição recebida — ${EXPERIENCE_EVENT.name}`,
+              react: ExperienceAutoReply({ name: data.nome }),
+            }
+          : {
+              subject: 'Recebemos seu contato — Semog',
+              react: ContactAutoReply({ name: data.nome }),
+            }
+
       const autoReplyResult = await sendMail({
         to: data.email,
-        subject: 'Recebemos seu contato — Semog',
-        react: ContactAutoReply({ name: data.nome }),
+        subject: autoReply.subject,
+        react: autoReply.react,
       })
       if (autoReplyResult.ok === false) {
         console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
