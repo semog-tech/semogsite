@@ -8,6 +8,15 @@ vi.mock('@/app/(frontend)/_actions/submit-form', () => ({
 // O widget real da Cloudflare injeta um <script> externo e um iframe — nada
 // disso existe no jsdom. O dublê expõe o único contrato que o formulário usa:
 // um `onToken` que ele chama quando o desafio passa.
+/**
+ * `usePathname` — o formulário passa a página do envio como 4º argumento de
+ * `submitForm`, e fora de um router o hook devolveria `null`. Fixado numa rota
+ * conhecida pra a asserção poder cobrar o valor em vez de ignorá-lo.
+ */
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/experience',
+}))
+
 vi.mock('@/components/forms/Turnstile', () => ({
   Turnstile: ({ onToken }: { onToken: (token: string) => void }) => (
     <button onClick={() => onToken('token-de-teste')} type="button">
@@ -74,6 +83,7 @@ describe('ExperienceForm', () => {
         aceiteImagem: true,
       }),
       'token-de-teste',
+      '/experience',
     )
   })
 

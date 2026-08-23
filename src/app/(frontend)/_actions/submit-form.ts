@@ -138,6 +138,15 @@ async function getClientIp(): Promise<string | undefined> {
  * A inscrição do Experience passa pelo mesmo pipeline, mas **nunca** chega ao
  * CRM: `isExactEligible` a barra (evento é relacionamento, não captação).
  *
+ * `paginaFormulario` é o caminho (`usePathname()`) da página em que o
+ * formulário foi enviado, e entra na origem do lead ao lado da "Página de
+ * entrada" — que é outra coisa: o first-touch, a página pela qual a pessoa
+ * ENTROU no site. As duas divergem sempre que alguém entra por uma landing e
+ * converte noutra rota, e o formulário de proposta vive em dez páginas: sem
+ * este campo não dá pra saber qual delas capturou. Opcional e best-effort como
+ * o resto da atribuição — `sanitizePagina` descarta o que não for caminho
+ * relativo, e a submissão segue igual.
+ *
  * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
  * vez de deixar o erro subir. O `INSERT` em `cms.leads` é o único passo que
@@ -148,6 +157,7 @@ export async function submitForm(
   formType: FormType,
   values: unknown,
   turnstileToken: string,
+  paginaFormulario?: string,
 ): Promise<SubmitFormResult> {
   const schema = SCHEMAS[formType]
   const parsed = schema.safeParse(values)
@@ -182,7 +192,10 @@ export async function submitForm(
     // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
     // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
     const attributionCookie = (await cookies()).get(ATTRIBUTION_COOKIE)?.value
-    const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
+    const attributionFields = buildAttributionFields(
+      parseAttributionCookie(attributionCookie),
+      paginaFormulario,
+    )
 
     // Monta o `data` (jsonb) do lead: campos do formulário (chave = nome do
     // campo do schema Zod) + origem, como objeto `{field: value}`.

@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
@@ -120,6 +121,10 @@ export function PropostaForm({
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
+  // Página em que o formulário está sendo enviado. Não é a "Página de
+  // entrada" da atribuição (o first-touch): este mesmo formulário vive em
+  // várias rotas, e é isto que diz qual delas capturou o lead.
+  const pathname = usePathname()
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
 
@@ -130,7 +135,7 @@ export function PropostaForm({
       return
     }
 
-    const result = await submitForm('proposta', values, token)
+    const result = await submitForm('proposta', values, token, pathname)
 
     if (result.ok) {
       // Conversão de lead → GA4 `generate_lead`. Marcar como evento-chave no GA4

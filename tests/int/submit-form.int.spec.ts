@@ -16,6 +16,20 @@ const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
 
+const notificationMock = vi.fn()
+
+/**
+ * `ContactNotification` espionado: guarda as props (onde vive a seção "Origem
+ * do lead") e devolve um elemento qualquer — o `sendMail` já é mockado, então
+ * nada disso chega a ser renderizado.
+ */
+vi.mock('@/emails/ContactNotification', () => ({
+  default: (props: unknown) => {
+    notificationMock(props)
+    return null
+  },
+}))
+
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
 }))
@@ -234,5 +248,164 @@ describe('submitForm — push pro Exact', () => {
     await submitForm('contato', contatoValido, 'test-token')
 
     expect(updateDoExact()).toBeUndefined()
+  })
+})
+
+/**
+ * A página do formulário — o quarto argumento de `submitForm`.
+ *
+ * A atribuição já gravava "Página de entrada", que é o first-touch: a página
+ * pela qual a pessoa ENTROU no site. Isso não é a mesma coisa que a página em
+ * que ela preencheu o formulário, e a diferença é medível — quem entra pela
+ * landing de Belém e converte em `/garante` era contado como Belém, porque o
+ * `AttributionTracker` não reescreve o toque a cada navegação (e não deve: o
+ * first-touch é o dado que ele existe pra preservar).
+ *
+ * O mesmo formulário de proposta está em dez páginas. Sem este campo não há
+ * como saber qual delas capturou.
+ */
+describe('submitForm — página do formulário', () => {
+  const PAGINA_FIELD = 'origem — Página do formulário'
+  const ENTRADA_FIELD = 'origem — Página de entrada'
+
+  /** Proposta válida — o formulário que existe em dez colocações. */
+  const propostaValida = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'João Pessoa e região',
+  }
+
+  /** Fake de cookies com atribuição real (entrada por uma landing de praça). */
+  function fakeCookiesComAtribuicao(landing: string) {
+    const attr = { first: { landing, ts: '2026-08-23T12:00:00.000Z' }, last: { landing } }
+    return { get: () => ({ value: encodeURIComponent(JSON.stringify(attr)) }) }
+  }
+
+  /** O `data` (jsonb) do INSERT: `query(sql, params)` → `params[1]`. */
+  function leadData(): Record<string, string> {
+    const call = queryMock.mock.calls.find(([sql]) => /insert into cms\.leads/i.test(sql as string))
+    const params = (call as [string, unknown[]])[1]
+    return params[1] as Record<string, string>
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+  })
+
+  it('grava a página do formulário junto dos demais campos de origem', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.30'))
+
+    const result = await submitForm('contato', contatoValido, 'test-token', '/garante')
+
+    expect(result.ok).toBe(true)
+    expect(leadData()[PAGINA_FIELD]).toBe('/garante')
+  })
+
+  /**
+   * O caso que motivou o campo: entrada e envio em páginas DIFERENTES, os dois
+   * fatos no mesmo lead e sem um sobrescrever o outro.
+   */
+  it('convive com a página de entrada sem sobrescrevê-la', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.31'))
+    cookiesMock.mockResolvedValue(fakeCookiesComAtribuicao('/administradora-de-condominios-belem'))
+
+    await submitForm('contato', contatoValido, 'test-token', '/garante')
+
+    const data = leadData()
+    expect(data[ENTRADA_FIELD]).toBe('/administradora-de-condominios-belem')
+    expect(data[PAGINA_FIELD]).toBe('/garante')
+  })
+
+  /**
+   * Entrar e converter na mesma página é o caso mais comum, e o campo continua
+   * lá. Omiti-lo quando concorda com a entrada transformaria "mesma página" em
+   * "não sei" — e é justamente por página que a tela de captação agrupa.
+   */
+  it('é gravada mesmo quando coincide com a página de entrada', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.32'))
+    cookiesMock.mockResolvedValue(fakeCookiesComAtribuicao('/proposta'))
+
+    await submitForm('proposta', propostaValida, 'test-token', '/proposta')
+
+    const data = leadData()
+    expect(data[ENTRADA_FIELD]).toBe('/proposta')
+    expect(data[PAGINA_FIELD]).toBe('/proposta')
+  })
+
+  it('funciona sem cookie de atribuição nenhum', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.33'))
+
+    await submitForm('contato', contatoValido, 'test-token', '/contato')
+
+    const data = leadData()
+    expect(data[PAGINA_FIELD]).toBe('/contato')
+    expect(data[ENTRADA_FIELD]).toBeUndefined()
+  })
+
+  it('sem o argumento, nenhuma chave de página do formulário é gravada', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.34'))
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(leadData()[PAGINA_FIELD]).toBeUndefined()
+  })
+
+  /**
+   * O valor vem do client e por isso é tratado como suspeito: só caminho
+   * relativo. Descartar em silêncio é o comportamento certo — a atribuição
+   * inteira é best-effort e derrubar um lead por um metadado sujo seria trocar
+   * o dado caro pelo barato.
+   */
+  // Um IP por caso: o rate limit é 5 por minuto por formulário+IP, e seis casos
+  // no mesmo IP fariam o sexto falhar por um motivo que não é o testado aqui.
+  it.each([
+    ['string vazia', '', '203.0.113.40'],
+    ['só espaço', '   ', '203.0.113.41'],
+    ['URL absoluta', 'https://exemplo.com/phishing', '203.0.113.42'],
+    ['protocolo', 'javascript:alert(1)', '203.0.113.43'],
+    ['sem barra inicial', 'garante', '203.0.113.44'],
+    ['longa demais', `/${'a'.repeat(600)}`, '203.0.113.45'],
+  ])('descarta pathname inválido (%s) sem derrubar a submissão', async (_rotulo, pagina, ip) => {
+    headersMock.mockResolvedValue(fakeHeaders(ip))
+
+    const result = await submitForm('contato', contatoValido, 'test-token', pagina)
+
+    expect(result.ok).toBe(true)
+    expect(leadData()[PAGINA_FIELD]).toBeUndefined()
+  })
+
+  /**
+   * O e-mail e o `data` do lead leem do MESMO array (`attributionFields`), mas
+   * "mesma fonte" é justamente o tipo de coisa que se quebra numa refatoração
+   * sem ninguém notar — e a notificação interna é onde o comercial de fato lê a
+   * origem. O espião é sobre o componente do e-mail porque chamá-lo como função
+   * devolve o elemento já renderizado, cujo `props` é o da raiz do template.
+   */
+  it('chega ao e-mail de notificação junto da seção de origem', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.36'))
+
+    await submitForm(
+      'proposta',
+      propostaValida,
+      'test-token',
+      '/administradora-de-condominios-recife',
+    )
+
+    expect(notificationMock).toHaveBeenCalled()
+    const props = notificationMock.mock.calls.at(-1)?.[0] as {
+      attribution: { label: string; value: string }[]
+    }
+    expect(props.attribution).toContainEqual({
+      label: 'Página do formulário',
+      value: '/administradora-de-condominios-recife',
+    })
   })
 })

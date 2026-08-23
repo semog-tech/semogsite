@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
@@ -58,6 +59,10 @@ export function ContactForm() {
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
+  // Página em que o formulário está sendo enviado. Não é a "Página de
+  // entrada" da atribuição (o first-touch): este mesmo formulário vive em
+  // várias rotas, e é isto que diz qual delas capturou o lead.
+  const pathname = usePathname()
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
 
@@ -68,7 +73,7 @@ export function ContactForm() {
       return
     }
 
-    const result = await submitForm('contato', values, token)
+    const result = await submitForm('contato', values, token, pathname)
 
     if (result.ok) {
       setStatus('success')

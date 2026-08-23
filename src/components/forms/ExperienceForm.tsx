@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AsYouType } from 'libphonenumber-js/min'
+import { usePathname } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
@@ -82,6 +83,10 @@ export function ExperienceForm() {
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
+  // Página em que o formulário está sendo enviado. Não é a "Página de
+  // entrada" da atribuição (o first-touch): este mesmo formulário vive em
+  // várias rotas, e é isto que diz qual delas capturou o lead.
+  const pathname = usePathname()
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
 
@@ -102,7 +107,7 @@ export function ExperienceForm() {
       return
     }
 
-    const result = await submitForm('experience', values, token)
+    const result = await submitForm('experience', values, token, pathname)
 
     if (result.ok) {
       // NÃO é `generate_lead`, e isso é o ponto: inscrição em evento de

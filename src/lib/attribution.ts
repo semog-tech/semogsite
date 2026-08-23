@@ -117,14 +117,58 @@ export function classifyChannel(t: AttributionTouch): string {
 }
 
 /**
+ * Tamanho máximo do caminho da página do formulário. Uma rota do site cabe
+ * folgadamente aqui; o limite existe pra um valor forjado não virar uma chave
+ * gigante dentro do `data` (jsonb) do lead.
+ */
+const MAX_PAGINA = 512
+
+/**
+ * Normaliza o caminho da página em que o formulário foi enviado. O valor chega
+ * do client (`usePathname()`), então é tratado como suspeito: aceita **só
+ * caminho relativo** — nada de URL absoluta, nada de `javascript:`.
+ *
+ * Descarta em silêncio (`undefined`) em vez de lançar, porque a atribuição
+ * inteira é best-effort: derrubar um lead por causa de um metadado sujo seria
+ * trocar o dado caro pelo barato.
+ */
+export function sanitizePagina(raw: string | undefined | null): string | undefined {
+  if (typeof raw !== 'string') return undefined
+  const trimmed = raw.trim()
+  if (!trimmed.startsWith('/')) return undefined
+  // `//host` é URL protocol-relative, não caminho.
+  if (trimmed.startsWith('//')) return undefined
+  if (trimmed.length > MAX_PAGINA) return undefined
+  return trimmed
+}
+
+/**
  * Linhas legíveis pra seção "Origem do lead" (e-mail + registro no banco).
  * Prioriza o first-touch (de onde o lead veio originalmente) e só mostra o
  * last-touch quando é de um canal diferente.
+ *
+ * `paginaFormulario` é o caminho da página em que o formulário foi ENVIADO, e
+ * não se confunde com "Página de entrada": esta é o first-touch, a página pela
+ * qual a pessoa entrou no site. Quem entra pela landing de Belém e converte em
+ * `/garante` produz as duas, diferentes — e o `AttributionTracker` não reescreve
+ * o toque a cada navegação, nem deve: preservar o first-touch é a razão de ele
+ * existir. Sem este segundo campo não há como saber qual das dez páginas que
+ * hospedam o formulário de proposta capturou o lead.
  */
-export function buildAttributionFields(attr: Attribution | null): AttributionField[] {
-  if (!attr?.first) return []
-  const { first, last } = attr
+export function buildAttributionFields(
+  attr: Attribution | null,
+  paginaFormulario?: string | null,
+): AttributionField[] {
+  const pagina = sanitizePagina(paginaFormulario)
   const fields: AttributionField[] = []
+
+  // Sem cookie ainda dá pra dizer onde o formulário foi enviado — é um fato da
+  // requisição, não do histórico de navegação.
+  if (!attr?.first) {
+    if (pagina) fields.push({ label: 'Página do formulário', value: pagina })
+    return fields
+  }
+  const { first, last } = attr
 
   fields.push({ label: 'Canal (origem)', value: classifyChannel(first) })
 
@@ -139,6 +183,13 @@ export function buildAttributionFields(attr: Attribution | null): AttributionFie
   if (refHost) fields.push({ label: 'Veio do site', value: refHost })
 
   if (first.landing) fields.push({ label: 'Página de entrada', value: first.landing })
+
+  // SEMPRE emitido quando existe — inclusive quando é igual à página de
+  // entrada, que é o caso mais comum. Omiti-lo por concordância (como o
+  // 'Último toque' logo abaixo faz, e ali está certo) transformaria "entrou e
+  // converteu na mesma página" em "não sei em qual página converteu", e é
+  // exatamente por esta chave que a captação agrupa os leads por colocação.
+  if (pagina) fields.push({ label: 'Página do formulário', value: pagina })
 
   const clickId = first.gclid ?? first.gbraid ?? first.wbraid
   if (clickId) fields.push({ label: 'gclid (Google Ads)', value: clickId })
