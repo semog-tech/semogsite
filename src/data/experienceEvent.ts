@@ -37,7 +37,7 @@ export type ScheduleItem = {
  * faixa contínua porque passou a ser oferta permanente, e deixá-la com hora
  * marcada faria o inscrito achar que só tem bebida naquele momento.
  */
-export type Ongoing = { icon: 'drop' | 'pulse'; title: string; text: string }
+export type Ongoing = { icon: 'drop' | 'fruit' | 'pulse'; title: string; text: string }
 export type Pillar = { icon: 'lotus' | 'people' | 'heart'; title: string; text: string }
 
 export const EXPERIENCE_EVENT = {
@@ -158,6 +158,11 @@ export const EXPERIENCE_EVENT = {
       icon: 'drop',
       title: 'Água e água de coco',
       text: 'Disponíveis o tempo todo, do credenciamento ao encerramento.',
+    },
+    {
+      icon: 'fruit',
+      title: 'Frutas e comida',
+      text: 'Servidas durante toda a manhã, para repor antes e depois das aulas.',
     },
     {
       icon: 'pulse',

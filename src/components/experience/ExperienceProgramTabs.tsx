@@ -36,6 +36,12 @@ const ONGOING_ICONS: Record<Ongoing['icon'], React.ReactElement> = {
       <path d="M9.5 13.8c.2 1.6 1.3 2.6 2.8 2.8" />
     </svg>
   ),
+  fruit: (
+    <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+      <path d="M12 8.4c-1-1.1-2.3-1.6-3.6-1.4C6.2 7.3 5 9.3 5 12c0 3.6 2.3 7.5 4.4 7.5.9 0 1.7-.5 2.6-.5s1.7.5 2.6.5c2.1 0 4.4-3.9 4.4-7.5 0-2.7-1.2-4.7-3.4-5-1.3-.2-2.6.3-3.6 1.4Z" />
+      <path d="M12 8.4V6.2m0 0c0-1.4 1.1-2.6 2.6-2.7m-2.6 2.7c-1.3 0-2.4-.8-2.7-2" />
+    </svg>
+  ),
   pulse: (
     <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
       <path d="M3 12.5h3.2L8 8.5l2.8 8 2.4-5.4 1.5 2.4H21" />
