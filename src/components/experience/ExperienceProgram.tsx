@@ -1,76 +1,42 @@
 import { img } from '@/../content/media'
-import { ImageMedia } from '@/components/Media/ImageMedia'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
+import { ExperienceProgramTabs, type ProgramItem } from './ExperienceProgramTabs'
 
 /**
- * Programação da manhã + foto do local — porte da
- * `<section class="program s-white">` do protótipo aprovado.
+ * Programação da manhã + painel da atividade — porte da
+ * `<section class="program s-white">` do protótipo aprovado, agora
+ * INTERATIVA: escolher um horário troca a foto e mostra quem conduz
+ * (pedido do cliente em 24/08/2026).
  *
- * A lista é `<ol>` porque a ORDEM CRONOLÓGICA é a informação: quem lê sabe o
- * que vem antes do quê sem precisar comparar horários. Por isso também não há
- * numeração decorativa (01/02/03) por cima do horário — seria um segundo
- * contador competindo com o relógio.
+ * A divisão server/client é o ponto deste arquivo. Aqui, no servidor,
+ * `img()` resolve filename -> `{url, alt, width, height}` para CADA atividade,
+ * e o resultado (JSON puro) desce para o componente client. Fazer o `img()`
+ * lá dentro arrastaria os três mapas de `content/media.ts` — o site inteiro,
+ * não só o evento — para dentro do bundle do navegador.
  *
- * O `role="list"` explícito não é redundante: `list-style: none` faz o
- * Safari/VoiceOver remover a semântica de lista do elemento, e aí "lista de 7
- * itens" (a ordem, que é a informação) deixa de ser anunciada.
+ * Atividade sem foto própria (recepção, encerramento) cai na foto do LOCAL,
+ * que é a que a seção mostrava antes de existir painel.
  */
-
-/** '07:00' (ISO, ordenável no dado) -> '07h00' (como se lê em pt-BR). */
-function horaBr(time: string) {
-  return time.replace(':', 'h')
-}
-
 export function ExperienceProgram() {
   const local = img('experience-local.webp')
 
+  const items: ProgramItem[] = E.schedule.map((item) => ({
+    time: item.time,
+    endTime: item.endTime,
+    label: item.label,
+    text: item.text,
+    professional: item.professional,
+    media: item.image ? img(item.image) : local,
+  }))
+
   return (
-    <section className="program s-white">
-      <div className="wrap">
-        <div className="grid">
-          <div>
-            <span className="eyebrow">Programação</span>
-            <h2 className="sec-title">
-              Manhã <em>wellness</em>
-            </h2>
-            {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
-            <ol className="sched" role="list">
-              {E.schedule.map((item) => (
-                <li key={item.time}>
-                  <span className="h">{horaBr(item.time)}</span>
-                  <span className="r" />
-                  <span className="t">{item.label}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <figure className="place">
-            <ImageMedia fill resource={local} sizes="(max-width: 64rem) 100vw, 45vw" />
-            <figcaption>
-              <svg
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" />
-                <circle cx="12" cy="10" r="2.5" />
-              </svg>
-              <div>
-                <div className="pname">
-                  {E.venue}
-                  <br />
-                  {E.city} — {E.uf}
-                </div>
-                <p className="pnote">
-                  O ponto mais oriental das Américas, onde o sol nasce primeiro no continente.
-                </p>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
+    <ExperienceProgramTabs
+      city={E.city}
+      items={items}
+      ongoing={E.ongoing}
+      uf={E.uf}
+      venue={E.venue}
+      venueNote={E.venueConfirmed ? undefined : E.venueNote}
+    />
   )
 }

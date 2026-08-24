@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        // Fotos das atividades do Semog Experience, servidas de `/public` em
+        // vez do bucket (ver `LOCAL_BY_FILENAME` em `content/media.ts`).
+        // `localPatterns` é allow-list: sem esta entrada o `next/image`
+        // recusa o caminho e a página inteira quebra em runtime.
+        pathname: '/media/experience/**',
+      },
     ],
     remotePatterns: [
       {

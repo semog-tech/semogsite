@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
@@ -19,12 +19,12 @@ import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
  */
 
 describe('ExperienceProgram', () => {
-  it('lista os sete blocos da manhã na ordem', () => {
+  it('lista todos os blocos da manhã na ordem', () => {
     render(<ExperienceProgram />)
-    const itens = screen.getAllByRole('listitem')
-    expect(itens).toHaveLength(EXPERIENCE_EVENT.schedule.length)
-    expect(itens[0]?.textContent).toContain('Recepção e alongamento inicial')
-    expect(itens[itens.length - 1]?.textContent).toContain('Encerramento')
+    const abas = screen.getAllByRole('tab')
+    expect(abas).toHaveLength(EXPERIENCE_EVENT.schedule.length)
+    expect(abas[0]?.textContent).toContain('Recepção e credenciamento')
+    expect(abas[abas.length - 1]?.textContent).toContain('encerramento')
   })
 
   it('mostra o horário formatado em pt-BR, sem numeração decorativa', () => {
@@ -32,6 +32,60 @@ describe('ExperienceProgram', () => {
     const horas = Array.from(container.querySelectorAll('.sched .h')).map((n) => n.textContent)
     expect(horas[0]).toBe('07h00')
     expect(horas).toHaveLength(EXPERIENCE_EVENT.schedule.length)
+  })
+
+  it('credita quem conduz cada aula e linka o Instagram de quem tem', () => {
+    render(<ExperienceProgram />)
+    const abas = screen.getAllByRole('tab')
+    // O crédito vive no painel, e painel fechado é `hidden` — inacessível
+    // para as queries e para o leitor de tela. Por isso cada aula é conferida
+    // com a sua aba aberta, e não na renderização inicial.
+    const painelDe = (i: number) => {
+      fireEvent.click(abas[i] as HTMLElement)
+      return screen.getByRole('tabpanel')
+    }
+
+    const pilates = within(painelDe(1))
+    expect(pilates.getByRole('link', { name: 'Paloma Menezes' }).getAttribute('href')).toBe(
+      'https://www.instagram.com/pilatespalomamenezes/'
+    )
+
+    // Quem ainda não mandou o perfil aparece como texto — nunca como link
+    // para lugar nenhum. Ver o comentário de `Professional` no dado.
+    const funcional = within(painelDe(2))
+    expect(funcional.getByText(/Igor Barros/)).toBeDefined()
+    expect(funcional.queryByRole('link', { name: 'Igor Barros' })).toBeNull()
+  })
+
+  it('abre o painel da atividade escolhida e fecha o anterior', () => {
+    render(<ExperienceProgram />)
+    const abas = screen.getAllByRole('tab')
+
+    expect(abas[0]?.getAttribute('aria-selected')).toBe('true')
+    fireEvent.click(abas[3] as HTMLElement)
+
+    expect(abas[0]?.getAttribute('aria-selected')).toBe('false')
+    expect(abas[3]?.getAttribute('aria-selected')).toBe('true')
+    // `hidden` esconde os inativos, então só sobra um painel acessível.
+    expect(screen.getAllByRole('tabpanel')).toHaveLength(1)
+  })
+
+  it('anuncia que água e avaliação física valem o evento inteiro, sem hora na agenda', () => {
+    const { container } = render(<ExperienceProgram />)
+    const continuos = container.querySelector('.ongoing')?.textContent ?? ''
+    expect(continuos).toContain('Água e água de coco')
+    expect(continuos).toContain('Avaliação física e de saúde')
+    expect(continuos).toContain('08h às 12h')
+    // A água de coco já foi um item com hora marcada na primeira grade; virou
+    // oferta contínua e não pode voltar para a linha do tempo.
+    const agenda = container.querySelector('.sched')?.textContent ?? ''
+    expect(agenda).not.toContain('Hidratação')
+    expect(agenda).not.toContain('água de coco')
+  })
+
+  it('avisa que o local ainda depende da prefeitura', () => {
+    render(<ExperienceProgram />)
+    expect(screen.getAllByText(EXPERIENCE_EVENT.venueNote).length).toBeGreaterThan(0)
   })
 })
 

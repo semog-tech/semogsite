@@ -51,6 +51,7 @@ export function ExperienceFooter() {
           <span>
             {E.venue} — {E.city}, {E.uf}
           </span>
+          {!E.venueConfirmed && <span className="pending">{E.venueNote}</span>}
         </div>
         <div className="fcol">
           <strong>Contato</strong>

@@ -114,6 +114,10 @@ export function ExperienceHero() {
                 <small>
                   {E.city}, {E.uf}
                 </small>
+                {/* A prefeitura ainda não liberou o ponto da orla (24/08/2026).
+                    A ressalva anda junto do local em TODA peça — quem se
+                    inscreve não pode descobrir isso depois. */}
+                {!E.venueConfirmed && <small className="pending">{E.venueNote}</small>}
               </div>
             </div>
           </div>

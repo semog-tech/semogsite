@@ -61,6 +61,19 @@ const ALT_BY_FILENAME: Record<string, string> = {
     'Jogada de beach tennis na areia durante o Semog Experience 2025',
   'experience-2025.mp4':
     'Vídeo com os melhores momentos do Semog Experience 2025, em João Pessoa',
+  // Uma por atividade da programação (`EXPERIENCE_EVENT.schedule[].image`).
+  // São imagens da MODALIDADE, não dos professores: as fotos de Paloma, Igor,
+  // Assis e Maria ainda não chegaram (24/08/2026) e a decisão do cliente foi
+  // subir com a modalidade e trocar depois, arquivo por arquivo, sem tocar em
+  // componente.
+  'experience-pilates.webp':
+    'Turma de pilates sobre tapetes na areia da praia ao nascer do sol, com a instrutora orientando o movimento',
+  'experience-funcional.webp':
+    'Grupo em treino funcional na areia da praia ao nascer do sol, puxando elásticos de resistência com o treinador à frente',
+  'experience-yoga.webp':
+    'Turma de yoga em pose do guerreiro na areia da praia, de frente para o sol nascendo sobre o mar',
+  'experience-alongamento.webp':
+    'Alongamento e relaxamento sobre tapetes na areia da praia ao nascer do sol, com a instrutora auxiliando uma participante',
 }
 
 /**
@@ -78,6 +91,11 @@ const ALT_BY_FILENAME: Record<string, string> = {
  * ficam de fora deste mapa.
  */
 const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> = {
+  // Atividades da programação: geradas em 16:9 e exportadas em 1600x900.
+  'experience-pilates.webp': { width: 1600, height: 900 },
+  'experience-funcional.webp': { width: 1600, height: 900 },
+  'experience-yoga.webp': { width: 1600, height: 900 },
+  'experience-alongamento.webp': { width: 1600, height: 900 },
   'hero-towers.webp': { width: 2048, height: 1152 },
   'residencial.webp': { width: 2048, height: 1536 },
   'comercial.webp': { width: 2400, height: 1792 },
@@ -119,6 +137,14 @@ const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> 
  */
 const LOCAL_BY_FILENAME: Record<string, string> = {
   'garante.mp4': '/media/garante.mp4',
+  // As fotos das atividades nascem no repositório (não passaram pelo seed do
+  // bucket, que era do Payload). Servidas de `/public`, entram no build e no
+  // CDN da Vercel junto com o resto — e trocar a imagem de uma atividade é
+  // substituir o arquivo, sem credencial de storage no meio.
+  'experience-pilates.webp': '/media/experience/experience-pilates.webp',
+  'experience-funcional.webp': '/media/experience/experience-funcional.webp',
+  'experience-yoga.webp': '/media/experience/experience-yoga.webp',
+  'experience-alongamento.webp': '/media/experience/experience-alongamento.webp',
 }
 
 /** Monta `{url, alt, width?, height?}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */

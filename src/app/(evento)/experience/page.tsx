@@ -20,7 +20,7 @@ const title = `${E.name} — manhã wellness na Praia do Cabo Branco`
  * à mão, uma troca de horário em `experienceEvent.ts` arrumaria a página
  * inteira e deixaria o snippet da busca e o rich result mentindo.
  */
-const description = `Movimento, saúde e conexão em ${E.dateLabel}, das ${E.timeLabel}, na ${E.venue}, em ${E.city}. Pilates, treino funcional, alongamento e avaliação física. Gratuito, com ${E.seats} vagas.`
+const description = `Movimento, saúde e conexão em ${E.dateLabel}, das ${E.timeLabel}, na ${E.venue}, em ${E.city}. Pilates, treino funcional, yoga, alongamento e avaliação física. Gratuito, com ${E.seats} vagas e kit praia.`
 
 /**
  * A foto do hero também é o card social. O route group `(evento)` é um root
