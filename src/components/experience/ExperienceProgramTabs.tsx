@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import type { Ongoing, Professional } from '@/data/experienceEvent'
 
@@ -23,6 +23,9 @@ type Props = {
   /** Presente enquanto o local não está confirmado; ausente quando estiver. */
   venueNote?: string
 }
+
+/** Quanto cada atividade fica no ar antes de a seguinte entrar sozinha. */
+const PASSO_MS = 6000
 
 /** '07:00' (ISO, ordenável no dado) -> '07h00' (como se lê em pt-BR). */
 function horaBr(time: string) {
@@ -49,58 +52,91 @@ const ONGOING_ICONS: Record<Ongoing['icon'], React.ReactElement> = {
   ),
 }
 
+/** `true` quando o visitante pediu menos movimento no sistema. */
+function querMenosMovimento() {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+}
+
 /**
- * Lista de horários + painel da atividade selecionada.
+ * Lista de horários + painel da atividade, que avança sozinho.
  *
  * **Por que tabs e não uma `<ol>`.** A seção nasceu como lista ordenada porque
  * a ordem cronológica ERA a informação. Agora cada horário abre um painel, o
  * que em ARIA é exatamente `tablist`/`tab`/`tabpanel` — o padrão que leitor de
  * tela anuncia como "aba 2 de 6, selecionada". A cronologia não se perde: o
- * horário é a primeira coisa dentro do rótulo de cada aba, e horário é ordinal
- * por natureza. Trocar por `<ol>` + botões faria o leitor anunciar "lista" e
- * calar que existe um painel associado.
+ * horário é a primeira coisa dentro do rótulo de cada aba.
  *
- * **Sem troca no hover e sem autoplay**, ambos deliberados: o painel carrega
- * informação (quem conduz, o link do Instagram), e conteúdo que muda sozinho
- * ou ao passar o mouse escapa de quem lê devagar — a WCAG 2.2.2 exigiria um
- * controle de pausa que essa seção não tem onde acomodar. Trocar é ato do
- * usuário: clique, Enter/Espaço ou as setas.
+ * **O avanço automático e a WCAG 2.2.2.** Conteúdo que se move sozinho por
+ * mais de 5s precisa de um jeito de parar. São quatro salvaguardas:
+ * 1. um botão de pausar/retomar, visível e rotulado;
+ * 2. escolher uma aba (clique ou teclado) desliga o avanço — quem assumiu o
+ *    controle não quer a página trocando debaixo do dedo;
+ * 3. `prefers-reduced-motion: reduce` nunca liga o avanço;
+ * 4. fora da viewport o timer não corre, então a programação não "passa"
+ *    inteira enquanto ninguém está olhando.
  *
- * Todos os painéis ficam no DOM (os inativos com `hidden`), então o `next/image`
- * de cada foto entra no HTML e o navegador não pisca uma moldura vazia na
- * primeira troca.
+ * Trocar no HOVER continua fora: o ponteiro passa por ali a caminho de outra
+ * coisa, e o painel piscaria sem ninguém ter pedido.
  */
 export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNote }: Props) {
   const [active, setActive] = useState(0)
+  /** Avanço automático ligado. Só nasce ligado se o sistema não pedir o contrário. */
+  const [auto, setAuto] = useState(false)
+  const [naTela, setNaTela] = useState(false)
+  const secaoRef = useRef<HTMLElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const baseId = useId()
   const tabId = (i: number) => `${baseId}-tab-${i}`
   const panelId = (i: number) => `${baseId}-panel-${i}`
 
+  // Ligado só depois de montar: no servidor não há como saber a preferência de
+  // movimento, e assumir "ligado" no HTML faria a barra de progresso aparecer
+  // animada por um instante para quem pediu menos movimento.
+  useEffect(() => {
+    if (!querMenosMovimento()) setAuto(true)
+  }, [])
+
+  useEffect(() => {
+    const alvo = secaoRef.current
+    if (!alvo || typeof IntersectionObserver !== 'function') {
+      setNaTela(true)
+      return
+    }
+    const obs = new IntersectionObserver(([e]) => setNaTela(Boolean(e?.isIntersecting)), {
+      threshold: 0.25,
+    })
+    obs.observe(alvo)
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!auto || !naTela) return
+    const t = setInterval(() => setActive((i) => (i + 1) % items.length), PASSO_MS)
+    return () => clearInterval(t)
+  }, [auto, naTela, items.length])
+
   /**
-   * No desktop o painel fica ao lado da lista e está sempre à vista. No mobile
-   * ele cai abaixo dos seis horários: sem isto, tocar num horário trocaria uma
+   * Escolha manual. Desliga o avanço — e no mobile, onde o painel fica abaixo
+   * da lista, rola o mínimo para ele: sem isso, tocar num horário trocaria uma
    * foto fora da tela e a interação pareceria não ter funcionado.
-   *
-   * `block: 'nearest'` rola o MÍNIMO necessário — com o painel já visível (o
-   * caso do desktop) não mexe em nada, e por isso a checagem antes dele é só
-   * um atalho, não a garantia.
+   * `block: 'nearest'` não mexe em nada quando o painel já está visível, que é
+   * o caso do desktop.
    */
-  function select(i: number) {
+  const escolher = useCallback((i: number) => {
     setActive(i)
+    setAuto(false)
     const el = panelRef.current
     if (!el) return
     const box = el.getBoundingClientRect()
     if (box.top >= 0 && box.bottom <= window.innerHeight) return
-    const semAnimacao = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    el.scrollIntoView({ block: 'nearest', behavior: semAnimacao ? 'auto' : 'smooth' })
-  }
+    el.scrollIntoView({ block: 'nearest', behavior: querMenosMovimento() ? 'auto' : 'smooth' })
+  }, [])
 
-  /**
-   * Setas movem a seleção; Home/End vão aos extremos. É o teclado que o padrão
-   * de tabs manda existir — sem isso a lista vira seis paradas de Tab, uma por
-   * horário, para atravessar a seção.
-   */
+  /** Setas movem a seleção; Home/End vão aos extremos — o teclado que o padrão de tabs manda existir. */
   function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     const last = items.length - 1
     let next: number | null = null
@@ -111,11 +147,12 @@ export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNo
     if (next === null) return
     event.preventDefault()
     setActive(next)
+    setAuto(false)
     document.getElementById(tabId(next))?.focus()
   }
 
   return (
-    <section className="program s-white">
+    <section className="program s-white" ref={secaoRef}>
       <div className="wrap">
         <div className="grid">
           <div className="col-lista">
@@ -137,7 +174,7 @@ export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNo
                   className={i === active ? 'is-active' : undefined}
                   id={tabId(i)}
                   key={item.time}
-                  onClick={() => select(i)}
+                  onClick={() => escolher(i)}
                   role="tab"
                   tabIndex={i === active ? 0 : -1}
                   type="button"
@@ -151,23 +188,63 @@ export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNo
                     {item.label}
                     {item.professional && <small>com {item.professional.name}</small>}
                   </span>
+                  {/*
+                    A barra que se enche avisa que a próxima atividade vai
+                    entrar — sem ela, o painel trocaria "do nada". O `key`
+                    reinicia a animação a cada avanço; sem `key`, ela rodaria
+                    uma vez só e as trocas seguintes ficariam mudas.
+                  */}
+                  {i === active && auto && naTela && (
+                    <span aria-hidden="true" className="prog" key={active} />
+                  )}
                 </button>
               ))}
             </div>
 
+            <button
+              aria-pressed={!auto}
+              className="sched-toggle"
+              onClick={() => setAuto((v) => !v)}
+              type="button"
+            >
+              {auto ? (
+                <>
+                  <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                    <rect height="14" rx="1" width="4" x="7" y="5" />
+                    <rect height="14" rx="1" width="4" x="13" y="5" />
+                  </svg>
+                  Pausar a passagem automática
+                </>
+              ) : (
+                <>
+                  <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+                  </svg>
+                  Passar as atividades automaticamente
+                </>
+              )}
+            </button>
           </div>
 
           <div className="place-stack" ref={panelRef}>
             {items.map((item, i) => (
+              /*
+                O painel inativo não sai mais por `hidden` (`display:none`
+                impede o crossfade), mas ocultá-lo NÃO pode depender do CSS:
+                se a folha falhar, os seis painéis apareceriam empilhados e
+                o leitor de tela leria a programação seis vezes.
+                `aria-hidden` tira da árvore de acessibilidade e `inert` tira
+                do foco e do ponteiro — os dois via atributo, no HTML.
+              */
               <figure
+                aria-hidden={i !== active}
                 aria-labelledby={tabId(i)}
-                className="place"
-                hidden={i !== active}
+                className={i === active ? 'place is-active' : 'place'}
                 id={panelId(i)}
+                inert={i !== active}
                 key={item.time}
                 role="tabpanel"
-                // biome-ignore lint/a11y/noNoninteractiveTabindex: a regra olha o `figure` e ignora o `role="tabpanel"`. O padrão WAI-ARIA de tabs manda o painel ser focável quando não tem nada focável dentro — e é o caso da maioria (só as aulas com Instagram têm link). Sem isto, quem navega por teclado passa da lista direto para a próxima seção e nunca alcança a descrição da atividade.
-                tabIndex={0}
+                tabIndex={i === active ? 0 : -1}
               >
                 <ImageMedia fill resource={item.media} sizes="(max-width: 64rem) 100vw, 45vw" />
                 <figcaption>

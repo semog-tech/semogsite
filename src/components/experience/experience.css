@@ -44,6 +44,18 @@
    * já usa, na versão que a superfície clara exige.
    */
   --err: #b02a3f;
+  /*
+   * Curvas de movimento da landing. O padrão `ease` do CSS acelera e freia
+   * quase igual, o que a 0,18s lê como um passo seco — foi a queixa do cliente
+   * em 24/08/2026 ("está tudo seco"). As duas abaixo saem rápido e chegam
+   * devagar, que é como uma coisa com massa se acomoda:
+   *   --ease     movimento comum (hover, cor, deslocamento curto)
+   *   --ease-out desaceleração longa (entrada de painel, escala)
+   * Toda transição da landing usa uma das duas — e o bloco de
+   * `prefers-reduced-motion` no fim do arquivo desliga todas de uma vez.
+   */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   font-size: 1.0625rem;
   line-height: 1.6;
 }
@@ -158,8 +170,9 @@
   text-decoration: none;
   cursor: pointer;
   transition:
-    transform 0.18s ease,
-    background-color 0.18s ease;
+    transform 0.32s var(--ease-out),
+    box-shadow 0.32s var(--ease-out),
+    background-color 0.32s var(--ease);
 }
 .exp .btn svg {
   width: 1.05em;
@@ -170,9 +183,12 @@
   background: var(--color-navy-400);
   color: #fff;
 }
+/* A sombra que nasce junto com o deslocamento é o que faz o botão parecer
+   levantar, em vez de apenas escorregar dois pixels para cima. */
 .exp .btn-primary:hover {
   background: #4a63d4;
   transform: translateY(-2px);
+  box-shadow: 0 12px 24px -12px rgba(42, 63, 150, 0.7);
 }
 .exp .btn-light {
   background: #fff;
@@ -180,6 +196,18 @@
 }
 .exp .btn-light:hover {
   transform: translateY(-2px);
+  box-shadow: 0 12px 24px -12px rgba(5, 8, 26, 0.45);
+}
+/* A seta anda um fio para a direita — o gesto que o ícone já sugere. */
+.exp .btn svg {
+  transition: transform 0.32s var(--ease-out);
+}
+.exp .btn:hover svg {
+  transform: translateX(3px);
+}
+.exp .btn:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
 }
 .exp .btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -550,14 +578,22 @@
    contínuos. Com o `ongoing` dentro da coluna da esquerda, o painel caía por
    último — tocar num horário mudava uma foto fora da tela, e a interação
    parecia quebrada. */
+/*
+ * Três áreas. O painel ocupa a linha 1 inteira ao lado da lista e os serviços
+ * contínuos passam por baixo, na LARGURA TODA — antes o `extra` dividia a
+ * coluna da esquerda com a lista e sobrava um bloco vazio à direita dele.
+ *
+ * `align-items: stretch` (o padrão) é o que faz a foto crescer até a altura da
+ * lista: com `start`, ela ficava presa ao `aspect-ratio` e no desktop quase não
+ * se via a praia atrás da legenda — a outra queixa do cliente em 24/08/2026.
+ */
 .exp .program .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   grid-template-areas:
     'lista painel'
-    'extra painel';
-  gap: 0 clamp(2.5rem, 5vw, 4.5rem);
-  align-items: start;
+    'extra extra';
+  gap: clamp(2.5rem, 4vw, 3.5rem) clamp(2.5rem, 5vw, 4.5rem);
 }
 .exp .col-lista {
   grid-area: lista;
@@ -598,7 +634,8 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.18s ease;
+  overflow: hidden;
+  transition: background-color 0.3s var(--ease);
 }
 .exp .sched button:last-child {
   border-bottom: none;
@@ -606,6 +643,8 @@
 /* O selecionado NÃO pode ser sinalizado só pelo fundo: o realce mede 1,05:1
    contra o branco — existe para o olho que varre a lista, não serve como
    informação. A barra de `--accent` é quem diz qual está aberto. */
+/* A barra CRESCE do centro em vez de só surgir: o item selecionado passa a ter
+   um movimento de entrada, que é o que dava a sensação de troca seca. */
 .exp .sched button::before {
   content: '';
   position: absolute;
@@ -615,16 +654,41 @@
   border-radius: 3px;
   background: var(--accent);
   opacity: 0;
-  transition: opacity 0.18s ease;
+  transform: scaleY(0.3);
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.4s var(--ease-out);
 }
 .exp .sched button.is-active::before {
   opacity: 1;
+  transform: scaleY(1);
 }
 .exp .sched button.is-active {
   background: rgba(16, 26, 72, 0.045);
 }
 .exp .sched button:hover:not(.is-active) {
-  background: rgba(16, 26, 72, 0.025);
+  background: rgba(16, 26, 72, 0.028);
+}
+/* Progresso até a próxima atividade, enquanto a passagem automática corre.
+   `width` (e não `transform`) porque a barra nasce em 0 e precisa medir o
+   tempo restante de forma literal. */
+.exp .sched .prog {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  opacity: 0.55;
+  animation: exp-prog 6s linear forwards;
+}
+@keyframes exp-prog {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 .exp .sched button:focus-visible {
   outline: 2px solid var(--accent);
@@ -640,6 +704,7 @@
   line-height: 1.25;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
+  transition: transform 0.3s var(--ease);
 }
 .exp .sched .h small {
   font-size: 0.75rem;
@@ -655,9 +720,54 @@
   display: flex;
   flex-direction: column;
   color: var(--fg-2);
+  transition:
+    transform 0.3s var(--ease),
+    color 0.3s var(--ease);
 }
 .exp .sched button.is-active .t {
   color: var(--fg);
+}
+/* O conteúdo desliza um fio no hover — o suficiente para o item responder ao
+   ponteiro sem que a linha inteira "pule". Depois das regras base de `.h`/`.t`
+   de propósito: seletor mais específico vindo antes é descending specificity. */
+.exp .sched button:hover:not(.is-active) .h,
+.exp .sched button:hover:not(.is-active) .t {
+  transform: translateX(3px);
+}
+
+/* Controle da passagem automática — exigido pela WCAG 2.2.2 (ver o comentário
+   do componente). Discreto porque é um controle, não uma chamada. */
+.exp .sched-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--fg-3);
+  cursor: pointer;
+  transition:
+    background-color 0.3s var(--ease),
+    border-color 0.3s var(--ease),
+    color 0.3s var(--ease);
+}
+.exp .sched-toggle svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: none;
+}
+.exp .sched-toggle:hover {
+  background: rgba(16, 26, 72, 0.035);
+  border-color: var(--line-2);
+  color: var(--fg-2);
+}
+.exp .sched-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 .exp .sched .t small {
   margin-top: 0.1rem;
@@ -669,21 +779,36 @@
 /* Água/água de coco e avaliação física não têm hora na agenda de propósito:
    valem do começo ao fim (a avaliação, das 08h às 12h). Numa linha do tempo
    eles fariam o inscrito achar que só acontecem naquele instante. */
+/* Faixa cheia sob as duas colunas, um item por coluna. Empilha no mobile. */
 .exp .ongoing {
   grid-area: extra;
   list-style: none;
-  margin: 1.75rem 0 0;
-  padding: 1.25rem;
+  margin: 0;
+  padding: 1.5rem;
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
   border: 1px solid var(--line);
   border-radius: 0.9rem;
   background: rgba(16, 26, 72, 0.025);
+}
+@media (max-width: 52rem) {
+  .exp .ongoing {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .exp .ongoing li {
   display: flex;
   gap: 0.8rem;
   align-items: flex-start;
+}
+/* Separador entre os três; some no empilhado, onde não há coluna vizinha. */
+@media (min-width: 52.0625rem) {
+  .exp .ongoing li + li {
+    padding-left: 2rem;
+    margin-left: -1rem;
+    border-left: 1px solid var(--line);
+  }
 }
 .exp .ongoing svg {
   width: 1.3rem;
@@ -691,6 +816,10 @@
   flex: none;
   margin-top: 0.1rem;
   color: var(--accent);
+  transition: transform 0.35s var(--ease-out);
+}
+.exp .ongoing li:hover svg {
+  transform: scale(1.12) rotate(-4deg);
 }
 .exp .ongoing strong {
   display: block;
@@ -707,24 +836,54 @@
 /* No protótipo o `aspect-ratio` estava no `<img>`; aqui a imagem é
    `next/image` com `fill` (position:absolute), então quem precisa segurar a
    proporção é a moldura — mesmo resultado na tela. */
-/* Os painéis inativos ficam no DOM com `hidden` (= `display:none`), então só
-   o visível ocupa a célula — a pilha existe para que trocar de atividade não
-   mova nada em volta. */
+/* Todos os painéis ocupam a MESMA célula e trocam por opacidade — é o que
+   permite o crossfade. Com o `hidden` de antes (= `display:none`) não há o que
+   animar: a foto sumia e a outra aparecia no mesmo quadro. */
 .exp .place-stack {
   grid-area: painel;
-  align-self: center;
   display: grid;
+  grid-template-areas: 'painel';
+  /* Sem isto o conteúdo esticado força a linha do grid a crescer. */
+  min-height: 0;
 }
 .exp .place-stack > * {
-  grid-area: 1 / 1;
+  grid-area: painel;
 }
 .exp .place {
   position: relative;
-  aspect-ratio: 16 / 10;
+  height: 100%;
+  /* Piso para quando a lista for curta; no mobile o aspect-ratio volta a mandar. */
+  min-height: 28rem;
   border-radius: 1rem;
   overflow: hidden;
   margin: 0;
   box-shadow: 0 24px 60px -30px rgba(10, 16, 46, 0.55);
+  /*
+   * `visibility` desliga com atraso igual ao fade: ela não é animável, e sem o
+   * atraso o painel que sai desapareceria no primeiro quadro, sem transição.
+   * Ela É necessária (não basta `opacity: 0`): tira o painel inativo da árvore
+   * de acessibilidade e da ordem de foco, que é o que o padrão de tabs exige.
+   */
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.015);
+  transition:
+    opacity 0.55s var(--ease-out),
+    transform 0.75s var(--ease-out),
+    visibility 0s linear 0.55s;
+}
+.exp .place.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  transition-delay: 0s;
+}
+@media (max-width: 64rem) {
+  .exp .place {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
 }
 .exp .place img {
   width: 100%;
@@ -1174,25 +1333,50 @@
   height: 2px;
   background: var(--color-navy-400);
 }
-.exp .sponsor-row {
+/* Um grupo por cota, com o rótulo acima dos logos. A ordem vem do componente
+   (diamante -> bronze); cota sem patrocinador não vira coluna vazia. */
+.exp .sponsor-tiers {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(2rem, 6vw, 4.5rem);
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem clamp(2.5rem, 7vw, 5rem);
+  margin: 0;
+  padding-block: 0.75rem;
+}
+.exp .sponsor-tiers .tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+}
+.exp .sponsor-tiers dt {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.exp .sponsor-tiers dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  padding-block: 1rem;
+  gap: 2rem;
 }
 .exp .sponsor {
   display: block;
   text-decoration: none;
   opacity: 0.92;
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity 0.3s var(--ease),
+    transform 0.4s var(--ease-out);
 }
 .exp .sponsor:hover {
   opacity: 1;
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.03);
 }
 .exp .sponsors .aside {
   font-size: 0.85rem;

@@ -4,6 +4,7 @@ import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
 import { ExperienceVideo } from '@/components/experience/ExperienceVideo'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
+import { EXPERIENCE_SPONSORS } from '@/data/experienceSponsors'
 
 /**
  * As seções são um porte do protótipo aprovado
@@ -87,6 +88,26 @@ describe('ExperienceProgram', () => {
     render(<ExperienceProgram />)
     expect(screen.getAllByText(EXPERIENCE_EVENT.venueNote).length).toBeGreaterThan(0)
   })
+
+  it('oferece um controle para parar a passagem automática', () => {
+    render(<ExperienceProgram />)
+    // WCAG 2.2.2: conteúdo que se move sozinho por mais de 5s precisa de um
+    // jeito de parar. O rótulo tem que dizer o que o botão faz — não pode ser
+    // só um ícone.
+    const controle = screen.getByRole('button', { name: /autom[áa]tic/i })
+    expect(controle.getAttribute('aria-pressed')).toBeTruthy()
+  })
+
+  it('esconde os painéis inativos por atributo, não só por CSS', () => {
+    const { container } = render(<ExperienceProgram />)
+    // A folha de estilo não é carregada aqui — se a ocultação dependesse dela,
+    // os seis painéis seriam lidos em sequência pelo leitor de tela.
+    const inativos = [...container.querySelectorAll('[role="tabpanel"]')].filter(
+      (p) => p.getAttribute('aria-hidden') === 'true'
+    )
+    expect(inativos).toHaveLength(EXPERIENCE_EVENT.schedule.length - 1)
+    for (const p of inativos) expect(p.hasAttribute('inert')).toBe(true)
+  })
 })
 
 describe('ExperienceVideo', () => {
@@ -124,5 +145,41 @@ describe('ExperienceSponsors', () => {
     const { container } = render(<ExperienceSponsors />)
     const section = container.querySelector('section')
     expect(section?.className).toMatch(/s-(white|paper)/)
+  })
+
+  it('rotula a cota de cada patrocinador, na ordem da hierarquia', () => {
+    const { container } = render(<ExperienceSponsors />)
+    const cotas = [...container.querySelectorAll('.sponsor-tiers dt')].map((n) => n.textContent)
+    expect(cotas).toEqual(['Diamante', 'Bronze'])
+
+    // O rótulo precisa estar casado com o logo certo, não só presente na página.
+    const grupoDiamante = container.querySelectorAll('.sponsor-tiers .tier')[0]
+    expect(within(grupoDiamante as HTMLElement).getByRole('img').getAttribute('alt')).toBe(
+      'Superlógica'
+    )
+  })
+
+  it('não mostra coluna vazia para cota sem patrocinador', () => {
+    const { container } = render(<ExperienceSponsors />)
+    for (const grupo of container.querySelectorAll('.sponsor-tiers .tier')) {
+      expect(grupo.querySelectorAll('img').length).toBeGreaterThan(0)
+    }
+  })
+
+  it('anuncia como disponíveis exatamente as cotas que ninguém ocupa', () => {
+    render(<ExperienceSponsors />)
+    const ocupadas = new Set(EXPERIENCE_SPONSORS.map((s) => s.tier))
+    const aside = screen.getByText(/Quer apoiar/).textContent ?? ''
+    // Derivado do dado, não de uma lista escrita à mão: quando a Ouro fechar,
+    // o convite tem que parar de oferecê-la sozinho.
+    for (const [tier, label] of [
+      ['diamante', 'Diamante'],
+      ['ouro', 'Ouro'],
+      ['prata', 'Prata'],
+      ['bronze', 'Bronze'],
+    ] as const) {
+      if (ocupadas.has(tier)) expect(aside).not.toContain(label)
+      else expect(aside).toContain(label)
+    }
   })
 })
