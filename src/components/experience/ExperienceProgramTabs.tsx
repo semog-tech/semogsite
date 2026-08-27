@@ -140,8 +140,10 @@ export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNo
   function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     const last = items.length - 1
     let next: number | null = null
-    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = active === last ? 0 : active + 1
-    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = active === 0 ? last : active - 1
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight')
+      next = active === last ? 0 : active + 1
+    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft')
+      next = active === 0 ? last : active - 1
     if (event.key === 'Home') next = 0
     if (event.key === 'End') next = last
     if (next === null) return

@@ -95,8 +95,8 @@ export function ExperienceSponsors() {
           {livres.length > 0 ? (
             <>
               Quer apoiar o {E.name}? As cotas <strong>{listar(livres)}</strong> ainda estão
-              disponíveis — fale com a gente pelo <a href="mailto:ola@semog.com.br">ola@semog.com.br</a>
-              .
+              disponíveis — fale com a gente pelo{' '}
+              <a href="mailto:ola@semog.com.br">ola@semog.com.br</a>.
             </>
           ) : (
             <>

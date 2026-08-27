@@ -48,7 +48,7 @@ describe('ExperienceProgram', () => {
 
     const pilates = within(painelDe(1))
     expect(pilates.getByRole('link', { name: 'Paloma Menezes' }).getAttribute('href')).toBe(
-      'https://www.instagram.com/pilatespalomamenezes/'
+      'https://www.instagram.com/pilatespalomamenezes/',
     )
 
     // Quem ainda não mandou o perfil aparece como texto — nunca como link
@@ -103,7 +103,7 @@ describe('ExperienceProgram', () => {
     // A folha de estilo não é carregada aqui — se a ocultação dependesse dela,
     // os seis painéis seriam lidos em sequência pelo leitor de tela.
     const inativos = [...container.querySelectorAll('[role="tabpanel"]')].filter(
-      (p) => p.getAttribute('aria-hidden') === 'true'
+      (p) => p.getAttribute('aria-hidden') === 'true',
     )
     expect(inativos).toHaveLength(EXPERIENCE_EVENT.schedule.length - 1)
     for (const p of inativos) expect(p.hasAttribute('inert')).toBe(true)
@@ -154,9 +154,11 @@ describe('ExperienceSponsors', () => {
 
     // O rótulo precisa estar casado com o logo certo, não só presente na página.
     const grupoDiamante = container.querySelectorAll('.sponsor-tiers .tier')[0]
-    expect(within(grupoDiamante as HTMLElement).getByRole('img').getAttribute('alt')).toBe(
-      'Superlógica'
-    )
+    expect(
+      within(grupoDiamante as HTMLElement)
+        .getByRole('img')
+        .getAttribute('alt'),
+    ).toBe('Superlógica')
   })
 
   it('não mostra coluna vazia para cota sem patrocinador', () => {
