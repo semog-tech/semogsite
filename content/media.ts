@@ -74,6 +74,16 @@ const ALT_BY_FILENAME: Record<string, string> = {
     'Turma de yoga em pose do guerreiro na areia da praia, de frente para o sol nascendo sobre o mar',
   'experience-alongamento.webp':
     'Alongamento e relaxamento sobre tapetes na areia da praia ao nascer do sol, com a instrutora auxiliando uma participante',
+  // ---- Superlógica Next 2026 / G20 Condo (bucket) ----
+  'g20-next-2026.mp4':
+    'Vídeo do Superlógica Next 2026: bastidores do evento e a entrega do G20 Condo à Semog',
+  'g20-next-2026-poster.webp': 'Primeiro quadro do vídeo do Superlógica Next 2026',
+  'g20-next-2026-01.webp':
+    'Time da Semog diante do painel do Superlógica Next 2026, com a chamada "O futuro bate à porta"',
+  'g20-next-2026-02.webp':
+    'Equipe da Semog no palco do Superlógica Next 2026 segurando a placa do G20 Condo, com o logotipo da empresa no telão',
+  'g20-next-2026-03.webp':
+    'Representantes das administradoras do G20 Condo reunidas no palco do Superlógica Next 2026',
 }
 
 /**
@@ -119,6 +129,14 @@ const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> 
   'c-chave.webp': { width: 2752, height: 1536 },
   'app-inicio.webp': { width: 532, height: 1187 },
   'app-encomenda.webp': { width: 532, height: 1187 },
+  // Fotos do Superlógica Next 2026: exportadas em 1600x900. As do corpo do
+  // post entram por `PostImage` (sem `fill`), então precisam da dimensão real
+  // aqui — senão caem no fallback 1200x800 e o `next/image` reserva um espaço
+  // com proporção errada. O poster do vídeo fica de fora pela mesma razão que
+  // os `.mp4`: é lido cru no atributo `poster`, nunca pelo `next/image`.
+  'g20-next-2026-01.webp': { width: 1600, height: 900 },
+  'g20-next-2026-02.webp': { width: 1600, height: 900 },
+  'g20-next-2026-03.webp': { width: 1600, height: 900 },
 }
 
 /**

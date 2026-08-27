@@ -8,6 +8,22 @@ import { Container } from '@/components/ui/Container'
 const BRAND_BLURB =
   'Administradora de condomínios líder do Nordeste. Desde 1991 cuidando de comunidades com transparência, retidão e dinâmica.'
 
+/**
+ * Selo de reconhecimento do rodapé (27/08/2026). Fica na coluna da marca, a
+ * mais larga do `.footer-grid`, logo abaixo do blurb — presente em todas as
+ * páginas sem disputar espaço com as colunas de links.
+ *
+ * Constante local pelo mesmo motivo de `BRAND_BLURB`: é atributo da marca, não
+ * navegação, e `content/site.ts` guarda só o que é lista de links.
+ *
+ * A redação NÃO pode virar "melhor administradora do Brasil": o Ranking Top
+ * 200 classifica clientes da Superlógica. Ver `Reconhecimento/Component.tsx`.
+ */
+const AWARD_SEAL = 'G20 Condo Superlógica · 3º ciclo consecutivo'
+
+/** O post que conta o resultado — o selo é a porta de entrada pra ele. */
+const AWARD_HREF = '/blog/g20-superlogica-next-2026'
+
 const LEGAL_PATHS = new Set(['/privacidade', '/termos'])
 
 type Column = FooterConfig['columns'][number]
@@ -89,6 +105,20 @@ export function FooterView({
             {/* biome-ignore lint/performance/noImgElement: sem next/image (localPatterns não cobre /public fora de /api/media) */}
             <img src="/semog-logo-light.svg" alt="Semog" width={160} height={24} />
             <p>{BRAND_BLURB}</p>
+            {/* Sem `uppercase`/`tracking`: com eles o texto passava de uma
+                linha e o chip virava um bloco de duas linhas com o ponto
+                desalinhado. Em caixa normal cabe inteiro.
+                Chip clicável: leva ao post do G20. `<a>` simples, como o
+                resto do rodapé; `.footer li a` não o alcança (ele não está
+                numa `li`), então o visual do chip permanece — só a borda
+                clareia no hover. */}
+            <a
+              href={AWARD_HREF}
+              className="inline-flex items-center gap-2.5 rounded-input border border-line-strong px-[0.9rem] py-[0.5rem] text-[0.8rem] font-medium text-fg-3 transition-colors hover:border-ice-400"
+            >
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-ice-500" />
+              {AWARD_SEAL}
+            </a>
           </div>
           {columns.map((col) => (
             <div key={col.id ?? col.title}>

@@ -42,6 +42,8 @@ export interface HeroBlock {
         label: string
         /** Mostra 5 estrelas antes do valor (só faz sentido em nota). */
         stars?: boolean | null
+        /** Quando preenchido, o item vira link (a célula inteira é clicável). */
+        href?: string | null
         id?: string | null
       }[]
     | null
@@ -1066,7 +1068,40 @@ export interface LegalHeroBlock {
 }
 
 // ---------------------------------------------------------------------------
-// Union — todos os 41 blocos (mesma ordem do `layout` de `Page` em payload-types.ts)
+// Reconhecimento
+// ---------------------------------------------------------------------------
+
+export interface ReconhecimentoBlock {
+  blockType: 'reconhecimento'
+  id?: string | number | null
+  blockName?: string | null
+  /** Rótulo do programa/prêmio, ex.: "G20 Condo · Superlógica". */
+  eyebrow?: string | null
+  /** A conquista em uma linha. Cuidado com o escopo — ver doc do componente. */
+  title: string
+  /** Trecho final de `title` em `.gx-ice`, mesmo padrão do `CTABand`. */
+  titleAccent?: string | null
+  /** O que o reconhecimento significa: 2 a 3 frases, sem release corporativo. */
+  text: string
+  /** Ciclos/edições anteriores, exibidos como histórico à direita. */
+  history?:
+    | {
+        /** Ex.: "2024/25" */
+        period: string
+        /** Ex.: "3º lugar" */
+        result: string
+        id?: string | null
+      }[]
+    | null
+  /** Link para o post que conta a história por trás — opcional. */
+  cta?: {
+    label: string
+    href: string
+  } | null
+}
+
+// ---------------------------------------------------------------------------
+// Union — todos os 42 blocos (mesma ordem do `layout` de `Page` em payload-types.ts)
 // ---------------------------------------------------------------------------
 
 export type Block =
@@ -1112,3 +1147,4 @@ export type Block =
   | SelfServeBlock
   | TrustPanelBlock
   | LegalHeroBlock
+  | ReconhecimentoBlock

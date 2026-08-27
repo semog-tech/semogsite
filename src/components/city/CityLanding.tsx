@@ -18,6 +18,9 @@ const LIGHT = '#eef1f8'
 const INK = '#0d1439'
 const DISPLAY = 'var(--font-clash), system-ui, sans-serif'
 
+/** Post que detalha o G20 Condo / Superlógica Next 2026 (badge do hero + seção de autoridade). */
+const G20_POST_HREF = '/blog/g20-superlogica-next-2026'
+
 function Icon({ d, size = 26 }: { d: string; size?: number }) {
   return (
     <svg
@@ -180,10 +183,15 @@ export function CityLanding({ data }: { data: CityLandingData }) {
         <div className="relative z-10 mx-auto grid w-full max-w-[1280px] grid-cols-1 items-center gap-x-12 gap-y-10 px-[clamp(1.25rem,4vw,3rem)] pt-[clamp(7rem,11vh,8.5rem)] pb-[clamp(3.5rem,6vw,5.5rem)] lg:grid-cols-[1.1fr_0.9fr]">
           <div className="max-w-[40rem]">
             <Reveal>
-              <span
-                className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.8rem] font-medium"
+              {/* Badge clicável: leva ao post do G20 (link interno, sem
+                  `target`). Mesmo estilo de antes — só a borda clareia no
+                  hover, via a classe `hover:border-[...]` (o `style` inline
+                  não suporta pseudo-classe, então `borderColor` sai de lá pra
+                  não vencer o hover por especificidade de atributo). */}
+              <a
+                href={G20_POST_HREF}
+                className="mb-6 inline-flex items-center gap-2 rounded-full border border-[color:rgba(173,213,235,0.32)] px-3.5 py-1.5 text-[0.8rem] font-medium transition-colors hover:border-[color:rgba(173,213,235,0.6)]"
                 style={{
-                  borderColor: 'rgba(173,213,235,0.32)',
                   background: 'rgba(173,213,235,0.08)',
                   color: ICE,
                 }}
@@ -193,8 +201,8 @@ export function CityLanding({ data }: { data: CityLandingData }) {
                   className="inline-block h-1.5 w-1.5 rounded-full"
                   style={{ background: ICE }}
                 />
-                G20 Superlógica · 3 anos consecutivos
-              </span>
+                G20 Superlógica · 3º ciclo consecutivo
+              </a>
             </Reveal>
             <Reveal delay={0.08} as="h1">
               <span
@@ -276,17 +284,29 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="mt-4 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.08]"
               style={{ fontFamily: DISPLAY }}
             >
-              Entre as 20 administradoras de destaque do Brasil.
+              Entre as 20 primeiras de mais de 3.500 administradoras.
             </h2>
+            {/* "terceiro ciclo" por extenso de propósito: com "3º ciclo" e "3º
+                lugar" na mesma frase, os dois numerais se confundem. */}
             <p
               className="mt-5 max-w-[38ch] text-[1.02rem] leading-relaxed"
               style={{ color: '#b4bdd9' }}
             >
-              A Semog integra o G20 da Superlógica, o principal ERP do mercado condominial, no ciclo
-              2025/26. Melhor colocação: 3º lugar.
+              A Superlógica é o principal ERP do mercado condominial, com mais de 3 mil
+              administradoras na plataforma. Dessa base, as vinte de melhor performance formam o G20
+              Condo — e a Semog está lá pelo terceiro ciclo seguido, em 5º lugar no ciclo 2026/27.
             </p>
+            {/* Link INTERNO (post do blog): sem `target`/`rel`, ao contrário
+                dos links de imprensa logo abaixo. */}
+            <a
+              href={G20_POST_HREF}
+              className="mt-4 inline-block text-[0.98rem] font-semibold underline underline-offset-4"
+              style={{ color: ICE }}
+            >
+              Como foi o Next 2026
+            </a>
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[0.9rem]">
-              <span style={{ color: '#7e88ac' }}>Com cobertura em:</span>
+              <span style={{ color: '#7e88ac' }}>Programa com cobertura em:</span>
               <a
                 href="https://exame.com/negocios/g20-superlogica-administradoras-imobiliarias-futuro-do-morar/"
                 target="_blank"

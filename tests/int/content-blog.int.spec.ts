@@ -14,8 +14,15 @@ const parsed = files.map((file) => {
 })
 
 describe('content/blog — posts convertidos de Lexical para MDX', () => {
-  it('tem exatamente 11 arquivos .mdx', () => {
-    expect(files.length).toBe(11)
+  // O `toBe(11)` original guardava a conversão do Payload: os 11 posts que
+  // existiam no CMS tinham que chegar todos ao disco. Essa intenção continua
+  // valendo como PISO — nenhum dos 11 pode sumir —, mas virou piso e não
+  // igualdade em 27/08/2026, quando o primeiro post escrito direto em MDX
+  // (`g20-superlogica-next-2026`) fez o 12º. Manter igualdade obrigaria a
+  // editar este teste a cada publicação, o que treinaria a equipe a mexer no
+  // número sem ler o que ele protege.
+  it('mantém ao menos os 11 arquivos .mdx vindos do port', () => {
+    expect(files.length).toBeGreaterThanOrEqual(11)
   })
 
   it('cada post tem frontmatter com title/slug/date/category', () => {

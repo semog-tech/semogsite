@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
@@ -47,19 +48,37 @@ function ProofBar({ items }: { items: NonNullable<HeroBlockType['proofItems']> }
     <div className="hero-proof">
       <Container>
         <div className="hero-proof-grid">
-          {items.map((item) => (
-            <div key={item.id ?? item.label} className="hero-proof-item">
-              <span className="hero-proof-n">
-                {item.stars && (
-                  <span className="hero-proof-stars" aria-hidden="true">
-                    ★★★★★
-                  </span>
+          {items.map((item) => {
+            const content = (
+              <>
+                <span className="hero-proof-n">
+                  {item.stars && (
+                    <span className="hero-proof-stars" aria-hidden="true">
+                      ★★★★★
+                    </span>
+                  )}
+                  {item.value}
+                </span>
+                <span className="hero-proof-l">{item.label}</span>
+              </>
+            )
+            return (
+              <div key={item.id ?? item.label} className="hero-proof-item">
+                {item.href ? (
+                  // O `<a>` fica DENTRO do item, não no lugar dele: a célula
+                  // do grid continua sendo o `div`, então padding, borda e as
+                  // regras `nth-child` do mobile (`.hero-proof-*` em
+                  // `theme.css`) seguem intactas. `.hero-proof-link` repete o
+                  // layout interno da célula pro link preenchê-la inteira.
+                  <Link href={item.href} className="hero-proof-link">
+                    {content}
+                  </Link>
+                ) : (
+                  content
                 )}
-                {item.value}
-              </span>
-              <span className="hero-proof-l">{item.label}</span>
-            </div>
-          ))}
+              </div>
+            )
+          })}
         </div>
       </Container>
     </div>

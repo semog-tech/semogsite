@@ -4,15 +4,16 @@
  *
  * `blogFeatured.post`/`blogList.excludePost` referenciam o post em destaque
  * pelo SLUG (Task 3: os posts agora vêm de `content/blog/*.mdx`, sem id
- * numérico) — escolhido a dedo, igual ao ref (`_reference/blog.html` usa o
- * post de Finanças "Previsão orçamentária...", que nem sempre é o mais
- * recente). Sem snapshot: `BlogFeaturedBlock` resolve o post completo em
- * runtime via `getPostBySlug` (`src/lib/blog.ts`), única fonte de verdade —
- * elimina o risco de um snapshot desatualizado se o conteúdo do post mudar.
+ * numérico) — escolhido a dedo, como no ref (`_reference/blog.html` destacava
+ * um post de Finanças, que nem sempre é o mais recente); hoje o destaque é o
+ * G20 Condo / Superlógica Next 2026. Sem snapshot: `BlogFeaturedBlock`
+ * resolve o post completo em runtime via `getPostBySlug` (`src/lib/blog.ts`),
+ * única fonte de verdade — elimina o risco de um snapshot desatualizado se o
+ * conteúdo do post mudar.
  */
 import type { PageData } from '@/types/content'
 
-const FEATURED_SLUG = 'previsao-orcamentaria-guia-sindico'
+const FEATURED_SLUG = 'g20-superlogica-next-2026'
 
 export const blog: PageData = {
   slug: 'blog',

@@ -119,6 +119,11 @@ export const semog: PageData = {
           text: 'Com a G5 Partners, criamos o produto que zera a inadimplência por 1% da arrecadação.',
         },
         {
+          date: '2026',
+          title: 'Terceiro ciclo no G20',
+          text: 'No Superlógica Next, a Semog fica em 5º lugar no Ranking Top 200 e renova a vaga no G20: as 20 administradoras de melhor desempenho entre os clientes da plataforma.',
+        },
+        {
           date: 'Hoje',
           title: 'Líder do Nordeste',
           text: 'Mais de 650 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',

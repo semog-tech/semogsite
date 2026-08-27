@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { PostImage } from '@/components/blog/PostImage'
+import { PostVideo } from '@/components/blog/PostVideo'
 import { ReadingProgress } from '@/components/blog/ReadingProgress'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { Container } from '@/components/ui/Container'
@@ -11,6 +13,20 @@ import { getPostBySlug, getRelatedPosts, getSiteSettings } from '@/lib/content'
 import { buildMetadata } from '@/lib/seo'
 
 export const revalidate = 3600
+
+/**
+ * Componentes disponíveis dentro de um post `.mdx` (27/08/2026). Até aqui o
+ * `MDXRemote` rodava sem `components`, então nenhuma tag JSX maiúscula
+ * funcionava no corpo — só markdown puro.
+ *
+ * O mapa é deliberadamente mínimo. Cada componente aqui vira contrato público
+ * do conteúdo: um post que usa `<PostVideo />` quebra o build se o componente
+ * sair, e quem escreve MDX não vê o TypeScript reclamar antes disso. Só entra
+ * o que o markdown não consegue expressar — vídeo e foto com legenda são os
+ * casos (o `![]()` do markdown não rende `<figure>`/`<figcaption>` nem passa
+ * pelo `next/image`); título, lista e citação não são.
+ */
+const MDX_COMPONENTS = { PostVideo, PostImage }
 
 export async function generateMetadata({
   params,
@@ -139,7 +155,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           )}
 
           <div className="article-body">
-            <MDXRemote source={post.body} />
+            <MDXRemote source={post.body} components={MDX_COMPONENTS} />
           </div>
 
           {takeaways.length > 0 && (

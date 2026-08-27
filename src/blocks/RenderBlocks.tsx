@@ -28,6 +28,7 @@ import { ProcessoTimelineBlock } from './ProcessoTimeline/Component'
 import { ProdutosGridBlock } from './ProdutosGrid/Component'
 import { PropostaBandBlock } from './PropostaBand/Component'
 import { QuickLinksBlock } from './QuickLinks/Component'
+import { ReconhecimentoBlock } from './Reconhecimento/Component'
 import { RegistrosBlock } from './Registros/Component'
 import { RichTextBlock } from './RichText/Component'
 import { SelfServeBlock } from './SelfServe/Component'
@@ -87,6 +88,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   selfServe: SelfServeBlock,
   trustPanel: TrustPanelBlock,
   legalHero: LegalHeroBlock,
+  reconhecimento: ReconhecimentoBlock,
 }
 
 export function RenderBlocks({ blocks }: { blocks?: Block[] | null }) {

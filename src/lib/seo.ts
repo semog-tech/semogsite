@@ -321,7 +321,7 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
 
 /**
  * JSON-LD `Organization` + `WebSite` (schema.org `@graph`) exibido na home.
- * Fatos válidos em 2026 (fundada em 1991 → 35 anos, 700 condomínios, 70 mil
+ * Fatos válidos em 2026 (fundada em 1991 → 35 anos, 650 condomínios, 70 mil
  * clientes); as 4 unidades vêm de `UNITS` (NAP real). URL base segue
  * `NEXT_PUBLIC_SITE_URL` (preview/staging).
  *
@@ -345,8 +345,17 @@ export function getOrganizationJsonLd(): Record<string, unknown> {
         sameAs: SOCIAL_PROFILES,
         foundingDate: '1991',
         slogan: 'Preocupe-se apenas em morar',
+        // `award` é campo padrão de `Organization` (schema.org) e alimenta o
+        // painel de conhecimento. Redigido com o escopo exato do ranking: é
+        // classificação entre clientes da Superlógica, não do mercado
+        // brasileiro — a mesma regra que vale para o texto visível.
+        award: [
+          'G20 Condo Superlógica — 5º lugar entre mais de 3.500 administradoras (ciclo 2026/27)',
+          'G20 Condo Superlógica — 5º lugar entre mais de 3.500 administradoras (ciclo 2025/26)',
+          'G20 Condo Superlógica — 3º lugar entre mais de 3.500 administradoras (ciclo 2024/25)',
+        ],
         description:
-          'Administradora de condomínios líder do Nordeste, com 35 anos de mercado, mais de 700 condomínios administrados e 70 mil clientes.',
+          'Administradora de condomínios líder do Nordeste, com 35 anos de mercado, mais de 650 condomínios administrados e 70 mil clientes.',
         numberOfEmployees: { '@type': 'QuantitativeValue', value: 100 },
         telephone: principal.phoneE164,
         areaServed: UNITS.map((u) => u.city),

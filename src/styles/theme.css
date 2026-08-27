@@ -430,6 +430,27 @@
     border-left: 0;
     padding-left: 0;
   }
+  /* Item com `href` no `proofItems` (ex.: o 5º lugar, que aponta pro post do
+     G20). O `<a>` é filho ÚNICO do `.hero-proof-item` e reproduz o layout
+     interno dele (coluna + o mesmo `gap`, via `inherit`, pra não duplicar a
+     medida), então a célula do grid segue idêntica — padding, `border-left`
+     e as regras `nth-child` do mobile continuam valendo sobre o `div`, não
+     sobre o link. Sem sublinhado: ele mudaria a altura da linha do valor e
+     desalinharia a faixa; o affordance fica no cursor + hover. */
+  .hero-proof-link {
+    display: flex;
+    flex-direction: column;
+    gap: inherit;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .hero-proof-link .hero-proof-l {
+    transition: color 0.25s ease;
+  }
+  .hero-proof-link:hover .hero-proof-l {
+    color: var(--text-2);
+  }
   .hero-proof-n {
     display: flex;
     align-items: center;
