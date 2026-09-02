@@ -277,12 +277,31 @@ const nextConfig: NextConfig = {
 
 // Source-map upload (and every other build-time Sentry step that needs
 // credentials) only runs when `SENTRY_AUTH_TOKEN` is set — without it the
-// bundler plugin no-ops silently (`silent: true` suppresses its warning
-// about the missing token instead of failing the build). This keeps
+// bundler plugin skips the upload and lets the build finish. This keeps
 // `pnpm build` green with an empty Sentry env, which is the state until a
-// DSN + auth token are provisioned.
+// DSN + auth token are provisioned. `org`/`project` belong to the same
+// gate: the plugin also skips the upload when either one is missing, so
+// they are hardcoded here rather than read from the environment.
+//
+// No `silent`: the plugin already defaults to not silent, and the warning
+// it prints when a credential is missing is the only signal that the setup
+// is half-configured — a skipped upload is otherwise invisible until
+// someone notices the missing release in Sentry. Leaving the option out
+// keeps that warning in the build log.
+//
+// `widenClientFileUpload` widens the client upload from
+// `static/chunks/{app,pages}/**` to all of `static/chunks/**`. Components
+// used by several routes (`PropostaForm` has three call sites) get hoisted
+// into shared chunks at the root of `static/chunks`, which the narrower
+// default leaves without source maps — precisely the code whose stack
+// traces we need readable. Costs some build time.
+//
+// No `hideSourceMaps`: the option no longer exists in v10. The client build
+// already defaults to `hidden-source-map`, and the SDK deletes the client
+// `.map` files after uploading them.
 export default withSentryConfig(nextConfig, {
-  silent: true,
-  widenClientFileUpload: false,
+  widenClientFileUpload: true,
   disableLogger: true,
+  org: 'leandro-semog',
+  project: 'semogsite',
 })
