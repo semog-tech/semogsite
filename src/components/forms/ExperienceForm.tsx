@@ -1,10 +1,12 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import * as Sentry from '@sentry/nextjs'
 import { AsYouType } from 'libphonenumber-js/min'
-import { useEffect, useId, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { type ExperienceInput, type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
@@ -83,7 +85,7 @@ export function ExperienceForm() {
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<ReactNode>(null)
 
   // A confirmação SUBSTITUI o `<form>` — o botão que estava em foco no momento
   // do envio some com ele e o foco cairia no `<body>`, deixando o anúncio da
@@ -102,7 +104,22 @@ export function ExperienceForm() {
       return
     }
 
-    const result = await submitForm('experience', values, token)
+    let result: SubmitFormResult
+    try {
+      result = await submitForm('experience', values, token)
+    } catch (err) {
+      // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
+      // não é redundante — o Sentry só sai do no-op quando
+      // `NEXT_PUBLIC_SENTRY_DSN` existe (ver `instrumentation-client.ts`), e
+      // até lá o console é o único rastro da inscrição perdida.
+      console.error('[ExperienceForm] submitForm falhou:', err)
+      Sentry.captureException(err, { tags: { form: 'experience' } })
+      setStatus('error')
+      setToken(null)
+      setTurnstileKey((key) => key + 1)
+      setMessage(<FalhaDeEnvio />)
+      return
+    }
 
     if (result.ok) {
       // NÃO é `generate_lead`, e isso é o ponto: inscrição em evento de

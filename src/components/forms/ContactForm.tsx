@@ -1,9 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import * as Sentry from '@sentry/nextjs'
+import { type ReactNode, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
@@ -42,6 +44,13 @@ type Status = 'idle' | 'success' | 'error'
  * genérico abaixo do form. Turnstile é remontado (`key`) após qualquer erro
  * de submit porque o token é de uso único — reenviar o mesmo token falharia
  * de novo no Cloudflare.
+ *
+ * A Server Action também pode **rejeitar** em vez de devolver `{ ok: false }`
+ * (500, rede fora, módulo que nem carrega) — daí o `try/catch` no `onSubmit`.
+ * Sem ele a promise rejeitada morre dentro do `handleSubmit` do RHF, nenhum
+ * estado muda e a tela fica idêntica à de antes do clique: nem sucesso, nem
+ * erro. Foi exatamente assim que uma falha de submissão passou 12 dias sem
+ * ninguém perceber.
  */
 export function ContactForm() {
   const {
@@ -59,7 +68,7 @@ export function ContactForm() {
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<ReactNode>(null)
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
@@ -68,7 +77,22 @@ export function ContactForm() {
       return
     }
 
-    const result = await submitForm('contato', values, token)
+    let result: SubmitFormResult
+    try {
+      result = await submitForm('contato', values, token)
+    } catch (err) {
+      // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
+      // não é redundante — o Sentry só sai do no-op quando
+      // `NEXT_PUBLIC_SENTRY_DSN` existe (ver `instrumentation-client.ts`), e
+      // até lá o console é o único rastro da submissão perdida.
+      console.error('[ContactForm] submitForm falhou:', err)
+      Sentry.captureException(err, { tags: { form: 'contato' } })
+      setStatus('error')
+      setToken(null)
+      setTurnstileKey((key) => key + 1)
+      setMessage(<FalhaDeEnvio />)
+      return
+    }
 
     if (result.ok) {
       setStatus('success')

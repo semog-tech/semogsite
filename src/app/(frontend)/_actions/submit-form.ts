@@ -1,5 +1,18 @@
 'use server'
 
+/**
+ * **Só exporte função async deste arquivo.** Num módulo `'use server'` o Next
+ * registra *todo* export como Server Action — inclusive um `export type`, que
+ * a compilação depois apaga, deixando o registro apontando para um
+ * identificador que não existe. O módulo inteiro morre com `ReferenceError` na
+ * primeira submissão, antes de qualquer validação.
+ *
+ * Não é hipótese: um `export type { FormType }` reexportado de `@/lib/forms`
+ * derrubou os três formulários por 12 dias em agosto/2026, com build verde,
+ * `tsc` limpo e testes passando — nenhum portão automático enxerga isso.
+ * Tipo compartilhado se importa de `@/lib/forms`, que é a fonte única.
+ */
+
 import { cookies, headers } from 'next/headers'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
@@ -18,13 +31,6 @@ import { extractLeadColumns, FORMS, type FormType } from '@/lib/forms'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
-
-/**
- * Reexportado de `@/lib/forms`, que é a fonte única. Antes havia aqui uma
- * cópia literal da união — e ela divergiu em silêncio quando o `experience`
- * entrou lá (o `tsc` não tinha como reclamar: os dois tipos são estruturais).
- */
-export type { FormType }
 
 export type SubmitFormResult = {
   ok: boolean

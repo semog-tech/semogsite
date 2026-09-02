@@ -1,9 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import * as Sentry from '@sentry/nextjs'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
@@ -121,7 +123,7 @@ export function PropostaForm({
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<ReactNode>(null)
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
@@ -130,7 +132,22 @@ export function PropostaForm({
       return
     }
 
-    const result = await submitForm('proposta', values, token)
+    let result: SubmitFormResult
+    try {
+      result = await submitForm('proposta', values, token)
+    } catch (err) {
+      // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
+      // não é redundante — o Sentry só sai do no-op quando
+      // `NEXT_PUBLIC_SENTRY_DSN` existe (ver `instrumentation-client.ts`), e
+      // até lá o console é o único rastro da submissão perdida.
+      console.error('[PropostaForm] submitForm falhou:', err)
+      Sentry.captureException(err, { tags: { form: 'proposta' } })
+      setStatus('error')
+      setToken(null)
+      setTurnstileKey((key) => key + 1)
+      setMessage(<FalhaDeEnvio />)
+      return
+    }
 
     if (result.ok) {
       // Conversão de lead → GA4 `generate_lead`. Marcar como evento-chave no GA4
