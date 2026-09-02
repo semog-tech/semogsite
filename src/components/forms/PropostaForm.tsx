@@ -2,15 +2,17 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Sentry from '@sentry/nextjs'
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
+import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
 import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/form-schemas'
+import type { SubmitFormResult } from '@/lib/forms'
 
 /**
  * Opções de `tipo`/`cargo`/`cidade` — copiadas de propósito de
@@ -125,6 +127,12 @@ export function PropostaForm({
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<ReactNode>(null)
 
+  // Na variante compacta (hero das landings) o botão de envio termina abaixo da
+  // dobra em 1366x768 e o aviso de erro o empurra ainda mais — ver o docblock
+  // do hook.
+  const formRef = useRef<HTMLFormElement>(null)
+  useEnvioVisivelNoErro(status, turnstileKey, formRef)
+
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
       setStatus('error')
@@ -201,7 +209,7 @@ export function PropostaForm({
   // useEffect de slug acima; o resto (cargo/unidades/mensagem, opcionais) some.
   if (compact) {
     return (
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         {/*
           Fora das landings de cidade (home, por exemplo) não há slug pra
           preencher `cidade` sozinho — e sem cidade a notificação interna cai no
@@ -286,7 +294,7 @@ export function PropostaForm({
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <Field
         as="select"
         label="O que você representa?"

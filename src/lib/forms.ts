@@ -13,6 +13,20 @@ import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form
  */
 export type FormType = 'contato' | 'proposta' | 'experience'
 
+/**
+ * Retorno da Server Action de submissão (`submitForm`). Mora aqui, e não junto
+ * dela, pela mesma regra que vale pro `FormType`: um módulo `'use server'` só
+ * pode exportar função async — todo export dali vira entrada do registro de
+ * Server Actions, e um tipo, que a compilação apaga, deixaria o registro
+ * apontando pra um identificador inexistente. `ok: false` com `errors` é falha
+ * de validação por campo; com `message`, falha sem campo associado.
+ */
+export type SubmitFormResult = {
+  ok: boolean
+  errors?: Record<string, string>
+  message?: string
+}
+
 export type FormDef<T extends Record<string, unknown>> = {
   title: string
   /** Nomes dos campos do schema Zod correspondente, na ordem do formulário. */

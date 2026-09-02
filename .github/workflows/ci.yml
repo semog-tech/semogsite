@@ -44,6 +44,16 @@ jobs:
       - name: TypeScript check
         run: pnpm exec tsc --noEmit
 
+      # Portão específico para a armadilha do `'use server'`: o Next registra
+      # todo export desses módulos como Server Action, e um export que não seja
+      # função async quebra o módulo em runtime. Precisa de passo próprio porque
+      # NENHUM dos outros portões enxerga isso — em agosto/2026 um `export type`
+      # derrubou os formulários por 12 dias com Biome, tsc, Vitest e build todos
+      # verdes (o Vitest importa o módulo TS direto, sem a transformação que
+      # gera o registro).
+      - name: Exports em módulos 'use server'
+        run: pnpm run check:server-actions
+
       # Os testes de integração rodam em jsdom, sem banco — cobrem os tipos e a
       # lógica pura (sequenciador de vídeo do hero, camada de conteúdo, forms).
       # Rodam em qualquer ambiente, então entram no CI sem infraestrutura extra.

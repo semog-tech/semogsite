@@ -9,6 +9,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "lint": "biome lint ./src ./tests ./scripts",
+    "check:server-actions": "node scripts/check-use-server-exports.mjs",
     "format": "biome format --write ./src ./tests ./scripts",
     "check": "biome check --write ./src ./tests ./scripts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",

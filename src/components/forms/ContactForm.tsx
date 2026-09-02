@@ -2,15 +2,17 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Sentry from '@sentry/nextjs'
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
+import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
 import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
+import type { SubmitFormResult } from '@/lib/forms'
 
 /**
  * Rótulos das opções de `assunto` — copiados de propósito de
@@ -69,6 +71,11 @@ export function ContactForm() {
   const [turnstileKey, setTurnstileKey] = useState(0)
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<ReactNode>(null)
+
+  // O aviso de erro entra acima do botão e o empurra para baixo — em tela curta
+  // isso esconde o botão que resolve o erro. Ver o docblock do hook.
+  const formRef = useRef<HTMLFormElement>(null)
+  useEnvioVisivelNoErro(status, turnstileKey, formRef)
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
@@ -138,7 +145,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <Field
         label="Nome"
         required

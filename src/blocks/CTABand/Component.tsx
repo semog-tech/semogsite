@@ -34,7 +34,7 @@ function CenteredTitle({
 /**
  * Faixa de CTA com duas variantes (`variant`, default `band`):
  *
- * - `band` — fiel ao padrão `.newsletter`/`.g-band` de `_reference`: fundo
+ * - `band` — fiel ao padrão `.g-band` de `_reference`: fundo
  *   `--grad-band` (arbitrary value, já que o token só existe como CSS var em
  *   `theme.css`, sem utilitário `bg-*` gerado), texto centralizado, um único
  *   `Button`. Comportamento inalterado desde a Task 3b/1.

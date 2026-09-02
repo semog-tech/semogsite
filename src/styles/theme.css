@@ -3171,60 +3171,6 @@
     }
   }
 
-  /* ---------- Newsletter (captura de e-mail) — fiel a `.newsletter`/
-     `.nl-form` de `_reference/blog.html:83-99` (estilo inline da própria
-     página) ----------
-     src/blocks/Newsletter renderiza `<Section className="newsletter">` +
-     `NewsletterForm` (ilha client, troca o form por mensagem de sucesso no
-     submit — sem backend real, igual ao ref). `var(--grad-band)`/
-     `var(--line)`/`var(--line-strong)`/`var(--text)`/`var(--text-2)`/
-     `var(--text-3)` já existem como CSS vars soltas; `var(--r-input)`→
-     `--radius-input`; `var(--ice-400)`→`--color-ice-400`. */
-  .newsletter {
-    background: var(--grad-band);
-    border-block: 1px solid var(--line);
-    text-align: center;
-  }
-  .newsletter h2 {
-    max-width: 22ch;
-    margin-inline: auto;
-  }
-  .newsletter p {
-    max-width: 46ch;
-    margin-inline: auto;
-    color: var(--text-2);
-    margin-bottom: 2rem;
-  }
-  .nl-form {
-    display: flex;
-    gap: 0.8rem;
-    max-width: 520px;
-    margin-inline: auto;
-  }
-  .nl-form input {
-    flex: 1;
-    background: rgba(5, 8, 26, 0.5);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-input);
-    color: var(--text);
-    padding: 0.95rem 1.2rem;
-    font-family: inherit;
-    font-size: 1rem;
-  }
-  .nl-form input:focus {
-    outline: none;
-    border-color: var(--color-ice-400);
-    box-shadow: 0 0 0 3px rgba(173, 213, 235, 0.18);
-  }
-  .nl-form input::placeholder {
-    color: var(--text-3);
-  }
-  @media (max-width: 620px) {
-    .nl-form {
-      flex-direction: column;
-    }
-  }
-
   /* ---------- Contato: atendimento rápido (`.quick`/`.quick-card`) — fiel a
      `_reference/contato.html:208-231` + CSS em `_reference/contato.html:
      89-109` (estilo inline da própria página) ----------

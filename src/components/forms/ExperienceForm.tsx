@@ -5,11 +5,13 @@ import * as Sentry from '@sentry/nextjs'
 import { AsYouType } from 'libphonenumber-js/min'
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { type SubmitFormResult, submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Turnstile } from '@/components/forms/Turnstile'
+import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { type ExperienceInput, type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
+import type { SubmitFormResult } from '@/lib/forms'
 
 type Status = 'idle' | 'success' | 'error'
 
@@ -97,6 +99,11 @@ export function ExperienceForm() {
     if (status === 'success') doneRef.current?.focus()
   }, [status])
 
+  // O aviso de erro entra acima do botão e o empurra para baixo — em tela curta
+  // isso esconde o botão que resolve o erro. Ver o docblock do hook.
+  const formRef = useRef<HTMLFormElement>(null)
+  useEnvioVisivelNoErro(status, turnstileKey, formRef)
+
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
       setStatus('error')
@@ -179,7 +186,7 @@ export function ExperienceForm() {
   }
 
   return (
-    <form noValidate onSubmit={onSubmit}>
+    <form ref={formRef} noValidate onSubmit={onSubmit}>
       <div className="field">
         <label htmlFor={nomeId}>Nome completo</label>
         <input

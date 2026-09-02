@@ -27,16 +27,10 @@ import { query } from '@/lib/db'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
-import { extractLeadColumns, FORMS, type FormType } from '@/lib/forms'
+import { extractLeadColumns, FORMS, type FormType, type SubmitFormResult } from '@/lib/forms'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
-
-export type SubmitFormResult = {
-  ok: boolean
-  errors?: Record<string, string>
-  message?: string
-}
 
 /** Rótulos pt-BR (iguais ao `label` de cada bloco do seed) pro e-mail de notificação interna. */
 const CONTATO_LABELS: Record<keyof ContatoValues, string> = {

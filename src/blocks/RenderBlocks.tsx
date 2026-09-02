@@ -19,7 +19,6 @@ import { GaranteBlock } from './Garante/Component'
 import { HeroBlock } from './Hero/Component'
 import { HumanQuoteBlock } from './HumanQuote/Component'
 import { LegalHeroBlock } from './LegalHero/Component'
-import { NewsletterBlock } from './Newsletter/Component'
 import { PartnerSplitBlock } from './PartnerSplit/Component'
 import { PillarsBlock } from './Pillars/Component'
 import { PrestacaoBlock } from './Prestacao/Component'
@@ -72,7 +71,6 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   richText: RichTextBlock,
   blogList: BlogListBlock,
   blogFeatured: BlogFeaturedBlock,
-  newsletter: NewsletterBlock,
   showcase: ShowcaseBlock,
   benefits: BenefitsBlock,
   contactInfo: ContactInfoBlock,
