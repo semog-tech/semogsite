@@ -909,7 +909,32 @@
   .wa-float {
     position: fixed;
     right: 22px;
-    bottom: 22px;
+    /* Sobe acima da barra de consentimento enquanto ela está no ar. Em telas
+       estreitas o cartão do `CookieBanner` cobre o canto inferior direito de
+       fato (não é só ordem de camada: em 390px o botão "Preferências" fica
+       exatamente em cima do botão do WhatsApp), então `pointer-events` sozinho
+       não libera o clique — o botão precisa sair de baixo do cartão. A altura
+       vem de `--consent-bar-h`, publicada pelo próprio banner enquanto ele
+       existe e removida quando o usuário decide; sem banner o valor cai no
+       fallback `0px` e o botão volta aos 22px de sempre. `bottom` entra na
+       transição pra ida e volta serem suaves.
+
+       O teto existe porque a barra cresce muito com o painel de Preferências
+       aberto (596px medidos em 320×568): sem limite o botão subia até y=9 em
+       360×640, encavalado no `nav-burger` (o hit-test devolvia o burger), e a
+       y=-106 em 320×568, fora da tela. `100svh - 152px` trava o topo do botão
+       em 96px — 56px de botão mais 96px deixam ~22px abaixo do header, que
+       mede 71-74px em todas as larguras testadas; é a mesma folga que ele tem
+       do rodapé. O teto só morde com o painel aberto em tela baixa (aí o botão
+       fica atrás do painel, como ficava antes desta mudança); no estado normal
+       — barra fina, o que 99% dos visitantes veem — ele nunca chega perto
+       (precisa de 205px no pior caso contra 416px de teto em 320×568).
+
+       `svh` e não `vh`/`dvh` de propósito: `vh` ignora a barra de URL do
+       celular e deixaria o teto alto demais (o botão sumiria atrás dela), e
+       `dvh` muda durante o scroll, o que faria o botão deslizar sozinho a cada
+       rolagem — com a transição abaixo, pior ainda. */
+    bottom: min(calc(22px + var(--consent-bar-h, 0px)), calc(100svh - 152px));
     z-index: 40;
     width: 56px;
     height: 56px;
@@ -922,6 +947,7 @@
     box-shadow: var(--shadow-card);
     transition:
       transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1),
       box-shadow 0.3s ease;
   }
   .wa-float:hover {
@@ -932,6 +958,15 @@
     width: 26px;
     height: 26px;
     fill: var(--color-ice-300);
+  }
+  /* Mesmo corte de movimento que o `CookieBanner` já faz com
+     `motion-reduce:transition-none`: quem pede movimento reduzido não deve ver
+     o botão deslizar ~133px sozinho quando o aviso monta ou some. Vem depois
+     das regras acima e com a mesma especificidade, então vence na ordem. */
+  @media (prefers-reduced-motion: reduce) {
+    .wa-float {
+      transition: none;
+    }
   }
 
   /* ---------- Preloader (três barras do logo) — fiel a semog.css:532-549 ----------

@@ -25,6 +25,16 @@ import { useConsent } from '@/providers/ConsentProvider'
  *
  * O painel de preferências (opt-in por toggle) continua igual — quem clica em
  * "Preferências" está pedindo a versão detalhada, e aí o espaço se justifica.
+ *
+ * **`pointer-events` na faixa** (03/09/2026): o contêiner é `inset-x-0`, ou
+ * seja, ocupa a largura inteira da viewport, mas só o cartão interno tem fundo.
+ * As laterais transparentes ainda assim capturavam o ponteiro e engoliam o
+ * clique de tudo que caísse embaixo — o `.wa-float` no canto inferior direito
+ * era a vítima diária. Daí o par: o contêiner ignora o ponteiro
+ * (`pointer-events-none`) e o cartão visível volta a recebê-lo
+ * (`pointer-events-auto`). Vale para qualquer elemento futuro nessa área, não
+ * só o WhatsApp — que além disso sobe pela `--consent-bar-h` (ver abaixo),
+ * porque no celular o cartão cobre o botão de fato, não só por camada.
  */
 export function CookieBanner() {
   const { consent, decided, rejectNonEssential, save } = useConsent()
@@ -90,11 +100,11 @@ export function CookieBanner() {
       aria-labelledby={headingId}
       aria-describedby={descId}
       tabIndex={-1}
-      className={`fixed inset-x-0 bottom-0 z-50 px-[clamp(1rem,4vw,1.5rem)] pb-[clamp(1rem,3vw,1.5rem)] outline-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-50 px-[clamp(1rem,4vw,1.5rem)] pb-[clamp(1rem,3vw,1.5rem)] outline-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
         entered ? 'translate-y-0' : 'translate-y-[110%]'
       }`}
     >
-      <div className="mx-auto max-w-[64rem] rounded-card border border-white/10 bg-navy-950/80 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.85rem,2vw,1.1rem)] shadow-card backdrop-blur-xl">
+      <div className="pointer-events-auto mx-auto max-w-[64rem] rounded-card border border-white/10 bg-navy-950/80 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.85rem,2vw,1.1rem)] shadow-card backdrop-blur-xl">
         <h2 id={headingId} className="sr-only">
           Sua privacidade
         </h2>
