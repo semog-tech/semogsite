@@ -3,14 +3,51 @@
 import { type RefObject, useEffect } from 'react'
 
 /**
- * Respiro abaixo do botão, em pixels. Não é estética: o Turnstile é remontado
- * junto com o aviso (token é de uso único) e o widget novo assenta com altura
- * um pouco maior que o `min-h` do lugar reservado, empurrando o botão mais
- * alguns pixels DEPOIS da rolagem. Medido em 1366x768: com `scrollIntoView` e
- * sem folga o botão parava 5px abaixo da dobra. Daí o `scrollBy` calculado com
- * esta folga, que absorve o assentamento e ainda evita o botão colado na borda.
+ * Respiro abaixo do botão, em pixels — o suficiente para ele não ficar colado
+ * na borda da tela. Medido em 1366x768: com `scrollIntoView` e sem folga o
+ * botão parava 5px abaixo da dobra.
  */
 const FOLGA = 24
+
+/**
+ * Janela em que o ajuste é reaplicado a cada mudança de altura do formulário.
+ *
+ * Uma rolagem só não basta: o Turnstile é remontado junto com o aviso (o token
+ * é de uso único) e o widget novo assenta DEPOIS da rolagem, com altura maior
+ * que o `min-h` do lugar reservado — no celular ele vira `compact`, que é mais
+ * alto que os 65px reservados. Medido em 390x844 com o aviso de cookies no ar:
+ * o botão terminava 75px acima do fundo quando precisava de 157px, ou seja,
+ * ainda debaixo do cartão do banner. Reagir ao `ResizeObserver` faz a correção
+ * acompanhar o assentamento em vez de tentar adivinhá-lo numa constante.
+ *
+ * Só o TAMANHO do formulário reabre o ajuste, nunca o scroll: quem rolar para
+ * reler o formulário não é puxado de volta.
+ */
+const JANELA_DE_ASSENTAMENTO = 2500
+
+/**
+ * Altura que a barra de consentimento ocupa a partir do fundo da viewport, ou
+ * `0` quando ela não está no ar (visitante que já decidiu — o `CookieBanner`
+ * desmonta e apaga a variável).
+ *
+ * Sem isto o `FOLGA` sozinho põe o botão 24px acima do fundo da tela, que é
+ * **dentro** do cartão do aviso de cookies: o envio falha, o hook traz o botão
+ * de volta, e ele chega debaixo da barra — o retry não passa. Medido em
+ * produção por hit-test (09/09/2026): os 5 pontos do botão (centro e os 4
+ * cantos internos) devolviam elementos do banner, em `/proposta` e `/contato`,
+ * nas cinco larguras de 390 a 1920.
+ *
+ * Lê `--consent-bar-h` em vez de medir o banner pelo DOM porque a variável já é
+ * o contrato que o próprio banner publica para quem precisa reservar o espaço
+ * (`.wa-float` em `theme.css`, o hero do Experience em `experience.css`) — e
+ * ela acompanha sozinha a quebra de linha em tela estreita e a abertura do
+ * painel de preferências, via `ResizeObserver`.
+ */
+function alturaDaBarraDeConsentimento(): number {
+  const publicado = getComputedStyle(document.documentElement).getPropertyValue('--consent-bar-h')
+  const altura = Number.parseFloat(publicado)
+  return Number.isFinite(altura) ? altura : 0
+}
 
 /**
  * Traz o botão de envio de volta para a tela quando um aviso de erro aparece.
@@ -47,15 +84,39 @@ export function useEnvioVisivelNoErro(
   useEffect(() => {
     if (status !== 'error') return
 
-    const botao = formRef.current?.querySelector('button[type="submit"]')
-    if (!botao) return
+    const form = formRef.current
+    const botao = form?.querySelector('button[type="submit"]')
+    if (!form || !botao) return
 
-    const excesso = botao.getBoundingClientRect().bottom + FOLGA - window.innerHeight
-    if (excesso <= 0) return
+    const comportamento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? ('auto' as const)
+      : ('smooth' as const)
 
-    window.scrollBy({
-      top: excesso,
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-    })
+    /**
+     * Alvo em coordenada ABSOLUTA do documento, não um `scrollBy` relativo: com
+     * rolagem suave em curso, `getBoundingClientRect()` devolve uma posição
+     * intermediária, e um delta calculado sobre ela rolaria demais. A soma
+     * `rect.bottom + scrollY` não depende de onde a rolagem está no momento, o
+     * que torna cada reaplicação idempotente — reaplicar para o mesmo alvo não
+     * mexe em nada.
+     */
+    const ajustar = () => {
+      const folga = FOLGA + alturaDaBarraDeConsentimento()
+      const alvo =
+        botao.getBoundingClientRect().bottom + window.scrollY + folga - window.innerHeight
+      if (alvo <= window.scrollY) return
+      window.scrollTo({ top: alvo, behavior: comportamento })
+    }
+
+    ajustar()
+
+    const observer = new ResizeObserver(ajustar)
+    observer.observe(form)
+    const fim = window.setTimeout(() => observer.disconnect(), JANELA_DE_ASSENTAMENTO)
+
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(fim)
+    }
   }, [status, tentativa, formRef])
 }
