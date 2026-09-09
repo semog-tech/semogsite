@@ -31,11 +31,13 @@ export type TurnstileProps = {
   onToken: (token: string) => void
   className?: string
   /**
-   * Tema do widget. O default da Cloudflare é `auto`, que segue o
-   * `prefers-color-scheme` do visitante — certo para as superfícies ESCURAS do
-   * site, errado dentro de um card branco (quem estiver com o sistema no modo
-   * escuro vê uma caixa preta no meio do formulário claro). Quem vive em
-   * superfície clara passa `theme="light"`.
+   * Tema do widget — **sempre o tema da superfície onde o card vive**, nunca
+   * omitido. O default da Cloudflare é `auto`, que segue o
+   * `prefers-color-scheme` do VISITANTE e não a cor do card: com `auto`, quem
+   * está com o sistema no modo claro vê uma caixa branca dentro do card navy
+   * dos formulários de captação, e quem está no modo escuro veria uma caixa
+   * preta dentro do card branco do Experience. Card navy → `dark`; card branco
+   * (`ExperienceForm`) → `light`.
    */
   theme?: 'light' | 'dark' | 'auto'
 }

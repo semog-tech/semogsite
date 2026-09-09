@@ -189,7 +189,7 @@ export function ContactForm() {
         {...register('mensagem')}
       />
 
-      <Turnstile key={turnstileKey} onToken={setToken} className="min-h-[65px]" />
+      <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
 
       {status === 'error' && message && (
         <p role="alert" className="m-0 text-[0.9rem] text-[#F2A6B4]">
