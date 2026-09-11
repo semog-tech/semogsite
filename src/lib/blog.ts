@@ -97,10 +97,14 @@ export function findPostBySlug(slug: string): PostData | null {
   return ALL_POSTS.find((post) => post.slug === slug) ?? null
 }
 
-/** Mais recentes, opcionalmente excluindo um slug (o destaque de `BlogFeatured`, pra não duplicar na grade). */
-export function listRecentPosts(limit: number, excludeSlug?: string): PostData[] {
+/**
+ * Mais recentes, opcionalmente excluindo um slug (o destaque de `BlogFeatured`,
+ * pra não duplicar na grade). Sem `limit` devolve todos — é o que o índice do
+ * blog usa, pra nenhum post ficar sem link interno apontando pra ele.
+ */
+export function listRecentPosts(limit?: number, excludeSlug?: string): PostData[] {
   const posts = excludeSlug ? ALL_POSTS.filter((post) => post.slug !== excludeSlug) : ALL_POSTS
-  return posts.slice(0, limit)
+  return limit === undefined ? posts : posts.slice(0, limit)
 }
 
 /**

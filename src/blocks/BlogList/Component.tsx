@@ -22,13 +22,15 @@ function formatDate(date?: string | null): string | null {
  * N min", de `post.readingTime` — cai para a data formatada quando o post
  * não tem `readingTime`, ex.: conteúdo legado). `excludePost` (slug) tira o
  * post em destaque de um `BlogFeatured` acima da grade (evita duplicar);
+ * `limit` corta a grade nos N mais recentes e, quando omitido, a grade traz
+ * todos os posts (o índice do blog depende disso — ver `content/pages/blog.ts`);
  * `tightTop` zera o padding-top da seção quando este bloco vem logo depois
  * de um `BlogFeatured` (mesma seção clara contínua do ref — ver doc do campo
  * em `config.ts`). Server component assíncrono: busca os posts no próprio
  * render, sem passar por client state.
  */
 export async function BlogListBlock({ title, limit, excludePost, tightTop }: BlogListBlockType) {
-  const posts = await getRecentPosts(limit ?? 6, excludePost ?? undefined)
+  const posts = await getRecentPosts(limit ?? undefined, excludePost ?? undefined)
   if (posts.length === 0) return null
 
   return (

@@ -693,7 +693,7 @@ export interface BlogListBlock {
   id?: string | number | null
   blockName?: string | null
   title?: string | null
-  /** Quantidade de posts a exibir (padrão 6). */
+  /** Quantidade de posts a exibir; omitido, a grade traz todos. */
   limit?: number | null
   /** Slug do post a excluir da grade — o mesmo de um `BlogFeatured` logo acima, pra não duplicá-lo. */
   excludePost?: string | null

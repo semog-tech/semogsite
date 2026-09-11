@@ -10,10 +10,12 @@ export type { PostData }
  * `src/lib/blog.ts` (MDX, sem banco). `excludeSlug` tira o post em destaque
  * de um `BlogFeatured` acima na mesma página, pra não duplicar (fiel a
  * `_reference/blog.html`, que tem 1 destaque + 6 da grade, nunca o mesmo post
- * nos dois lugares). Assíncrona por convenção (mesmo formato do antigo
+ * nos dois lugares). Sem `limit` devolve todos os posts — o índice do blog
+ * lista a coleção inteira, senão os últimos da fila ficam sem nenhum link
+ * interno apontando pra eles. Assíncrona por convenção (mesmo formato do antigo
  * `getRecentPosts` do Payload), embora não haja I/O de fato.
  */
-export async function getRecentPosts(limit = 6, excludeSlug?: string): Promise<PostData[]> {
+export async function getRecentPosts(limit?: number, excludeSlug?: string): Promise<PostData[]> {
   return listRecentPosts(limit, excludeSlug)
 }
 

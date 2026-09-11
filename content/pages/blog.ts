@@ -42,10 +42,13 @@ export const blog: PageData = {
       post: FEATURED_SLUG,
     },
     // `tightTop` cola esta grade na mesma seção clara do destaque acima;
-    // `excludePost` tira o próprio destaque da grade.
+    // `excludePost` tira o próprio destaque da grade. SEM `limit`: a grade
+    // lista todos os posts. Com o corte em 6 que veio do ref, o índice linkava
+    // 7 dos 12 e os demais ficavam sem nenhum link interno apontando pra eles
+    // — inclusive o de assembleia virtual, segundo conteúdo em impressões.
+    // Um número fixo aqui traria o problema de volta no próximo post.
     {
       blockType: 'blogList',
-      limit: 6,
       excludePost: FEATURED_SLUG,
       tightTop: true,
     },
