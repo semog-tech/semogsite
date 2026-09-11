@@ -842,6 +842,16 @@ export interface PropostaBandBlock {
     label?: string | null
     href?: string | null
   }
+  /**
+   * Telefone clicável ao lado do WhatsApp. `href` em `tel:` + E.164 — é o mesmo
+   * número que a `Organization` declara em `telephone`/`contactPoint`
+   * (`src/lib/seo.ts`), e é o que faz o dado estruturado ter lastro no que a
+   * página mostra.
+   */
+  phone?: {
+    label?: string | null
+    href?: string | null
+  }
   /** `gradiente` usa a textura de banda do site; `foto` usa `image` com overlay. */
   background?: ('gradiente' | 'foto') | null
   image?: (number | null) | Media

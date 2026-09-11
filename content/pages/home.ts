@@ -188,6 +188,15 @@ export const home: PageData = {
         label: 'Prefere conversar agora? Falar no WhatsApp',
         href: WHATSAPP_URL,
       },
+      // Fixo da matriz (Recife), o mesmo que o JSON-LD da home declara em
+      // `telephone` e no `contactPoint` de atendimento (`src/lib/seo.ts`). A
+      // home inteira não tinha um único `tel:` — o dado estruturado afirmava um
+      // telefone que a página não mostrava, e quem chega pelo celular não tinha
+      // como ligar sem procurar a landing da cidade.
+      phone: {
+        label: '(81) 3316-0265',
+        href: 'tel:+558133160265',
+      },
     },
     {
       blockType: 'solucoesBento',

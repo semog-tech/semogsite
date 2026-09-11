@@ -55,6 +55,7 @@ export function PropostaBandBlock({
   highlight,
   proofs,
   whatsapp,
+  phone,
   background,
   image,
 }: PropostaBandBlockType) {
@@ -161,20 +162,51 @@ export function PropostaBandBlock({
               </Reveal>
             )}
 
-            {whatsapp?.href && (
-              <Reveal delay={0.2} className="mt-[clamp(1.8rem,3vw,2.4rem)]">
-                <a
-                  href={whatsapp.href}
-                  className="group inline-flex items-center gap-2 text-[0.95rem] text-fg-2 underline-offset-[6px] transition-colors hover:text-fg hover:underline"
-                >
-                  {whatsapp.label ?? 'Prefere conversar agora? Falar no WhatsApp'}
-                  <span
-                    aria-hidden="true"
-                    className="transition-transform duration-300 group-hover:translate-x-1"
+            {/* Dois caminhos pra quem não quer preencher formulário — o
+                WhatsApp, que é o canal que mais converte, e o telefone da
+                matriz. O `tel:` não é detalhe de layout: era o único canal da
+                home sem forma clicável, e o número que o JSON-LD declara como
+                atendimento não aparecia em lugar nenhum da página. Em coluna
+                no celular, lado a lado a partir do `sm`. */}
+            {(whatsapp?.href || phone?.href) && (
+              <Reveal
+                delay={0.2}
+                className="mt-[clamp(1.8rem,3vw,2.4rem)] flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-6"
+              >
+                {whatsapp?.href && (
+                  <a
+                    href={whatsapp.href}
+                    className="group inline-flex items-center gap-2 text-[0.95rem] text-fg-2 underline-offset-[6px] transition-colors hover:text-fg hover:underline"
                   >
-                    →
-                  </span>
-                </a>
+                    {whatsapp.label ?? 'Prefere conversar agora? Falar no WhatsApp'}
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </a>
+                )}
+                {phone?.href && (
+                  <a
+                    href={phone.href}
+                    className="inline-flex items-center gap-2 text-[0.95rem] text-fg-2 underline-offset-[6px] transition-colors hover:text-fg hover:underline"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.6}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="h-[1.05em] w-[1.05em]"
+                    >
+                      <path d="M6.5 3h3l1.5 4-2 1.2a11 11 0 0 0 4.8 4.8L15 11l4 1.5v3a1.5 1.5 0 0 1-1.7 1.5A14.5 14.5 0 0 1 5 4.7 1.5 1.5 0 0 1 6.5 3z" />
+                    </svg>
+                    {phone.label ?? 'Falar por telefone'}
+                  </a>
+                )}
               </Reveal>
             )}
           </div>
