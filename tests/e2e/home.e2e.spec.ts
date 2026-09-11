@@ -1,4 +1,16 @@
 import { expect, test } from '@playwright/test'
+import { home } from '../../content/pages/home'
+
+/**
+ * Os itens da faixa de prova como o conteúdo os declara. O teste compara a
+ * página com esta lista em vez de repetir os textos à mão: quando o item
+ * `35 anos` saiu de `content/pages/home.ts` (27/08/2026, pra abrir espaço ao
+ * G20), a cópia escrita aqui ficou vermelha e assim permaneceu — a suíte e2e
+ * não roda na CI, então ninguém viu.
+ */
+const ITENS_DA_PROVA = home.layout.flatMap((bloco) =>
+  bloco.blockType === 'hero' ? (bloco.proofItems ?? []) : [],
+)
 
 test.describe('Home redesenhada', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,11 +18,15 @@ test.describe('Home redesenhada', () => {
   })
 
   test('mostra a faixa de prova acima da dobra', async ({ page }) => {
+    expect(ITENS_DA_PROVA.length).toBeGreaterThan(0)
+
     const proof = page.locator('.hero-proof')
     await expect(proof).toBeVisible()
-    await expect(proof).toContainText('4,8')
-    await expect(proof).toContainText('+650')
-    await expect(proof).toContainText('35 anos')
+    await expect(proof.locator('.hero-proof-item')).toHaveCount(ITENS_DA_PROVA.length)
+    for (const item of ITENS_DA_PROVA) {
+      await expect(proof).toContainText(item.value)
+      await expect(proof).toContainText(item.label)
+    }
   })
 
   test('os números aparecem em faixa, sem o mapa', async ({ page }) => {
