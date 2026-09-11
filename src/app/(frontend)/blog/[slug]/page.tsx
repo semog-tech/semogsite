@@ -155,9 +155,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 resource={post.heroImage}
                 fill
                 priority
-                // Disputa o LCP do artigo com o `<h1>` e vence quando a rede
-                // está boa (medido em produção, 11/09/2026). Ver a doc do prop
-                // em `ImageMedia`.
+                // Disputa o LCP do artigo com o `<h1>` e vence no DESKTOP.
+                // Quem decide é a LARGURA DA TELA, não a velocidade da rede:
+                // medido em 11/09/2026, o vencedor é o mesmo com e sem
+                // limitação de banda — a rede só muda o relógio (desktop, a
+                // imagem: 104 ms à vontade, 3,2 s limitado; celular, o `<h1>`:
+                // 144 ms e 3,8 s).
+                //
+                // O motivo é a dobra. Em qualquer largura o hero nasce abaixo
+                // dela, e o LCP só conta a parte visível: num desktop de
+                // 1440×900 sobra uma faixa larga (198 mil px² contra 50 mil do
+                // título pintado), enquanto num celular de 390 px a mesma faixa
+                // é estreita (36 mil px²) e perde para o título. Otimizar rede
+                // não muda esse resultado. Ver a doc do prop em `ImageMedia`.
                 fetchPriority="high"
                 sizes="(min-width: 1120px) 1120px, 100vw"
               />
