@@ -38,18 +38,28 @@ export type CityLandingData = {
   faq: CityFaq[]
 }
 
+/** Nome próprio com o gênero que ele exige — o gênero não é dedutível do nome. */
+type Gendered = { name: string; gender: 'm' | 'f' }
+
 /**
- * "todo o Pernambuco", "toda a Paraíba", "todo o Pará" — a concordância vem do
- * `ufGender` do próprio dado, e não de um condicional no componente: o artigo
- * estava fixo no masculino e as duas praças da Paraíba exibiam "todo o Paraíba".
+ * "todo o Grande Recife", "toda a Paraíba" — o quantificador concorda com o
+ * gênero declarado, nunca com um artigo escrito à mão. O artigo estava fixo no
+ * masculino no título da unidade ("todo o Paraíba", nas duas praças da PB) e no
+ * feminino na pergunta do FAQ ("toda a Grande Recife", que ainda vai pro
+ * JSON-LD de FAQPage) — dois lugares, o mesmo erro, agora uma regra só.
  */
+function whole(subject: Gendered): string {
+  return subject.gender === 'f' ? `toda a ${subject.name}` : `todo o ${subject.name}`
+}
+
+/** "todo o Pernambuco", "toda a Paraíba", "todo o Pará" — pro título da unidade. */
 export function wholeState(data: Pick<CityLandingData, 'ufFull' | 'ufGender'>): string {
-  return data.ufGender === 'f' ? `toda a ${data.ufFull}` : `todo o ${data.ufFull}`
+  return whole({ name: data.ufFull, gender: data.ufGender })
 }
 
 const WHATSAPP = '551130034506'
 
-function standardFaq(city: string, uf: string, region: string): CityFaq[] {
+function standardFaq(city: string, uf: string, region: Gendered): CityFaq[] {
   return [
     {
       question: `Qual a melhor administradora de condomínios de ${city}?`,
@@ -66,7 +76,7 @@ function standardFaq(city: string, uf: string, region: string): CityFaq[] {
         'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
     },
     {
-      question: `Vocês atendem toda a ${region}?`,
+      question: `Vocês atendem ${whole(region)}?`,
       answer: `Sim. Atendemos ${city} e toda a região, com equipe local e atendimento próximo, do financeiro à assembleia.`,
     },
     {
@@ -130,7 +140,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
         role: 'Síndica · Res. Madalena Prime',
       },
     ],
-    faq: standardFaq('Recife', 'PE', 'Grande Recife'),
+    faq: standardFaq('Recife', 'PE', { name: 'Grande Recife', gender: 'm' }),
   },
 
   'joao-pessoa': {
@@ -185,7 +195,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
         role: 'Síndico · Res. Ponta do Cabo Branco',
       },
     ],
-    faq: standardFaq('João Pessoa', 'PB', 'Grande João Pessoa'),
+    faq: standardFaq('João Pessoa', 'PB', { name: 'Grande João Pessoa', gender: 'f' }),
   },
 
   'campina-grande': {
@@ -240,7 +250,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
         role: 'Síndico · Res. Parque da Prata',
       },
     ],
-    faq: standardFaq('Campina Grande', 'PB', 'região de Campina Grande'),
+    faq: standardFaq('Campina Grande', 'PB', { name: 'região de Campina Grande', gender: 'f' }),
   },
 
   belem: {
@@ -295,6 +305,6 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
         role: 'Síndico · Res. Batista Campos',
       },
     ],
-    faq: standardFaq('Belém', 'PA', 'Grande Belém'),
+    faq: standardFaq('Belém', 'PA', { name: 'Grande Belém', gender: 'f' }),
   },
 }
