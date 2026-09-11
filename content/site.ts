@@ -117,6 +117,12 @@ const footer: FooterConfig = {
         { label: 'Soluções', href: '/solucoes' },
         { label: 'Incorporadoras', href: '/incorporadoras' },
         { label: 'Blog', href: '/blog' },
+        // A landing do Semog Experience era ÓRFÃ: estava no sitemap, mas
+        // nenhuma das outras 29 páginas apontava pra ela — nem a home. Sitemap
+        // é convite, link é voto: sem nenhum link interno o Google trata a
+        // página como periférica, e o evento tem data. Sai daqui junto com a
+        // entrada do sitemap depois de 26/09/2026 (ver `sitemap.ts`).
+        { label: 'Semog Experience 26', href: '/experience' },
         { label: 'Contato', href: '/contato' },
       ],
     },
