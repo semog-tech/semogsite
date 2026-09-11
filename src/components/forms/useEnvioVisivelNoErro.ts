@@ -15,42 +15,15 @@ const FOLGA = 24
  * Uma rolagem só não basta: o Turnstile é remontado junto com o aviso (o token
  * é de uso único) e o widget novo assenta DEPOIS da rolagem, com altura maior
  * que o `min-h` do lugar reservado — no celular ele vira `compact`, que é mais
- * alto que os 65px reservados. Medido em 390x844 com o aviso de cookies no ar:
- * o botão terminava 75px acima do fundo quando precisava de 157px, ou seja,
- * ainda debaixo do cartão do banner. Reagir ao `ResizeObserver` faz a correção
- * acompanhar o assentamento em vez de tentar adivinhá-lo numa constante.
+ * alto que os 65px reservados. Medido em 390x844: o botão terminava 75px acima
+ * do fundo quando precisava de 157px, ou seja, ainda fora da dobra. Reagir ao
+ * `ResizeObserver` faz a correção acompanhar o assentamento em vez de tentar
+ * adivinhá-lo numa constante.
  *
  * Só o TAMANHO do formulário reabre o ajuste, nunca o scroll: quem rolar para
  * reler o formulário não é puxado de volta.
  */
 const JANELA_DE_ASSENTAMENTO = 2500
-
-/**
- * Altura que a barra de consentimento ocupa a partir do fundo da viewport, ou
- * `0` quando ela não está no ar (visitante que já decidiu — o `CookieBanner`
- * desmonta e apaga a variável).
- *
- * Sem isto o `FOLGA` sozinho põe o botão 24px acima do fundo da tela, que é
- * **dentro** do cartão do aviso de cookies: o envio falha, o hook traz o botão
- * de volta, e ele chega debaixo da barra — o retry não passa. Medido em
- * produção por hit-test (09/09/2026): os 5 pontos do botão (centro e os 4
- * cantos internos) devolviam elementos do banner, em `/proposta` e `/contato`,
- * nas cinco larguras de 390 a 1920.
- *
- * Mede o próprio banner (`[data-consent-bar]`) em vez de ler `--consent-bar-h`
- * do `documentElement`: desde 11/09/2026 a variável não mora mais lá. Publicá-la
- * no root invalidava o estilo do documento inteiro a cada escrita — 295ms de
- * recálculo medidos na home em Pixel 5 com CPU 20x, a maior fatia do INP — e o
- * banner passou a escrevê-la só nos elementos que a consomem em CSS
- * (`[data-consent-offset]`; ver `CookieBanner` e `theme.css`). Aqui o valor é
- * lido em JS, então medir a barra é mais direto do que criar um consumidor só
- * para depois reler a variável dele: `offsetHeight` é a mesma grandeza que o
- * banner publica, sempre atual, e some sozinho quando o banner desmonta.
- */
-function alturaDaBarraDeConsentimento(): number {
-  const barra = document.querySelector<HTMLElement>('[data-consent-bar]')
-  return barra ? barra.offsetHeight : 0
-}
 
 /**
  * Traz o botão de envio de volta para a tela quando um aviso de erro aparece.
@@ -104,9 +77,8 @@ export function useEnvioVisivelNoErro(
      * mexe em nada.
      */
     const ajustar = () => {
-      const folga = FOLGA + alturaDaBarraDeConsentimento()
       const alvo =
-        botao.getBoundingClientRect().bottom + window.scrollY + folga - window.innerHeight
+        botao.getBoundingClientRect().bottom + window.scrollY + FOLGA - window.innerHeight
       if (alvo <= window.scrollY) return
       window.scrollTo({ top: alvo, behavior: comportamento })
     }

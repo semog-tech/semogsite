@@ -2,7 +2,6 @@ import type React from 'react'
 import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
 import { Clarity } from '@/components/analytics/Clarity'
-import { CookieBanner } from '@/components/consent/CookieBanner'
 import { ConsentProvider } from '@/providers/ConsentProvider'
 import { clash, satoshi } from '../../fonts'
 import '../../styles/theme.css'
@@ -23,8 +22,9 @@ import '../../styles/theme.css'
  * - `AttributionTracker`: grava o cookie `semog-attrib`, de onde a server
  *   action lê o gclid NO SERVIDOR. Sem ele, campanha paga para o evento
  *   ficaria cega.
- * - `ConsentProvider` + `CookieBanner`: obrigação de consentimento não muda
- *   por a página ser de campanha.
+ * - `ConsentProvider`: o Consent Mode continua valendo numa página de
+ *   campanha. O banner de rodapé saiu do site em 11/09/2026; a revogação vive
+ *   na Política de Privacidade.
  * - `Analytics`/`Clarity`: só sobem em host mensurável (ver `measurableHost`).
  *
  * Os três ficam DENTRO do `ConsentProvider`, como em `(frontend)/layout.tsx`:
@@ -39,7 +39,6 @@ export default function EventoLayout({ children }: { children: React.ReactNode }
           <Clarity />
           <AttributionTracker />
           {children}
-          <CookieBanner />
         </ConsentProvider>
       </body>
     </html>

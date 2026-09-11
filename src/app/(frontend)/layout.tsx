@@ -3,7 +3,6 @@ import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
 import { Clarity } from '@/components/analytics/Clarity'
 import { LeadClickTracker } from '@/components/analytics/LeadClickTracker'
-import { CookieBanner } from '@/components/consent/CookieBanner'
 import { FooterServer } from '@/components/layout/FooterServer'
 import { Grain } from '@/components/layout/Grain'
 import { HeaderServer } from '@/components/layout/HeaderServer'
@@ -40,7 +39,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             <main id="conteudo">{children}</main>
             <FooterServer />
           </LenisProvider>
-          <CookieBanner />
         </ConsentProvider>
         <WhatsAppFloat />
       </body>

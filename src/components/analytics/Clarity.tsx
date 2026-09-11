@@ -10,8 +10,9 @@ const CLARITY_ID = 'xr14d4ih79'
 /**
  * Microsoft Clarity — heatmaps + gravações de sessão (análise qualitativa de
  * conversão da landing). Mesmo modelo de consent do `Analytics`/GA4: analytics
- * ligado por padrão (legítimo interesse, medição de 1ª parte), opt-out pelo
- * `CookieBanner`. `clarity('consent', granted)` espelha o `gtag('consent',…)`.
+ * ligado por padrão (legítimo interesse, medição de 1ª parte), opt-out na
+ * Política de Privacidade. `clarity('consent', granted)` espelha o
+ * `gtag('consent',…)`.
  *
  * O shim `window.clarity` é definido `beforeInteractive` (igual ao gtag), pra a
  * fila existir antes do `useEffect` de consent; a lib carrega `afterInteractive`

@@ -8,9 +8,9 @@
  * 1. TUDO É ESCOPADO EM `.exp`. O protótipo era um arquivo solto e podia usar
  *    seletores de elemento (`section`, `footer`, `form`) e nomes genéricos
  *    (`.wrap`, `.btn`, `.card`, `.row`). Aqui o `theme.css` do site carrega
- *    junto (o layout `(evento)` importa os dois) e o `CookieBanner` vive no
- *    mesmo documento — sem o escopo, `section{padding-block:…}` cairia sobre
- *    ele e `.hero`/`.pillar`/`.btn` disputariam com as ~4.200 linhas do tema.
+ *    junto (o layout `(evento)` importa os dois) — sem o escopo,
+ *    `section{padding-block:…}` cairia sobre o resto do documento e
+ *    `.hero`/`.pillar`/`.btn` disputariam com as ~4.200 linhas do tema.
  *
  * 2. NENHUMA COR NOVA. O protótipo redeclarava a paleta (`--navy-900` etc.);
  *    aqui cada valor aponta para o token de `src/styles/theme.css`
@@ -258,30 +258,6 @@
   align-items: flex-end;
   padding-block: 9rem clamp(2.5rem, 5vw, 4rem);
   isolation: isolate;
-}
-/*
- * A barra de cookies é `position: fixed` e não ocupa espaço no fluxo. Num
- * 390x844 ela pegava y=711..844 enquanto o hero terminava em 799: o botão
- * ficava 11px coberto e a linha "Gratuito · 200 vagas" — a prova de que o
- * evento é grátis, a última coisa acima da dobra no protótipo — sumia inteira
- * atrás dela. Aqui o rodapé do hero reserva a altura real da barra
- * (`--consent-bar-h`, que o `CookieBanner` escreve no próprio `<header>` do
- * hero enquanto ela está no ar — o `data-consent-offset` em
- * `ExperienceHero.tsx` é o opt-in) e o topo devolve parte do espaço: os 9rem
- * existem só para o `.topbar` absoluto, que no celular ocupa ~4,6rem — daí o
- * piso de 5rem. Some quando a pessoa decide (a variável é apagada e o
- * `initial-value: 0px` do `@property`, declarado em `theme.css`, restaura o
- * espaçamento original). Só no celular: no desktop não há colisão.
- *
- * Medido: 390x844 resolve (a linha das vagas termina em 695, a barra começa em
- * 711). Em 360x780 a barra quebra em duas fileiras e ocupa 183px de 780 — não
- * cabe tudo acima dela nem zerando o topo; ali o conteúdo sobe o que dá.
- */
-@media (max-width: 48rem) {
-  .exp .hero {
-    padding-top: max(5rem, calc(9rem - var(--consent-bar-h, 0px)));
-    padding-bottom: calc(clamp(2.5rem, 5vw, 4rem) + var(--consent-bar-h, 0px));
-  }
 }
 .exp .hero-bg {
   position: absolute;

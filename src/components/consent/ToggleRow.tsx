@@ -2,9 +2,8 @@
 
 /**
  * Linha de um interruptor de categoria de cookie: rótulo, explicação e o
- * switch. Nasceu dentro do `CookieBanner` (painel de Preferências) e saiu para
- * cá quando o controle passou a viver também na Política de Privacidade — é a
- * mesma peça nos dois lugares, e duplicá-la faria os dois divergirem.
+ * switch. Nasceu no painel de Preferências do banner de rodapé (removido em
+ * 11/09/2026) e ficou: é a peça que o controle da Política de Privacidade usa.
  *
  * `role="switch"` + `aria-checked` em vez de `<input type="checkbox">` porque o
  * visual é um trilho deslizante, não uma caixa; o leitor de tela anuncia
