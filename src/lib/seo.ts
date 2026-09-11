@@ -282,6 +282,28 @@ const UNITS: SeoUnit[] = [
 
 const ORG_ID = () => `${absoluteUrl('')}#org`
 
+/**
+ * Nó `Organization` enxuto, para as páginas que só **referenciam** a entidade
+ * (`parentOrganization` das landings, `author`/`publisher` dos posts). Sem ele,
+ * essas páginas declaravam `{'@id': '…/#org'}` apontando para um nó definido
+ * só no HTML da home: dentro do documento da landing a referência não resolvia
+ * — cada filial dizia pertencer a uma organização que a própria página não
+ * define. O nó completo (prêmios, endereço, unidades) continua exclusivo da
+ * home; aqui vai o mínimo que identifica a entidade, e o `@id` idêntico faz o
+ * Google fundir os dois.
+ */
+function organizationRefNode(): Record<string, unknown> {
+  const root = absoluteUrl('')
+  return {
+    '@type': 'Organization',
+    '@id': ORG_ID(),
+    name: FALLBACK_TITLE,
+    url: root,
+    logo: absoluteUrl('semog-logo-light.svg'),
+    sameAs: SOCIAL_PROFILES,
+  }
+}
+
 /** `LocalBusiness` de uma unidade, com NAP completo, horário e área atendida. */
 function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
   const url = absoluteUrl(unit.slug)
@@ -462,7 +484,9 @@ export function getPageJsonLd({
 
   const unit = UNITS.find((u) => u.slug === path)
   if (unit) {
-    graph.push(localBusinessNode(unit))
+    // A `Organization` entra junto porque o `LocalBusiness` referencia ela em
+    // `parentOrganization` — ver `organizationRefNode`.
+    graph.push(organizationRefNode(), localBusinessNode(unit))
     const faqItems = extractFaqItems(page)
     if (faqItems.length > 0) graph.push(faqPageNode(faqItems))
   }
@@ -487,6 +511,9 @@ export function cityLandingJsonLd(
       { name: 'Início', url: absoluteUrl('') },
       { name: `Administradora de Condomínios em ${unit.city}`, url: absoluteUrl(slug) },
     ]),
+    // Antes do `LocalBusiness`, que a referencia em `parentOrganization` — ver
+    // `organizationRefNode`.
+    organizationRefNode(),
     localBusinessNode(unit),
   ]
   if (faq.length > 0) graph.push(faqPageNode(faq))
