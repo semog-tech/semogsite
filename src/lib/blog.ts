@@ -29,6 +29,16 @@ export interface PostData {
   heroImage?: Media
   readingTime?: number
   keyTakeaways?: string[]
+  /**
+   * SEO do post, no mesmo formato de `PageData.meta` (`@/types/content`) e
+   * opcional pela mesma razão: só existe onde o texto visível não serve de
+   * snippet. `title` é o H1 do artigo e `excerpt` é o texto dos cards do
+   * índice — os dois são escritos para a página, e nos posts longos passam da
+   * largura que o Google exibe (o título é cortado no meio da frase). Quando
+   * `meta.title`/`meta.description` estão aqui, `blog/[slug]` usa esses no
+   * `<head>` e a página visível não muda; ausentes, cai em `title`/`excerpt`.
+   */
+  meta?: { title?: string; description?: string }
   body: string
 }
 
@@ -59,6 +69,21 @@ function resolveHeroImage(url: string | undefined): Media | undefined {
   }
 }
 
+/**
+ * `meta:` do frontmatter. O YAML chega sem tipo, então cada campo é conferido
+ * um a um; um `meta` malformado (ou com só uma das duas chaves) degrada pro
+ * fallback de `title`/`excerpt` em vez de derrubar o build.
+ */
+function parseMeta(value: unknown): PostData['meta'] {
+  if (!value || typeof value !== 'object') return undefined
+  // `as` seguro: o `typeof` acima já garante objeto, e todo acesso abaixo
+  // volta a checar o tipo do campo antes de usar.
+  const raw = value as Record<string, unknown>
+  const title = typeof raw.title === 'string' ? raw.title : undefined
+  const description = typeof raw.description === 'string' ? raw.description : undefined
+  return title || description ? { title, description } : undefined
+}
+
 function parsePost(file: string): PostData {
   const raw = readFileSync(path.join(BLOG_DIR, file), 'utf8')
   const { data, content } = matter(raw)
@@ -73,6 +98,7 @@ function parsePost(file: string): PostData {
     heroImage: resolveHeroImage(data.heroImage as string | undefined),
     readingTime: typeof data.readingTime === 'number' ? data.readingTime : undefined,
     keyTakeaways: Array.isArray(data.keyTakeaways) ? (data.keyTakeaways as string[]) : undefined,
+    meta: parseMeta(data.meta),
     body: content.trim(),
   }
 }

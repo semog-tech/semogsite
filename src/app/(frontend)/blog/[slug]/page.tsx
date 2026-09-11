@@ -41,16 +41,22 @@ export async function generateMetadata({
       // Canonical e openGraph são omitidos intencionalmente: um 404 não deve emitir canonical apontando para si ou OG image.
       return { title: 'Página não encontrada — Semog', description: undefined }
     }
-    // `PostData` (MDX) não tem grupo `meta` de SEO por doc, mas o `excerpt` do
-    // frontmatter já É uma meta description — sem passá-lo aqui, todos os posts
-    // herdavam a MESMA descrição genérica do site (`defaultDescription`), que é
-    // o que derruba o CTR na busca. O sufixo curto evita o título truncado: o
-    // fallback de `buildMetadata` acrescenta a marca inteira, e os títulos dos
-    // posts já são longos. Se um post ficar sem `excerpt`, cai no padrão.
+    // O `<head>` do post prefere o `meta` do frontmatter e só cai em
+    // `title`/`excerpt` (o H1 e o texto dos cards) quando ele não existe — sem
+    // nada disso, todos os posts herdariam a MESMA descrição genérica do site
+    // (`defaultDescription`), que é o que derruba o CTR na busca.
+    //
+    // O sufixo " | Semog" que ficava aqui saiu: ele ocupava ~80px em Arial
+    // 20px e, como o Google corta pelo fim, era sempre a primeira coisa a
+    // sumir — custava o espaço e nunca aparecia. Sem ele, 3 dos 12 títulos já
+    // param de ser cortados; os outros 9 trazem `meta.title` próprio.
     return buildMetadata({
       doc: {
         title: post.title,
-        meta: { title: `${post.title} | Semog`, description: post.excerpt },
+        meta: {
+          title: post.meta?.title ?? post.title,
+          description: post.meta?.description ?? post.excerpt,
+        },
       },
       settings,
       path,
