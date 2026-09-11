@@ -39,10 +39,19 @@ export function ToggleRow({
           checked ? 'border-ice-400 bg-ice-400' : 'border-line-strong bg-navy-800'
         } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
       >
+        {/*
+          `left-0` não é decorativo. Sem ele o botão não tem posição horizontal
+          declarada, e o navegador usa a POSIÇÃO ESTÁTICA — que num `<button>`
+          é o centro, porque o UA stylesheet aplica `text-align: center`. O
+          deslocamento de 22px então partia do meio do trilho e jogava a
+          bolinha inteira para fora dele: medido em 1366x768, o trilho
+          terminava em x=830 e a bolinha ia de 830 a 850. Vinha assim desde o
+          painel de Preferências do antigo banner, onde ninguém tinha olhado.
+        */}
         <span
           aria-hidden="true"
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 motion-reduce:transition-none ${
-            checked ? 'translate-x-[1.375rem]' : 'translate-x-0.5'
+          className={`absolute top-0.5 left-0 h-5 w-5 rounded-full bg-white transition-transform duration-200 motion-reduce:transition-none ${
+            checked ? 'translate-x-5' : 'translate-x-0.5'
           }`}
         />
       </button>

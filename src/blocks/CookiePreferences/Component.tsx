@@ -92,12 +92,20 @@ export function CookiePreferencesBlock({ title, description }: CookiePreferences
               <Button variant="primary" size="sm" onClick={handleSave} disabled={!pendente}>
                 Salvar preferências
               </Button>
+              {/*
+                Os quatro estados são distintos de propósito: com mudança
+                pendente, dizer "você ainda não alterou nada" seria mentira
+                justo no momento em que o visitante acabou de mexer no
+                interruptor e precisa saber que ainda falta salvar.
+              */}
               <p aria-live="polite" className="m-0 text-[0.84rem] text-fg-3">
-                {salvo
-                  ? 'Preferências salvas. Elas valem a partir de agora e ficam guardadas neste navegador.'
-                  : decided
-                    ? 'Estas são as preferências que você já salvou neste navegador.'
-                    : 'Você ainda não alterou nada — estas são as configurações padrão do site.'}
+                {pendente
+                  ? 'Você mudou algo — clique em "Salvar preferências" para aplicar.'
+                  : salvo
+                    ? 'Preferências salvas. Elas valem a partir de agora e ficam guardadas neste navegador.'
+                    : decided
+                      ? 'Estas são as preferências que você já salvou neste navegador.'
+                      : 'Você ainda não alterou nada — estas são as configurações padrão do site.'}
               </p>
             </div>
           </div>

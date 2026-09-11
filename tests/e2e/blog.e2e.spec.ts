@@ -77,7 +77,11 @@ test.describe('Blog (MDX, sem Payload)', () => {
   test('/privacidade renderiza o texto legal em MDX', async ({ page }) => {
     await page.goto('http://localhost:3000/privacidade')
     await expect(page.locator('h1')).toHaveText('Política de Privacidade')
-    await expect(page.locator('.legal-body')).toContainText(
+    // `.first()`: desde 11/09/2026 a página tem DOIS `.legal-body` — o texto
+    // em MDX e, abaixo dele, o controle de cookies (que herda a mesma medida
+    // de 760px de propósito). O primeiro é o corpo da política, que é o que
+    // este teste prova.
+    await expect(page.locator('.legal-body').first()).toContainText(
       'Esta Política de Privacidade descreve como a Semog',
     )
     // `.first()`: a política passou a citar o canal de privacidade em mais de
@@ -85,6 +89,21 @@ test.describe('Blog (MDX, sem Payload)', () => {
     // Playwright derruba o locator com dois resultados. O que o teste prova é
     // que o MDX renderiza com canal de contato — não quantos links existem.
     await expect(page.locator('.legal-body a[href^="mailto:"]').first()).toBeVisible()
+  })
+
+  test('/privacidade traz o controle de cookies, que é o caminho de opt-out', async ({ page }) => {
+    await page.goto('http://localhost:3000/privacidade')
+    // Âncora citada no corpo da política — se ela sumir, o texto passa a
+    // apontar para lugar nenhum.
+    await expect(page.locator('#cookies')).toBeVisible()
+    await expect(page.getByRole('switch', { name: 'Cookies de análise' })).toBeVisible()
+    await expect(page.getByRole('switch', { name: 'Cookies de marketing' })).toBeVisible()
+    // "Necessários" não pode ser desligado, e salvar só habilita com mudança.
+    await expect(page.getByRole('switch', { name: 'Cookies necessários' })).toBeDisabled()
+    const salvar = page.getByRole('button', { name: 'Salvar preferências' })
+    await expect(salvar).toBeDisabled()
+    await page.getByRole('switch', { name: 'Cookies de marketing' }).click()
+    await expect(salvar).toBeEnabled()
   })
 
   test('/termos renderiza o texto legal em MDX', async ({ page }) => {
