@@ -14,7 +14,7 @@ export const solucoes: PageData = {
   meta: {
     title: 'Soluções para Condomínios: gestão completa | Semog',
     description:
-      'Gestão financeira, contábil e de pessoas, com suporte jurídico por escritório parceiro, prestação de contas 100% digital e garantia de inadimplência zero.',
+      'Gestão financeira, contábil e de pessoas, suporte jurídico com escritório parceiro, contas 100% digitais e inadimplência zero pelo Semog Garante.',
   },
   layout: [
     // `.page-hero`, `_reference/solucoes.html:400-409` — mesmo

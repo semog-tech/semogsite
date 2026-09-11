@@ -11,9 +11,11 @@ export const proposta: PageData = {
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'Solicitar Proposta',
   meta: {
-    title: 'Solicitar Proposta para o seu Condomínio | Semog',
+    // Esta é uma das páginas que o Google exibe como sitelink da marca — o
+    // título aqui é o texto do próprio sitelink, e quanto mais direto, melhor.
+    title: 'Proposta para o seu condomínio em até 24h | Semog',
     description:
-      'Conte sobre o seu condomínio em dois minutos e receba uma proposta da Semog. Nossa equipe comercial responde em até 24 horas úteis.',
+      'Dois minutos de formulário e a equipe comercial responde com escopo e valores para o porte do seu condomínio. Sem compromisso.',
   },
   layout: [
     // `.proposal-wrap`, `_reference/proposta.html:38-45,154-166`: SEM

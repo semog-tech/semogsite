@@ -10,9 +10,9 @@ export const semog: PageData = {
   // Rótulo administrativo real no Payload (confirmado via GET /api/pages).
   title: 'A Semog',
   meta: {
-    title: 'A Semog: da fundação no Recife em 1991 à liderança do Nordeste',
+    title: 'A Semog: 35 anos administrando condomínios no Nordeste',
     description:
-      'Fundada no Recife em 1991, a Semog administra 650 condomínios e atende 70 mil clientes em Recife, João Pessoa, Campina Grande e Belém. Conheça a história.',
+      'Fundada no Recife em 1991, hoje em João Pessoa, Campina Grande e Belém: 650 condomínios, 70 mil clientes e cadeira no G20 da Superlógica.',
   },
   layout: [
     // `.page-hero`, `_reference/semog.html:43-63,236-245` — só imagem de

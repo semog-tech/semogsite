@@ -12,8 +12,11 @@ export const garante: PageData = {
   title: 'Semog Garante',
   meta: {
     title: 'Semog Garante: o condomínio recebe 100% da arrecadação',
+    // A descrição anterior repetia o título ("o condomínio recebe toda a
+    // arrecadação") e gastava o snippet inteiro nisso. Agora ela leva o que o
+    // título não cabe: preço, ausência de adesão e o parceiro da operação.
     description:
-      'Com o Semog Garante, o condomínio recebe toda a arrecadação prevista todos os meses, independentemente da inadimplência. Veja como funciona.',
+      'Custa 1% da arrecadação, sem taxa de adesão e sem letra miúda — e o caixa fecha todo mês mesmo com atraso. Parceria com a G5 Partners.',
   },
   layout: [
     // `.g-hero`, `_reference/garante.html:59-104,268-293` — hero de vídeo

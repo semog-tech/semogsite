@@ -13,9 +13,9 @@ export const administracaoDeCondominios: PageData = {
   // fallback de `<title>`/nome do breadcrumb quando `meta.title` está vazio.
   title: 'Administração de condomínios',
   meta: {
-    title: 'Administração de Condomínios: tudo em um só contrato | Semog',
+    title: 'Administração de Condomínios: tudo em um contrato | Semog',
     description:
-      'Gestão financeira, cobrança de inadimplência, contabilidade e prestação de contas digital em um só contrato. Veja como a Semog auxilia o síndico na operação.',
+      'Financeiro, cobrança, contabilidade, folha e prestação de contas digital num contrato só, com a equipe da Semog ao lado do síndico.',
   },
   layout: [
     // `.page-hero`, `_reference/administracao-de-condominios.html:61-77`:

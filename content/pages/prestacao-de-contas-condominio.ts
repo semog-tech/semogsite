@@ -18,9 +18,9 @@ export const prestacaoDeContasCondominio: PageData = {
   slug: 'prestacao-de-contas-condominio',
   title: 'Prestação de contas de condomínio',
   meta: {
-    title: 'Prestação de Contas de Condomínio: como funciona e o que exigir | Semog',
+    title: 'Prestação de Contas de Condomínio: o que exigir | Semog',
     description:
-      'Balancete mensal com nota e comprovante anexados a cada lançamento, gráficos que o condômino entende e assinatura digital com validade jurídica. Veja como a Semog presta contas em Recife, João Pessoa, Campina Grande e Belém.',
+      'Balancete com nota e comprovante em cada lançamento, gráficos que o condômino entende e assinatura digital com validade jurídica.',
   },
   layout: [
     {

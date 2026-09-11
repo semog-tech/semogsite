@@ -13,8 +13,11 @@ export const contato: PageData = {
   title: 'Contato',
   meta: {
     title: 'Contato Semog: telefone e WhatsApp das quatro unidades',
+    // Os telefones no próprio snippet: quem busca contato resolve na SERP, e
+    // quem precisa do resto entra. A descrição anterior só repetia o título.
+    // Números fiéis à `UNITS` de `src/lib/seo.ts` (mesma fonte do JSON-LD).
     description:
-      'Fale com a Semog em Recife, João Pessoa, Campina Grande ou Belém: telefone, WhatsApp e e-mail de cada unidade, com resposta em horário comercial.',
+      'Recife (81) 3316-0265, João Pessoa (83) 3224-1228, Campina Grande (83) 3201-9039 e Belém (91) 3115-4700, de segunda a sexta, 8h às 18h.',
   },
   layout: [
     // `.page-hero`, `_reference/contato.html:76-88,198-205`: SEM `poster`,

@@ -19,9 +19,9 @@ export const softwareDeGestaoCondominial: PageData = {
   slug: 'software-de-gestao-condominial',
   title: 'Software de gestão condominial',
   meta: {
-    title: 'Software de Gestão Condominial: comprar ou já vir com a administradora? | Semog',
+    title: 'Software de Gestão Condominial: vale comprar? | Semog',
     description:
-      'O Semog One é a plataforma própria que sustenta a operação: financeiro, cobrança, assembleias, documentos e atendimento numa só tela. Sem licença, sem implantação e sem ninguém do condomínio virando operador de sistema.',
+      'O Semog One já vem com a administração: financeiro, cobrança, assembleias e documentos numa tela, sem licença nem implantação.',
   },
   layout: [
     {

@@ -22,7 +22,7 @@ export const blog: PageData = {
   meta: {
     title: 'Blog da Semog: gestão de condomínios na prática',
     description:
-      'Artigos práticos sobre prestação de contas, inadimplência, assembleias e escolha de administradora, escritos por quem administra 650 condomínios.',
+      'Artigos práticos sobre prestação de contas, inadimplência, assembleias e escolha de administradora, por quem administra 650 condomínios.',
   },
   layout: [
     // `.page-hero` de `_reference/blog.html:37-46`: SEM `poster` — só o

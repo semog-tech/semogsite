@@ -31,9 +31,13 @@ export const home: PageData = {
   // Espelha `<title>`/meta description de `_reference/index.html` — o
   // `meta.title` tem prioridade sobre o rótulo administrativo "Home".
   meta: {
-    title: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
+    // Medidos em Arial 20px (título) e 14px (descrição), a métrica de corte do
+    // Google: 562px e 906px, contra 629px e 1.228px antes — o título perdia o
+    // fim e a descrição nunca chegava a exibir "Semog Garante", que é o
+    // argumento comercial mais forte da página.
+    title: 'Administradora de Condomínios no Nordeste | Semog, 35 anos',
     description:
-      'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 650 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
+      '650 condomínios em Recife, João Pessoa, Campina Grande e Belém, com prestação de contas digital e inadimplência zero pelo Semog Garante.',
   },
   layout: [
     {
