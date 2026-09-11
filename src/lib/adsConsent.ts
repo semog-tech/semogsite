@@ -89,6 +89,16 @@ export function paisDaRequisicao(headers: Headers): string | null {
  * olha `WINDOW_DAYS` (3 dias) para trás: passado esse prazo, não há mais
  * nenhuma, e este ramo deixa de ser alcançado.
  *
+ * **Tamanho real da população, medido em 11/09/2026: UMA linha** — 1 em
+ * `cms.leads` e 0 em `cms.whatsapp_clicks`. Contagem reproduzível:
+ *
+ *     select count(*) from cms.leads
+ *      where gclid is not null and uploaded_to_ads = false
+ *        and created_at > now() - interval '3 days';
+ *
+ * (Havia uma segunda linha pendente em `cms.leads`, mas fora da janela de 3
+ * dias — o cron nunca a alcança, com ou sem esta regra.)
+ *
  * Por que concedido e não "não sei": essas linhas foram coletadas sob o regime
  * ANTIGO, com o banner no ar, então parte dessas pessoas de fato aceitou —
  * mandar `UNSPECIFIED` descartaria informação verdadeira. E as que não

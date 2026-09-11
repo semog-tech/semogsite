@@ -17,7 +17,9 @@
 -- foram coletadas com o banner no ar, parte dessas pessoas aceitou de fato, e
 -- as demais são tráfego brasileiro, para quem o desenho novo concede por
 -- padrão. Como o cron só olha 3 dias para trás (`WINDOW_DAYS`), três dias
--- depois do deploy não existe mais nenhuma linha nessa condição.
+-- depois do deploy não existe mais nenhuma linha nessa condição. Medido em
+-- 11/09/2026, a regra alcança UMA linha: 1 em `cms.leads`, 0 em
+-- `cms.whatsapp_clicks` (contagem em `paraDataManager`).
 
 alter table cms.leads
   add column if not exists ads_consent text;
