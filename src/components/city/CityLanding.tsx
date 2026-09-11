@@ -1,6 +1,6 @@
 import { preload } from 'react-dom'
 import { PropostaForm } from '@/components/forms/PropostaForm'
-import type { CityLandingData } from '@/data/cityLandings'
+import { type CityLandingData, wholeState } from '@/data/cityLandings'
 import { Reveal, Stagger } from '@/motion/reveal'
 
 /**
@@ -523,7 +523,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
               style={{ fontFamily: DISPLAY, color: INK }}
             >
-              Atendemos todo o {data.ufFull}.
+              Atendemos {wholeState(data)}.
             </h2>
             <p
               className="mt-4 max-w-[54ch] text-[1.05rem] leading-relaxed"

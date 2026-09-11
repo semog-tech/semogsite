@@ -14,6 +14,12 @@ export type CityLandingData = {
   city: string
   uf: string
   ufFull: string
+  /**
+   * Gênero do nome do estado — "o" Pernambuco, "o" Pará, "a" Paraíba. Alimenta
+   * `wholeState`; obrigatório de propósito, pra uma praça nova não entrar sem
+   * declarar a concordância.
+   */
+  ufGender: 'm' | 'f'
   /** Foto aérea em `public/cities/<slug-curto>.jpg`. */
   image: string
   heroSubhead: string
@@ -30,6 +36,15 @@ export type CityLandingData = {
   }
   testimonials: CityTestimonial[]
   faq: CityFaq[]
+}
+
+/**
+ * "todo o Pernambuco", "toda a Paraíba", "todo o Pará" — a concordância vem do
+ * `ufGender` do próprio dado, e não de um condicional no componente: o artigo
+ * estava fixo no masculino e as duas praças da Paraíba exibiam "todo o Paraíba".
+ */
+export function wholeState(data: Pick<CityLandingData, 'ufFull' | 'ufGender'>): string {
+  return data.ufGender === 'f' ? `toda a ${data.ufFull}` : `todo o ${data.ufFull}`
 }
 
 const WHATSAPP = '551130034506'
@@ -68,6 +83,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Recife',
     uf: 'PE',
     ufFull: 'Pernambuco',
+    ufGender: 'm',
     image: '/cities/recife.jpg',
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
@@ -122,6 +138,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'João Pessoa',
     uf: 'PB',
     ufFull: 'Paraíba',
+    ufGender: 'f',
     image: '/cities/joao-pessoa.jpg',
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
@@ -176,6 +193,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Campina Grande',
     uf: 'PB',
     ufFull: 'Paraíba',
+    ufGender: 'f',
     image: '/cities/campina-grande.jpg',
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
@@ -230,6 +248,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     city: 'Belém',
     uf: 'PA',
     ufFull: 'Pará',
+    ufGender: 'm',
     image: '/cities/belem.jpg',
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
