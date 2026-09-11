@@ -10,7 +10,7 @@ import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import type { PostData } from '@/lib/blog'
 import { getPostBySlug, getRelatedPosts, getSiteSettings } from '@/lib/content'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, getPostJsonLd } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -100,9 +100,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const date = formatDate(post.date)
   const takeaways = post.keyTakeaways ?? []
   const related = await getRelatedPosts(post.category, post.slug, 3)
+  const jsonLd = getPostJsonLd(post)
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD serializado por nós, a partir do frontmatter do post
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ReadingProgress />
       <Section light>
         <Container>

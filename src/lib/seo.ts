@@ -564,3 +564,69 @@ export function cityLandingJsonLd(
   if (faq.length > 0) graph.push(faqPageNode(faq))
   return { '@context': 'https://schema.org', '@graph': graph }
 }
+
+/**
+ * Shape mínimo do que `getPostJsonLd` precisa do post — compatível com
+ * `PostData` (`src/lib/blog.ts`) sem importá-lo: `blog.ts` lê o disco no import
+ * do módulo, e `seo.ts` roda em `generateMetadata` de toda página do site.
+ */
+interface JsonLdPost {
+  slug: string
+  title: string
+  excerpt?: string | null
+  date: string
+  categoryTitle?: string | null
+  heroImage?: { url?: string | null } | null
+}
+
+/**
+ * JSON-LD (`@graph`) do artigo `/blog/[slug]`: `BreadcrumbList` (Início › Blog
+ * › título) + `BlogPosting` + a `Organization` referenciada por
+ * `author`/`publisher`. Os 12 posts não emitiam **nada** — nem a trilha que as
+ * outras 18 páginas já tinham —, então o Google via o artigo como página
+ * qualquer: sem data de publicação declarada, sem autor e sem editor.
+ *
+ * **Autoria:** nenhum `.mdx` declara autor no frontmatter; o único autor que a
+ * página exibe é "Equipe Semog", que é a própria organização. Então o `author`
+ * é a `Organization`, por `@id` — não uma pessoa inventada. Se um dia o
+ * frontmatter ganhar um autor real, é aqui que ele entra (assunto financeiro e
+ * jurídico de condomínio pede autoria nominal, não institucional).
+ *
+ * **`dateModified` = `datePublished`:** o frontmatter só tem `date`. Repetir a
+ * data de publicação é o que o conteúdo declara; qualquer outra coisa seria
+ * inventar uma revisão que não aconteceu.
+ */
+export function getPostJsonLd(post: JsonLdPost): Record<string, unknown> {
+  const root = absoluteUrl('')
+  const url = absoluteUrl(`blog/${post.slug}`)
+  const image = post.heroImage?.url
+
+  const blogPosting: Record<string, unknown> = {
+    '@type': 'BlogPosting',
+    '@id': `${url}#article`,
+    headline: post.title,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    datePublished: post.date,
+    dateModified: post.date,
+    author: { '@id': ORG_ID() },
+    publisher: { '@id': ORG_ID() },
+    inLanguage: 'pt-BR',
+  }
+  if (post.excerpt) blogPosting.description = post.excerpt
+  if (post.categoryTitle) blogPosting.articleSection = post.categoryTitle
+  if (image) blogPosting.image = [image]
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      breadcrumbNode([
+        { name: 'Início', url: root },
+        { name: 'Blog', url: absoluteUrl('blog') },
+        { name: post.title, url },
+      ]),
+      organizationRefNode(),
+      blogPosting,
+    ],
+  }
+}
