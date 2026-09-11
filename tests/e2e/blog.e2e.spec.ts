@@ -1,12 +1,38 @@
+import { readdirSync } from 'node:fs'
+import path from 'node:path'
 import { expect, test } from '@playwright/test'
 
 const SLUG_DESTAQUE = 'previsao-orcamentaria-guia-sindico'
 
+/**
+ * Todos os posts publicados, da mesma fonte que a página lê
+ * (`content/blog/*.mdx`). Playwright roda com cwd na raiz do repo, mesma
+ * premissa de `src/lib/blog.ts`.
+ */
+const SLUGS_PUBLICADOS = readdirSync(path.resolve(process.cwd(), 'content/blog'))
+  .filter((arquivo) => arquivo.endsWith('.mdx'))
+  .map((arquivo) => arquivo.replace(/\.mdx$/, ''))
+
 test.describe('Blog (MDX, sem Payload)', () => {
-  test('/blog lista o destaque + 6 posts da grade', async ({ page }) => {
+  // Sem contagem fixa de propósito: era o `toHaveCount(6)` daqui que deixava
+  // cinco posts sem nenhum link interno no índice passar por verde, e trocar
+  // por 12 só adiaria o problema pro próximo post. O que o índice precisa
+  // garantir é que todo post publicado é alcançável a partir dele — o destaque
+  // conta tanto quanto a grade.
+  test('/blog dá link interno para todos os posts publicados', async ({ page }) => {
+    expect(SLUGS_PUBLICADOS.length).toBeGreaterThan(0)
+
     await page.goto('http://localhost:3000/blog')
     await expect(page.locator('.featured')).toBeVisible()
-    await expect(page.locator('.posts .post')).toHaveCount(6)
+
+    const linkados = new Set(
+      await page
+        .locator('a[href^="/blog/"]')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+    )
+    const semLinkNoIndice = SLUGS_PUBLICADOS.filter((slug) => !linkados.has(`/blog/${slug}`))
+
+    expect(semLinkNoIndice).toEqual([])
   })
 
   test('o destaque não se repete na grade', async ({ page }) => {
