@@ -16,6 +16,10 @@ const queryMock = vi.fn()
 const authorizeMock = vi.fn()
 const fetchMock = vi.fn()
 
+// `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
+// mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
+vi.mock('server-only', () => ({}))
+
 vi.mock('@/lib/db', () => ({
   query: (...args: unknown[]) => queryMock(...args),
 }))

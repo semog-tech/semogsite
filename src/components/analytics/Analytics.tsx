@@ -2,8 +2,8 @@
 
 import Script from 'next/script'
 import { useEffect } from 'react'
+import { REGIOES_COM_CONSENTIMENTO_OBRIGATORIO } from '@/lib/consentRegions'
 import { useConsent } from '@/providers/ConsentProvider'
-import { REGIOES_COM_CONSENTIMENTO_OBRIGATORIO } from './consentRegions'
 import { IS_MEASURABLE_HOST_JS } from './measurableHost'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID

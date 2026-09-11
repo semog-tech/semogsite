@@ -16,6 +16,10 @@ const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
 
+// `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
+// mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
+vi.mock('server-only', () => ({}))
+
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
 }))

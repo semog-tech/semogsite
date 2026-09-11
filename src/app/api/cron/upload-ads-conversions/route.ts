@@ -1,5 +1,6 @@
 import { JWT } from 'google-auth-library'
 import { NextResponse } from 'next/server'
+import { paraDataManager } from '@/lib/adsConsent'
 import { query } from '@/lib/db'
 
 /**
@@ -20,6 +21,12 @@ import { query } from '@/lib/db'
  * Envio pela **Data Manager API** (`events:ingest`) — o método novo do Google
  * (o antigo `UploadClickConversions` foi restrito a contas legadas). Uma
  * chamada por ação de conversão, porque `productDestinationId` é por destino.
+ *
+ * **Consentimento vai por evento** (11/09/2026), lido da coluna `ads_consent`
+ * que a captura grava (ver `@/lib/adsConsent`). Antes ia um `CONSENT_GRANTED`
+ * fixo no nível do lote, igual para todo mundo — o site afirmava ao Google um
+ * consentimento que não tinha como sustentar, e que era inclusive o oposto do
+ * que a própria página declarava no Consent Mode.
  *
  * Auth: service account + domain-wide delegation com o escopo
  * `https://www.googleapis.com/auth/datamanager` (precisa estar autorizado no
@@ -59,6 +66,12 @@ type PendingRow = {
   id: string
   created_at: string | Date
   gclid: string
+  /**
+   * Consentimento de publicidade gravado na captura ('granted' | 'denied').
+   * `null` nas linhas anteriores à coluna existir — `paraDataManager` traduz
+   * isso para `CONSENT_STATUS_UNSPECIFIED`.
+   */
+  ads_consent: string | null
 }
 
 type BatchResult = {
@@ -110,7 +123,7 @@ export async function GET(req: Request): Promise<Response> {
     // `assunto = 'proposta-comercial'` é pedido de proposta, e aí sim conta,
     // na mesma ação `Proposta (servidor) - gclid` (mesma intenção de compra).
     const { rows: leads } = await query<PendingRow>(
-      `select id, created_at, gclid from cms.leads
+      `select id, created_at, gclid, ads_consent from cms.leads
        where gclid is not null
          and (form = 'proposta' or (form = 'contato' and data->>'assunto' = 'proposta-comercial'))
          and created_at > $1 and uploaded_to_ads = false
@@ -119,7 +132,7 @@ export async function GET(req: Request): Promise<Response> {
     )
 
     const { rows: whatsapp } = await query<PendingRow>(
-      `select id, created_at, gclid from cms.whatsapp_clicks
+      `select id, created_at, gclid, ads_consent from cms.whatsapp_clicks
        where gclid is not null and created_at > $1 and uploaded_to_ads = false
        order by created_at desc`,
       [cutoff],
@@ -162,8 +175,19 @@ export async function GET(req: Request): Promise<Response> {
           eventTimestamp: new Date(row.created_at).toISOString(),
           transactionId: `${prefix}-${row.id}`,
           eventSource: 'WEB',
+          // Consentimento POR EVENTO: a Data Manager API aceita `consent`
+          // dentro de cada `Event` e ele vence o do lote ("user-level consent
+          // overrides request-level consent"), então não é preciso partir o
+          // lote por valor. Antes havia aqui um `CONSENT_GRANTED` fixo no
+          // nível do lote — uma afirmação igual para todos, que o site não
+          // tinha como sustentar. Agora vem da coluna gravada na captura
+          // (`@/lib/adsConsent`); linha sem valor vira
+          // `CONSENT_STATUS_UNSPECIFIED`, não concedido.
+          consent: {
+            adUserData: paraDataManager(row.ads_consent),
+            adPersonalization: paraDataManager(row.ads_consent),
+          },
         })),
-        consent: { adPersonalization: 'CONSENT_GRANTED', adUserData: 'CONSENT_GRANTED' },
       }
 
       const res = await fetch(INGEST_URL, {

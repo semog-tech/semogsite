@@ -18,11 +18,13 @@ import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
 import ExperienceAutoReply from '@/emails/ExperienceAutoReply'
+import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
 import {
   ATTRIBUTION_COOKIE,
   buildAttributionFields,
   parseAttributionCookie,
 } from '@/lib/attribution'
+import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
@@ -181,7 +183,8 @@ export async function submitForm(
 
     // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
     // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
-    const attributionCookie = (await cookies()).get(ATTRIBUTION_COOKIE)?.value
+    const jar = await cookies()
+    const attributionCookie = jar.get(ATTRIBUTION_COOKIE)?.value
     const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
 
     // Monta o `data` (jsonb) do lead: campos do formulário (chave = nome do
@@ -198,9 +201,17 @@ export async function submitForm(
 
     const { gclid, email } = extractLeadColumns(leadData)
 
+    // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
+    // linha: é o que o cron do Google Ads envia junto com a conversão, no
+    // lugar da constante que havia antes (ver `@/lib/adsConsent`).
+    const adsConsent = consentimentoDeAnuncio(
+      jar.get(CONSENT_COOKIE_NAME)?.value,
+      paisDaRequisicao(await headers()),
+    )
+
     const { rows: inserted } = await query<{ id: string }>(
-      'insert into cms.leads (form, data, gclid, email) values ($1, $2, $3, $4) returning id',
-      [formType, leadData, gclid ?? null, email ?? null],
+      'insert into cms.leads (form, data, gclid, email, ads_consent) values ($1, $2, $3, $4, $5) returning id',
+      [formType, leadData, gclid ?? null, email ?? null, adsConsent],
     )
     const leadRowId = inserted[0]?.id
 

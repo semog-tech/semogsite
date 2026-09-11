@@ -10,6 +10,10 @@ import { mensagemWhatsApp } from '@/components/analytics/LeadClickTracker'
 const queryMock = vi.fn()
 const cookieGet = vi.fn()
 
+// `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
+// mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
+vi.mock('server-only', () => ({}))
+
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
 vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (name: string) => cookieGet(name) }),
@@ -54,7 +58,12 @@ describe('POST /api/track/whatsapp', () => {
     expect(queryMock).toHaveBeenCalledTimes(1)
     const [sql, params] = queryMock.mock.calls[0] as [string, unknown[]]
     expect(sql).toMatch(/insert into cms\.whatsapp_clicks/i)
-    expect(params).toEqual(['gclid-do-cookie', '/administradora-de-condominios-recife', 'conteudo'])
+    expect(params).toEqual([
+      'gclid-do-cookie',
+      '/administradora-de-condominios-recife',
+      'conteudo',
+      'granted',
+    ])
   })
 
   it('cai no last-touch quando o first não tem gclid', async () => {
@@ -76,7 +85,7 @@ describe('POST /api/track/whatsapp', () => {
   it('grava clique orgânico (sem gclid) — serve pra contar o canal', async () => {
     await POST(req({ page: '/garante', section: 'rodape' }))
     const [, params] = queryMock.mock.calls[0] as [string, unknown[]]
-    expect(params).toEqual([null, '/garante', 'rodape'])
+    expect(params).toEqual([null, '/garante', 'rodape', 'granted'])
   })
 
   it('sanea a página (tira query/hash) e recusa seção inventada', async () => {

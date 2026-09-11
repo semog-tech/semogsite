@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
 import { ATTRIBUTION_COOKIE, parseAttributionCookie } from '@/lib/attribution'
+import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
 
 /**
@@ -62,11 +64,18 @@ export async function POST(req: Request): Promise<Response> {
     // fallback (entrou orgânico numa visita, voltou pelo anúncio e clicou).
     const gclid = attr?.first?.gclid ?? attr?.last?.gclid ?? null
 
-    await query('insert into cms.whatsapp_clicks (gclid, page, section) values ($1, $2, $3)', [
-      gclid,
-      page,
-      section,
-    ])
+    // Mesmo tratamento do formulário: o consentimento de publicidade é
+    // decidido no servidor e gravado na linha, para o cron do Ads enviar o
+    // valor deste visitante em vez de uma constante.
+    const adsConsent = consentimentoDeAnuncio(
+      jar.get(CONSENT_COOKIE_NAME)?.value,
+      paisDaRequisicao(req.headers),
+    )
+
+    await query(
+      'insert into cms.whatsapp_clicks (gclid, page, section, ads_consent) values ($1, $2, $3, $4)',
+      [gclid, page, section, adsConsent],
+    )
   } catch (err) {
     // Medição nunca derruba a experiência: loga e segue.
     console.error('[api/track/whatsapp] erro ao gravar clique:', err)
