@@ -22,12 +22,14 @@ const CONSENT_COOKIE_MAX_AGE_DAYS = 180
  * Privacidade. Antes nasciam `false`, o que descrevia mal o comportamento e
  * ainda fazia o `consent update` do mount negar publicidade no mundo inteiro.
  *
- * **Ressalva**: dentro do EEA/Reino Unido/Suíça o padrão real é negado, e isso
- * é imposto pelo `region` do Consent Mode, no navegador. Esta constante não
- * sabe o país — ela só alimenta o estado inicial do controle na Política de
- * Privacidade. Um visitante europeu que abra aquela página veria os
- * interruptores ligados; como não há público europeu e a negativa efetiva vem
- * do `default` regional, fica assim de propósito, registrado aqui.
+ * **Ressalva**: nos 32 territórios de `consentRegions.ts` o padrão real é
+ * negado — nos quatro sinais, `analytics_storage` incluído —, e isso é imposto
+ * pelo `region` do Consent Mode, no navegador. Esta constante não sabe o país:
+ * ela só alimenta o estado inicial do controle na Política de Privacidade. Um
+ * visitante de lá que abra aquela página veria os interruptores ligados. Fica
+ * assim de propósito, e sem dano: só um clique em "Salvar preferências" muda
+ * algo, e o botão só habilita depois de uma mudança real (ver
+ * `blocks/CookiePreferences/Component.tsx`), então ninguém concede por inércia.
  */
 export const defaultConsent: Consent = {
   necessary: true,

@@ -11,10 +11,13 @@
 -- `text` sem enum/CHECK pelo mesmo motivo de `cms.leads.form`: um valor novo
 -- não exigiria migration. Os valores usados hoje são 'granted' e 'denied'.
 --
--- NULL é estado legítimo e significa "não sabemos": são as linhas gravadas
--- antes desta coluna existir. O cron traduz NULL para
--- `CONSENT_STATUS_UNSPECIFIED`, não para concedido. Como ele só olha 3 dias
--- para trás (`WINDOW_DAYS`), essa população se extingue sozinha.
+-- NULL identifica linha gravada ANTES desta coluna existir. O cron a traduz
+-- para `CONSENT_GRANTED` — decisão deliberada e TEMPORÁRIA de 11/09/2026,
+-- documentada em `paraDataManager` (`src/lib/adsConsent.ts`): essas linhas
+-- foram coletadas com o banner no ar, parte dessas pessoas aceitou de fato, e
+-- as demais são tráfego brasileiro, para quem o desenho novo concede por
+-- padrão. Como o cron só olha 3 dias para trás (`WINDOW_DAYS`), três dias
+-- depois do deploy não existe mais nenhuma linha nessa condição.
 
 alter table cms.leads
   add column if not exists ads_consent text;

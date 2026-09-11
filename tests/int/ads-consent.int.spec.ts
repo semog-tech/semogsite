@@ -38,10 +38,11 @@ describe('consentimentoDeAnuncio — sem escolha explícita, decide pela região
     }
   })
 
-  it('concede quando não há país — fora da Vercel o header não existe', () => {
+  it('concede quando não há país — caso explícito, não resto de expressão', () => {
     expect(consentimentoDeAnuncio(undefined, null)).toBe('granted')
     expect(consentimentoDeAnuncio(undefined, undefined)).toBe('granted')
     expect(consentimentoDeAnuncio(undefined, '')).toBe('granted')
+    expect(consentimentoDeAnuncio(undefined, '   ')).toBe('granted')
   })
 
   it('aceita o código em qualquer caixa e com espaço em volta', () => {
@@ -73,10 +74,17 @@ describe('paraDataManager — o que vai no evento', () => {
     expect(paraDataManager('denied')).toBe('CONSENT_DENIED')
   })
 
-  it('linha sem valor vira UNSPECIFIED, nunca GRANTED', () => {
-    expect(paraDataManager(null)).toBe('CONSENT_STATUS_UNSPECIFIED')
+  it('linha legada (null) vai como concedida — decisão temporária de 11/09/2026', () => {
+    // Coletadas sob o regime antigo, com o banner no ar: parte aceitou de
+    // fato, e o resto é tráfego brasileiro, que o desenho novo concede por
+    // padrão. Some sozinho três dias depois do deploy (WINDOW_DAYS).
+    expect(paraDataManager(null)).toBe('CONSENT_GRANTED')
+  })
+
+  it('valor inesperado é defeito, não linha legada: vai como UNSPECIFIED', () => {
     expect(paraDataManager('')).toBe('CONSENT_STATUS_UNSPECIFIED')
     expect(paraDataManager('qualquer-outra-coisa')).toBe('CONSENT_STATUS_UNSPECIFIED')
+    expect(paraDataManager('GRANTED')).toBe('CONSENT_STATUS_UNSPECIFIED')
   })
 })
 

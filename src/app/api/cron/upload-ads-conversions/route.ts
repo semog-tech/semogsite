@@ -68,8 +68,8 @@ type PendingRow = {
   gclid: string
   /**
    * Consentimento de publicidade gravado na captura ('granted' | 'denied').
-   * `null` nas linhas anteriores à coluna existir — `paraDataManager` traduz
-   * isso para `CONSENT_STATUS_UNSPECIFIED`.
+   * `null` nas linhas anteriores à coluna existir — ver `paraDataManager`,
+   * que documenta como elas são tratadas e até quando isso importa.
    */
   ads_consent: string | null
 }
@@ -180,9 +180,9 @@ export async function GET(req: Request): Promise<Response> {
           // overrides request-level consent"), então não é preciso partir o
           // lote por valor. Antes havia aqui um `CONSENT_GRANTED` fixo no
           // nível do lote — uma afirmação igual para todos, que o site não
-          // tinha como sustentar. Agora vem da coluna gravada na captura
-          // (`@/lib/adsConsent`); linha sem valor vira
-          // `CONSENT_STATUS_UNSPECIFIED`, não concedido.
+          // tinha como sustentar. Agora vem da coluna gravada na captura;
+          // o tratamento de linha legada (`null`) e a data em que ele expira
+          // estão em `paraDataManager` (`@/lib/adsConsent`).
           consent: {
             adUserData: paraDataManager(row.ads_consent),
             adPersonalization: paraDataManager(row.ads_consent),

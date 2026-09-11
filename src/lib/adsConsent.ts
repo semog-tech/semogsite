@@ -39,21 +39,40 @@ export type ConsentimentoDeAnuncio = 'granted' | 'denied'
 const HEADER_PAIS = 'x-vercel-ip-country'
 
 /**
+ * Valor usado quando a requisição **não traz país** — header ausente ou vazio.
+ *
+ * Está numa constante nomeada, e não escondido num `??` no fim de uma
+ * expressão, porque é uma escolha e não um resto: "não sei onde a pessoa está"
+ * é um terceiro caso, diferente de "sei que é Europa" e de "sei que não é".
+ *
+ * Escolhido `granted` porque o caso real é local — `next dev`, teste de
+ * integração, qualquer execução fora da Vercel, onde o header simplesmente não
+ * existe e não há visitante nenhum. Em produção o header vem em toda
+ * requisição; se ele sumir em massa lá, o sintoma é conversão sendo enviada
+ * como concedida para gente cuja região não foi verificada — e é por isso que
+ * isto está escrito aqui, e não deduzido de um operador.
+ */
+const SEM_PAIS_CONHECIDO: ConsentimentoDeAnuncio = 'granted'
+
+/**
  * Decide o consentimento de publicidade deste visitante.
  *
  * `cookieDeConsentimento` é o valor bruto de `semog-consent` (ou `undefined`),
- * e `paisDaRequisicao` o do header da Vercel. Fora da Vercel o header não
- * existe (`next dev`, teste local) e cai na regra de região: sem país
- * conhecido, não há regra que exija negativa — concede, que é o
- * comportamento correto para o público real do site.
+ * e `pais` o do header da Vercel. Os três casos são explícitos, nesta ordem.
  */
 export function consentimentoDeAnuncio(
   cookieDeConsentimento: string | null | undefined,
-  paisDaRequisicao: string | null | undefined,
+  pais: string | null | undefined,
 ): ConsentimentoDeAnuncio {
+  // 1. Escolha explícita do visitante vence tudo — inclusive para conceder.
   const escolhido = parseConsentCookie(cookieDeConsentimento)
   if (escolhido) return escolhido.marketing ? 'granted' : 'denied'
-  return exigeConsentimentoAfirmativo(paisDaRequisicao) ? 'denied' : 'granted'
+
+  // 2. Sem país, sem como aplicar a regra de região.
+  if (!pais?.trim()) return SEM_PAIS_CONHECIDO
+
+  // 3. Região: os 32 territórios de `consentRegions.ts` negam; o resto concede.
+  return exigeConsentimentoAfirmativo(pais) ? 'denied' : 'granted'
 }
 
 /** Lê o país da requisição do header da Vercel. `null` fora dela. */
@@ -64,15 +83,30 @@ export function paisDaRequisicao(headers: Headers): string | null {
 /**
  * Converte o valor gravado na linha para o enum da Data Manager API.
  *
- * `null` vira `CONSENT_STATUS_UNSPECIFIED`, não `CONSENT_GRANTED`: são as
- * linhas gravadas antes desta coluna existir, e para elas o site realmente não
- * sabe. A população se extingue sozinha — o cron só olha `WINDOW_DAYS` (3
- * dias) para trás.
+ * **`null` vira `CONSENT_GRANTED`, e isso é temporário** — decisão de
+ * 11/09/2026, com prazo de validade de três dias a partir do deploy. Linha com
+ * `ads_consent` nulo é linha gravada ANTES desta coluna existir, e o cron só
+ * olha `WINDOW_DAYS` (3 dias) para trás: passado esse prazo, não há mais
+ * nenhuma, e este ramo deixa de ser alcançado.
+ *
+ * Por que concedido e não "não sei": essas linhas foram coletadas sob o regime
+ * ANTIGO, com o banner no ar, então parte dessas pessoas de fato aceitou —
+ * mandar `UNSPECIFIED` descartaria informação verdadeira. E as que não
+ * aceitaram são tráfego brasileiro, para quem o desenho novo concede por
+ * padrão; ou seja, `CONSENT_GRANTED` é o valor que valeria para elas hoje.
+ * `UNSPECIFIED` seria a escolha certa se houvesse chance de europeu nessa
+ * população — não há, e o custo de "não sei" recairia sobre conversão real de
+ * lead brasileiro.
+ *
+ * Valor gravado que não seja 'granted' nem 'denied' é outra coisa: não é linha
+ * legada, é defeito. Esse vai como `UNSPECIFIED`, para não virar uma afirmação
+ * inventada em cima de um bug.
  */
 export function paraDataManager(
   valor: string | null,
 ): 'CONSENT_GRANTED' | 'CONSENT_DENIED' | 'CONSENT_STATUS_UNSPECIFIED' {
   if (valor === 'granted') return 'CONSENT_GRANTED'
   if (valor === 'denied') return 'CONSENT_DENIED'
+  if (valor === null) return 'CONSENT_GRANTED'
   return 'CONSENT_STATUS_UNSPECIFIED'
 }
