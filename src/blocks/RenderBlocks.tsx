@@ -9,6 +9,7 @@ import { CitiesBlock } from './Cities/Component'
 import { ClubeBeneficiosBlock } from './ClubeBeneficios/Component'
 import { CompareBlock } from './Compare/Component'
 import { ContactInfoBlock } from './ContactInfo/Component'
+import { CookiePreferencesBlock } from './CookiePreferences/Component'
 import { CTABandBlock } from './CTABand/Component'
 import { CustoChecklistBlock } from './CustoChecklist/Component'
 import { DevQuoteBlock } from './DevQuote/Component'
@@ -69,6 +70,7 @@ const map: Record<string, (props: any) => React.ReactNode> = {
   ctaBand: CTABandBlock,
   custoChecklist: CustoChecklistBlock,
   richText: RichTextBlock,
+  cookiePreferences: CookiePreferencesBlock,
   blogList: BlogListBlock,
   blogFeatured: BlogFeaturedBlock,
   showcase: ShowcaseBlock,

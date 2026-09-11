@@ -11,10 +11,28 @@ export type Consent = Record<ConsentCategory, boolean>
 export const CONSENT_COOKIE_NAME = 'semog-consent'
 const CONSENT_COOKIE_MAX_AGE_DAYS = 180
 
+/**
+ * Estado que vale enquanto o visitante não escolheu nada — e que é o mesmo
+ * estado que o `Analytics` declara no `gtag('consent','default')` fora dos
+ * territórios que exigem escolha afirmativa (ver `consentRegions.ts`).
+ *
+ * `analytics` e `marketing` nascem `true` porque é essa a realidade desde
+ * 11/09/2026: o site não pede consentimento prévio no Brasil (legítimo
+ * interesse, medição de 1ª parte) e a revogação vive na Política de
+ * Privacidade. Antes nasciam `false`, o que descrevia mal o comportamento e
+ * ainda fazia o `consent update` do mount negar publicidade no mundo inteiro.
+ *
+ * **Ressalva**: dentro do EEA/Reino Unido/Suíça o padrão real é negado, e isso
+ * é imposto pelo `region` do Consent Mode, no navegador. Esta constante não
+ * sabe o país — ela só alimenta o estado inicial do controle na Política de
+ * Privacidade. Um visitante europeu que abra aquela página veria os
+ * interruptores ligados; como não há público europeu e a negativa efetiva vem
+ * do `default` regional, fica assim de propósito, registrado aqui.
+ */
 export const defaultConsent: Consent = {
   necessary: true,
-  analytics: false,
-  marketing: false,
+  analytics: true,
+  marketing: true,
 }
 
 function isBrowser(): boolean {
@@ -72,11 +90,13 @@ export function setConsent(consent: Consent): void {
 }
 
 /**
- * `true` se a categoria pode rodar agora. `necessary` é sempre `true`;
- * as demais dependem do cookie salvo (sem decisão = sem consentimento).
- * CLIENT-ONLY: reads `document.cookie`, so returns fail-closed default on server.
+ * `true` se a categoria pode rodar agora. `necessary` é sempre `true`; as
+ * demais saem do cookie salvo e, sem cookie, do `defaultConsent` — que é o
+ * estado que de fato vale para quem não escolheu (ver a doc daquela
+ * constante). CLIENT-ONLY: no servidor não há `document.cookie`, então cai no
+ * padrão.
  */
 export function hasConsent(category: ConsentCategory): boolean {
   if (category === 'necessary') return true
-  return getConsent()?.[category] ?? false
+  return getConsent()?.[category] ?? defaultConsent[category]
 }

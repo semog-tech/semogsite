@@ -684,6 +684,22 @@ export interface RichTextBlock {
   legal?: boolean | null
 }
 
+/**
+ * Controle de cookies da Política de Privacidade — o lugar onde o visitante
+ * desliga análise/marketing e muda de ideia depois (ver
+ * `blocks/CookiePreferences/Component.tsx`). Herda a medida de `.legal-body`,
+ * então só faz sentido numa página legal.
+ */
+export interface CookiePreferencesBlock {
+  blockType: 'cookiePreferences'
+  id?: string | number | null
+  blockName?: string | null
+  /** Título da seção; omitido, usa "Suas preferências de cookies". */
+  title?: string | null
+  /** Parágrafo de apoio acima dos interruptores. */
+  description?: string | null
+}
+
 // ---------------------------------------------------------------------------
 // BlogList / BlogFeatured — posts lidos de `src/lib/blog.ts` (MDX), por slug
 // ---------------------------------------------------------------------------
@@ -1141,3 +1157,4 @@ export type Block =
   | TrustPanelBlock
   | LegalHeroBlock
   | ReconhecimentoBlock
+  | CookiePreferencesBlock

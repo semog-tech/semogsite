@@ -21,5 +21,15 @@ export const privacidade: PageData = {
   layout: [
     { blockType: 'legalHero', headline: page.title, updatedText: page.updatedText },
     { blockType: 'richText', legal: true, body: page.body },
+    // Onde o visitante desliga análise/marketing e muda de ideia depois. Fica
+    // DEPOIS do texto da política de propósito: o texto explica o que é
+    // coletado e com que base legal, e o controle é a consequência prática
+    // disso. Âncora `#cookies` — é para lá que o corpo da política aponta.
+    {
+      blockType: 'cookiePreferences',
+      title: 'Suas preferências de cookies',
+      description:
+        'Você pode desligar as categorias não essenciais a qualquer momento, e voltar aqui para mudar de ideia. A escolha fica guardada neste navegador por 180 dias.',
+    },
   ],
 }
