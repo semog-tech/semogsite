@@ -67,23 +67,41 @@ export function CookieBanner() {
    * A barra é `position: fixed` e não ocupa espaço no fluxo — num hero de
    * `100svh` com conteúdo alinhado ao rodapé (a landing do Experience é o
    * caso), ela cobria justamente a última linha acima da dobra. Quem quiser
-   * reservar o espaço soma a variável ao seu `padding-bottom`; quem não usar
-   * não muda em nada. Some no `decided` (o componente desmonta) e acompanha a
-   * quebra de linha do texto em telas estreitas via `ResizeObserver`.
+   * reservar o espaço marca-se com `data-consent-offset` e soma a variável ao
+   * seu recuo; quem não marcar não muda em nada. Some no `decided` (o
+   * componente desmonta) e acompanha a quebra de linha do texto em telas
+   * estreitas via `ResizeObserver`.
+   *
+   * **Escreve em cada consumidor, não no `documentElement`** (11/09/2026):
+   * custom property é herdada, então escrevê-la no root invalidava o estilo do
+   * documento inteiro — 295ms de recálculo por escrita na home, medidos em
+   * Pixel 5 com CPU 20x. Era a maior fatia do INP de 473ms no p75 da home em
+   * celular: a linha de limpeza deste efeito rodava no clique de "Entendi" e
+   * segurava a pintura do quadro. Escrevendo em cada `[data-consent-offset]`, e
+   * com a propriedade registrada como não herdada em `theme.css`, a invalidação
+   * para no próprio elemento. A varredura do DOM roda no mount e a cada
+   * `ResizeObserver`, o que basta: os dois consumidores de hoje vivem nos root
+   * layouts, já montados quando este efeito roda.
    */
   useEffect(() => {
     if (decided) return
     const el = containerRef.current
     if (!el) return
-    const root = document.documentElement
-    const publicar = () =>
-      root.style.setProperty('--consent-bar-h', `${Math.round(el.offsetHeight)}px`)
+    const emCadaConsumidor = (aplicar: (alvo: HTMLElement) => void) => {
+      for (const alvo of document.querySelectorAll<HTMLElement>('[data-consent-offset]')) {
+        aplicar(alvo)
+      }
+    }
+    const publicar = () => {
+      const altura = `${Math.round(el.offsetHeight)}px`
+      emCadaConsumidor((alvo) => alvo.style.setProperty('--consent-bar-h', altura))
+    }
     publicar()
     const observer = new ResizeObserver(publicar)
     observer.observe(el)
     return () => {
       observer.disconnect()
-      root.style.removeProperty('--consent-bar-h')
+      emCadaConsumidor((alvo) => alvo.style.removeProperty('--consent-bar-h'))
     }
   }, [decided])
 
@@ -99,6 +117,10 @@ export function CookieBanner() {
       role="dialog"
       aria-labelledby={headingId}
       aria-describedby={descId}
+      // Identidade estável para quem precisa medir a barra em JS — é o que
+      // `useEnvioVisivelNoErro` usa para não trazer o botão de envio para
+      // debaixo dela. Em CSS o contrato continua sendo `--consent-bar-h`.
+      data-consent-bar=""
       tabIndex={-1}
       className={`pointer-events-none fixed inset-x-0 bottom-0 z-50 px-[clamp(1rem,4vw,1.5rem)] pb-[clamp(1rem,3vw,1.5rem)] outline-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
         entered ? 'translate-y-0' : 'translate-y-[110%]'

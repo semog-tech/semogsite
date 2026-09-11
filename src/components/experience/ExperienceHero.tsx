@@ -14,12 +14,17 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
  * O logo do topo NÃO é link. No protótipo era `href="#"` (placeholder); numa
  * peça de campanha isolada a única saída da página é a inscrição, então virou
  * imagem — no rodapé ele já é tratado assim.
+ *
+ * `data-consent-offset` é opt-in na altura da barra de consentimento: o
+ * `CookieBanner` escreve `--consent-bar-h` nos elementos marcados assim, e o
+ * recuo do hero no celular (`experience.css`) consome a variável para a linha
+ * das vagas não ficar atrás do cartão.
  */
 export function ExperienceHero() {
   const hero = img('experience-hero.webp')
 
   return (
-    <header className="hero s-dark">
+    <header className="hero s-dark" data-consent-offset="">
       <div className="topbar">
         <div className="wrap">
           {/* biome-ignore lint/performance/noImgElement: SVG de /public, sem otimização a fazer (mesmo caso do FooterView) */}

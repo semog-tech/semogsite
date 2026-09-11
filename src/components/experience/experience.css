@@ -265,10 +265,12 @@
  * ficava 11px coberto e a linha "Gratuito · 200 vagas" — a prova de que o
  * evento é grátis, a última coisa acima da dobra no protótipo — sumia inteira
  * atrás dela. Aqui o rodapé do hero reserva a altura real da barra
- * (`--consent-bar-h`, publicada pelo `CookieBanner` enquanto ela está no ar) e
- * o topo devolve parte do espaço: os 9rem existem só para o `.topbar`
- * absoluto, que no celular ocupa ~4,6rem — daí o piso de 5rem. Some quando a
- * pessoa decide (a variável deixa de existir e o `0px` do fallback restaura o
+ * (`--consent-bar-h`, que o `CookieBanner` escreve no próprio `<header>` do
+ * hero enquanto ela está no ar — o `data-consent-offset` em
+ * `ExperienceHero.tsx` é o opt-in) e o topo devolve parte do espaço: os 9rem
+ * existem só para o `.topbar` absoluto, que no celular ocupa ~4,6rem — daí o
+ * piso de 5rem. Some quando a pessoa decide (a variável é apagada e o
+ * `initial-value: 0px` do `@property`, declarado em `theme.css`, restaura o
  * espaçamento original). Só no celular: no desktop não há colisão.
  *
  * Medido: 390x844 resolve (a linha das vagas termina em 695, a barra começa em

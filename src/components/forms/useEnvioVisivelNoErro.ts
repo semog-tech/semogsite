@@ -37,16 +37,19 @@ const JANELA_DE_ASSENTAMENTO = 2500
  * cantos internos) devolviam elementos do banner, em `/proposta` e `/contato`,
  * nas cinco larguras de 390 a 1920.
  *
- * Lê `--consent-bar-h` em vez de medir o banner pelo DOM porque a variável já é
- * o contrato que o próprio banner publica para quem precisa reservar o espaço
- * (`.wa-float` em `theme.css`, o hero do Experience em `experience.css`) — e
- * ela acompanha sozinha a quebra de linha em tela estreita e a abertura do
- * painel de preferências, via `ResizeObserver`.
+ * Mede o próprio banner (`[data-consent-bar]`) em vez de ler `--consent-bar-h`
+ * do `documentElement`: desde 11/09/2026 a variável não mora mais lá. Publicá-la
+ * no root invalidava o estilo do documento inteiro a cada escrita — 295ms de
+ * recálculo medidos na home em Pixel 5 com CPU 20x, a maior fatia do INP — e o
+ * banner passou a escrevê-la só nos elementos que a consomem em CSS
+ * (`[data-consent-offset]`; ver `CookieBanner` e `theme.css`). Aqui o valor é
+ * lido em JS, então medir a barra é mais direto do que criar um consumidor só
+ * para depois reler a variável dele: `offsetHeight` é a mesma grandeza que o
+ * banner publica, sempre atual, e some sozinho quando o banner desmonta.
  */
 function alturaDaBarraDeConsentimento(): number {
-  const publicado = getComputedStyle(document.documentElement).getPropertyValue('--consent-bar-h')
-  const altura = Number.parseFloat(publicado)
-  return Number.isFinite(altura) ? altura : 0
+  const barra = document.querySelector<HTMLElement>('[data-consent-bar]')
+  return barra ? barra.offsetHeight : 0
 }
 
 /**

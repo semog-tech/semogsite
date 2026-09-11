@@ -54,6 +54,33 @@
   --container-site: 1280px;
 }
 
+/* Altura que a barra de consentimento ocupa a partir do fundo da viewport,
+   publicada pelo `CookieBanner` enquanto ela está no ar. Quem precisa reservar
+   o espaço soma a variável ao próprio recuo — hoje o `.wa-float` (abaixo) e o
+   hero do Experience (`experience.css`).
+
+   `inherits: false` não é detalhe de estilo, é a correção de um INP de 473ms
+   no p75 da home em celular. Custom property é herdada por padrão, então
+   escrevê-la invalida o estilo de TODA a subárvore abaixo do elemento — e o
+   banner escrevia no `documentElement`, ou seja, no documento inteiro. Medido
+   na home real (Pixel 5, CPU 20x): escrever no root custava 295ms de recálculo
+   de estilo, e custava o mesmo (327ms) com uma variável que ninguém consome —
+   o preço é a invalidação, não o consumo. Com a propriedade registrada como
+   NÃO herdada e escrita direto em cada consumidor (`[data-consent-offset]`), a
+   invalidação para no próprio elemento: 5,5ms no `.wa-float`, 3,5ms no hero do
+   Experience (contra 19,7ms se ela ainda herdasse para os 55 filhos do hero).
+
+   Navegador que ignore `@property` degrada de forma correta, não quebrada: a
+   propriedade volta a ser herdada, e como ela é escrita no próprio consumidor
+   o valor continua chegando — só com a invalidação maior de antes. Por isso os
+   `var(--consent-bar-h, 0px)` mantêm o fallback: sem registro não existe
+   `initial-value` e é o fallback que devolve o `0px`. */
+@property --consent-bar-h {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 @layer base {
   :root {
     --bg: var(--color-navy-900);
@@ -914,10 +941,11 @@
        fato (não é só ordem de camada: em 390px o botão "Preferências" fica
        exatamente em cima do botão do WhatsApp), então `pointer-events` sozinho
        não libera o clique — o botão precisa sair de baixo do cartão. A altura
-       vem de `--consent-bar-h`, publicada pelo próprio banner enquanto ele
-       existe e removida quando o usuário decide; sem banner o valor cai no
-       fallback `0px` e o botão volta aos 22px de sempre. `bottom` entra na
-       transição pra ida e volta serem suaves.
+       vem de `--consent-bar-h`, que o próprio banner escreve AQUI (o
+       `data-consent-offset` em `WhatsAppFloat.tsx` é o opt-in) enquanto ele
+       existe e apaga quando o usuário decide; sem banner o valor volta ao
+       `initial-value: 0px` do `@property` lá em cima e o botão retoma os 22px
+       de sempre. `bottom` entra na transição pra ida e volta serem suaves.
 
        O teto existe porque a barra cresce muito com o painel de Preferências
        aberto (596px medidos em 320×568): sem limite o botão subia até y=9 em
