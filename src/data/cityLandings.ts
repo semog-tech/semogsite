@@ -22,6 +22,21 @@ export type CityLandingData = {
   ufGender: 'm' | 'f'
   /** Foto aérea em `public/cities/<slug-curto>.jpg`. */
   image: string
+  /**
+   * Título e descrição da SERP, escritos um a um — NÃO um template com o
+   * topônimo trocado, que era o formato anterior (as quatro descrições eram a
+   * mesma frase e as quatro repetiam o título dentro dela, queimando os
+   * primeiros caracteres do snippet). Cada descrição aqui usa o que só aquela
+   * praça tem: o bairro da unidade, os bairros atendidos e o telefone local.
+   *
+   * Medidos em Arial 20px (título) e 14px (descrição), que é a métrica de
+   * corte do Google — alvo de 580px e 920px. "35 anos" só entra no título de
+   * Recife e de Belém: em Recife a unidade tem mesmo essa idade (é a
+   * fundação), em Belém a vírgula prende o número à marca, não à praça. Em
+   * João Pessoa e Campina Grande o topônimo é longo e nada mais cabe sem
+   * truncar — a prova social vai na descrição.
+   */
+  meta: { title: string; description: string }
   heroSubhead: string
   /** Parágrafo único por cidade (SEO local + evita conteúdo quase-duplicado). */
   localContext: string
@@ -102,6 +117,11 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     ufFull: 'Pernambuco',
     ufGender: 'm',
     image: '/cities/recife.jpg',
+    meta: {
+      title: 'Administradora de Condomínios em Recife há 35 anos | Semog',
+      description:
+        'Equipe própria na Madalena para Boa Viagem, Casa Forte, Graças e toda a Região Metropolitana. Contas 100% digitais e proposta em até 24h.',
+    },
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
     localContext:
@@ -157,6 +177,11 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     ufFull: 'Paraíba',
     ufGender: 'f',
     image: '/cities/joao-pessoa.jpg',
+    meta: {
+      title: 'Administradora de Condomínios em João Pessoa | Semog',
+      description:
+        'Na orla — Tambaú, Cabo Branco, Bessa — muito proprietário mora fora: assembleia digital e app resolvem. Unidade em Manaíra: (83) 3224-1228.',
+    },
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
     localContext:
@@ -212,6 +237,11 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     ufFull: 'Paraíba',
     ufGender: 'f',
     image: '/cities/campina-grande.jpg',
+    meta: {
+      title: 'Administradora de Condomínios em Campina Grande | Semog',
+      description:
+        'Do Catolé ao Alto Branco e ao Mirante, com equipe campinense, tecnologia própria e prestação de contas 100% digital. (83) 3201-9039.',
+    },
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
     localContext:
@@ -267,6 +297,11 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     ufFull: 'Pará',
     ufGender: 'm',
     image: '/cities/belem.jpg',
+    meta: {
+      title: 'Administradora de Condomínios em Belém | Semog, 35 anos',
+      description:
+        'Unidade na Cremação e equipe paraense para condomínios de Umarizal, Nazaré e Batista Campos, com contas 100% digitais. (91) 3115-4700.',
+    },
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
     localContext:

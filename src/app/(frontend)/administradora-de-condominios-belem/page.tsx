@@ -4,16 +4,19 @@ import { CITY_LANDINGS } from '@/data/cityLandings'
 import { absoluteUrl, cityLandingJsonLd } from '@/lib/seo'
 
 const data = CITY_LANDINGS.belem
-const description = `Administradora de condomínios em ${data.city}/${data.uf}: gestão local, prestação de contas 100% digital, aplicativo e Semog Garante. Peça sua proposta em até 24h.`
+// Título e descrição vêm de `CITY_LANDINGS`, escritos um a um por cidade: o
+// template com o topônimo trocado que ficava aqui dava às quatro landings a
+// mesma descrição, repetindo o título dentro dela.
+const { title, description } = data.meta
 
 export const metadata: Metadata = {
-  title: `Administradora de Condomínios em ${data.city} | Semog`,
+  title,
   description,
   alternates: { canonical: absoluteUrl(data.slug) },
   openGraph: {
     type: 'website',
     url: absoluteUrl(data.slug),
-    title: `Administradora de Condomínios em ${data.city} | Semog`,
+    title,
     description,
     images: [absoluteUrl(data.image)],
   },
