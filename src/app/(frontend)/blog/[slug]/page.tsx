@@ -155,6 +155,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 resource={post.heroImage}
                 fill
                 priority
+                // Disputa o LCP do artigo com o `<h1>` e vence quando a rede
+                // está boa (medido em produção, 11/09/2026). Ver a doc do prop
+                // em `ImageMedia`.
+                fetchPriority="high"
                 sizes="(min-width: 1120px) 1120px, 100vw"
               />
             </figure>

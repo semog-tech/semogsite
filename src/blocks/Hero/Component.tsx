@@ -278,6 +278,11 @@ export function HeroBlock({
             resource={posterMedia}
             fill
             priority
+            // É o elemento de LCP das páginas com `pageHeroOverlay` (medido em
+            // produção, mobile com rede e CPU limitadas, 11/09/2026: `/solucoes`
+            // 3,6 s e `/semog` 3,1 s, os dois no `<img>` do hero). Ver a doc do
+            // prop em `ImageMedia`.
+            fetchPriority="high"
             className="absolute inset-0 z-[1] object-cover"
             style={{ objectPosition: bgPosition, opacity: posterOpacity }}
           />
