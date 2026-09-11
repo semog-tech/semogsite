@@ -192,8 +192,28 @@ interface SeoUnit {
   postalCode: string
   phoneDisplay: string
   phoneE164: string
-  mapsHref: string
+  /**
+   * Identificadores da ficha desta unidade no Google Business Profile, lidos da
+   * API (`mybusinessbusinessinformation v1`, `metadata.placeId`/`metadata.mapsUri`
+   * — coleta de 11/09/2026). `hasMap` apontava para uma BUSCA textual
+   * (`maps.google.com/?q=Semog+...`), que devolve *um* resultado plausível, não
+   * *esta* ficha: qualquer homônimo ou mudança de ranking troca o destino, e o
+   * Google não tem como amarrar a landing à unidade. Com o CID/placeId a
+   * ligação é o identificador, não a sorte da busca.
+   */
+  placeId: string
+  cid: string
   areaServed: string[]
+}
+
+/** URL curta e canônica da ficha — a mesma que a API devolve em `metadata.mapsUri`. */
+function gbpMapUrl(unit: SeoUnit): string {
+  return `https://www.google.com/maps?cid=${unit.cid}`
+}
+
+/** Forma `place_id:` da mesma ficha — o identificador estável do Places. */
+function gbpPlaceUrl(unit: SeoUnit): string {
+  return `https://www.google.com/maps/place/?q=place_id:${unit.placeId}`
 }
 
 const UNITS: SeoUnit[] = [
@@ -206,7 +226,8 @@ const UNITS: SeoUnit[] = [
     postalCode: '50610-190',
     phoneDisplay: '(81) 3316-0265',
     phoneE164: '+558133160265',
-    mapsHref: 'https://maps.google.com/?q=Semog+Bartolomeu+de+Gusmao+217+Madalena+Recife',
+    placeId: 'ChIJoRMUHdkYqwcRpsEIwXymYD4',
+    cid: '4494775482860487078',
     areaServed: [
       'Recife',
       'Boa Viagem',
@@ -226,7 +247,8 @@ const UNITS: SeoUnit[] = [
     postalCode: '58038-140',
     phoneDisplay: '(83) 3224-1228',
     phoneE164: '+558332241228',
-    mapsHref: 'https://maps.google.com/?q=Semog+Guarabira+834+Manaira+Joao+Pessoa',
+    placeId: 'ChIJW4CGsFPdrAcRW9aBPNYXIBc',
+    cid: '1666358071032665691',
     areaServed: [
       'João Pessoa',
       'Manaíra',
@@ -247,7 +269,8 @@ const UNITS: SeoUnit[] = [
     postalCode: '58410-193',
     phoneDisplay: '(83) 3201-9039',
     phoneE164: '+558332019039',
-    mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
+    placeId: 'ChIJZez78TsfrAcRJVAwif_Ha7w',
+    cid: '13577165401970724901',
     areaServed: [
       'Campina Grande',
       'Catolé',
@@ -267,7 +290,8 @@ const UNITS: SeoUnit[] = [
     postalCode: '66040-273',
     phoneDisplay: '(91) 3115-4700',
     phoneE164: '+559131154700',
-    mapsHref: 'https://maps.google.com/?q=Semog+Alcindo+Cacela+2351+Cremacao+Belem',
+    placeId: 'ChIJxxHXoF-NpJIRZm18ZwJbL_g',
+    cid: '17883612711195798886',
     areaServed: [
       'Belém',
       'Umarizal',
@@ -327,8 +351,11 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
       addressCountry: 'BR',
     },
     areaServed: unit.areaServed,
-    hasMap: unit.mapsHref,
-    sameAs: SOCIAL_PROFILES,
+    // A ficha exata, por identificador: `hasMap` na URL curta que o próprio
+    // Google publica (CID) e o `place_id` como `sameAs`, que é a forma que o
+    // Places usa para falar da mesma entidade.
+    hasMap: gbpMapUrl(unit),
+    sameAs: [...SOCIAL_PROFILES, gbpPlaceUrl(unit)],
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',

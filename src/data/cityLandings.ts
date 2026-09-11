@@ -32,6 +32,13 @@ export type CityLandingData = {
     phoneDisplay: string
     phoneHref: string
     whatsapp: string
+    /**
+     * A ficha exata do Google Business Profile desta unidade, pelo CID que a
+     * própria API publica (`metadata.mapsUri`) — é o mesmo destino do `hasMap`
+     * do JSON-LD (`UNITS` em `src/lib/seo.ts`). Era uma busca textual
+     * (`maps.google.com/?q=Semog+...`): o botão "Como chegar" abria uma lista
+     * de resultados, não a ficha, e nada ligava a landing à unidade.
+     */
     mapsHref: string
   }
   testimonials: CityTestimonial[]
@@ -118,7 +125,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       phoneDisplay: '(81) 3316-0265',
       phoneHref: 'tel:+558133160265',
       whatsapp: WHATSAPP,
-      mapsHref: 'https://maps.google.com/?q=Semog+Bartolomeu+de+Gusmao+217+Madalena+Recife',
+      mapsHref: 'https://www.google.com/maps?cid=4494775482860487078',
     },
     testimonials: [
       {
@@ -173,7 +180,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       phoneDisplay: '(83) 3224-1228',
       phoneHref: 'tel:+558332241228',
       whatsapp: WHATSAPP,
-      mapsHref: 'https://maps.google.com/?q=Semog+Guarabira+834+Manaira+Joao+Pessoa',
+      mapsHref: 'https://www.google.com/maps?cid=1666358071032665691',
     },
     testimonials: [
       {
@@ -228,7 +235,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       phoneDisplay: '(83) 3201-9039',
       phoneHref: 'tel:+558332019039',
       whatsapp: WHATSAPP,
-      mapsHref: 'https://maps.google.com/?q=Semog+Jose+Adnoste+Roberto+1001+Catole+Campina+Grande',
+      mapsHref: 'https://www.google.com/maps?cid=13577165401970724901',
     },
     testimonials: [
       {
@@ -283,7 +290,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       phoneDisplay: '(91) 3115-4700',
       phoneHref: 'tel:+559131154700',
       whatsapp: WHATSAPP,
-      mapsHref: 'https://maps.google.com/?q=Semog+Alcindo+Cacela+2351+Cremacao+Belem',
+      mapsHref: 'https://www.google.com/maps?cid=17883612711195798886',
     },
     testimonials: [
       {
