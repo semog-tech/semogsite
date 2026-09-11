@@ -389,13 +389,31 @@ export function getOrganizationJsonLd(): Record<string, unknown> {
           postalCode: principal.postalCode,
           addressCountry: 'BR',
         },
-        contactPoint: {
-          '@type': 'ContactPoint',
-          telephone: WHATSAPP_E164,
-          contactType: 'customer service',
-          areaServed: 'BR',
-          availableLanguage: 'Portuguese',
-        },
+        // Dois pontos de contato, não um. O WhatsApp central é um 3003 virtual
+        // com DDD 11 — número real da empresa, mas de São Paulo. Declarado
+        // sozinho como `customer service`, ele era o ÚNICO telefone de
+        // atendimento do grafo, e uma administradora com unidades em 81, 83 e
+        // 91 passava ao Google um DDD de outro estado como canal principal.
+        // Agora o atendimento fala pelo fixo do Recife (o mesmo `telephone` da
+        // Organization e da ficha da matriz) e o WhatsApp continua no grafo
+        // como canal comercial — é o que mais converte, então sair não era
+        // opção.
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            telephone: principal.phoneE164,
+            contactType: 'customer service',
+            areaServed: 'BR',
+            availableLanguage: 'Portuguese',
+          },
+          {
+            '@type': 'ContactPoint',
+            telephone: WHATSAPP_E164,
+            contactType: 'sales',
+            areaServed: 'BR',
+            availableLanguage: 'Portuguese',
+          },
+        ],
         subOrganization: UNITS.map(localBusinessNode),
       },
       {
