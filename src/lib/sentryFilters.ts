@@ -53,15 +53,33 @@ const MENSAGEM_DA_PONTE_JAVA_MORTA = 'Error invoking postMessage: Java object is
 /**
  * Tira os sinais de menor/maior das pontas do nome do arquivo.
  *
- * A pilha do scraper chegou com o frame escrito `<obscura:bootstrap>`, na
- * mesma forma do `<script>` dos frames vizinhos — enquanto o frame do webview
- * do Instagram, no outro evento, veio sem eles. Não dá para saber pela
- * renderização se os sinais estão no campo `filename` ou se são enfeite da
- * view de pilha do Sentry, e a diferença decide se o prefixo casa ou não casa
- * **nada**. Comparar pelo nome desembrulhado atende as duas formas.
+ * A pilha do scraper chegou com o frame escrito `<obscura:bootstrap>`, entre
+ * sinais, e a primeira versão deste filtro comparava `obscura:` — que não casa
+ * `<obscura:bootstrap>` e descartaria **zero** eventos.
  *
- * Não afrouxa o filtro: continua sendo prefixo ancorado, e um arquivo nosso
- * chamado `<obscura:…>` não existe.
+ * Que os sinais vêm do dado, e não da renderização, se decide sem o JSON
+ * bruto: na mesma view do Sentry, na mesma colagem, os quatro frames convivem
+ * como `<script>`, `<obscura:bootstrap>`, `ext:core/01_core.js` e
+ * `app://navigation_performance_logger_android`. Decoração da view apareceria
+ * nos quatro; aparece em dois.
+ *
+ * **A lição que custou mais que o filtro:** o teste que aprovou aquela versão
+ * reconstruía o payload a partir da mesma suposição que o código fazia —
+ * `obscura:bootstrap` sem sinais nos dois. Teste e código erraram juntos, na
+ * mesma direção, e a suíte ficou verde. Um check que não tem como reprovar não
+ * é verificação.
+ *
+ * A tolerância fica **independente do que o dado bruto disser depois**: o
+ * mesmo grupo de eventos pode chegar com formas diferentes de `filename`
+ * conforme o runtime nomeia o script, e amarrar o filtro à forma exata é
+ * frágil sem ganhar nada. Ela é aplicada uma vez só, em `algumFrame`, então
+ * vale igual para os dois filtros — duas maneiras de comparar prefixo no mesmo
+ * arquivo é a inconsistência que gerou o defeito do filtro do Instagram.
+ *
+ * Não afrouxa o filtro: continua sendo prefixo ancorado sobre o nome
+ * desembrulhado. O limite que importa é que `<script>` vira `script` e não
+ * casa prefixo nenhum — se casasse, um script inline na pilha derrubaria o
+ * evento inteiro. Tem testemunha em `sentry-filters.int.spec.ts`.
  */
 function desembrulha(arquivo: string): string {
   return arquivo.startsWith('<') && arquivo.endsWith('>') ? arquivo.slice(1, -1) : arquivo

@@ -142,8 +142,13 @@ function eventoDoScraper(arquivoDoScraper = '<obscura:bootstrap>'): ErrorEvent {
 /**
  * Erro 2 — webview do Instagram sendo destruído no `beforeunload`. Os três
  * frames do evento real, todos do script da Meta.
+ *
+ * O nome do script é parametrizado pela mesma razão do evento do scraper: a
+ * normalização dos sinais de menor/maior é aplicada uma vez só, em
+ * `algumFrame`, e vale para os dois filtros. Se alguém restaurar a comparação
+ * crua num deles, o caso com sinais fica vermelho.
  */
-function eventoDoWebviewInstagram(): ErrorEvent {
+function eventoDoWebviewInstagram(scriptDaMeta = SCRIPT_DA_META): ErrorEvent {
   return {
     type: undefined,
     exception: {
@@ -153,14 +158,47 @@ function eventoDoWebviewInstagram(): ErrorEvent {
           value: MENSAGEM_DA_PONTE_JAVA,
           stacktrace: {
             frames: [
-              { filename: SCRIPT_DA_META, lineno: 1, colno: 18302 },
+              { filename: scriptDaMeta, lineno: 1, colno: 18302 },
               {
-                filename: SCRIPT_DA_META,
+                filename: scriptDaMeta,
                 function: 'sendBeforeUnloadMessage',
                 lineno: 1,
                 colno: 13750,
               },
-              { filename: SCRIPT_DA_META, function: 'sendDataToNative', lineno: 1, colno: 10198 },
+              { filename: scriptDaMeta, function: 'sendDataToNative', lineno: 1, colno: 10198 },
+            ],
+          },
+        },
+      ],
+    },
+  }
+}
+
+/**
+ * Erro do script da Meta com o nome entre sinais **e outra mensagem**.
+ *
+ * A mensagem diferente é o que dá sentido ao caso: como o filtro do Instagram
+ * casa por pilha **ou** por mensagem, um evento com a mensagem da ponte Java
+ * seria descartado mesmo que a normalização do nome não valesse para este
+ * filtro — o teste passaria por construção, sem ter como reprovar. Com outra
+ * mensagem, só a varredura de frames pode descartá-lo.
+ */
+function eventoDaMetaComSinaisEOutraMensagem(): ErrorEvent {
+  return {
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'TypeError',
+          value: MENSAGEM_GENERICA,
+          stacktrace: {
+            frames: [
+              {
+                filename: `<${SCRIPT_DA_META}>`,
+                function: 'sendDataToNative',
+                lineno: 1,
+                colno: 10198,
+              },
             ],
           },
         },
@@ -210,6 +248,41 @@ function eventoDoInstagramSemPilha(): ErrorEvent {
   return {
     type: undefined,
     exception: { values: [{ type: 'Error', value: MENSAGEM_DA_PONTE_JAVA }] },
+  }
+}
+
+/**
+ * O contra-exemplo da tolerância aos sinais de menor/maior.
+ *
+ * Desembrulhar `<obscura:bootstrap>` também desembrulha `<script>`, que é como
+ * chega todo script inline. Se a tolerância ficasse gulosa a ponto de casar
+ * esse nome, qualquer erro nosso com um script inline na pilha sumiria — e é
+ * um risco que só a nossa mudança introduziu, então precisa da própria
+ * testemunha. Este evento tem `<script>` no topo e bundle nosso abaixo, e tem
+ * de chegar inteiro.
+ */
+function eventoNossoComScriptInline(): ErrorEvent {
+  return {
+    type: undefined,
+    exception: {
+      values: [
+        {
+          type: 'TypeError',
+          value: MENSAGEM_GENERICA,
+          stacktrace: {
+            frames: [
+              {
+                filename: `${BUNDLE_NOSSO}app/page-def456.js`,
+                function: 'onSubmit',
+                lineno: 88,
+                colno: 7,
+              },
+              { filename: '<script>', function: 'n', lineno: 7, colno: 5336 },
+            ],
+          },
+        },
+      ],
+    },
   }
 }
 
@@ -285,6 +358,16 @@ describe('filtros de ruído do Sentry', () => {
     expect(arquivosEnviados()).not.toContain('navigation_performance_logger')
   })
 
+  it('descarta o erro do script da Meta com o nome entre sinais, sem depender da mensagem', async () => {
+    // Prova que a normalização dos sinais vale para os DOIS filtros, e não só
+    // para o do scraper: aqui a mensagem não ajuda, só a pilha.
+    await capturaComTestemunha(eventoDaMetaComSinaisEOutraMensagem())
+
+    expect(enviados).toHaveLength(1)
+    expect(arquivosEnviados()).toContain(BUNDLE_NOSSO)
+    expect(arquivosEnviados()).not.toContain('navigation_performance_logger')
+  })
+
   it('descarta o erro do Instagram mesmo com um frame nosso no topo da pilha', async () => {
     await capturaComTestemunha(eventoDoInstagramComFrameNossoNoTopo())
 
@@ -300,6 +383,17 @@ describe('filtros de ruído do Sentry', () => {
     expect(enviados).toHaveLength(1)
     expect(arquivosEnviados()).toContain(BUNDLE_NOSSO)
     expect(enviados[0]?.exception?.values?.[0]?.value).toBe(MENSAGEM_GENERICA)
+  })
+
+  it('PRESERVA erro nosso que tem um script inline na pilha', async () => {
+    // O limite da tolerância aos sinais: `<script>` desembrulha para `script`
+    // e não pode casar prefixo nenhum. Se casasse, este evento sumiria.
+    Sentry.captureEvent(eventoNossoComScriptInline())
+    await Sentry.flush(2000)
+
+    expect(enviados).toHaveLength(1)
+    expect(arquivosEnviados()).toContain('<script>')
+    expect(arquivosEnviados()).toContain(BUNDLE_NOSSO)
   })
 
   it('PRESERVA erro nosso com a mesma mensagem genérica do erro do scraper', async () => {
