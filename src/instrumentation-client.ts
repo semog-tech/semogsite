@@ -4,22 +4,14 @@
 // no root layout. Resolvido automaticamente por `src/instrumentation-client.ts`
 // (Next procura primeiro em `src/`, depois na raiz do projeto).
 //
-// DSN deferido (Plano 4c): sem `NEXT_PUBLIC_SENTRY_DSN`, `enabled` fica `false`
-// e o SDK vira um no-op completo — não erro, não crash, não envia nada. Ver
-// `.env.example` para a variável.
+// As opções moram em `@/lib/sentryOpcoesCliente` e são passadas **inteiras**,
+// sem spread nem override: é a forma que permite aos testes exercitarem o
+// mesmo objeto que a produção usa. Trocar esta linha por um literal aqui
+// devolve o filtro de ruído ao estado em que podia sumir sem teste vermelho —
+// `tests/int/sentry-init-aplica-filtros.int.spec.ts` existe para barrar isso.
 import * as Sentry from '@sentry/nextjs'
-import { descartaRuidoDeScraper, URLS_DE_RUIDO_CONHECIDO } from '@/lib/sentryFilters'
+import { OPCOES_DO_SENTRY_NO_NAVEGADOR } from '@/lib/sentryOpcoesCliente'
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  enabled: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
-  tracesSampleRate: 0.1,
-
-  // Ruído de navegador de terceiro — webview do Instagram sendo destruído, e
-  // um navegador headless de scraping. Os dois filtros, e a razão de um ser
-  // `denyUrls` e o outro `beforeSend`, estão documentados em `sentryFilters`.
-  denyUrls: URLS_DE_RUIDO_CONHECIDO,
-  beforeSend: descartaRuidoDeScraper,
-})
+Sentry.init(OPCOES_DO_SENTRY_NO_NAVEGADOR)
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
