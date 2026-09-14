@@ -155,9 +155,9 @@ export function ExperienceForm() {
   })
 
   if (status === 'success') {
-    // Repete data, horário e local porque é a única coisa que a pessoa precisa
-    // levar daqui — e NÃO promete e-mail de confirmação do evento: o que sai
-    // hoje é o auto-reply genérico do site, que não repete nada disso.
+    // Repete data, horário e local porque é o que a pessoa precisa levar daqui
+    // — e a retirada do kit, que é antecipada: descobrir isso só no sábado, na
+    // praia, é tarde demais. O mesmo conjunto vai no `ExperienceAutoReply`.
     return (
       <div className="signup-done" ref={doneRef} role="status" tabIndex={-1}>
         <span aria-hidden="true" className="signup-done-mark">
@@ -174,12 +174,13 @@ export function ExperienceForm() {
             <CheckIcon /> Das {E.timeLabel}
           </li>
           <li>
-            <CheckIcon /> {E.venue}, {E.city} — {E.uf}
+            <CheckIcon /> {E.venue}, {E.venueReference} — {E.district}, {E.city}/{E.uf}
           </li>
         </ul>
         <p className="formnote">
-          Chegue 15 minutos antes para o credenciamento. Leve roupa leve, garrafa de água e
-          disposição — o resto é com a gente.
+          Chegue 15 minutos antes. Leve roupa leve, garrafa de água e disposição — o resto é com a
+          gente. O kit praia é retirado na filial de {E.city} a partir de{' '}
+          {E.kit.pickup.fromDateLabel}: não há entrega no dia do evento.
         </p>
       </div>
     )
@@ -192,7 +193,7 @@ export function ExperienceForm() {
         <input
           autoComplete="name"
           id={nomeId}
-          placeholder="Como quer ser chamado no credenciamento"
+          placeholder="Como quer ser chamado no evento"
           required
           type="text"
           {...register('nome')}

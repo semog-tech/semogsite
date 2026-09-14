@@ -109,15 +109,14 @@ export function ExperienceHero() {
             </svg>
             <div>
               <div className="meta-label">Local</div>
+              {/* Só o nome do local aqui: o ponto de referência é o que orienta
+                  na hora de chegar e vive no painel da programação e na
+                  confirmação por e-mail, onde a pessoa volta para consultar. */}
               <div className="meta-value">
                 {E.venue}
                 <small>
-                  {E.city}, {E.uf}
+                  {E.district} — {E.city}, {E.uf}
                 </small>
-                {/* A prefeitura ainda não liberou o ponto da orla (24/08/2026).
-                    A ressalva anda junto do local em TODA peça — quem se
-                    inscreve não pode descobrir isso depois. */}
-                {!E.venueConfirmed && <small className="pending">{E.venueNote}</small>}
               </div>
             </div>
           </div>

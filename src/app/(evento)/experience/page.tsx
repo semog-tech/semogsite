@@ -3,6 +3,7 @@ import { img } from '@/../content/media'
 import { ExperienceCta } from '@/components/experience/ExperienceCta'
 import { ExperienceFooter } from '@/components/experience/ExperienceFooter'
 import { ExperienceHero } from '@/components/experience/ExperienceHero'
+import { ExperienceKit } from '@/components/experience/ExperienceKit'
 import { ExperiencePillars } from '@/components/experience/ExperiencePillars'
 import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
@@ -21,8 +22,13 @@ const title = `${E.name}: manhã wellness em ${E.city}`
  * E para o JSON-LD do evento (é o mesmo `description` reusado abaixo). Digitado
  * à mão, uma troca de horário em `experienceEvent.ts` arrumaria a página
  * inteira e deixaria o snippet da busca e o rich result mentindo.
+ *
+ * "e kit praia" saiu no fecho quando o local virou "Centro de Atendimento ao
+ * Turista" (12 caracteres a mais que "Praia do Cabo Branco"): com ele o texto
+ * ia a 168 caracteres e o Google cortava justamente o fecho. Sem ele são 156,
+ * dentro do que a SERP mostra — e o kit ganhou seção própria na página.
  */
-const description = `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, na ${E.venue}. ${E.seats} vagas e kit praia.`
+const description = `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, no ${E.venue}, ${E.district}. ${E.seats} vagas.`
 
 /**
  * A foto do hero também é o card social. O route group `(evento)` é um root
@@ -84,6 +90,10 @@ const eventJsonLd = {
   location: {
     '@type': 'Place',
     name: E.venue,
+    // O ponto de referência e o bairro entram como `description` porque não são
+    // logradouro: inventar um `streetAddress` para o Centro de Atendimento ao
+    // Turista daria ao Google um endereço que ninguém confirmou.
+    description: `${E.venueReference}, ${E.district}`,
     address: {
       '@type': 'PostalAddress',
       addressLocality: E.city,
@@ -114,9 +124,10 @@ const eventJsonLd = {
  * local, vagas) continua vindo de `EXPERIENCE_EVENT`.
  */
 const BENEFICIOS = [
-  'Pilates, funcional e alongamento com profissionais',
+  'Pilates, yoga e treino funcional com profissionais',
   'Avaliação física individual sem custo',
-  'Água de coco e hidratação durante toda a manhã',
+  'Café da manhã, água e água de coco durante toda a manhã',
+  'Kit praia, retirado antes na filial de João Pessoa',
   'Você pode trazer até 3 acompanhantes',
 ]
 
@@ -153,6 +164,7 @@ export default function ExperiencePage() {
         <main>
           <ExperiencePillars />
           <ExperienceProgram />
+          <ExperienceKit />
           <ExperienceVideo />
           <ExperienceCta />
           <section className="signup s-paper" id="inscricao">

@@ -89,6 +89,14 @@ const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, string> 
 const PROPOSTA_FALLBACK_TO = 'comercial@semog.com.br'
 
 /**
+ * Destino da inscrição no Semog Experience — quem organiza o evento é a filial
+ * de João Pessoa. Cravado no código como os da Proposta, e não em variável de
+ * ambiente: `CONTACT_TO` ausente faz a notificação simplesmente não sair, sem
+ * erro nenhum, e uma inscrição perdida em silêncio é o pior desfecho possível.
+ */
+const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
+
+/**
  * Schema de validação por formulário. Mapa (e não ternário) porque com três
  * formulários o ternário aninhado já esconde qual schema vale pra qual tipo —
  * e porque assim o `tsc` cobra a entrada quando um `FormType` novo aparecer.
@@ -258,16 +266,15 @@ export async function submitForm(
         }))
 
       // Proposta roteia por região (campo `cidade`) pra caixa da pessoa
-      // responsável; Contato continua indo pro `CONTACT_TO` (que pode estar
-      // ausente em dev — cai no `else` abaixo, comportamento original).
-      // A inscrição do Experience cai no mesmo `else`: não tem `cidade` e não
-      // é pedido comercial, então a notificação vai pro `CONTACT_TO` junto com
-      // o Contato. De propósito — roteamento próprio pro evento só quando
-      // alguém pedir.
+      // responsável; a inscrição do Experience vai pra filial que organiza o
+      // evento. Só o Contato continua no `CONTACT_TO` (que pode estar ausente
+      // em dev — aí nenhuma notificação sai, comportamento original).
       let notifyTo: string | undefined
       if (formType === 'proposta') {
         const { cidade } = data as PropostaValues
         notifyTo = cidade ? PROPOSTA_CIDADE_TO[cidade] : PROPOSTA_FALLBACK_TO
+      } else if (formType === 'experience') {
+        notifyTo = EXPERIENCE_TO
       } else {
         notifyTo = process.env.CONTACT_TO
       }

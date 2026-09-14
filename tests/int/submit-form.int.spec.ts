@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * `submitForm` (Server Action de Contato/Proposta) reescrita na Fase 3/Task 3
@@ -238,5 +238,103 @@ describe('submitForm — push pro Exact', () => {
     await submitForm('contato', contatoValido, 'test-token')
 
     expect(updateDoExact()).toBeUndefined()
+  })
+})
+
+/**
+ * Pra onde vai a NOTIFICAÇÃO INTERNA de cada formulário. Nada disso era
+ * testado: `experience-exact-guard` confere só o assunto do e-mail, e o
+ * destinatário — que é o que decide se alguém lê a submissão — passava sem
+ * cobertura.
+ *
+ * A inscrição do Experience ganhou caixa própria (a filial que organiza o
+ * evento) em 14/09/2026. O teste do Contato é o que importa aqui: ele é a
+ * regressão silenciosa desse roteamento — se o ramo novo capturar o Contato
+ * junto, ninguém percebe até uma mensagem sumir.
+ */
+describe('submitForm — destino da notificação interna', () => {
+  const CONTACT_TO_ORIGINAL = process.env.CONTACT_TO
+
+  const inscricao = {
+    nome: 'Maria Souza',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    condominio: 'Residencial Aurora',
+    acompanhantes: 2,
+    aceiteImagem: true,
+  }
+
+  /**
+   * O destinatário da notificação interna. Filtra pelo assunto porque a mesma
+   * `sendMail` também manda o auto-reply, esse sim para o e-mail de quem
+   * preencheu — pegar a primeira chamada acertaria por acidente de ordem.
+   */
+  function destinoDaNotificacao() {
+    const chamada = sendMailMock.mock.calls.find(([arg]) =>
+      /^Novo contato via /.test((arg as { subject: string }).subject),
+    )
+    return (chamada?.[0] as { to: string } | undefined)?.to
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+    process.env.CONTACT_TO = 'caixa-do-contato@example.com'
+  })
+
+  afterEach(() => {
+    if (CONTACT_TO_ORIGINAL === undefined) delete process.env.CONTACT_TO
+    else process.env.CONTACT_TO = CONTACT_TO_ORIGINAL
+  })
+
+  it('inscrição no Experience avisa a filial que organiza o evento', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.30'))
+
+    const result = await submitForm('experience', inscricao, 'test-token')
+
+    expect(result.ok).toBe(true)
+    expect(destinoDaNotificacao()).toBe('comercial.pb@semog.com.br')
+  })
+
+  it('contato continua indo pro CONTACT_TO', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.31'))
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(destinoDaNotificacao()).toBe('caixa-do-contato@example.com')
+  })
+
+  it('proposta continua roteando por cidade', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.32'))
+
+    await submitForm(
+      'proposta',
+      {
+        tipo: 'Condomínio residencial',
+        nome: 'Maria Souza',
+        nomeCondominio: 'Residencial Aurora',
+        email: 'maria@example.com',
+        telefone: '+5583999501388',
+        cidade: 'Belém e região',
+      },
+      'test-token',
+    )
+
+    expect(destinoDaNotificacao()).toBe('galvao@semog.com.br')
+  })
+
+  it('o auto-reply da inscrição vai pra quem se inscreveu, não pra filial', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.33'))
+
+    await submitForm('experience', inscricao, 'test-token')
+
+    // Trocar o destino da notificação interna não pode mexer no que o inscrito
+    // recebe: são duas chamadas distintas de `sendMail`.
+    const destinos = sendMailMock.mock.calls.map(([arg]) => (arg as { to: string }).to)
+    expect(destinos).toContain(inscricao.email)
   })
 })

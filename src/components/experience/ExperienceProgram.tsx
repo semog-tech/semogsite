@@ -14,8 +14,8 @@ import { ExperienceProgramTabs, type ProgramItem } from './ExperienceProgramTabs
  * lá dentro arrastaria os três mapas de `content/media.ts` — o site inteiro,
  * não só o evento — para dentro do bundle do navegador.
  *
- * Atividade sem foto própria (recepção, encerramento) cai na foto do LOCAL,
- * que é a que a seção mostrava antes de existir painel.
+ * Atividade sem foto própria cai na foto do LOCAL, que é a que a seção
+ * mostrava antes de existir painel.
  */
 export function ExperienceProgram() {
   const local = img('experience-local.webp')
@@ -31,12 +31,15 @@ export function ExperienceProgram() {
 
   return (
     <ExperienceProgramTabs
-      city={E.city}
       items={items}
+      local={{
+        venue: E.venue,
+        district: E.district,
+        city: E.city,
+        uf: E.uf,
+        reference: E.venueReference,
+      }}
       ongoing={E.ongoing}
-      uf={E.uf}
-      venue={E.venue}
-      venueNote={E.venueConfirmed ? undefined : E.venueNote}
     />
   )
 }

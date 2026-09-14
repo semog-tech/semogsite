@@ -37,8 +37,13 @@ export interface ExperienceAutoReplyProps {
  * frase do formulário, "Ao se inscrever você não entra em nenhuma lista
  * comercial".
  *
- * Data, horário e local saem de `EXPERIENCE_EVENT` — mesma fonte única da
- * landing. Um e-mail com a data errada seria pior que nenhum e-mail.
+ * Data, horário, local e a regra de retirada do kit saem de `EXPERIENCE_EVENT`
+ * — mesma fonte única da landing. Um e-mail com a data errada seria pior que
+ * nenhum e-mail.
+ *
+ * A retirada antecipada está aqui, e não só na página, porque é a informação
+ * que a pessoa precisa ANTES do sábado: no dia não há entrega, e este e-mail é
+ * o que ela guarda.
  */
 export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) {
   const greeting = name ? `Olá, ${name}!` : 'Olá!'
@@ -65,13 +70,20 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
                 {E.dateLabel}, {E.weekday}
               </strong>
               <br />
-              Das {E.timeLabel} — chegue 15 minutos antes para o credenciamento
+              Das {E.timeLabel} — chegue 15 minutos antes
               <br />
-              {E.venue}, {E.city} — {E.uf}
+              {E.venue}, {E.venueReference}
+              <br />
+              {E.district}, {E.city} — {E.uf}
             </Text>
             <Text style={linha}>
               Leve roupa leve, garrafa de água e disposição — o resto é com a gente. O evento é{' '}
               {E.priceLabel.toLowerCase()}.
+            </Text>
+            <Text style={linha}>
+              <strong>O kit praia é retirado antes.</strong> A partir de {E.kit.pickup.fromWeekday},{' '}
+              {E.kit.pickup.fromDateLabel}, na filial da Semog em {E.city}. Não há entrega no dia do
+              evento.
             </Text>
             <Text style={{ ...linha, color: TEXT_MUTED, margin: 0 }}>
               Você não entrou em nenhuma lista comercial: esta inscrição serve só para o evento.

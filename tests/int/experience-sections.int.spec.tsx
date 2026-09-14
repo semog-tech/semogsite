@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { site } from '@/../content/site'
+import { ExperienceKit } from '@/components/experience/ExperienceKit'
 import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
 import { ExperienceVideo } from '@/components/experience/ExperienceVideo'
@@ -24,14 +26,26 @@ describe('ExperienceProgram', () => {
     render(<ExperienceProgram />)
     const abas = screen.getAllByRole('tab')
     expect(abas).toHaveLength(EXPERIENCE_EVENT.schedule.length)
-    expect(abas[0]?.textContent).toContain('Recepção e credenciamento')
-    expect(abas[abas.length - 1]?.textContent).toContain('encerramento')
+    expect(abas[0]?.textContent).toContain('Pilates')
+    expect(abas[abas.length - 1]?.textContent).toContain('Treino funcional')
+  })
+
+  /**
+   * O credenciamento das 07h e a confraternização saíram da grade em
+   * 14/09/2026 — a manhã são as três aulas. Aqui porque o texto deles sobrevive
+   * fácil num `<meta>`, num e-mail ou num painel e ninguém repara.
+   */
+  it('não mostra mais credenciamento nem confraternização', () => {
+    const { container } = render(<ExperienceProgram />)
+    expect(container.textContent).not.toMatch(/credenciamento|confraterniza/i)
   })
 
   it('mostra o horário formatado em pt-BR, sem numeração decorativa', () => {
     const { container } = render(<ExperienceProgram />)
+    // Todo bloco agora é aula, e aula tem fim: o rótulo é a faixa inteira
+    // ('07h30' + o `<small>` com 'às 08h15'), sem espaço entre os dois nós.
     const horas = Array.from(container.querySelectorAll('.sched .h')).map((n) => n.textContent)
-    expect(horas[0]).toBe('07h00')
+    expect(horas).toEqual(['07h30às 08h15', '08h20às 09h05', '09h10às 09h55'])
     expect(horas).toHaveLength(EXPERIENCE_EVENT.schedule.length)
   })
 
@@ -46,7 +60,7 @@ describe('ExperienceProgram', () => {
       return screen.getByRole('tabpanel')
     }
 
-    const pilates = within(painelDe(1))
+    const pilates = within(painelDe(0))
     expect(pilates.getByRole('link', { name: 'Paloma Menezes' }).getAttribute('href')).toBe(
       'https://www.instagram.com/pilatespalomamenezes/',
     )
@@ -63,20 +77,21 @@ describe('ExperienceProgram', () => {
     const abas = screen.getAllByRole('tab')
 
     expect(abas[0]?.getAttribute('aria-selected')).toBe('true')
-    fireEvent.click(abas[3] as HTMLElement)
+    fireEvent.click(abas[2] as HTMLElement)
 
     expect(abas[0]?.getAttribute('aria-selected')).toBe('false')
-    expect(abas[3]?.getAttribute('aria-selected')).toBe('true')
+    expect(abas[2]?.getAttribute('aria-selected')).toBe('true')
     // `hidden` esconde os inativos, então só sobra um painel acessível.
     expect(screen.getAllByRole('tabpanel')).toHaveLength(1)
   })
 
-  it('anuncia que água e avaliação física valem o evento inteiro, sem hora na agenda', () => {
+  it('anuncia que café, água e avaliação física valem o evento inteiro, sem hora na agenda', () => {
     const { container } = render(<ExperienceProgram />)
     const continuos = container.querySelector('.ongoing')?.textContent ?? ''
     expect(continuos).toContain('Água e água de coco')
+    expect(continuos).toContain('Café da manhã')
     expect(continuos).toContain('Avaliação física e de saúde')
-    expect(continuos).toContain('08h às 12h')
+    expect(continuos).toContain('07h30 às 10h')
     // A água de coco já foi um item com hora marcada na primeira grade; virou
     // oferta contínua e não pode voltar para a linha do tempo.
     const agenda = container.querySelector('.sched')?.textContent ?? ''
@@ -84,9 +99,18 @@ describe('ExperienceProgram', () => {
     expect(agenda).not.toContain('água de coco')
   })
 
-  it('avisa que o local ainda depende da prefeitura', () => {
-    render(<ExperienceProgram />)
-    expect(screen.getAllByText(EXPERIENCE_EVENT.venueNote).length).toBeGreaterThan(0)
+  /**
+   * O local foi confirmado em 14/09/2026 e a ressalva "aguardando retorno da
+   * prefeitura" saiu do dado e dos componentes. O que o painel mostra agora é o
+   * ponto de referência — que é o que coloca a pessoa no lugar certo.
+   */
+  it('mostra o ponto de referência do local, e nenhuma ressalva', () => {
+    const { container } = render(<ExperienceProgram />)
+    const legenda = container.querySelector('.place.is-active .ploc')?.textContent ?? ''
+    expect(legenda).toContain(EXPERIENCE_EVENT.venue)
+    expect(legenda).toContain(EXPERIENCE_EVENT.district)
+    expect(legenda).toContain(EXPERIENCE_EVENT.venueReference)
+    expect(container.textContent).not.toMatch(/a confirmar|prefeitura/i)
   })
 
   it('oferece um controle para parar a passagem automática', () => {
@@ -107,6 +131,41 @@ describe('ExperienceProgram', () => {
     )
     expect(inativos).toHaveLength(EXPERIENCE_EVENT.schedule.length - 1)
     for (const p of inativos) expect(p.hasAttribute('inert')).toBe(true)
+  })
+})
+
+/**
+ * A seção existe para responder "e como eu pego minha camiseta?" antes de a
+ * pessoa chegar na praia sem kit. O que não pode se perder: a regra de que não
+ * há entrega no dia, e o endereço vindo de `content/site.ts` — redigitado aqui
+ * ele viraria uma quinta cópia livre para divergir das outras quatro.
+ */
+describe('ExperienceKit', () => {
+  it('lista o que vem no kit, a partir do dado', () => {
+    const { container } = render(<ExperienceKit />)
+    const itens = [...container.querySelectorAll('.kit-itens li')].map((n) => n.textContent)
+    expect(itens).toEqual([...EXPERIENCE_EVENT.kit.items])
+  })
+
+  it('diz a partir de quando retirar, com a data legível por máquina', () => {
+    const { container } = render(<ExperienceKit />)
+    const quando = container.querySelector('.kit-quando time')
+    expect(quando?.getAttribute('datetime')).toBe(EXPERIENCE_EVENT.kit.pickup.fromDate)
+    expect(quando?.textContent).toContain(EXPERIENCE_EVENT.kit.pickup.fromDateLabel)
+  })
+
+  it('avisa, sem rodeio, que não há entrega no dia do evento', () => {
+    const { container } = render(<ExperienceKit />)
+    expect(container.querySelector('.kit-aviso')?.textContent).toMatch(
+      /não há entrega no dia do evento/i,
+    )
+  })
+
+  it('mostra o endereço real da filial, lido de content/site.ts', () => {
+    const { container } = render(<ExperienceKit />)
+    const daFonte = site.company.addresses.find((e) => e.city === EXPERIENCE_EVENT.city)?.address
+    expect(daFonte).toBeDefined()
+    expect(container.querySelector('.kit-onde span')?.textContent).toBe(daFonte)
   })
 })
 

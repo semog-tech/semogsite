@@ -48,10 +48,10 @@ export function ExperienceFooter() {
             {E.dateLabel} · {E.weekday}
           </span>
           <span>{E.timeLabel}</span>
+          <span>{E.venue}</span>
           <span>
-            {E.venue} — {E.city}, {E.uf}
+            {E.district} — {E.city}, {E.uf}
           </span>
-          {!E.venueConfirmed && <span className="pending">{E.venueNote}</span>}
         </div>
         <div className="fcol">
           <strong>Contato</strong>

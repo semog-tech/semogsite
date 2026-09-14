@@ -424,15 +424,6 @@
   font-size: 0.82rem;
   color: var(--fg-2);
 }
-/* Ressalva de local ainda não confirmado, no hero e no rodapé. `--accent` é a
-   cor de destaque das duas superfícies escuras (`--color-ice-400`) — a nota
-   precisa se separar do endereço sem virar cor nova de paleta. */
-.exp .meta-value small.pending,
-.exp .fcol span.pending {
-  font-size: 0.76rem;
-  color: var(--accent);
-}
-
 .exp .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -754,9 +745,9 @@
 }
 
 /* ---------- o que atravessa a manhã inteira ---------- */
-/* Água/água de coco e avaliação física não têm hora na agenda de propósito:
-   valem do começo ao fim (a avaliação, das 08h às 12h). Numa linha do tempo
-   eles fariam o inscrito achar que só acontecem naquele instante. */
+/* Água/água de coco, café da manhã e avaliação física não têm hora na agenda
+   de propósito: valem do começo ao fim da manhã. Numa linha do tempo eles
+   fariam o inscrito achar que só acontecem naquele instante. */
 /* Faixa cheia sob as duas colunas, um item por coluna. Empilha no mobile. */
 .exp .ongoing {
   grid-area: extra;
@@ -937,27 +928,127 @@
 }
 .exp .place .ploc {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.15rem 0.45rem;
   margin: 0.7rem 0 0;
   font-size: 0.8rem;
   color: #b4bdd9;
 }
+/* O endereço ocupa o que sobrar e quebra DENTRO da própria coluna. Sem isto
+   ele é largo demais para caber ao lado do alfinete no celular e desce
+   inteiro, deixando o ícone sozinho numa linha. Casa por CLASSE, e não por
+   `> span`: um seletor de elemento aqui passa à frente dos `.exp … span` mais
+   abaixo na folha e o Biome acusa `noDescendingSpecificity` neles. */
+.exp .place .ploc-end {
+  flex: 1;
+  min-width: 0;
+}
 /* Sobrescreve o `.place figcaption svg` (1,35rem, alinhado ao topo do bloco):
    aqui o ícone acompanha uma linha de 0,8rem, não o cabeçalho. */
 .exp .place .ploc svg {
   width: 0.95rem;
   height: 0.95rem;
-  margin-top: 0;
+  margin-top: 0.1rem;
 }
-/* A ressalva do local enquanto a prefeitura não responde. Ocupa a linha
-   inteira para não ser lida como continuação do endereço. */
+/* O ponto de referência do local. Ocupa a linha inteira para não ser lido como
+   continuação do endereço. */
 .exp .place .ploc em {
   flex-basis: 100%;
   font-style: normal;
   font-size: 0.78rem;
   color: var(--color-ice-400);
+}
+
+/* ---------- kit praia ---------- */
+/* Duas colunas: o que vem no kit à esquerda, a regra de retirada num cartão à
+   direita. O cartão é o mesmo `.card` da inscrição — é a outra vez na página
+   em que uma informação precisa se descolar da superfície para ser lida. */
+.exp .kit .grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+@media (max-width: 64rem) {
+  .exp .kit .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.exp .kit-intro p {
+  margin: 1.1rem 0 0;
+  max-width: 46ch;
+  color: var(--fg-2);
+}
+/* Os itens do kit são etiquetas, não texto corrido: lado a lado leem-se de uma
+   vez; empilhados virariam uma coluna de cinco palavras soltas. */
+.exp .kit-itens {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.exp .kit-itens li {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: var(--fg-2);
+}
+.exp .kit-retirada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.exp .kit-rot {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+.exp .kit-quando {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1.2;
+  /* A data quebra em duas linhas no cartão de 24rem; sem equilibrar, "23 de" e
+     "setembro" ficam em linhas diferentes. */
+  text-wrap: balance;
+  color: var(--fg);
+}
+.exp .kit-onde {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+.exp .kit-onde span {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.88rem;
+  color: var(--fg-2);
+}
+/* A regra que evita a frustração no dia. Separada por linha e ícone: dentro do
+   mesmo bloco do endereço ela seria lida como rodapé do cartão e ignorada. */
+.exp .kit-aviso {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin: 0.5rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem;
+  color: var(--fg);
+}
+.exp .kit-aviso svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--accent);
 }
 
 /* ---------- vídeo (Reel vertical, tocado aqui) ---------- */

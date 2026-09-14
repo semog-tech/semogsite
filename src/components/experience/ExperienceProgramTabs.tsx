@@ -14,14 +14,23 @@ export type ProgramItem = {
   media: { url: string; alt: string; width?: number; height?: number }
 }
 
+/**
+ * Onde o evento acontece. Um objeto, e não cinco props soltas: elas só fazem
+ * sentido juntas e a legenda da foto monta uma linha só com todas.
+ */
+export type ProgramLocal = {
+  venue: string
+  district: string
+  city: string
+  uf: string
+  /** Ponto de referência — o que de fato coloca a pessoa no lugar certo. */
+  reference: string
+}
+
 type Props = {
   items: ProgramItem[]
   ongoing: readonly Ongoing[]
-  venue: string
-  city: string
-  uf: string
-  /** Presente enquanto o local não está confirmado; ausente quando estiver. */
-  venueNote?: string
+  local: ProgramLocal
 }
 
 /** Quanto cada atividade fica no ar antes de a seguinte entrar sozinha. */
@@ -82,7 +91,7 @@ function querMenosMovimento() {
  * Trocar no HOVER continua fora: o ponteiro passa por ali a caminho de outra
  * coisa, e o painel piscaria sem ninguém ter pedido.
  */
-export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNote }: Props) {
+export function ExperienceProgramTabs({ items, ongoing, local }: Props) {
   const [active, setActive] = useState(0)
   /** Avanço automático ligado. Só nasce ligado se o sistema não pedir o contrário. */
   const [auto, setAuto] = useState(false)
@@ -285,8 +294,14 @@ export function ExperienceProgramTabs({ items, ongoing, venue, city, uf, venueNo
                         <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" />
                         <circle cx="12" cy="10" r="2.5" />
                       </svg>
-                      {venue} — {city}, {uf}
-                      {venueNote && <em>{venueNote}</em>}
+                      {/* O endereço num `<span>` próprio: como nó de texto solto
+                          ele não cabia ao lado do ícone no celular e quebrava
+                          inteiro para a linha de baixo, deixando o alfinete
+                          órfão em cima. */}
+                      <span className="ploc-end">
+                        {local.venue} — {local.district}, {local.city}, {local.uf}
+                      </span>
+                      <em>{local.reference}</em>
                     </p>
                   </div>
                 </figcaption>
