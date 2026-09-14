@@ -3,6 +3,12 @@ import { site } from '@/../content/site'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { EXPERIENCE_SPONSORS } from '@/data/experienceSponsors'
 
+/** '07:30' -> 450. Usado dos dois lados da comparação de horário. */
+const emMinutos = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number)
+  return (h as number) * 60 + (m as number)
+}
+
 describe('EXPERIENCE_EVENT', () => {
   it('acontece em 26/09/2026, um sábado', () => {
     expect(EXPERIENCE_EVENT.date).toBe('2026-09-26')
@@ -25,15 +31,11 @@ describe('EXPERIENCE_EVENT', () => {
   })
 
   /**
-   * A grade toda cabe entre `startTime` e `endTime`. É o teste que pega o erro
-   * real: mexer numa aula e esquecer o `timeLabel` deixa o hero, o rodapé, a
-   * `<meta description>` e o JSON-LD anunciando um horário que não existe.
+   * Primeiro elo: a grade cabe entre `startTime` e `endTime`, e a primeira
+   * aula É o `startTime` (o fim é envelope — a avaliação física e a mesa de
+   * café seguem até as 10h, depois da última aula acabar às 09h55).
    */
   it('a programação começa e termina dentro do horário anunciado', () => {
-    const emMinutos = (hhmm: string) => {
-      const [h, m] = hhmm.split(':').map(Number)
-      return (h as number) * 60 + (m as number)
-    }
     const inicio = emMinutos(EXPERIENCE_EVENT.startTime)
     const fim = emMinutos(EXPERIENCE_EVENT.endTime)
 
@@ -42,6 +44,40 @@ describe('EXPERIENCE_EVENT', () => {
       expect(emMinutos(bloco.time)).toBeGreaterThanOrEqual(inicio)
       expect(emMinutos(bloco.endTime ?? bloco.time)).toBeLessThanOrEqual(fim)
     }
+  })
+
+  /**
+   * Segundo elo, e o que fecha a corrente: o rótulo anuncia a MESMA janela que
+   * a grade cumpre. Este é o teste que pega o erro real — mexer numa aula e
+   * esquecer o `timeLabel` deixa o hero, o rodapé, a `<meta description>`, o
+   * OG/Twitter e o JSON-LD anunciando um horário que não existe.
+   *
+   * Sem ele (até 14/09/2026) dava para reverter o rótulo para "07h às 12h" com
+   * a suíte inteira verde: `timeLabel` era uma string solta, e a única vez que
+   * um teste a citava era comparando o render contra ela mesma.
+   *
+   * A comparação é em MINUTOS, não em texto: o rótulo é escrito em pt-BR
+   * ("07h30 às 10h", com a hora cheia sem os dois zeros) e travar a string
+   * inteira reprovaria por formatação, não por horário errado.
+   */
+  it('o rótulo de horário anuncia a mesma janela que a grade cumpre', () => {
+    /** '07h30' -> 450; '10h' -> 600. `NaN` no que não for hora, para o teste cair. */
+    const doRotulo = (parte: string) => {
+      const casa = parte.trim().match(/^(\d{1,2})h(\d{2})?$/)
+      if (!casa) return Number.NaN
+      return Number(casa[1]) * 60 + Number(casa[2] ?? 0)
+    }
+
+    const [inicioRotulo, fimRotulo] = EXPERIENCE_EVENT.timeLabel.split(/\s+às\s+/)
+    expect(doRotulo(inicioRotulo ?? '')).toBe(emMinutos(EXPERIENCE_EVENT.startTime))
+    expect(doRotulo(fimRotulo ?? '')).toBe(emMinutos(EXPERIENCE_EVENT.endTime))
+
+    // A mesma janela aparece por extenso na faixa contínua ("Das 07h30 às 10h,
+    // sem hora marcada"). É uma segunda cópia do horário no próprio dado, e a
+    // que mais fácil envelhece sozinha.
+    const comJanela = EXPERIENCE_EVENT.ongoing.filter((o) => /\d{1,2}h/.test(o.text))
+    expect(comJanela.length).toBeGreaterThan(0)
+    for (const item of comJanela) expect(item.text).toContain(EXPERIENCE_EVENT.timeLabel)
   })
 
   it('anuncia as três aulas, nesta ordem, com quem conduz cada uma', () => {
