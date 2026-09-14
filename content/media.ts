@@ -62,18 +62,17 @@ const ALT_BY_FILENAME: Record<string, string> = {
   'experience-2025.mp4':
     'Vídeo com os melhores momentos do Semog Experience 2025, em João Pessoa',
   // Uma por atividade da programação (`EXPERIENCE_EVENT.schedule[].image`).
-  // São imagens da MODALIDADE, não dos professores: as fotos de Paloma, Igor,
-  // Assis e Maria ainda não chegaram (24/08/2026) e a decisão do cliente foi
-  // subir com a modalidade e trocar depois, arquivo por arquivo, sem tocar em
-  // componente.
+  // São imagens da MODALIDADE, não dos professores: as fotos de Paloma, Igor e
+  // Assis ainda não chegaram (24/08/2026) e a decisão do cliente foi subir com
+  // a modalidade e trocar depois, arquivo por arquivo, sem tocar em componente.
+  // São TRÊS: o alongamento saiu da grade em 14/09/2026 e a foto dele foi
+  // embora junto — entrada de mídia sem atividade é alt que ninguém lê.
   'experience-pilates.webp':
     'Turma de pilates sobre tapetes na areia da praia ao nascer do sol, com a instrutora orientando o movimento',
   'experience-funcional.webp':
     'Grupo em treino funcional na areia da praia ao nascer do sol, puxando elásticos de resistência com o treinador à frente',
   'experience-yoga.webp':
     'Turma de yoga em pose do guerreiro na areia da praia, de frente para o sol nascendo sobre o mar',
-  'experience-alongamento.webp':
-    'Alongamento e relaxamento sobre tapetes na areia da praia ao nascer do sol, com a instrutora auxiliando uma participante',
   // ---- Superlógica Next 2026 / G20 Condo (bucket) ----
   'g20-next-2026.mp4':
     'Vídeo do Superlógica Next 2026: bastidores do evento e a entrega do G20 Condo à Semog',
@@ -105,7 +104,6 @@ const DIMENSIONS_BY_FILENAME: Record<string, { width: number; height: number }> 
   'experience-pilates.webp': { width: 1600, height: 900 },
   'experience-funcional.webp': { width: 1600, height: 900 },
   'experience-yoga.webp': { width: 1600, height: 900 },
-  'experience-alongamento.webp': { width: 1600, height: 900 },
   'hero-towers.webp': { width: 2048, height: 1152 },
   'residencial.webp': { width: 2048, height: 1536 },
   'comercial.webp': { width: 2400, height: 1792 },
@@ -162,7 +160,6 @@ const LOCAL_BY_FILENAME: Record<string, string> = {
   'experience-pilates.webp': '/media/experience/experience-pilates.webp',
   'experience-funcional.webp': '/media/experience/experience-funcional.webp',
   'experience-yoga.webp': '/media/experience/experience-yoga.webp',
-  'experience-alongamento.webp': '/media/experience/experience-alongamento.webp',
 }
 
 /** Monta `{url, alt, width?, height?}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */

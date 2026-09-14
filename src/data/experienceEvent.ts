@@ -6,9 +6,9 @@
 export type Professional = {
   name: string
   /**
-   * URL do perfil. OPCIONAL de propósito: Igor, Maria e Assis ainda não
-   * mandaram o deles (24/08/2026) e a página tem que subir sem inventar link
-   * — quem não tem aparece com o nome em texto, sem âncora quebrada.
+   * URL do perfil. OPCIONAL de propósito: Igor e Assis ainda não mandaram o
+   * deles (24/08/2026) e a página tem que subir sem inventar link — quem não
+   * tem aparece com o nome em texto, sem âncora quebrada.
    */
   instagram?: string
 }
