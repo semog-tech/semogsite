@@ -927,10 +927,16 @@
   text-underline-offset: 3px;
 }
 .exp .place .ploc {
+  /* Largura do alfinete e o respiro até o texto. Em custom property porque os
+     dois valores são usados de novo lá embaixo, para recolocar o ponto de
+     referência embaixo do TEXTO do endereço — número solto ali envelheceria
+     no dia em que o ícone mudasse de tamanho. */
+  --ploc-alfinete: 0.95rem;
+  --ploc-respiro: 0.45rem;
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 0.15rem 0.45rem;
+  gap: 0.15rem var(--ploc-respiro);
   margin: 0.7rem 0 0;
   font-size: 0.8rem;
   color: #b4bdd9;
@@ -947,14 +953,20 @@
 /* Sobrescreve o `.place figcaption svg` (1,35rem, alinhado ao topo do bloco):
    aqui o ícone acompanha uma linha de 0,8rem, não o cabeçalho. */
 .exp .place .ploc svg {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: var(--ploc-alfinete);
+  height: var(--ploc-alfinete);
   margin-top: 0.1rem;
 }
-/* O ponto de referência do local. Ocupa a linha inteira para não ser lido como
-   continuação do endereço. */
+/* O ponto de referência do local. Cai na própria linha (`flex-basis: 100%`),
+   mas ALINHADO ao texto do endereço, não ao alfinete: o `padding` repõe o
+   ícone e o respiro da linha de cima, e entra no box porque o `box-sizing` do
+   tema é `border-box` — sem isso os 100% mais o recuo estourariam a legenda.
+   Continua distinto do endereço por corpo e por cor (o acento da marca contra
+   o cinza do endereço); antes a distinção vinha da POSIÇÃO, e o resultado na
+   tela era uma linha órfã encostada na borda, 23px à esquerda do endereço. */
 .exp .place .ploc em {
   flex-basis: 100%;
+  padding-left: calc(var(--ploc-alfinete) + var(--ploc-respiro));
   font-style: normal;
   font-size: 0.78rem;
   color: var(--color-ice-400);
