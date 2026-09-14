@@ -154,9 +154,11 @@ export const EXPERIENCE_EVENT = {
   /**
    * O café da manhã entrou em 14/09/2026 e absorveu o antigo "Frutas e comida":
    * são a mesma mesa, e anunciar as duas coisas separadas faria parecer que há
-   * dois serviços. A água de coco é a mesma faixa da água — o cliente falou em
-   * 100 unidades, mas o evento tem 200 vagas, então o número fica de fora: a
-   * página não pode prometer menos coco do que gente inscrita.
+   * dois serviços.
+   *
+   * **A água de coco nunca vem com quantidade** — decisão do cliente em
+   * 14/09/2026, não é cálculo sobre o número de vagas. Ela é item da oferta,
+   * como a água: número anunciado aqui vira promessa cobrável no dia.
    */
   ongoing: [
     {

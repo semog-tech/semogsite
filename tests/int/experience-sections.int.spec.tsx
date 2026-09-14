@@ -92,6 +92,9 @@ describe('ExperienceProgram', () => {
     expect(continuos).toContain('Café da manhã')
     expect(continuos).toContain('Avaliação física e de saúde')
     expect(continuos).toContain('07h30 às 10h')
+    // No RENDER, não só no dado: a quantidade de água de coco não pode
+    // aparecer na tela. O dado tem o seu próprio teste em `experience-data`.
+    expect(continuos).not.toMatch(/\d+\s*(águas?|cocos?|unidades?)/i)
     // A água de coco já foi um item com hora marcada na primeira grade; virou
     // oferta contínua e não pode voltar para a linha do tempo.
     const agenda = container.querySelector('.sched')?.textContent ?? ''

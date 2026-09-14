@@ -53,14 +53,21 @@ describe('EXPERIENCE_EVENT', () => {
   })
 
   /**
-   * O cliente falou em "100 águas de coco" e o evento tem 200 vagas: anunciar
-   * o número prometeria menos coco do que gente inscrita. A faixa contínua
-   * pode citar a água de coco, nunca a quantidade.
+   * A água de coco é item da oferta e nunca vem com quantidade — decisão do
+   * cliente em 14/09/2026. O teste existe porque o número tende a voltar: ele
+   * é o dado que a organização repassa ("compramos 100"), e no texto da faixa
+   * ele deixa de ser logística e vira promessa cobrável no dia.
    */
-  it('não promete uma quantidade de água de coco menor que o número de vagas', () => {
-    const faixa = EXPERIENCE_EVENT.ongoing.map((o) => `${o.title} ${o.text}`).join(' ')
-    expect(faixa).toMatch(/água de coco/i)
-    expect(faixa).not.toMatch(/\d+\s*(águas?|unidades?|cocos?)/i)
+  it('cita a água de coco sem nunca anunciar quantidade', () => {
+    const comCoco = EXPERIENCE_EVENT.ongoing
+      .map((o) => `${o.title} ${o.text}`)
+      .filter((texto) => /coco/i.test(texto))
+
+    expect(comCoco.length).toBeGreaterThan(0)
+    // Nenhum dígito no item da bebida. Amplo de propósito: `/100 águas/` não
+    // pegaria "cem", "1 por pessoa" nem "2 caixas". Os horários da manhã vivem
+    // em OUTROS itens da faixa, então a regra não os alcança.
+    for (const texto of comCoco) expect(texto).not.toMatch(/\d/)
   })
 
   /**
