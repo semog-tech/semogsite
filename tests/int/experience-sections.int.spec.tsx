@@ -7,6 +7,7 @@ import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
 import { ExperienceVideo } from '@/components/experience/ExperienceVideo'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { EXPERIENCE_SPONSORS } from '@/data/experienceSponsors'
+import { QUANTIDADE_ANUNCIADA } from './helpers/quantidade'
 
 /**
  * As seções são um porte do protótipo aprovado
@@ -92,9 +93,16 @@ describe('ExperienceProgram', () => {
     expect(continuos).toContain('Café da manhã')
     expect(continuos).toContain('Avaliação física e de saúde')
     expect(continuos).toContain('07h30 às 10h')
-    // No RENDER, não só no dado: a quantidade de água de coco não pode
-    // aparecer na tela. O dado tem o seu próprio teste em `experience-data`.
-    expect(continuos).not.toMatch(/\d+\s*(águas?|cocos?|unidades?)/i)
+    // No RENDER, não só no dado: a quantidade não pode chegar à tela nem
+    // cravada direto no JSX, que é o caminho que o teste do dado não enxerga.
+    // A régua é a MESMA (`QUANTIDADE_ANUNCIADA`) e o isolamento também: só os
+    // itens que citam coco, porque o horário da avaliação física é vizinho na
+    // faixa e não pode ser alcançado pela regra.
+    const itensComCoco = [...container.querySelectorAll('.ongoing li')]
+      .map((li) => li.textContent ?? '')
+      .filter((texto) => /coco/i.test(texto))
+    expect(itensComCoco.length).toBeGreaterThan(0)
+    for (const texto of itensComCoco) expect(texto).not.toMatch(QUANTIDADE_ANUNCIADA)
     // A água de coco já foi um item com hora marcada na primeira grade; virou
     // oferta contínua e não pode voltar para a linha do tempo.
     const agenda = container.querySelector('.sched')?.textContent ?? ''

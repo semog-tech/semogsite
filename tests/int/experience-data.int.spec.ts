@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { site } from '@/../content/site'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { EXPERIENCE_SPONSORS } from '@/data/experienceSponsors'
+import { QUANTIDADE_ANUNCIADA } from './helpers/quantidade'
 
 /** '07:30' -> 450. Usado dos dois lados da comparação de horário. */
 const emMinutos = (hhmm: string) => {
@@ -100,10 +101,15 @@ describe('EXPERIENCE_EVENT', () => {
       .filter((texto) => /coco/i.test(texto))
 
     expect(comCoco.length).toBeGreaterThan(0)
-    // Nenhum dígito no item da bebida. Amplo de propósito: `/100 águas/` não
-    // pegaria "cem", "1 por pessoa" nem "2 caixas". Os horários da manhã vivem
-    // em OUTROS itens da faixa, então a regra não os alcança.
-    for (const texto of comCoco) expect(texto).not.toMatch(/\d/)
+    // A régua é `QUANTIDADE_ANUNCIADA`, a mesma que `experience-sections` usa
+    // no render — o comentário dela diz o que pega e o que não pega, e é lá
+    // que se mexe. Dígito sozinho não bastava: "cem águas de coco" é a forma
+    // que copy escreve e atravessava a trava inteira.
+    //
+    // O filtro por `/coco/` acima não é detalhe: os horários da manhã vivem em
+    // OUTROS itens da faixa ("Das 07h30 às 10h", na avaliação física) e a
+    // regra não pode alcançá-los.
+    for (const texto of comCoco) expect(texto).not.toMatch(QUANTIDADE_ANUNCIADA)
   })
 
   /**
