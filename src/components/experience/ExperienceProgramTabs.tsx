@@ -300,13 +300,22 @@ export function ExperienceProgramTabs({ items, ongoing, local }: Props) {
                           ele não cabia ao lado do ícone no celular e quebrava
                           inteiro para a linha de baixo, deixando o alfinete
                           órfão em cima.
-                          Nome do local e logradouro em linhas separadas: numa
-                          linha só dariam 89 caracteres correndo, e o que a
-                          pessoa procura aqui — a avenida — ficava no meio. */}
+                          Dentro dele, três papéis em três linhas — o nome diz
+                          QUAL é o lugar, o endereço diz ONDE fica e o ponto de
+                          referência é o que resolve na hora de chegar. Numa
+                          linha só seriam 89 caracteres correndo, todos com o
+                          mesmo peso, e é a referência que se perderia. */}
                       <span className="ploc-end">
-                        {local.venue}
+                        <span className="ploc-nome">{local.venue}</span>
+                        {/* Logradouro e bairro—cidade em linhas próprias. Numa
+                            linha só, "Avenida Cabo Branco, Cabo Branco" repete
+                            o nome em sequência e lê como erro, e a quebra caía
+                            no meio de "João Pessoa". Separados, cada linha é
+                            uma unidade — e a de baixo é o mesmo par que o hero
+                            e o rodapé já mostram. */}
+                        <span className="ploc-addr">{local.street}</span>
                         <span className="ploc-addr">
-                          {local.street}, {local.district}, {local.city}, {local.uf}
+                          {local.district} — {local.city}, {local.uf}
                         </span>
                       </span>
                       <em>{local.reference}</em>

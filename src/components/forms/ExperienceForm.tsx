@@ -175,13 +175,19 @@ export function ExperienceForm() {
           </li>
           <li>
             <CheckIcon />
-            {/* O local num `<span>` com quebra explícita: é a única das três
-                linhas que carrega endereço inteiro, e corrida ela vira um
-                parágrafo de 120 caracteres onde se procura uma avenida. */}
-            <span>
+            {/* Três papéis em três linhas, como no painel da programação: o
+                nome diz qual é o lugar, o endereço diz onde fica, o ponto de
+                referência é o que resolve na chegada. Corrida, esta seria uma
+                linha de 120 caracteres onde se procura uma avenida — e é a
+                tela que a pessoa fecha levando o endereço. */}
+            <span className="fact-local">
               {E.venue}
-              <br />
-              {E.street}, {E.district}, {E.city}/{E.uf} — {E.venueReference}
+              <span className="fact-endereco">
+                {E.street}
+                <br />
+                {E.district} — {E.city}/{E.uf}
+              </span>
+              <em className="fact-ref">{E.venueReference}</em>
             </span>
           </li>
         </ul>

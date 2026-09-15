@@ -416,6 +416,9 @@
   font-weight: 500;
   font-size: 1.02rem;
   margin-top: 0.15rem;
+  /* O nome do local é o único dos três que não cabe numa linha no celular, e
+     sem isto a quebra deixava "Adaptado" sozinho embaixo. */
+  text-wrap: pretty;
 }
 .exp .meta-value small {
   display: block;
@@ -950,6 +953,21 @@
   flex: 1;
   min-width: 0;
 }
+/* Os três papéis do bloco do local, em três degraus de cor — o mesmo mecanismo
+   que `.pname`/`.ppro`/`.pnote` já usam acima nesta legenda, e não uma escala
+   nova. O NOME sobe para a cor base do figcaption porque é o que identifica o
+   lugar; o endereço fica no cinza do `.ploc`, que é apoio; e o ponto de
+   referência tem o acento (ver `.ploc em`). Antes os três dividiam o mesmo
+   cinza do `.pnote` logo acima, e o bloco inteiro se lia como um parágrafo só.
+   Só a COR muda aqui: `font-weight` engrossaria o nome, que no celular fecha a
+   linha com menos de 2px de folga, e o jogaria para uma segunda linha. */
+.exp .place .ploc-nome {
+  display: block;
+  color: #edf1fa;
+  /* Se ainda assim quebrar (fonte de fallback, tela mais estreita), que não
+     sobre "Adaptado" sozinho na segunda linha. */
+  text-wrap: pretty;
+}
 /* O logradouro desce para a própria linha, já dentro da coluna do endereço —
    herda o alinhamento do `.ploc-end` e por isso não precisa repor o alfinete
    como o ponto de referência lá embaixo precisa. */
@@ -974,7 +992,12 @@
   flex-basis: 100%;
   padding-left: calc(var(--ploc-alfinete) + var(--ploc-respiro));
   font-style: normal;
-  font-size: 0.78rem;
+  /* No corpo do endereço, não menor: é a linha que de fato coloca alguém no
+     lugar certo, e a 0,78rem ela se lia como nota de rodapé do endereço. O
+     peso é o que lhe dá presença sem ocupar mais espaço — cabe de sobra, são
+     27 caracteres contra os 49 do endereço. */
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--color-ice-400);
 }
 
@@ -1223,6 +1246,26 @@
   color: var(--accent);
   flex: none;
   margin-top: 0.35rem;
+}
+/* O item do local é o único dos três que carrega endereço, e aqui — superfície
+   clara — vale a mesma hierarquia da legenda escura do painel: o nome no texto
+   forte, o endereço no secundário, o ponto de referência no acento da marca.
+   A diferença de cor é o que evita que os três virem um parágrafo só. */
+.exp .facts .fact-local {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  color: var(--fg);
+}
+.exp .facts .fact-endereco {
+  color: var(--fg-2);
+  font-size: 0.9rem;
+}
+.exp .facts .fact-ref {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--accent);
 }
 /*
  * `min-width: 0` (com o `minmax(0, 1fr)` da grade quando ela colapsa) porque o
