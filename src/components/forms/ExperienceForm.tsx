@@ -185,7 +185,7 @@ export function ExperienceForm() {
               <span className="fact-endereco">
                 {E.street}
                 <br />
-                {E.district} — {E.city}/{E.uf}
+                {E.district} — {E.city}, {E.uf}
               </span>
               <em className="fact-ref">{E.venueReference}</em>
             </span>

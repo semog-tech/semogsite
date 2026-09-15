@@ -91,8 +91,17 @@ describe('ExperienceForm', () => {
     // tem que estar aqui inteiro, com a avenida, não só o nome do prédio.
     expect(confirmacao.textContent).toContain('Avenida Cabo Branco')
     expect(confirmacao.textContent).toContain(E.street)
-    // Nenhum e-mail de confirmação do evento existe hoje (o auto-reply que sai
-    // é o genérico do site) — prometer um seria mentir para quem se inscreveu.
+    // Bairro, cidade e UF na forma do projeto — a mesma do hero, do rodapé, do
+    // painel da programação e do e-mail. Esta tela já escreveu "João Pessoa/PB"
+    // enquanto todas as outras escreviam "João Pessoa, PB"; a barra é a forma
+    // do endereço postal em `content/site.ts`, não a desta linha.
+    expect(confirmacao.textContent).toContain('Cabo Branco — João Pessoa, PB')
+    expect(confirmacao.textContent).toContain(`${E.district} — ${E.city}, ${E.uf}`)
+    // O e-mail de confirmação existe (`ExperienceAutoReply`, coberto em
+    // `experience-email.int.spec.tsx`) — mas o painel não o anuncia de
+    // propósito: e-mail cai em spam e endereço sai digitado errado, e quem
+    // fecha a aba não pode depender da caixa de entrada para saber onde ir.
+    // Tudo o que orienta a chegada tem que caber nesta tela.
     expect(confirmacao.textContent).not.toMatch(/e-mail/i)
   })
 })

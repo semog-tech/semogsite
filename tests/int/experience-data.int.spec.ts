@@ -114,9 +114,10 @@ describe('EXPERIENCE_EVENT', () => {
 
   /**
    * O kit não é entregue no dia: a página manda a pessoa até a filial, então o
-   * endereço precisa existir na fonte que `ExperienceKit` consulta. Sem esta
-   * garantia, o `find` devolveria `undefined` e a seção mostraria "filial da
-   * Semog em João Pessoa" sem dizer onde.
+   * endereço precisa existir na fonte que `ExperienceKit` — e, desde
+   * 15/09/2026, também o e-mail de confirmação (`ExperienceAutoReply`) —
+   * consulta. Sem esta garantia o `find` devolveria `undefined` e os dois
+   * diriam "filial da Semog em João Pessoa" sem dizer onde.
    */
   it('a filial que entrega o kit tem endereço em content/site.ts', () => {
     const unidade = site.company.addresses.find((e) => e.city === EXPERIENCE_EVENT.city)
