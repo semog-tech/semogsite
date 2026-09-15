@@ -49,6 +49,7 @@ export function ExperienceFooter() {
           </span>
           <span>{E.timeLabel}</span>
           <span>{E.venue}</span>
+          <span>{E.street}</span>
           <span>
             {E.district} — {E.city}, {E.uf}
           </span>

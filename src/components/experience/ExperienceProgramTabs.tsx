@@ -20,6 +20,8 @@ export type ProgramItem = {
  */
 export type ProgramLocal = {
   venue: string
+  /** Logradouro. É o painel de detalhes que carrega o endereço completo. */
+  street: string
   district: string
   city: string
   uf: string
@@ -297,9 +299,15 @@ export function ExperienceProgramTabs({ items, ongoing, local }: Props) {
                       {/* O endereço num `<span>` próprio: como nó de texto solto
                           ele não cabia ao lado do ícone no celular e quebrava
                           inteiro para a linha de baixo, deixando o alfinete
-                          órfão em cima. */}
+                          órfão em cima.
+                          Nome do local e logradouro em linhas separadas: numa
+                          linha só dariam 89 caracteres correndo, e o que a
+                          pessoa procura aqui — a avenida — ficava no meio. */}
                       <span className="ploc-end">
-                        {local.venue} — {local.district}, {local.city}, {local.uf}
+                        {local.venue}
+                        <span className="ploc-addr">
+                          {local.street}, {local.district}, {local.city}, {local.uf}
+                        </span>
                       </span>
                       <em>{local.reference}</em>
                     </p>

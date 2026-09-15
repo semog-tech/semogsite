@@ -950,6 +950,12 @@
   flex: 1;
   min-width: 0;
 }
+/* O logradouro desce para a própria linha, já dentro da coluna do endereço —
+   herda o alinhamento do `.ploc-end` e por isso não precisa repor o alfinete
+   como o ponto de referência lá embaixo precisa. */
+.exp .place .ploc-addr {
+  display: block;
+}
 /* Sobrescreve o `.place figcaption svg` (1,35rem, alinhado ao topo do bloco):
    aqui o ícone acompanha uma linha de 0,8rem, não o cabeçalho. */
 .exp .place .ploc svg {

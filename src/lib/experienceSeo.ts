@@ -28,12 +28,15 @@ export const experienceTitle = `${E.name}: manhã wellness em ${E.city}`
  * à mão, uma troca de horário em `experienceEvent.ts` arrumaria a página
  * inteira e deixaria o snippet da busca e o rich result mentindo.
  *
- * "e kit praia" saiu no fecho quando o local virou "Centro de Atendimento ao
- * Turista" (12 caracteres a mais que "Praia do Cabo Branco"): com ele o texto
- * ia a 168 caracteres e o Google cortava justamente o fecho. Sem ele são 156,
- * dentro do que a SERP mostra — e o kit ganhou seção própria na página.
+ * O texto vive no limite dos 160 caracteres e já perdeu duas coisas para
+ * caber, sempre a menos importante: "e kit praia" saiu quando o local virou
+ * "Centro de Atendimento ao Turista", e o BAIRRO saiu em 15/09/2026, quando o
+ * nome do local ganhou o "Adaptado" e o texto foi a 165. O bairro é o que
+ * menos falta aqui: a cidade já está no título, o nome completo do local é
+ * específico o bastante para a busca, e o endereço inteiro — com avenida e
+ * ponto de referência — está na página e no JSON-LD. Sem ele são 152.
  */
-export const experienceDescription = `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, no ${E.venue}, ${E.district}. ${E.seats} vagas.`
+export const experienceDescription = `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, no ${E.venue}. ${E.seats} vagas.`
 
 /**
  * A foto do hero também é o card social. O route group `(evento)` é um root
@@ -75,12 +78,14 @@ export const experienceEventJsonLd = {
   location: {
     '@type': 'Place',
     name: E.venue,
-    // O ponto de referência e o bairro entram como `description` porque não são
-    // logradouro: inventar um `streetAddress` para o Centro de Atendimento ao
-    // Turista daria ao Google um endereço que ninguém confirmou.
+    // O ponto de referência e o bairro seguem na `description` porque não são
+    // logradouro — o logradouro agora existe e está no `streetAddress` abaixo.
     description: `${E.venueReference}, ${E.district}`,
     address: {
       '@type': 'PostalAddress',
+      // É por este campo que o Google põe o evento no mapa: só com cidade e
+      // estado o rich result aponta para João Pessoa inteira, não para a orla.
+      streetAddress: E.street,
       addressLocality: E.city,
       addressRegion: E.uf,
       addressCountry: 'BR',

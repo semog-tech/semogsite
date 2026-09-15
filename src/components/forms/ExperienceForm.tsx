@@ -174,7 +174,15 @@ export function ExperienceForm() {
             <CheckIcon /> Das {E.timeLabel}
           </li>
           <li>
-            <CheckIcon /> {E.venue}, {E.venueReference} — {E.district}, {E.city}/{E.uf}
+            <CheckIcon />
+            {/* O local num `<span>` com quebra explícita: é a única das três
+                linhas que carrega endereço inteiro, e corrida ela vira um
+                parágrafo de 120 caracteres onde se procura uma avenida. */}
+            <span>
+              {E.venue}
+              <br />
+              {E.street}, {E.district}, {E.city}/{E.uf} — {E.venueReference}
+            </span>
           </li>
         </ul>
         <p className="formnote">

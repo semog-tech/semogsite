@@ -35,7 +35,7 @@ test.describe('Landing do Experience', () => {
     await page.goto(URL_EXPERIENCE)
     const hero = page.locator('.hero')
     await expect(hero.getByText('26 de setembro de 2026')).toBeVisible()
-    await expect(hero.getByText('Centro de Atendimento ao Turista')).toBeVisible()
+    await expect(hero.getByText('Centro de Atendimento ao Turista Adaptado')).toBeVisible()
     await expect(hero.getByText(/200 vagas/i)).toBeVisible()
   })
 
@@ -56,7 +56,8 @@ test.describe('Landing do Experience', () => {
     const jsonLd = JSON.parse(raw ?? '{}')
     expect(jsonLd['@type']).toBe('Event')
     expect(jsonLd.startDate).toContain('2026-09-26')
-    expect(jsonLd.location.name).toBe('Centro de Atendimento ao Turista')
+    expect(jsonLd.location.name).toBe('Centro de Atendimento ao Turista Adaptado')
+    expect(jsonLd.location.address.streetAddress).toBe('Avenida Cabo Branco')
     expect(jsonLd.offers.price).toBe('0')
   })
 

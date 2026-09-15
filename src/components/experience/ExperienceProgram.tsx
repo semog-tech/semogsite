@@ -34,6 +34,7 @@ export function ExperienceProgram() {
       items={items}
       local={{
         venue: E.venue,
+        street: E.street,
         district: E.district,
         city: E.city,
         uf: E.uf,

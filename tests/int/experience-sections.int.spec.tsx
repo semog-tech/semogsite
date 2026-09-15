@@ -112,14 +112,24 @@ describe('ExperienceProgram', () => {
 
   /**
    * O local foi confirmado em 14/09/2026 e a ressalva "aguardando retorno da
-   * prefeitura" saiu do dado e dos componentes. O que o painel mostra agora é o
-   * ponto de referência — que é o que coloca a pessoa no lugar certo.
+   * prefeitura" saiu do dado e dos componentes; o logradouro chegou em
+   * 15/09/2026. Este painel é o único lugar da página com o endereço INTEIRO —
+   * o hero fica com o nome e o bairro —, então é aqui que a avenida precisa
+   * estar travada.
+   *
+   * Cada asserção é dupla: contra o literal confirmado, para o valor não voltar
+   * sozinho ao rascunho, e contra `EXPERIENCE_EVENT`, para o painel não poder
+   * digitar o endereço à mão. Uma só das duas não cobre.
    */
-  it('mostra o ponto de referência do local, e nenhuma ressalva', () => {
+  it('mostra o endereço completo e o ponto de referência, sem ressalva', () => {
     const { container } = render(<ExperienceProgram />)
     const legenda = container.querySelector('.place.is-active .ploc')?.textContent ?? ''
+    expect(legenda).toContain('Centro de Atendimento ao Turista Adaptado')
     expect(legenda).toContain(EXPERIENCE_EVENT.venue)
+    expect(legenda).toContain('Avenida Cabo Branco')
+    expect(legenda).toContain(EXPERIENCE_EVENT.street)
     expect(legenda).toContain(EXPERIENCE_EVENT.district)
+    expect(legenda).toContain("em frente à Sapore D'Italia")
     expect(legenda).toContain(EXPERIENCE_EVENT.venueReference)
     expect(container.textContent).not.toMatch(/a confirmar|prefeitura/i)
   })

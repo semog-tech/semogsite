@@ -61,7 +61,14 @@ export const EXPERIENCE_EVENT = {
    * prefeitura" que acompanhava o local em hero, programação e rodapé, junto
    * com o par `venueConfirmed`/`venueNote` que a ligava.
    */
-  venue: 'Centro de Atendimento ao Turista',
+  venue: 'Centro de Atendimento ao Turista Adaptado',
+  /**
+   * Logradouro, confirmado em 15/09/2026. A avenida e o bairro se chamam
+   * igual — "Avenida Cabo Branco, Cabo Branco" parece redundância e não é:
+   * é assim que o endereço se escreve, e sem a avenida quem não conhece a
+   * orla fica só com o nome de um prédio público.
+   */
+  street: 'Avenida Cabo Branco',
   /** Bairro. Anda junto da cidade em toda peça: "Cabo Branco — João Pessoa, PB". */
   district: 'Cabo Branco',
   /**

@@ -85,7 +85,12 @@ describe('ExperienceForm', () => {
     const confirmacao = await screen.findByRole('status')
     expect(confirmacao.textContent).toContain(E.dateLabel)
     expect(confirmacao.textContent).toContain(E.timeLabel)
+    expect(confirmacao.textContent).toContain('Centro de Atendimento ao Turista Adaptado')
     expect(confirmacao.textContent).toContain(E.venue)
+    // Quem acabou de se inscrever fecha a aba: o endereço que orienta a chegada
+    // tem que estar aqui inteiro, com a avenida, não só o nome do prédio.
+    expect(confirmacao.textContent).toContain('Avenida Cabo Branco')
+    expect(confirmacao.textContent).toContain(E.street)
     // Nenhum e-mail de confirmação do evento existe hoje (o auto-reply que sai
     // é o genérico do site) — prometer um seria mentir para quem se inscreveu.
     expect(confirmacao.textContent).not.toMatch(/e-mail/i)

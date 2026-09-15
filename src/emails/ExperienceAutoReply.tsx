@@ -72,7 +72,9 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
               <br />
               Das {E.timeLabel} — chegue 15 minutos antes
               <br />
-              {E.venue}, {E.venueReference}
+              {E.venue}
+              <br />
+              {E.street} — {E.venueReference}
               <br />
               {E.district}, {E.city} — {E.uf}
             </Text>

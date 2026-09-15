@@ -19,7 +19,8 @@ import { experienceDescription, experienceEventJsonLd } from '@/lib/experienceSe
  * Uma só das duas não cobre: a primeira deixa a página digitar o local à mão,
  * a segunda passa para qualquer valor.
  */
-const LOCAL = 'Centro de Atendimento ao Turista'
+const LOCAL = 'Centro de Atendimento ao Turista Adaptado'
+const LOGRADOURO = 'Avenida Cabo Branco'
 const REFERENCIA = "em frente à Sapore D'Italia"
 const HORARIO = '07h30 às 10h'
 
@@ -41,6 +42,12 @@ describe('JSON-LD do Semog Experience', () => {
     expect(local.description).toContain(REFERENCIA)
     expect(local.description).toContain(E.venueReference)
     expect(local.description).toContain(E.district)
+
+    // Sem logradouro o Google localiza o evento na cidade inteira, não na
+    // orla — e a landing existe justamente para levar alguém a um ponto da
+    // Avenida Cabo Branco num sábado de manhã.
+    expect(local.address.streetAddress).toBe(LOGRADOURO)
+    expect(local.address.streetAddress).toBe(E.street)
 
     expect(local.address.addressLocality).toBe(E.city)
     expect(local.address.addressRegion).toBe(E.uf)
