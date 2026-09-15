@@ -91,14 +91,23 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
             </Text>
             <Text style={linha}>
               <strong>O kit praia é retirado antes.</strong> A partir de {E.kit.pickup.fromWeekday},{' '}
-              {E.kit.pickup.fromDateLabel}, na filial da Semog em {E.city}
+              {E.kit.pickup.fromDateLabel}, na filial da Semog em {E.city}.
               {/*
-                Ausente só se a unidade sumir de `content/site.ts` — o que um
-                teste em `experience-data.int.spec.ts` impede. A guarda existe
-                para o e-mail deixar de mostrar o endereço em vez de mostrar um
-                endereço pela metade, como na seção da página.
+                Endereço em linha própria, e o aviso numa terceira: num
+                parágrafo corrido a regra crítica acaba depois do CEP, que é
+                onde o olho já desistiu. A guarda cobre a unidade sumir de
+                `content/site.ts` — impedido por `experience-data.int.spec.ts`
+                —, para o e-mail deixar de mostrar o endereço em vez de mostrar
+                um endereço pela metade, como a seção da página faz.
               */}
-              {filial && <> — {filial.address}</>}. Não há entrega no dia do evento.
+              {filial && (
+                <>
+                  <br />
+                  {filial.address}
+                </>
+              )}
+              <br />
+              <strong>Não há entrega no dia do evento.</strong>
             </Text>
             <Text style={{ ...linha, color: TEXT_MUTED, margin: 0 }}>
               Você não entrou em nenhuma lista comercial: esta inscrição serve só para o evento.
