@@ -1,6 +1,6 @@
 /**
- * Conteúdo de "A Semog" (slug `semog`) — port fiel de `seedSemogPage` em
- * `src/seed/pages.ts`, fiel a `_reference/semog.html`.
+ * Conteúdo de "A Semog" (slug `semog`), baseado em `_reference/semog.html`.
+ * Datas de expansão corrigidas conforme confirmação da Semog em 10/09/2026.
  */
 import type { PageData } from '@/types/content'
 import { img } from '../media'
@@ -76,7 +76,7 @@ export const semog: PageData = {
         { value: 3, label: 'Estados', detail: 'Pernambuco, Paraíba e Pará.' },
       ],
     },
-    // `#historia`, `_reference/semog.html:275-328` — 8 cartões datados.
+    // `#historia`, baseado em `_reference/semog.html:275-328`, com marcos atualizados.
     {
       blockType: 'timeline',
       eyebrow: 'Nossa história',
@@ -94,12 +94,13 @@ export const semog: PageData = {
           text: 'A carteira de condomínios se multiplica e a Semog se consolida como referência no estado.',
         },
         {
-          date: '2010',
+          date: '2004',
           title: 'Expansão pela Paraíba',
-          text: 'Chegamos a João Pessoa e Campina Grande com equipes locais e o mesmo padrão de governança.',
+          text: 'Chegamos a João Pessoa com equipe local e o mesmo padrão de governança.',
         },
         {
-          date: '2018',
+          id: 'expansao-belem',
+          date: '2019',
           title: 'Norte no mapa',
           text: 'A unidade de Belém do Pará leva o método Semog para além do Nordeste.',
         },
@@ -112,6 +113,12 @@ export const semog: PageData = {
           date: '2023',
           title: 'Prestação de contas digital',
           text: 'Lançamos a prestação de contas 100% digital, com documentos, gráficos e assinatura digital.',
+        },
+        {
+          id: 'expansao-campina-grande',
+          date: '2025',
+          title: 'Chegada a Campina Grande',
+          text: 'Chegamos a Campina Grande, ampliando a nossa presença na Paraíba.',
         },
         {
           date: '2025',
