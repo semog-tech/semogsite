@@ -13,17 +13,25 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
  * aqui (a gravação tem cobertura própria em `desfecho-registrar`).
  */
 
-const registrarMock = vi.fn(async () => ({
+/**
+ * Dublê da Server Action com a assinatura REAL de `useActionState` (estado
+ * anterior + `FormData`). Tipar os dois parâmetros não é formalidade: é o que
+ * permite ler o `FormData` que a tela montou, que é justamente o objeto sob
+ * teste nos casos de round-trip.
+ */
+const registrarMock = vi.fn(async (_anterior: ResultadoDoDesfecho | null, _formData: FormData) => ({
   ok: true as const,
   desfecho: 'fechou' as const,
   motivo: null,
 }))
 
 vi.mock('@/app/(interno)/_actions/registrar-desfecho', () => ({
-  registrarDesfecho: (...args: unknown[]) => registrarMock(...(args as [])),
+  registrarDesfecho: (anterior: ResultadoDoDesfecho | null, formData: FormData) =>
+    registrarMock(anterior, formData),
 }))
 
 import { FormularioDesfecho, type LeadEmAvaliacao } from '@/components/desfecho/FormularioDesfecho'
+import type { ResultadoDoDesfecho } from '@/lib/desfecho'
 
 /** Lead sem desfecho — o caso do primeiro clique no e-mail. */
 const NOVO: LeadEmAvaliacao = {
@@ -33,6 +41,7 @@ const NOVO: LeadEmAvaliacao = {
   motivo: null,
   registradoEm: null,
   avisados: 1,
+  observacao: '',
 }
 
 /** Lead que alguém já respondeu. */
@@ -115,6 +124,70 @@ describe('FormularioDesfecho — lead que já foi respondido', () => {
     fireEvent.click(botaoAlterar())
 
     expect(registrarMock).not.toHaveBeenCalled()
+  })
+})
+
+/**
+ * Round-trip: o que a página carregou tem que voltar no envio.
+ *
+ * A Server Action grava valores absolutos — nenhuma coluna é preservada por
+ * `coalesce`, e isso é deliberado. A consequência é que **a tela decide o que
+ * sobrevive**: campo que ela não repopular volta vazio e apaga o que estava
+ * gravado.
+ *
+ * Reenviar o mesmo `FormData` num teste de ação não pega isso: o objeto carrega
+ * tudo junto, então passa com ou sem a tela repopular. Aqui o formulário é
+ * REMONTADO pelo componente a partir do lead que a página carregou, e o envio
+ * é o do navegador — que é onde a perda acontecia.
+ */
+describe('FormularioDesfecho — reconfirmar sem mexer em nada não apaga o que já existe', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  /** O `FormData` que o `<form action={…}>` entregou à Server Action. */
+  function enviado(): FormData {
+    expect(registrarMock).toHaveBeenCalledTimes(1)
+    return registrarMock.mock.calls[0][1]
+  }
+
+  const COM_OBSERVACAO: LeadEmAvaliacao = {
+    ...NOVO,
+    desfecho: 'nao_e_lead',
+    motivo: 'segunda_via_boleto',
+    observacao: 'Era moradora do Jardins, queria o boleto de setembro.',
+    registradoEm: '16/09/2026, 14:32',
+  }
+
+  it('a observação já registrada volta preenchida na caixa', () => {
+    render(<FormularioDesfecho lead={COM_OBSERVACAO} statusInicial={null} />)
+    fireEvent.click(botaoAlterar())
+
+    const caixa = screen.getByLabelText(/quer detalhar/i) as HTMLTextAreaElement
+    expect(caixa.value).toBe(COM_OBSERVACAO.observacao)
+  })
+
+  it('confirmar sem tocar em nada reenvia a observação, em vez de apagá-la', () => {
+    render(<FormularioDesfecho lead={COM_OBSERVACAO} statusInicial={null} />)
+    fireEvent.click(botaoAlterar())
+    // Nada é alterado aqui de propósito: é o gesto de quem reabre o link, vê os
+    // rádios certos e confirma.
+    fireEvent.submit(
+      screen.getByRole('button', { name: /confirmar/i }).closest('form') as HTMLFormElement,
+    )
+
+    const fd = enviado()
+    expect(fd.get('observacao')).toBe(COM_OBSERVACAO.observacao)
+    expect(fd.get('desfecho')).toBe('nao_e_lead')
+    expect(fd.get('motivo')).toBe('segunda_via_boleto')
+  })
+
+  it('lead sem observação continua enviando vazio — não inventa texto', () => {
+    render(<FormularioDesfecho lead={{ ...COM_OBSERVACAO, observacao: '' }} statusInicial={null} />)
+    fireEvent.click(botaoAlterar())
+    fireEvent.submit(
+      screen.getByRole('button', { name: /confirmar/i }).closest('form') as HTMLFormElement,
+    )
+
+    expect(enviado().get('observacao')).toBe('')
   })
 })
 

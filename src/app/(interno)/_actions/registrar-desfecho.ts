@@ -34,10 +34,23 @@ import { tokenConfere } from '@/lib/desfechoToken'
  * é tão controlável pelo remetente quanto uma query string — validar só na
  * renderização deixaria a gravação aberta a quem montasse a requisição na mão.
  *
- * Idempotente por construção: é um `update` com valores absolutos, então
- * confirmar duas vezes grava o mesmo estado, e corrigir a resposta depois
- * sobrescreve as quatro colunas (inclusive limpando motivo e observação quando
- * o desfecho novo não é "não é lead").
+ * **Grava valores absolutos, e isso não é o mesmo que ser idempotente.** As
+ * quatro colunas são sobrescritas com o que veio no `FormData` — nenhuma é
+ * preservada por `coalesce`, de propósito: corrigir "não é lead / currículo"
+ * para "em negociação" precisa limpar o motivo, senão o banco fica com um lead
+ * em negociação carregando a justificativa de não ser lead.
+ *
+ * O preço disso é que o resultado depende inteiramente do que a TELA enviar.
+ * Reenviar o mesmo `FormData` grava o mesmo estado; reenviar um formulário
+ * remontado com um campo vazio APAGA aquele campo. Foi exatamente o que
+ * aconteceu com a observação: a página não a carregava de volta, a `textarea`
+ * vinha vazia, e quem reabrisse o link e confirmasse sem tocar em nada perdia
+ * o texto — sem aviso e sem histórico para recuperar.
+ *
+ * Por isso a responsabilidade é da página, não daqui: quem renderiza o
+ * formulário precisa devolver TODOS os campos já preenchidos com o que está
+ * gravado. Um campo novo que a tela esqueça de repopular volta a ser uma perda
+ * silenciosa por este mesmo caminho.
  *
  * Assinatura de `useActionState`: o primeiro parâmetro é o estado anterior,
  * que esta ação ignora — cada envio decide sozinho, a partir do `FormData`.

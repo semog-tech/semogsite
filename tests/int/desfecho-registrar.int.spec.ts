@@ -237,7 +237,19 @@ describe('registrarDesfecho — motivo só existe em "não é lead"', () => {
 })
 
 describe('registrarDesfecho — confirmar duas vezes e corrigir depois', () => {
-  it('confirmar duas vezes o mesmo desfecho grava o mesmo estado', async () => {
+  /**
+   * **Reenviar o mesmo `FormData` não prova nada aqui.** O objeto carrega todos
+   * os campos junto, então ele passa com ou sem a tela repopular a observação —
+   * é entrada reconstruída a partir da suposição do código, e teste e código
+   * erram juntos. A trava real de reconfirmação é a de round-trip, em
+   * `desfecho-tela.int.spec.tsx`, que remonta o formulário a partir do que a
+   * página carregou.
+   *
+   * O que ESTE teste cobre é só o lado da ação: dois envios idênticos produzem
+   * o mesmo `update` e o mesmo retorno — nenhum contador escondido, nenhuma
+   * recusa na segunda vez.
+   */
+  it('dois envios idênticos produzem o mesmo update e o mesmo retorno', async () => {
     const campos = { lead: '7', token: assinarLead('7') as string, desfecho: 'fechou' }
 
     const primeira = await registrarDesfecho(null, formulario(campos))
@@ -246,6 +258,35 @@ describe('registrarDesfecho — confirmar duas vezes e corrigir depois', () => {
 
     expect(primeira).toEqual(segunda)
     expect(paramsDoUpdate()).toEqual(paramsPrimeira)
+  })
+
+  it('campo que a tela NÃO reenviar é apagado — é o contrato, e a página o conhece', async () => {
+    // Documenta a consequência da gravação absoluta, que é deliberada. Não é
+    // defeito da ação: é a razão de a página ser obrigada a devolver todos os
+    // campos preenchidos (ver o docblock de `registrar-desfecho.ts`).
+    await registrarDesfecho(
+      null,
+      formulario({
+        lead: '7',
+        token: assinarLead('7') as string,
+        desfecho: 'nao_e_lead',
+        motivo: 'outro',
+        observacao: 'contexto que existia',
+      }),
+    )
+    expect(paramsDoUpdate()[2]).toBe('contexto que existia')
+
+    // Mesmo desfecho e mesmo motivo, mas sem a observação no corpo.
+    await registrarDesfecho(
+      null,
+      formulario({
+        lead: '7',
+        token: assinarLead('7') as string,
+        desfecho: 'nao_e_lead',
+        motivo: 'outro',
+      }),
+    )
+    expect(paramsDoUpdate()[2]).toBeNull()
   })
 
   it('corrigir um desfecho já registrado sobrescreve — inclusive limpando o motivo', async () => {

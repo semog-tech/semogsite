@@ -62,6 +62,7 @@ type LinhaDeLead = {
   data: Record<string, string>
   desfecho: string | null
   desfecho_motivo: string | null
+  desfecho_observacao: string | null
   desfecho_em: Date | null
   notificado_para: string | null
 }
@@ -91,7 +92,8 @@ export default async function DesfechoPage({
   if (!token || !tokenConfere(id, token)) notFound()
 
   const { rows } = await query<LinhaDeLead>(
-    `select id, created_at, form, data, desfecho, desfecho_motivo, desfecho_em, notificado_para
+    `select id, created_at, form, data,
+            desfecho, desfecho_motivo, desfecho_observacao, desfecho_em, notificado_para
        from cms.leads
       where id = $1`,
     [id],
@@ -105,6 +107,10 @@ export default async function DesfechoPage({
     token,
     desfecho: ehDesfecho(linha.desfecho) ? linha.desfecho : null,
     motivo: ehMotivo(linha.desfecho_motivo) ? linha.desfecho_motivo : null,
+    // A observação precisa VOLTAR para a tela, não só ir. O `update` grava
+    // valores absolutos (de propósito — ver `registrar-desfecho.ts`), então uma
+    // caixa que chega vazia apaga o texto de quem confirmar sem mexer nela.
+    observacao: linha.desfecho_observacao ?? '',
     registradoEm: linha.desfecho_em ? FORMATO_DATA.format(linha.desfecho_em) : null,
     avisados: contarAvisados(linha.notificado_para),
   }

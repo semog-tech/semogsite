@@ -25,6 +25,14 @@ export type LeadEmAvaliacao = {
   token: string
   desfecho: Desfecho | null
   motivo: MotivoNaoLead | null
+  /**
+   * Observação já registrada, para a caixa voltar PREENCHIDA. Não é conforto:
+   * a Server Action grava valores absolutos, então uma caixa vazia na tela vira
+   * `null` no banco — quem abrisse de novo, conferisse os rádios e confirmasse
+   * sem tocar em nada apagaria o próprio texto, em silêncio e sem histórico
+   * para recuperar.
+   */
+  observacao: string
   registradoEm: string | null
   /**
    * Quantas pessoas receberam o e-mail deste lead. Vem de `notificado_para`.
@@ -238,6 +246,7 @@ export function FormularioDesfecho({
           <textarea
             id={`${id}-observacao`}
             name="observacao"
+            defaultValue={lead.observacao}
             rows={3}
             maxLength={LIMITE_OBSERVACAO}
             className="mt-2 w-full rounded-input border border-line-strong bg-[rgba(10,16,46,0.6)] px-4 py-3 font-body text-[0.95rem] text-fg outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-fg-3 focus:border-ice-400 focus:shadow-[0_0_0_3px_rgba(173,213,235,0.18)]"
