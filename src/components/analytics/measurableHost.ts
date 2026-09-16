@@ -14,6 +14,17 @@
  * evento espalhadas pelo site (`generate_lead`, `whatsapp_click`, consent…)
  * viram no-op: empilham no dataLayer/fila e morrem ali, sem erro no console.
  *
- * Casa com o apex e com qualquer subdomínio de `semog.com.br` (hoje só o `www`).
+ * Casa com `semog.com.br` e `www.semog.com.br`, e **só** com esses dois. A
+ * regra anterior aceitava qualquer subdomínio sob a premissa de que "hoje só
+ * existe o `www`" — premissa que venceu: em setembro/2026 o ambiente de
+ * desenvolvimento `local.semog.com.br` pôs 116 sessões dentro da propriedade de
+ * produção, contaminando os relatórios que a equipe abre no navegador.
+ *
+ * Os dois hosts cobrem o site inteiro: as landings de cidade e as páginas do
+ * grupo `(evento)` são rotas do mesmo `www`, não hosts próprios, e o apex só
+ * existe porque redireciona pra lá (ver `redirects` em `next.config.ts`).
+ *
+ * Subdomínio novo de produção não é medido até ser acrescentado aqui. É o modo
+ * de falha desejado: ausência de dado aparece no relatório, dado sujo não.
  */
-export const IS_MEASURABLE_HOST_JS = `/(^|\\.)semog\\.com\\.br$/.test(location.hostname)`
+export const IS_MEASURABLE_HOST_JS = `/^(www\\.)?semog\\.com\\.br$/.test(location.hostname)`
