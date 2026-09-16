@@ -28,9 +28,14 @@ function TlCard({ item }: { item: Item }) {
 
 /**
  * Fiel a `#historia` de `_reference/semog.html:275-328`: cabeçalho
- * (`.sec-head`, `data-reveal`) dentro do wrap pinado + 8 cartões datados
- * deslizando na horizontal (`TimelinePinned`, `src/motion/TimelinePinned.tsx`
- * — pin + scrub GSAP fiel ao script inline `:465-497`).
+ * (`.sec-head`, `data-reveal`) dentro do wrap pinado + os cartões datados de
+ * `items` deslizando na horizontal (`TimelinePinned`,
+ * `src/motion/TimelinePinned.tsx` — pin + scrub GSAP fiel ao script inline
+ * `:465-497`).
+ *
+ * Quantos cartões são é decisão do conteúdo, não deste componente: a contagem
+ * fixa que ficava nesta linha ("8 cartões datados") envelheceu no primeiro
+ * marco novo que a Semog acrescentou.
  */
 export function TimelineBlock({ eyebrow, title, text, items }: TimelineBlockType) {
   if (!items || items.length === 0) return null
