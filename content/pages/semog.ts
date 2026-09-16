@@ -90,7 +90,7 @@ export const semog: PageData = {
         },
         {
           date: '2000',
-          title: 'Liderança regional',
+          title: 'Consolidação em Pernambuco',
           text: 'A carteira de condomínios se multiplica e a Semog se consolida como referência no estado.',
         },
         {
@@ -132,7 +132,7 @@ export const semog: PageData = {
         },
         {
           date: 'Hoje',
-          title: 'Líder do Nordeste',
+          title: 'Referência no Norte e Nordeste',
           text: 'Mais de 650 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',
           now: true,
         },

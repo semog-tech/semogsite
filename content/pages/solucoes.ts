@@ -24,7 +24,7 @@ export const solucoes: PageData = {
       blockType: 'hero',
       headline: 'Tudo que um condomínio precisa. E o que nenhum outro oferece.',
       subhead:
-        'Gestão financeira, contábil e de pessoas, com suporte jurídico por escritório parceiro, a única prestação de contas 100% digital do mercado e garantia de inadimplência zero.',
+        'Gestão financeira, contábil e de pessoas, com suporte jurídico por escritório parceiro, prestação de contas 100% digital e garantia de inadimplência zero.',
       poster: img('residencial.webp'),
       pageHeroOverlay: true,
       pageHeroHeadlineMaxWidth: '16ch',

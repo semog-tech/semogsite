@@ -207,7 +207,7 @@ const company: CompanyConfig = {
 }
 
 export const site: SiteConfig = {
-  defaultTitle: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
+  defaultTitle: 'Semog | Administradora de Condomínios no Nordeste há 35 anos',
   defaultDescription:
     'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 650 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
   ogImage: null,

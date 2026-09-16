@@ -65,7 +65,7 @@ export const administracaoDeCondominios: PageData = {
             '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>',
           title: 'Contabilidade e prestação de contas',
           description:
-            'Balancetes, obrigações fiscais e a única prestação de contas 100% digital do mercado.',
+            'Balancetes, obrigações fiscais e prestação de contas 100% digital, com documentos e assinatura.',
         },
         {
           iconSvg:
@@ -196,12 +196,13 @@ export const administracaoDeCondominios: PageData = {
       ],
     },
     // `.final-cta`, `_reference/administracao-de-condominios.html:377-389`:
-    // `titleAccent` reproduz o `<span class="gx-ice">pela líder.</span>`.
+    // `titleAccent` recorta o fecho da frase, no lugar do `<span
+    // class="gx-ice">pela líder.</span>` do referencial.
     {
       blockType: 'ctaBand',
       variant: 'centered',
-      title: 'Seu condomínio administrado pela líder.',
-      titleAccent: 'pela líder.',
+      title: 'Seu condomínio nas mãos certas.',
+      titleAccent: 'nas mãos certas.',
       text: 'Conte como é o seu condomínio e receba uma proposta sob medida em até 24 horas úteis.',
       cta: { label: 'Solicitar proposta', href: '/proposta' },
     },

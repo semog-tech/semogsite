@@ -43,7 +43,7 @@ export const home: PageData = {
     {
       blockType: 'hero',
       headline: HERO_HEADLINE,
-      subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
+      subhead: 'Há 35 anos, a Semog cuida do condomínio para você cuidar da vida.',
       background: 'videoSequence',
       // Substitui a antiga `tag` (`.hero-tagbox`) — mesma faixa de vidro, agora
       // com prova em número em vez de só um rótulo.
@@ -64,7 +64,7 @@ export const home: PageData = {
         // Label curto por causa do mobile: com "no ranking Top 200 da
         // Superlógica" o texto quebrava em 3 linhas na coluna estreita e
         // esbarrava no botão flutuante do WhatsApp. Por isso o número que dá a
-        // dimensão do feito (mais de 3.500 administradoras na base) mora no
+        // dimensão do feito (mais de 3 mil administradoras na base) mora no
         // bloco `reconhecimento`, logo abaixo, onde há largura para ele.
         {
           value: '5º lugar',
@@ -79,7 +79,7 @@ export const home: PageData = {
     },
     {
       blockType: 'stats',
-      eyebrow: 'A líder do Nordeste',
+      eyebrow: 'A melhor colocada do Norte e Nordeste no G20',
       title: 'Liderança não se declara. Se comprova.',
       variant: 'band',
       items: [
@@ -113,23 +113,21 @@ export const home: PageData = {
       // `stats` é `Section light`, esta faixa volta ao escuro antes do marquee.
       //
       // O título carrega o TAMANHO DA BASE, não a consistência: sem "mais de
-      // 3.500 administradoras" o "5º lugar" da faixa do hero é lido como
+      // 3 mil administradoras" o "5º lugar" da faixa do hero é lido como
       // "5º entre 200", o que subdimensiona o feito. A consistência (três
       // ciclos seguidos) passou a ser trabalho do `history` ao lado, que já
       // lista ciclo a ciclo — é o que um concorrente não consegue improvisar.
       blockType: 'reconhecimento',
       eyebrow: 'G20 Condo · Superlógica',
-      // "3.500" não quebra no meio, então aqui não é preciso o espaço não
-      // separável que a redação anterior ("3 mil") exigia para o "3" não ficar
-      // órfão no fim da linha. Se o número voltar a ter unidade por extenso, o
-      // NBSP volta junto — e nos DOIS campos, senão o `endsWith` que recorta o
-      // `titleAccent` não casa e o gradiente some.
-      title: 'Top 5 entre mais de 3.500 administradoras.',
-      titleAccent: 'mais de 3.500 administradoras.',
+      // Espaço não separável entre "3" e "mil": com a unidade por extenso o
+      // "3" ficaria órfão no fim da linha. Precisa estar nos DOIS campos, senão
+      // o `endsWith` que recorta o `titleAccent` não casa e o gradiente some.
+      title: 'Top 5 entre mais de 3 mil administradoras.',
+      titleAccent: 'mais de 3 mil administradoras.',
       // Escopo explícito (base de clientes da Superlógica) por decisão de
       // conformidade: o ranking não classifica o mercado brasileiro inteiro, e
       // afirmar isso seria publicidade comparativa sem lastro.
-      text: 'A Superlógica é o principal ERP do mercado condominial: mais de 130 mil condomínios e mais de 3.500 administradoras na plataforma. Todo mês ela classifica essa base inteira no Ranking Top 200 — receita no portfólio, adoção de módulos, número e crescimento de unidades —, e uma vez por ano as vinte primeiras formam o G20 Condo. A Semog está lá pelo terceiro ciclo seguido.',
+      text: 'A Superlógica é o principal ERP do mercado condominial: mais de 130 mil condomínios e mais de 3 mil administradoras na plataforma. Todo mês ela classifica essa base inteira no Ranking Top 200 — receita no portfólio, adoção de módulos, número e crescimento de unidades —, e uma vez por ano as vinte primeiras formam o G20 Condo. A Semog está lá pelo terceiro ciclo seguido.',
       history: [
         { period: 'Ciclo 2026/27', result: '5º lugar' },
         { period: 'Ciclo 2025/26', result: '5º lugar' },
@@ -347,7 +345,7 @@ export const home: PageData = {
     {
       blockType: 'ctaBand',
       variant: 'centered',
-      title: 'Seu condomínio merece governança de líder.',
+      title: 'Seu condomínio merece governança de verdade.',
       text: 'Receba uma proposta sob medida em até 24 horas úteis.',
       cta: { label: 'Solicitar proposta', href: '/proposta' },
       // `.final-cta h2` de `_reference/index.html:420` — maior que o genérico
