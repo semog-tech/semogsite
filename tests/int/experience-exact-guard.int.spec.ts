@@ -70,7 +70,6 @@ const inscricao = {
   email: 'maria@exemplo.com.br',
   telefone: '+5583999501388',
   condominio: 'Residencial Cabo Branco',
-  acompanhantes: 2,
   aceiteImagem: true,
 }
 
@@ -86,7 +85,7 @@ describe('submitForm — inscrição do Experience', () => {
     })
   })
 
-  it('grava em cms.leads com form = experience e os seis campos', async () => {
+  it('grava em cms.leads com form = experience e os cinco campos', async () => {
     const result = await submitForm('experience', inscricao, 'test-token')
 
     expect(result.ok).toBe(true)
@@ -98,7 +97,6 @@ describe('submitForm — inscrição do Experience', () => {
       email: 'maria@exemplo.com.br',
       telefone: '+5583999501388',
       condominio: 'Residencial Cabo Branco',
-      acompanhantes: '2',
       aceiteImagem: 'true',
     })
   })

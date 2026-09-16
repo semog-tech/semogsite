@@ -58,6 +58,17 @@ describe('ExperienceForm', () => {
     expect(aceiteImagem().checked).toBe(false)
   })
 
+  /**
+   * O campo de acompanhantes saiu em 16/09/2026. Precisa de asserção própria
+   * porque o teste de envio abaixo usa `objectContaining`, que passa com campo
+   * a MAIS — reintroduzido o campo, a suíte inteira seguiria verde.
+   */
+  it('não oferece mais o campo de acompanhantes', () => {
+    const { container } = render(<ExperienceForm />)
+    expect(screen.queryByLabelText(/acompanhante/i)).toBeNull()
+    expect(container.querySelector('[name="acompanhantes"]')).toBeNull()
+  })
+
   it('envia como inscrição do Experience, com o WhatsApp em E.164', async () => {
     render(<ExperienceForm />)
     preencher()

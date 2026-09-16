@@ -54,7 +54,6 @@ const BENEFICIOS = [
   'Avaliação física individual sem custo',
   'Café da manhã, água e água de coco durante toda a manhã',
   'Kit praia, retirado antes na filial de João Pessoa',
-  'Você pode trazer até 3 acompanhantes',
 ]
 
 /**

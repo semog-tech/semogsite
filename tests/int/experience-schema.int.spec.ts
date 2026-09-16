@@ -7,7 +7,6 @@ const valido = {
   email: 'maria@exemplo.com.br',
   telefone: '+5583999501388',
   condominio: 'Residencial Cabo Branco',
-  acompanhantes: 2,
   aceiteImagem: true,
 }
 
@@ -17,8 +16,8 @@ describe('experienceSchema', () => {
     expect(r.success).toBe(true)
   })
 
-  it('aceita sem os campos opcionais', () => {
-    const { condominio, acompanhantes, ...minimo } = valido
+  it('aceita sem o campo opcional', () => {
+    const { condominio, ...minimo } = valido
     const r = experienceSchema.safeParse(minimo)
     expect(r.success).toBe(true)
   })
@@ -38,15 +37,23 @@ describe('experienceSchema', () => {
     expect(r.success).toBe(false)
   })
 
-  it('trata string vazia de acompanhantes como não informado', () => {
-    const r = experienceSchema.safeParse({ ...valido, acompanhantes: '' })
+  /**
+   * O campo de acompanhantes saiu do formulário em 16/09/2026. O que este
+   * teste trava é o contrato do schema, e só ele: `z.object()` sem
+   * `.strict()` DESCARTA chave desconhecida no Zod 4, em vez de rejeitar o
+   * objeto inteiro. Trocar por `.strict()` mudaria isso em silêncio.
+   *
+   * O que ele **não** cobre — e já esteve escrito aqui como se cobrisse: a aba
+   * que ficou aberta com a versão antiga da página. Essa submissão não chega à
+   * validação. O ID da Server Action muda a cada build, e o servidor novo
+   * responde 404 ("Server action not found") ao ID antigo; a inscrição em voo
+   * se perde no deploy com `.strict()` ou sem ele. Medido nos dois builds
+   * desta mudança, não deduzido.
+   */
+  it('descarta chave desconhecida em vez de rejeitar a inscrição', () => {
+    const r = experienceSchema.safeParse({ ...valido, acompanhantes: 2 })
     expect(r.success).toBe(true)
-    if (r.success) expect(r.data.acompanhantes).toBeUndefined()
-  })
-
-  it('limita acompanhantes a 3', () => {
-    const r = experienceSchema.safeParse({ ...valido, acompanhantes: 4 })
-    expect(r.success).toBe(false)
+    if (r.success) expect(r.data).not.toHaveProperty('acompanhantes')
   })
 
   it('registra o formulário experience com os campos na ordem da tela', () => {
@@ -55,7 +62,6 @@ describe('experienceSchema', () => {
       'email',
       'telefone',
       'condominio',
-      'acompanhantes',
       'aceiteImagem',
     ])
   })

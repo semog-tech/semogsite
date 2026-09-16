@@ -142,10 +142,7 @@ export type PropostaInput = z.input<typeof propostaSchema>
 // ---------------------------------------------------------------------------
 
 /**
- * Inscrição no Semog Experience. `acompanhantes` usa o mesmo `z.preprocess`
- * de `unidades` (acima) porque um `<select>`/`<input>` vazio chega como `''`
- * do client e `z.coerce.number()` transformaria isso em `0` silenciosamente —
- * queremos "não informado", não "zero acompanhantes".
+ * Inscrição no Semog Experience.
  *
  * `aceiteImagem` é `z.literal(true)`: o evento é fotografado e filmado, então
  * a caixa é obrigatória e nunca vem pré-marcada.
@@ -157,26 +154,12 @@ export type PropostaInput = z.input<typeof propostaSchema>
  * formulários de Contato e Proposta compartilham, continua sem teto — mexer
  * nele é um passe à parte.
  */
-const acompanhantesField = z.preprocess(
-  (value) => (value === '' || value === null || value === undefined ? undefined : value),
-  z.coerce
-    .number('Informe um número válido.')
-    .int('Informe um número inteiro.')
-    .min(0, 'Não pode ser negativo.')
-    .max(3, 'Até 3 acompanhantes por inscrição.')
-    .optional(),
-)
-
 export const experienceSchema = z.object({
   nome: requiredText('Informe seu nome completo.').max(120, 'Use no máximo 120 caracteres.'),
   email: z.email('Informe um e-mail válido.'),
   telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um telefone válido.'),
   condominio: z.string().trim().max(120, 'Use no máximo 120 caracteres.').optional(),
-  acompanhantes: acompanhantesField,
   aceiteImagem: z.literal(true, 'É preciso autorizar o uso de imagem para participar.'),
 })
 
 export type ExperienceValues = z.infer<typeof experienceSchema>
-
-/** Mesmo motivo de `PropostaInput`: `z.preprocess` faz input ≠ output. */
-export type ExperienceInput = z.input<typeof experienceSchema>

@@ -64,7 +64,7 @@ export const FORMS: {
    */
   experience: {
     title: `Inscrição — ${EXPERIENCE_EVENT.name}`,
-    fields: ['nome', 'email', 'telefone', 'condominio', 'acompanhantes', 'aceiteImagem'],
+    fields: ['nome', 'email', 'telefone', 'condominio', 'aceiteImagem'],
   },
 }
 

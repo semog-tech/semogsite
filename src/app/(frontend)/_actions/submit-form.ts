@@ -64,7 +64,6 @@ const EXPERIENCE_LABELS: Record<keyof ExperienceValues, string> = {
   email: 'E-mail',
   telefone: 'WhatsApp',
   condominio: 'Condomínio',
-  acompanhantes: 'Acompanhantes',
   aceiteImagem: 'Autoriza uso de imagem',
 }
 

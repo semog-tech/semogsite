@@ -10,7 +10,7 @@ import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
-import { type ExperienceInput, type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
+import { type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 
 type Status = 'idle' | 'success' | 'error'
@@ -65,7 +65,6 @@ export function ExperienceForm() {
   const emailId = `${id}-email`
   const telefoneId = `${id}-telefone`
   const condominioId = `${id}-condominio`
-  const acompanhantesId = `${id}-acompanhantes`
   const aceiteId = `${id}-aceite`
 
   const {
@@ -74,10 +73,10 @@ export function ExperienceForm() {
     setError,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<ExperienceInput, unknown, ExperienceValues>({
+  } = useForm<ExperienceValues>({
     resolver: zodResolver(experienceSchema),
     mode: 'onTouched',
-    defaultValues: { nome: '', email: '', telefone: '', condominio: '', acompanhantes: '' },
+    defaultValues: { nome: '', email: '', telefone: '', condominio: '' },
   })
 
   // Texto exibido no campo de WhatsApp (nacional formatado). O valor que vai
@@ -146,7 +145,7 @@ export function ExperienceForm() {
 
     if (result.errors) {
       for (const [field, fieldMessage] of Object.entries(result.errors)) {
-        setError(field as keyof ExperienceInput, { type: 'server', message: fieldMessage })
+        setError(field as keyof ExperienceValues, { type: 'server', message: fieldMessage })
       }
     }
     setMessage(
@@ -279,40 +278,21 @@ export function ExperienceForm() {
         </div>
       </div>
 
-      <div className="row">
-        <div className="field">
-          <label htmlFor={condominioId}>
-            Condomínio <span className="opt">(opcional)</span>
-          </label>
-          <input
-            id={condominioId}
-            placeholder="Nome do seu condomínio"
-            type="text"
-            {...register('condominio')}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor={acompanhantesId}>
-            Acompanhantes <span className="opt">(opcional)</span>
-          </label>
-          <select
-            id={acompanhantesId}
-            {...register('acompanhantes')}
-            aria-describedby={errors.acompanhantes ? `${acompanhantesId}-erro` : undefined}
-            aria-invalid={!!errors.acompanhantes}
-          >
-            <option value="">Vou sozinho(a)</option>
-            <option value="1">+1 pessoa</option>
-            <option value="2">+2 pessoas</option>
-            <option value="3">+3 pessoas</option>
-          </select>
-          {errors.acompanhantes && (
-            <span className="field-error" id={`${acompanhantesId}-erro`} role="alert">
-              {errors.acompanhantes.message}
-            </span>
-          )}
-        </div>
+      {/*
+        Fora da `.row` de propósito: `.row` é uma grade de duas colunas e o
+        condomínio ficou sozinho quando o campo de acompanhantes saiu — dentro
+        dela o campo ocuparia metade da largura, com um buraco ao lado.
+      */}
+      <div className="field">
+        <label htmlFor={condominioId}>
+          Condomínio <span className="opt">(opcional)</span>
+        </label>
+        <input
+          id={condominioId}
+          placeholder="Nome do seu condomínio"
+          type="text"
+          {...register('condominio')}
+        />
       </div>
 
       <div className="checkwrap">

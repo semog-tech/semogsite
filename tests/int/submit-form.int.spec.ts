@@ -260,7 +260,6 @@ describe('submitForm — destino da notificação interna', () => {
     email: 'maria@example.com',
     telefone: '+5583999501388',
     condominio: 'Residencial Aurora',
-    acompanhantes: 2,
     aceiteImagem: true,
   }
 
