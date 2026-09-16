@@ -338,7 +338,7 @@ function localBusinessNode(unit: SeoUnit): Record<string, unknown> {
     // fica no `address`. Padronizado no plural ("Condomínios"), que é o
     // correto e traz a keyword exata — renomear as 4 fichas do GBP p/ bater.
     name: 'Semog Administradora de Condomínios',
-    description: `Administradora de condomínios em ${unit.city}/${unit.region} — unidade da Semog, 35 anos de mercado e mais de 650 condomínios, com equipe local.`,
+    description: `Administradora de condomínios em ${unit.city}/${unit.region} — unidade da Semog, líder do Nordeste há 35 anos, com equipe local.`,
     url,
     image: absoluteUrl(`${unit.slug}/opengraph-image`),
     telephone: unit.phoneE164,
@@ -404,7 +404,7 @@ export function getOrganizationJsonLd(): Record<string, unknown> {
           'G20 Condo Superlógica — 3º lugar entre mais de 3 mil administradoras (ciclo 2024/25)',
         ],
         description:
-          'Administradora de condomínios com 35 anos de mercado, mais de 650 condomínios administrados e 70 mil clientes em Pernambuco, Paraíba e Pará.',
+          'Administradora de condomínios líder do Nordeste, com 35 anos de mercado, mais de 650 condomínios administrados e 70 mil clientes.',
         numberOfEmployees: { '@type': 'QuantitativeValue', value: 100 },
         telephone: principal.phoneE164,
         areaServed: UNITS.map((u) => u.city),

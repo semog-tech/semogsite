@@ -43,7 +43,7 @@ export const home: PageData = {
     {
       blockType: 'hero',
       headline: HERO_HEADLINE,
-      subhead: 'Há 35 anos, a Semog cuida do condomínio para você cuidar da vida.',
+      subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
       background: 'videoSequence',
       // Substitui a antiga `tag` (`.hero-tagbox`) — mesma faixa de vidro, agora
       // com prova em número em vez de só um rótulo.
@@ -79,7 +79,7 @@ export const home: PageData = {
     },
     {
       blockType: 'stats',
-      eyebrow: 'A melhor colocada do Norte e Nordeste no G20',
+      eyebrow: 'A líder do Nordeste',
       title: 'Liderança não se declara. Se comprova.',
       variant: 'band',
       items: [
@@ -345,7 +345,7 @@ export const home: PageData = {
     {
       blockType: 'ctaBand',
       variant: 'centered',
-      title: 'Seu condomínio merece governança de verdade.',
+      title: 'Seu condomínio merece governança de líder.',
       text: 'Receba uma proposta sob medida em até 24 horas úteis.',
       cta: { label: 'Solicitar proposta', href: '/proposta' },
       // `.final-cta h2` de `_reference/index.html:420` — maior que o genérico

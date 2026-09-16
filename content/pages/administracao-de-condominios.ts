@@ -196,13 +196,12 @@ export const administracaoDeCondominios: PageData = {
       ],
     },
     // `.final-cta`, `_reference/administracao-de-condominios.html:377-389`:
-    // `titleAccent` recorta o fecho da frase, no lugar do `<span
-    // class="gx-ice">pela líder.</span>` do referencial.
+    // `titleAccent` reproduz o `<span class="gx-ice">pela líder.</span>`.
     {
       blockType: 'ctaBand',
       variant: 'centered',
-      title: 'Seu condomínio nas mãos certas.',
-      titleAccent: 'nas mãos certas.',
+      title: 'Seu condomínio administrado pela líder.',
+      titleAccent: 'pela líder.',
       text: 'Conte como é o seu condomínio e receba uma proposta sob medida em até 24 horas úteis.',
       cta: { label: 'Solicitar proposta', href: '/proposta' },
     },

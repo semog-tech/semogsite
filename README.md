@@ -1,6 +1,6 @@
 # Semog · Site institucional
 
-Site institucional da **Semog Administradora de Condomínios**, em Pernambuco, Paraíba e Pará desde 1991.
+Site institucional da **Semog Administradora de Condomínios**, líder do Nordeste desde 1991.
 
 Fase atual: **migração para Next.js 16 + Payload 3** (Postgres + Storage no Supabase), na Vercel.
 

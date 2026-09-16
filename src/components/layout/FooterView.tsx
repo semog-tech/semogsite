@@ -6,7 +6,7 @@ import { Container } from '@/components/ui/Container'
 
 /** Blurb fixo da marca (semog.css: `.footer-brand p`) — texto de `_reference/index.html`. */
 const BRAND_BLURB =
-  'Administradora de condomínios no Nordeste e no Norte. Desde 1991 cuidando de comunidades com transparência, retidão e dinâmica.'
+  'Administradora de condomínios líder do Nordeste. Desde 1991 cuidando de comunidades com transparência, retidão e dinâmica.'
 
 /**
  * Selo de reconhecimento do rodapé (27/08/2026). Fica na coluna da marca, a
