@@ -85,7 +85,7 @@ function standardFaq(city: string, uf: string, region: Gendered): CityFaq[] {
   return [
     {
       question: `Qual a melhor administradora de condomínios de ${city}?`,
-      answer: `Com 35 anos de mercado, mais de 650 condomínios e o 3º ciclo consecutivo no G20 da Superlógica, a Semog é referência no Nordeste e Norte, com unidade em ${city}/${uf} e prestação de contas 100% digital, do balancete à assinatura.`,
+      answer: `Com 35 anos de mercado, mais de 650 condomínios e o 3º ciclo consecutivo no G20 da Superlógica, a Semog é referência no Nordeste e Norte, com unidade em ${city}/${uf} e prestação de contas 100% digital: balancete com assinatura de validade jurídica, documentos e gráficos abertos ao condômino.`,
     },
     {
       question: `Quanto custa uma administradora em ${city}?`,
