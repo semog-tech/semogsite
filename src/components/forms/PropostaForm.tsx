@@ -37,7 +37,7 @@ const CARGO_OPTIONS: { label: string; value: NonNullable<PropostaValues['cargo']
   { label: 'Outro', value: 'Outro' },
 ]
 
-const CIDADE_OPTIONS: { label: string; value: NonNullable<PropostaValues['cidade']> }[] = [
+const CIDADE_OPTIONS: { label: string; value: PropostaValues['cidade'] }[] = [
   { label: 'Recife e região', value: 'Recife e região' },
   { label: 'João Pessoa e região', value: 'João Pessoa e região' },
   { label: 'Campina Grande e região', value: 'Campina Grande e região' },
@@ -50,7 +50,7 @@ const CIDADE_OPTIONS: { label: string; value: NonNullable<PropostaValues['cidade
  * quando o form está embutido nessas páginas (ex.: /administradora-de-
  * condominios-recife). Menos atrito + atribuição/roteamento corretos.
  */
-const CIDADE_BY_SLUG: [slug: string, cidade: NonNullable<PropostaValues['cidade']>][] = [
+const CIDADE_BY_SLUG: [slug: string, cidade: PropostaValues['cidade']][] = [
   ['recife', 'Recife e região'],
   ['joao-pessoa', 'João Pessoa e região'],
   ['campina-grande', 'Campina Grande e região'],
@@ -62,11 +62,13 @@ type Status = 'idle' | 'success' | 'error'
 /**
  * Formulário "Proposta" (form id=2, `src/seed/forms.ts`): mesmo padrão do
  * `ContactForm` (RHF + `propostaSchema` + Turnstile + `submitForm` Server
- * Action) — ver comentário lá pro fluxo de erro completo. `tipo` é o único
- * select obrigatório (`cargo`/`cidade` são opcionais); os três usam
- * `setValueAs` pra converter o `''` do placeholder em `undefined`, senão o
- * enum do Zod rejeitaria a string vazia antes mesmo do "campo não
- * preenchido" fazer sentido pros opcionais. `unidades` fica com o
+ * Action) — ver comentário lá pro fluxo de erro completo. `tipo` e `cidade` são
+ * selects obrigatórios; `cargo` é opcional e por isso usa `setValueAs` pra
+ * converter o `''` do placeholder em `undefined` — o enum do Zod rejeitaria a
+ * string vazia antes de o `.optional()` fazer sentido. Nos obrigatórios isso
+ * não muda nada: `z.enum(OPÇÕES, 'mensagem')` devolve a mesma mensagem para
+ * `''`, `undefined` e valor fora da lista (conferido no Zod 4). `unidades` fica
+ * com o
  * `register` padrão (sem `valueAsNumber`) porque `propostaSchema` já faz
  * `preprocess` + `z.coerce.number()` em cima da string bruta do input —
  * por isso `useForm` usa os três generics (`PropostaInput` pro estado bruto
@@ -84,9 +86,23 @@ type Status = 'idle' | 'success' | 'error'
 export function PropostaForm({
   compact = false,
   withCityField = false,
+  cidade,
 }: {
   compact?: boolean
   withCityField?: boolean
+  /**
+   * Cidade já conhecida por quem renderiza — as landings de unidade passam a
+   * sua (`CityLanding`). Quando vem, o campo não é perguntado: vai num hidden
+   * preenchido.
+   *
+   * Entra pelos `defaultValues` do RHF, e não por um efeito: o valor existe no
+   * estado do formulário desde a primeira renderização no cliente, em vez de
+   * depender de um `useEffect` que lê a URL depois da hidratação. (No HTML do
+   * servidor o `<input hidden>` sai sem `value` — quem o preenche é o React ao
+   * montar. Isso não abre buraco: o formulário inteiro depende de JS para
+   * enviar, então não existe cenário em que ele seja submetido antes disso.)
+   */
+  cidade?: PropostaValues['cidade']
 } = {}) {
   const {
     register,
@@ -99,7 +115,7 @@ export function PropostaForm({
   } = useForm<PropostaInput, unknown, PropostaValues>({
     resolver: zodResolver(propostaSchema),
     mode: 'onTouched',
-    defaultValues: { nome: '', nomeCondominio: '', email: '', telefone: '', mensagem: '' },
+    defaultValues: { nome: '', nomeCondominio: '', email: '', telefone: '', mensagem: '', cidade },
   })
 
   const isIncorporadora = watch('tipo') === 'Incorporadora'
@@ -113,14 +129,17 @@ export function PropostaForm({
     }
   }, [isIncorporadora, setValue])
 
-  // Pré-seleciona a cidade quando o form está embutido numa landing de unidade
-  // (infere do slug da URL). Na /proposta genérica nenhum slug casa, então fica
-  // no placeholder — comportamento inalterado.
+  // Pré-seleciona a cidade pelo slug quando o form está embutido numa página de
+  // unidade e ninguém passou `cidade` — é o caso do bloco de proposta dentro de
+  // uma landing. Quando a prop vem (as landings de cidade), ela já entrou nos
+  // `defaultValues` e este efeito não tem o que fazer. Na /proposta genérica
+  // nenhum slug casa e o campo fica no placeholder, agora obrigatório.
   useEffect(() => {
+    if (cidade) return
     const path = window.location.pathname
-    const cidade = CIDADE_BY_SLUG.find(([slug]) => path.includes(slug))?.[1]
-    if (cidade) setValue('cidade', cidade)
-  }, [setValue])
+    const cidadeDoSlug = CIDADE_BY_SLUG.find(([slug]) => path.includes(slug))?.[1]
+    if (cidadeDoSlug) setValue('cidade', cidadeDoSlug)
+  }, [cidade, setValue])
 
   const [token, setToken] = useState<string | null>(null)
   const [turnstileKey, setTurnstileKey] = useState(0)
@@ -211,25 +230,27 @@ export function PropostaForm({
     return (
       <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         {/*
-          Fora das landings de cidade (home, por exemplo) não há slug pra
-          preencher `cidade` sozinho — e sem cidade a notificação interna cai no
-          endereço genérico em vez de ir pro consultor da região
-          (`PROPOSTA_CIDADE_TO` em `submit-form.ts`). Nesses casos o campo
-          aparece de verdade; nas landings continua oculto e automático.
+          `cidade` é obrigatória. Ela só fica escondida quando já sabemos qual é
+          — ou seja, quando quem renderiza passou a prop (as landings de
+          unidade). Nas demais páginas (home, por exemplo) não há cidade
+          conhecida e o campo é perguntado, com as opções prontas.
+
+          A condição é `cidade`, e não `withCityField`: um campo OBRIGATÓRIO que
+          o usuário não enxerga e não tem como preencher é um formulário que
+          recusa o envio sem dizer por quê. Assim, uma página nova que esqueça
+          de passar a cidade mostra o select em vez de travar em silêncio.
         */}
-        {withCityField ? (
+        {cidade && !withCityField ? (
+          <input type="hidden" {...register('cidade')} />
+        ) : (
           <Field
             as="select"
             label="Cidade do condomínio"
+            required
             placeholder="Selecione"
             options={CIDADE_OPTIONS}
             error={errors.cidade?.message}
-            {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
-          />
-        ) : (
-          <input
-            type="hidden"
-            {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
+            {...register('cidade')}
           />
         )}
         <Field
@@ -354,10 +375,11 @@ export function PropostaForm({
         <Field
           as="select"
           label="Cidade do condomínio"
-          placeholder="Selecione uma opção (opcional)"
+          required
+          placeholder="Selecione uma opção"
           options={CIDADE_OPTIONS}
           error={errors.cidade?.message}
-          {...register('cidade', { setValueAs: (value) => (value === '' ? undefined : value) })}
+          {...register('cidade')}
         />
         <Field
           label="Número de unidades"

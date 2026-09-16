@@ -92,21 +92,13 @@ const PB_TO = 'comercial.pb@semog.com.br'
  * cada um vê que os outros também receberam, o que evita dois consultores
  * ligando para o mesmo síndico.
  */
-const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, readonly string[]> = {
+const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = {
   'Recife e região': ['ivan@semog.com.br'],
   'João Pessoa e região': [PB_TO],
   'Campina Grande e região': [PB_TO],
   'Belém e região': ['galvao@semog.com.br'],
   'Outra cidade': ['ivan@semog.com.br', 'galvao@semog.com.br', PB_TO],
 }
-
-/**
- * Destino da Proposta quando `cidade` não foi preenchida (o campo ainda é
- * opcional). Aponta para os mesmos três de "Outra cidade" pelo mesmo motivo:
- * sem cidade não há praça conhecida, e o pior desfecho possível é a proposta
- * não chegar a ninguém. Antes ia para o grupo que está saindo de cena.
- */
-const PROPOSTA_FALLBACK_TO: readonly string[] = PROPOSTA_CIDADE_TO['Outra cidade']
 
 /**
  * Destino da inscrição no Semog Experience — quem organiza o evento é a filial
@@ -291,8 +283,10 @@ export async function submitForm(
       // em dev — aí nenhuma notificação sai, comportamento original).
       let notifyTo: readonly string[] | undefined
       if (formType === 'proposta') {
-        const { cidade } = data as PropostaValues
-        notifyTo = cidade ? PROPOSTA_CIDADE_TO[cidade] : PROPOSTA_FALLBACK_TO
+        // `cidade` é obrigatória no schema, então o mapa é total e não há mais
+        // destino de fallback: proposta que chega aqui passou pela validação do
+        // servidor e tem uma das cinco cidades.
+        notifyTo = PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
       } else if (formType === 'experience') {
         notifyTo = [EXPERIENCE_TO]
       } else {

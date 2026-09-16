@@ -546,3 +546,100 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
     expect(await linksDaNotificacao()).toEqual([])
   })
 })
+
+/**
+ * `cidade` virou obrigatória na Proposta em 16/09/2026, e com ela sumiu o
+ * destino de fallback. O que estes testes defendem é o par: o servidor recusa
+ * sozinho (não confia na tela) e a recusa acontece ANTES do INSERT, para uma
+ * proposta sem praça não entrar na base e depois não ter para onde ser
+ * roteada.
+ *
+ * É mudança em formulário de captação — o mesmo que ficou mudo por 12 dias em
+ * agosto —, então a cobertura aqui é a trava de quem tenta reabrir a porta.
+ */
+describe('submitForm — cidade obrigatória na proposta', () => {
+  const semCidade = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.60'))
+  })
+
+  it('proposta sem cidade é recusada, com erro no campo, e não grava', async () => {
+    const resultado = await submitForm('proposta', semCidade, 'test-token')
+
+    expect(resultado.ok).toBe(false)
+    expect(resultado.errors?.cidade).toBeDefined()
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(sendMailMock).not.toHaveBeenCalled()
+  })
+
+  it('cidade em branco também é recusada — burlar o select não passa', async () => {
+    // O caminho de quem manda a requisição na mão, ou de um client que envie o
+    // valor do placeholder em vez de omitir o campo.
+    const resultado = await submitForm('proposta', { ...semCidade, cidade: '' }, 'test-token')
+
+    expect(resultado.ok).toBe(false)
+    expect(resultado.errors?.cidade).toBeDefined()
+    expect(queryMock).not.toHaveBeenCalled()
+  })
+
+  it('cidade fora da lista é recusada', async () => {
+    const resultado = await submitForm(
+      'proposta',
+      { ...semCidade, cidade: 'Fortaleza e região' },
+      'test-token',
+    )
+
+    expect(resultado.ok).toBe(false)
+    expect(resultado.errors?.cidade).toBeDefined()
+    expect(queryMock).not.toHaveBeenCalled()
+  })
+
+  it('a mensagem de erro diz o que fazer', async () => {
+    const resultado = await submitForm('proposta', semCidade, 'test-token')
+
+    expect(resultado.errors?.cidade).toMatch(/selecione a cidade/i)
+  })
+
+  it('as cinco cidades do enum continuam passando', async () => {
+    for (const cidade of [
+      'Recife e região',
+      'João Pessoa e região',
+      'Campina Grande e região',
+      'Belém e região',
+      'Outra cidade',
+    ]) {
+      vi.clearAllMocks()
+      queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+      sendMailMock.mockResolvedValue({ ok: true })
+      verifyTurnstileMock.mockResolvedValue(true)
+      cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+      pushLeadMock.mockResolvedValue(null)
+      headersMock.mockResolvedValue(fakeHeaders(`198.51.100.${cidade.length + 100}`))
+
+      const resultado = await submitForm('proposta', { ...semCidade, cidade }, 'test-token')
+
+      expect(resultado.ok).toBe(true)
+    }
+  })
+
+  it('o contato continua sem campo de cidade nenhum', async () => {
+    // A obrigatoriedade é da Proposta. O Contato não tem esse campo e não pode
+    // ter sido arrastado junto.
+    const resultado = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(resultado.ok).toBe(true)
+  })
+})

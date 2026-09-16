@@ -118,7 +118,13 @@ export const propostaSchema = z.object({
   cargo: z.enum(CARGO_OPTIONS).optional(),
   email: z.email('Informe um e-mail válido.'),
   telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um WhatsApp válido.'),
-  cidade: z.enum(CIDADE_OPTIONS).optional(),
+  // Obrigatória desde 16/09/2026. Era opcional, e o preço era não saber de que
+  // praça é a proposta: sem cidade a notificação ia para um destino genérico em
+  // vez do responsável da região. Nas quatro landings de cidade o campo já vem
+  // preenchido (ver `PropostaForm`), então o atrito novo só existe nas páginas
+  // onde o formulário aparece sem contexto de cidade — e ali é um select com as
+  // opções prontas, "Outra cidade" inclusive.
+  cidade: z.enum(CIDADE_OPTIONS, 'Selecione a cidade do condomínio.'),
   unidades: unidadesField,
   mensagem: z.string().trim().optional(),
 })

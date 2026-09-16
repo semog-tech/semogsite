@@ -264,7 +264,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               <p className="mt-2 mb-6 text-[0.9rem]" style={{ color: '#a9b4d6' }}>
                 Um consultor da unidade de {data.city} responde em até 24h úteis.
               </p>
-              <PropostaForm compact />
+              <PropostaForm compact cidade={data.cidadeNoFormulario} />
             </div>
           </Reveal>
         </div>
@@ -751,7 +751,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="max-w-[24ch] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
               style={{ fontFamily: DISPLAY }}
             >
-              Seu condomínio em {data.city} merece esse padrão.
+              Seu condomínio em {data.city} merece a líder.
             </h2>
             <a
               href="#proposta"
