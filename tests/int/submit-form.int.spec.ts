@@ -1,3 +1,5 @@
+import { render } from '@react-email/render'
+import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
@@ -335,5 +337,133 @@ describe('submitForm — destino da notificação interna', () => {
     // recebe: são duas chamadas distintas de `sendMail`.
     const destinos = sendMailMock.mock.calls.map(([arg]) => (arg as { to: string }).to)
     expect(destinos).toContain(inscricao.email)
+  })
+})
+
+/**
+ * Botões de desfecho no e-mail de notificação (16/09/2026). O token é o de
+ * verdade — `@/lib/desfechoToken` não é mockado aqui, só o `server-only` que
+ * ele importa (já neutralizado no topo do arquivo).
+ *
+ * Por que só a Proposta: é a captação comercial do site, e é dela que se quer
+ * saber o desfecho. Contato é majoritariamente atendimento a quem já é cliente,
+ * e a inscrição no Experience não é lead nenhum — botão de "fechou" numa dessas
+ * duas seria pergunta sem resposta possível.
+ */
+describe('submitForm — botões de desfecho no e-mail interno', () => {
+  const SEGREDO_ORIGINAL = process.env.LEAD_OUTCOME_SECRET
+
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'Recife e região',
+  }
+
+  /**
+   * Os `href` dos links da notificação interna (não do auto-reply), lidos do
+   * HTML REALMENTE renderizado.
+   *
+   * Inspecionar as props do elemento não serviria: `submit-form.ts` chama
+   * `ContactNotification({…})` como função, não como JSX, então o que chega ao
+   * `sendMail` já é a árvore montada — `props.desfecho` não existe ali. E
+   * mesmo que existisse, provaria só que o valor foi passado, não que virou
+   * link no e-mail. Este e-mail não tinha nenhum link até agora, então lista
+   * vazia é o estado anterior.
+   */
+  async function linksDaNotificacao(): Promise<string[]> {
+    const chamada = sendMailMock.mock.calls.find(([arg]) =>
+      /^Novo contato via /.test((arg as { subject: string }).subject),
+    )
+    const elemento = chamada?.[0] as { react: ReactElement } | undefined
+    if (!elemento) return []
+    const html = await render(elemento.react)
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    return Array.from(doc.querySelectorAll('a')).map((a) => a.getAttribute('href') ?? '')
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '4242' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+    process.env.CONTACT_TO = 'caixa-do-contato@example.com'
+    process.env.LEAD_OUTCOME_SECRET = 'segredo-de-teste-nao-usado-em-producao'
+  })
+
+  afterEach(() => {
+    if (SEGREDO_ORIGINAL === undefined) delete process.env.LEAD_OUTCOME_SECRET
+    else process.env.LEAD_OUTCOME_SECRET = SEGREDO_ORIGINAL
+  })
+
+  it('proposta leva os quatro botões, com o id da linha recém-inserida', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.40'))
+
+    await submitForm('proposta', proposta, 'test-token')
+
+    const links = await linksDaNotificacao()
+    expect(links).toHaveLength(4)
+    expect(links.map((url) => new URL(url).searchParams.get('s'))).toEqual([
+      'negociando',
+      'fechou',
+      'nao_evoluiu',
+      'nao_e_lead',
+    ])
+    // O id vem do `returning id` do INSERT — sem ele o link apontaria pro lead
+    // errado (ou pra lugar nenhum).
+    for (const url of links) {
+      expect(new URL(url).pathname).toBe('/desfecho/4242')
+      expect(new URL(url).searchParams.get('t')).toBeTruthy()
+    }
+  })
+
+  it('contato não leva botões', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.41'))
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(await linksDaNotificacao()).toEqual([])
+  })
+
+  it('inscrição no Experience não leva botões', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.42'))
+
+    await submitForm(
+      'experience',
+      {
+        nome: 'Maria Souza',
+        email: 'maria@example.com',
+        telefone: '+5583999501388',
+        condominio: 'Residencial Aurora',
+        aceiteImagem: true,
+      },
+      'test-token',
+    )
+
+    expect(await linksDaNotificacao()).toEqual([])
+  })
+
+  it('sem LEAD_OUTCOME_SECRET a proposta sai sem botões — e a submissão segue ok', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.43'))
+    delete process.env.LEAD_OUTCOME_SECRET
+
+    const resultado = await submitForm('proposta', proposta, 'test-token')
+
+    expect(resultado.ok).toBe(true)
+    expect(await linksDaNotificacao()).toEqual([])
+  })
+
+  it('INSERT sem id devolvido não inventa link nenhum', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.44'))
+    queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
+
+    const resultado = await submitForm('proposta', proposta, 'test-token')
+
+    expect(resultado.ok).toBe(true)
+    expect(await linksDaNotificacao()).toEqual([])
   })
 })

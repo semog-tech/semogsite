@@ -26,6 +26,7 @@ import {
 } from '@/lib/attribution'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
+import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
@@ -278,11 +279,26 @@ export async function submitForm(
         notifyTo = process.env.CONTACT_TO
       }
 
+      // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead)
+      // — só na Proposta, que é a captação comercial de verdade, e só quando a
+      // linha existe: sem `leadRowId` não há o que assinar. `botoesDeDesfecho`
+      // devolve `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o
+      // e-mail sai como sempre saiu, sem a seção.
+      const desfecho =
+        formType === 'proposta' && leadRowId
+          ? (botoesDeDesfecho(leadRowId) ?? undefined)
+          : undefined
+
       if (notifyTo) {
         const notificationResult = await sendMail({
           to: notifyTo,
           subject: `Novo contato via ${formTitle}`,
-          react: ContactNotification({ formTitle, fields, attribution: attributionFields }),
+          react: ContactNotification({
+            formTitle,
+            fields,
+            attribution: attributionFields,
+            desfecho,
+          }),
         })
         if (notificationResult.ok === false) {
           console.error('[submit-form] sendMail falhou:', notificationResult.error)
