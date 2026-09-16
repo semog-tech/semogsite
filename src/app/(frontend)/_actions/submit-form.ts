@@ -69,24 +69,44 @@ const EXPERIENCE_LABELS: Record<keyof ExperienceValues, string> = {
 }
 
 /**
+ * Responsáveis da Paraíba (João Pessoa e Campina Grande) — a mesma caixa da
+ * filial que já recebe a inscrição do Experience.
+ */
+const PB_TO = 'comercial.pb@semog.com.br'
+
+/**
  * Roteamento da notificação interna de **Proposta** por região, a partir do
  * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
- * `src/lib/form-schemas.ts` — se o seed/enum mudar as opções, atualizar aqui).
- * Cobre todos os valores do enum, então uma `cidade` preenchida sempre resolve
- * um destinatário; `cidade` em branco (campo opcional) cai no
- * `PROPOSTA_FALLBACK_TO`. Só a Proposta usa isto — Contato continua indo pro
- * `CONTACT_TO`.
+ * `src/lib/form-schemas.ts` — se o enum mudar as opções, o `tsc` cobra a
+ * entrada aqui). Só a Proposta usa isto; Contato continua indo pro `CONTACT_TO`.
+ *
+ * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026. Ele é uma lista de
+ * distribuição, e lista não responde: com os botões de desfecho no e-mail, um
+ * registro que chega por caixa individual (`ivan@`, `galvao@`) tem autor
+ * conhecido, e um que chega por grupo não tem. Trocar o grupo pela caixa da
+ * filial da Paraíba mantém o endereçamento concreto.
+ *
+ * **"Outra cidade" vai para os três de uma vez.** Não dá para saber de que
+ * praça é um condomínio que não está na lista, então todo mundo recebe e quem
+ * reconhecer assume. É UM e-mail com os três no `To`, não três e-mails — assim
+ * cada um vê que os outros também receberam, o que evita dois consultores
+ * ligando para o mesmo síndico.
  */
-const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, string> = {
-  'Recife e região': 'ivan@semog.com.br',
-  'João Pessoa e região': 'comercial@semog.com.br',
-  'Campina Grande e região': 'comercial@semog.com.br',
-  'Belém e região': 'galvao@semog.com.br',
-  'Outra cidade': 'comercial@semog.com.br',
+const PROPOSTA_CIDADE_TO: Record<NonNullable<PropostaValues['cidade']>, readonly string[]> = {
+  'Recife e região': ['ivan@semog.com.br'],
+  'João Pessoa e região': [PB_TO],
+  'Campina Grande e região': [PB_TO],
+  'Belém e região': ['galvao@semog.com.br'],
+  'Outra cidade': ['ivan@semog.com.br', 'galvao@semog.com.br', PB_TO],
 }
 
-/** Destino da Proposta quando `cidade` não foi preenchida (campo opcional). */
-const PROPOSTA_FALLBACK_TO = 'comercial@semog.com.br'
+/**
+ * Destino da Proposta quando `cidade` não foi preenchida (o campo ainda é
+ * opcional). Aponta para os mesmos três de "Outra cidade" pelo mesmo motivo:
+ * sem cidade não há praça conhecida, e o pior desfecho possível é a proposta
+ * não chegar a ninguém. Antes ia para o grupo que está saindo de cena.
+ */
+const PROPOSTA_FALLBACK_TO: readonly string[] = PROPOSTA_CIDADE_TO['Outra cidade']
 
 /**
  * Destino da inscrição no Semog Experience — quem organiza o evento é a filial
@@ -269,14 +289,14 @@ export async function submitForm(
       // responsável; a inscrição do Experience vai pra filial que organiza o
       // evento. Só o Contato continua no `CONTACT_TO` (que pode estar ausente
       // em dev — aí nenhuma notificação sai, comportamento original).
-      let notifyTo: string | undefined
+      let notifyTo: readonly string[] | undefined
       if (formType === 'proposta') {
         const { cidade } = data as PropostaValues
         notifyTo = cidade ? PROPOSTA_CIDADE_TO[cidade] : PROPOSTA_FALLBACK_TO
       } else if (formType === 'experience') {
-        notifyTo = EXPERIENCE_TO
+        notifyTo = [EXPERIENCE_TO]
       } else {
-        notifyTo = process.env.CONTACT_TO
+        notifyTo = process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
       }
 
       // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead)
@@ -289,9 +309,9 @@ export async function submitForm(
           ? (botoesDeDesfecho(leadRowId) ?? undefined)
           : undefined
 
-      if (notifyTo) {
+      if (notifyTo && notifyTo.length > 0) {
         const notificationResult = await sendMail({
-          to: notifyTo,
+          to: [...notifyTo],
           subject: `Novo contato via ${formTitle}`,
           react: ContactNotification({
             formTitle,

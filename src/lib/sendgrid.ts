@@ -3,7 +3,13 @@ import sgMail from '@sendgrid/mail'
 import type { ReactElement } from 'react'
 
 export type SendMailArgs = {
-  to: string
+  /**
+   * Destinatário, ou vários. Uma lista vira **um e-mail só** com todos no campo
+   * `To` — não uma cópia por pessoa. A diferença é o ponto: na proposta de
+   * "Outra cidade" os três responsáveis de praça precisam ver que os outros
+   * também receberam, senão dois deles ligam para o mesmo síndico.
+   */
+  to: string | string[]
   /** Remetente; se omitido cai no fallback `SENDGRID_FROM` (sender verificado no SendGrid). */
   from?: string
   subject: string

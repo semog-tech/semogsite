@@ -53,11 +53,23 @@ describe('assinarLead / tokenConfere', () => {
     expect(tokenConfere('42', primeiro + token.slice(1))).toBe(false)
   })
 
-  it('token ausente, vazio ou de tamanho diferente não confere (e não lança)', () => {
-    // `timingSafeEqual` lança com buffers de tamanhos diferentes — o teste é
-    // que a comparação de tamanho acontece ANTES dela.
+  // Os três casos abaixo estavam num `it` só. Ficam separados de propósito:
+  // cada um é uma porta diferente, e um mutante que abra apenas UMA precisa
+  // aparecer com nome próprio na saída do CI — não diluído num teste genérico.
+
+  it('token ausente não confere', () => {
     expect(tokenConfere('42', undefined)).toBe(false)
+  })
+
+  it('token vazio não confere', () => {
     expect(tokenConfere('42', '')).toBe(false)
+  })
+
+  it('token de tamanho diferente não confere — e não lança', () => {
+    // `timingSafeEqual` LANÇA com buffers de tamanhos diferentes. A asserção
+    // aqui é dupla: rejeita, e rejeita sem explodir — ou seja, a comparação de
+    // tamanho acontece ANTES dela. Um `throw` aqui viraria erro 500 na página,
+    // que é informação a mais para quem estiver sondando.
     expect(tokenConfere('42', 'curto')).toBe(false)
     expect(tokenConfere('42', `${assinarLead('42')}a`)).toBe(false)
   })

@@ -266,15 +266,28 @@ describe('submitForm — destino da notificação interna', () => {
   }
 
   /**
-   * O destinatário da notificação interna. Filtra pelo assunto porque a mesma
+   * Os destinatários da notificação interna. Filtra pelo assunto porque a mesma
    * `sendMail` também manda o auto-reply, esse sim para o e-mail de quem
    * preencheu — pegar a primeira chamada acertaria por acidente de ordem.
+   *
+   * Devolve sempre LISTA: desde 16/09/2026 a proposta de "Outra cidade" vai
+   * para três caixas de uma vez, e o que precisa ser testado é que elas vão
+   * num e-mail só (um `to` com três) e não em três envios.
    */
-  function destinoDaNotificacao() {
+  function destinoDaNotificacao(): string[] | undefined {
     const chamada = sendMailMock.mock.calls.find(([arg]) =>
       /^Novo contato via /.test((arg as { subject: string }).subject),
     )
-    return (chamada?.[0] as { to: string } | undefined)?.to
+    const to = (chamada?.[0] as { to: string | string[] } | undefined)?.to
+    if (to === undefined) return undefined
+    return Array.isArray(to) ? to : [to]
+  }
+
+  /** Quantas notificações internas saíram (o auto-reply não conta). */
+  function quantasNotificacoes(): number {
+    return sendMailMock.mock.calls.filter(([arg]) =>
+      /^Novo contato via /.test((arg as { subject: string }).subject),
+    ).length
   }
 
   beforeEach(() => {
@@ -298,7 +311,7 @@ describe('submitForm — destino da notificação interna', () => {
     const result = await submitForm('experience', inscricao, 'test-token')
 
     expect(result.ok).toBe(true)
-    expect(destinoDaNotificacao()).toBe('comercial.pb@semog.com.br')
+    expect(destinoDaNotificacao()).toEqual(['comercial.pb@semog.com.br'])
   })
 
   it('contato continua indo pro CONTACT_TO', async () => {
@@ -306,7 +319,7 @@ describe('submitForm — destino da notificação interna', () => {
 
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(destinoDaNotificacao()).toBe('caixa-do-contato@example.com')
+    expect(destinoDaNotificacao()).toEqual(['caixa-do-contato@example.com'])
   })
 
   it('proposta continua roteando por cidade', async () => {
@@ -325,7 +338,73 @@ describe('submitForm — destino da notificação interna', () => {
       'test-token',
     )
 
-    expect(destinoDaNotificacao()).toBe('galvao@semog.com.br')
+    expect(destinoDaNotificacao()).toEqual(['galvao@semog.com.br'])
+  })
+
+  /** Monta uma proposta válida variando só a cidade — é ela que decide o destino. */
+  function propostaDe(cidade: string) {
+    return {
+      tipo: 'Condomínio residencial',
+      nome: 'Maria Souza',
+      nomeCondominio: 'Residencial Aurora',
+      email: 'maria@example.com',
+      telefone: '+5583999501388',
+      cidade,
+    }
+  }
+
+  it.each([
+    ['Recife e região', ['ivan@semog.com.br']],
+    ['João Pessoa e região', ['comercial.pb@semog.com.br']],
+    ['Campina Grande e região', ['comercial.pb@semog.com.br']],
+    ['Belém e região', ['galvao@semog.com.br']],
+  ] as const)('proposta de %s vai para %s', async (cidade, esperado) => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.50'))
+
+    await submitForm('proposta', propostaDe(cidade), 'test-token')
+
+    expect(destinoDaNotificacao()).toEqual(esperado)
+  })
+
+  it('o grupo comercial@ não recebe mais NENHUMA proposta', async () => {
+    // O grupo saiu do roteamento em 16/09/2026 — lista de distribuição não
+    // responde, e o desfecho que chega por ela não tem autor. Este teste é a
+    // trava: qualquer cidade que volte a apontar pra lá reprova aqui.
+    for (const cidade of [
+      'Recife e região',
+      'João Pessoa e região',
+      'Campina Grande e região',
+      'Belém e região',
+      'Outra cidade',
+    ]) {
+      vi.clearAllMocks()
+      queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+      sendMailMock.mockResolvedValue({ ok: true })
+      verifyTurnstileMock.mockResolvedValue(true)
+      cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+      pushLeadMock.mockResolvedValue(null)
+      headersMock.mockResolvedValue(fakeHeaders(`198.51.100.${cidade.length}`))
+
+      await submitForm('proposta', propostaDe(cidade), 'test-token')
+
+      expect(destinoDaNotificacao()).not.toContain('comercial@semog.com.br')
+    }
+  })
+
+  it('"Outra cidade" vai para os três responsáveis, num e-mail só', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.51'))
+
+    await submitForm('proposta', propostaDe('Outra cidade'), 'test-token')
+
+    // A ordem importa menos que o conjunto; o que NÃO pode variar é serem três
+    // numa chamada só — três chamadas seriam três e-mails, e aí cada um pensaria
+    // que é o único a ter recebido.
+    expect(destinoDaNotificacao()?.slice().sort()).toEqual([
+      'comercial.pb@semog.com.br',
+      'galvao@semog.com.br',
+      'ivan@semog.com.br',
+    ])
+    expect(quantasNotificacoes()).toBe(1)
   })
 
   it('o auto-reply da inscrição vai pra quem se inscreveu, não pra filial', async () => {
