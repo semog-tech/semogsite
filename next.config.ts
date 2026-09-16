@@ -273,34 +273,38 @@ const nextConfig: NextConfig = {
       { source: '/category/:slug*', destination: '/blog', permanent: true },
 
       // ── Endereços que respondiam 404 em produção (conferido por curl em
-      // 16/09/2026). Os quatro primeiros são grafias erradas de `/experience`
-      // que circularam na divulgação do evento: `/expiriencae` já trouxe DUAS
-      // inscrições de gente que bateu no 404 e insistiu — quem desistiu não
-      // deixou rastro. Os quatro últimos são variantes antigas do slug de
-      // administração que o Google ainda serve em primeira posição; o destino
-      // `/administracao-de-condominios` é o slug vivo em `content/pages`.
+      // 16/09/2026). Grafias erradas de `/experience` que circularam na
+      // divulgação do evento: `/expiriencae` já trouxe DUAS inscrições de gente
+      // que bateu no 404 e insistiu — quem desistiu não deixou rastro.
       { source: '/expiriencae', destination: '/experience', permanent: true },
       { source: '/experiencae', destination: '/experience', permanent: true },
       { source: '/expirience', destination: '/experience', permanent: true },
       { source: '/experiencia', destination: '/experience', permanent: true },
+
+      // Variantes antigas do slug de administração que o Google ainda serve em
+      // primeira posição. Vão para a landing DE RECIFE, não para a página
+      // genérica de serviço: quem busca com o nome da cidade tem intenção
+      // local, e é a landing que responde a isso — formulário já na cidade
+      // certa, endereço e telefone da unidade, JSON-LD de LocalBusiness. Neste
+      // ciclo, três das cinco propostas entraram por landing de cidade.
       {
         source: '/administracao-condominio-recife',
-        destination: '/administracao-de-condominios',
+        destination: '/administradora-de-condominios-recife',
         permanent: true,
       },
       {
         source: '/administracao-de-condominios-recife',
-        destination: '/administracao-de-condominios',
+        destination: '/administradora-de-condominios-recife',
         permanent: true,
       },
       {
         source: '/administracao-condominios-recife',
-        destination: '/administracao-de-condominios',
+        destination: '/administradora-de-condominios-recife',
         permanent: true,
       },
       {
         source: '/administracao-condominial-recife',
-        destination: '/administracao-de-condominios',
+        destination: '/administradora-de-condominios-recife',
         permanent: true,
       },
     ]
