@@ -271,6 +271,38 @@ const nextConfig: NextConfig = {
 
       // Páginas de categoria do WordPress (qualquer uma) → índice do blog
       { source: '/category/:slug*', destination: '/blog', permanent: true },
+
+      // ── Endereços que respondiam 404 em produção (conferido por curl em
+      // 16/09/2026). Os quatro primeiros são grafias erradas de `/experience`
+      // que circularam na divulgação do evento: `/expiriencae` já trouxe DUAS
+      // inscrições de gente que bateu no 404 e insistiu — quem desistiu não
+      // deixou rastro. Os quatro últimos são variantes antigas do slug de
+      // administração que o Google ainda serve em primeira posição; o destino
+      // `/administracao-de-condominios` é o slug vivo em `content/pages`.
+      { source: '/expiriencae', destination: '/experience', permanent: true },
+      { source: '/experiencae', destination: '/experience', permanent: true },
+      { source: '/expirience', destination: '/experience', permanent: true },
+      { source: '/experiencia', destination: '/experience', permanent: true },
+      {
+        source: '/administracao-condominio-recife',
+        destination: '/administracao-de-condominios',
+        permanent: true,
+      },
+      {
+        source: '/administracao-de-condominios-recife',
+        destination: '/administracao-de-condominios',
+        permanent: true,
+      },
+      {
+        source: '/administracao-condominios-recife',
+        destination: '/administracao-de-condominios',
+        permanent: true,
+      },
+      {
+        source: '/administracao-condominial-recife',
+        destination: '/administracao-de-condominios',
+        permanent: true,
+      },
     ]
   },
 }
