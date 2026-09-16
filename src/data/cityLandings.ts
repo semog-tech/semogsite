@@ -6,12 +6,24 @@
  * JSON-LD, pra NAP consistente).
  */
 
+import type { PropostaValues } from '@/lib/form-schemas'
+
 export type CityTestimonial = { quote: string; name: string; role: string }
 export type CityFaq = { question: string; answer: string }
 
 export type CityLandingData = {
   slug: string
   city: string
+  /**
+   * Opção do campo "Cidade do condomínio" do formulário de proposta que
+   * corresponde a esta praça. Declarada aqui, e não inferida do slug pelo
+   * formulário, porque `cidade` é OBRIGATÓRIA desde 16/09/2026: na landing o
+   * campo não é perguntado (já sabemos qual é), então ele precisa chegar
+   * preenchido desde o primeiro render — inferir num efeito deixaria uma janela
+   * com o campo obrigatório vazio, e um slug novo sem entrada no mapa quebraria
+   * o envio em silêncio. Tipada contra o enum, então o `tsc` cobra a praça nova.
+   */
+  cidadeNoFormulario: PropostaValues['cidade']
   uf: string
   ufFull: string
   /**
@@ -113,6 +125,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
   recife: {
     slug: 'administradora-de-condominios-recife',
     city: 'Recife',
+    cidadeNoFormulario: 'Recife e região',
     uf: 'PE',
     ufFull: 'Pernambuco',
     ufGender: 'm',
@@ -173,6 +186,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
   'joao-pessoa': {
     slug: 'administradora-de-condominios-joao-pessoa',
     city: 'João Pessoa',
+    cidadeNoFormulario: 'João Pessoa e região',
     uf: 'PB',
     ufFull: 'Paraíba',
     ufGender: 'f',
@@ -233,6 +247,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
   'campina-grande': {
     slug: 'administradora-de-condominios-campina-grande',
     city: 'Campina Grande',
+    cidadeNoFormulario: 'Campina Grande e região',
     uf: 'PB',
     ufFull: 'Paraíba',
     ufGender: 'f',
@@ -293,6 +308,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
   belem: {
     slug: 'administradora-de-condominios-belem',
     city: 'Belém',
+    cidadeNoFormulario: 'Belém e região',
     uf: 'PA',
     ufFull: 'Pará',
     ufGender: 'm',
