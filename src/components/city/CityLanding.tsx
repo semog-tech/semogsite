@@ -284,7 +284,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="mt-4 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.08]"
               style={{ fontFamily: DISPLAY }}
             >
-              Entre as 20 primeiras de mais de 3.500 administradoras.
+              Entre as 20 primeiras de mais de 3 mil administradoras.
             </h2>
             {/* "terceiro ciclo" por extenso de propósito: com "3º ciclo" e "3º
                 lugar" na mesma frase, os dois numerais se confundem. */}
@@ -751,7 +751,7 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               className="max-w-[24ch] text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]"
               style={{ fontFamily: DISPLAY }}
             >
-              Seu condomínio em {data.city} merece a líder.
+              Seu condomínio em {data.city} merece esse padrão.
             </h2>
             <a
               href="#proposta"
