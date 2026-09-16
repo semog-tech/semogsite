@@ -306,7 +306,9 @@ export function ExperienceForm() {
             aria-invalid={!!errors.aceiteImagem}
           />
           <span>
-            O evento é fotografado e filmado. Autorizo o uso da minha imagem em fotos e vídeos do
+            {/* `{' '}` explícito: o JSX come a quebra de linha entre o texto e a expressão,
+                e sem ele o render sai "vídeos doSemog Experience 26", colado. */}
+            O evento é fotografado e filmado. Autorizo o uso da minha imagem em fotos e vídeos do{' '}
             {E.name}, conforme a <a href="/privacidade">política de privacidade</a>.
           </span>
         </label>
