@@ -424,10 +424,12 @@ describe('submitForm — destino da notificação interna', () => {
  * verdade — `@/lib/desfechoToken` não é mockado aqui, só o `server-only` que
  * ele importa (já neutralizado no topo do arquivo).
  *
- * Por que só a Proposta: é a captação comercial do site, e é dela que se quer
- * saber o desfecho. Contato é majoritariamente atendimento a quem já é cliente,
- * e a inscrição no Experience não é lead nenhum — botão de "fechou" numa dessas
- * duas seria pergunta sem resposta possível.
+ * O critério é `isExactEligible` — a mesma função que decide o que vira card no
+ * CRM. Isso abrange a Proposta E o Contato com assunto `proposta-comercial`,
+ * que é pedido de proposta escrito no formulário errado e já entra no CRM como
+ * lead. Fica de fora o resto do Contato (2ª via, CND, acordo), que é
+ * atendimento a quem já é cliente, e a inscrição no Experience, que não é lead
+ * nenhum — "fechou" nesses dois é pergunta sem resposta possível.
  */
 describe('submitForm — botões de desfecho no e-mail interno', () => {
   const SEGREDO_ORIGINAL = process.env.LEAD_OUTCOME_SECRET
@@ -500,12 +502,68 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
     }
   })
 
-  it('contato não leva botões', async () => {
+  it('contato de atendimento não leva botões', async () => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.41'))
+
+    await submitForm('contato', { ...contatoValido, assunto: 'segunda-via-boleto' }, 'test-token')
+
+    expect(await linksDaNotificacao()).toEqual([])
+  })
+
+  it('contato SEM assunto não leva botões', async () => {
+    // `assunto` é opcional no schema. Ausente, não há o que sustente chamar
+    // aquilo de captação — e o default tem que ser não perguntar.
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.45'))
 
     await submitForm('contato', contatoValido, 'test-token')
 
     expect(await linksDaNotificacao()).toEqual([])
+  })
+
+  it('contato com assunto "proposta-comercial" LEVA os botões', async () => {
+    // É pedido de proposta escrito no formulário errado: já entra no CRM como
+    // lead pela mesma regra, e por isso também tem desfecho a registrar.
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.46'))
+
+    await submitForm('contato', { ...contatoValido, assunto: 'proposta-comercial' }, 'test-token')
+
+    const links = await linksDaNotificacao()
+    expect(links).toHaveLength(4)
+    expect(links.map((url) => new URL(url).searchParams.get('s'))).toEqual([
+      'negociando',
+      'fechou',
+      'nao_evoluiu',
+      'nao_e_lead',
+    ])
+  })
+
+  it('a regra dos botões é a MESMA que manda o lead pro CRM', async () => {
+    // Trava contra as duas regras divergirem: se `isExactEligible` passar a
+    // aceitar (ou recusar) um caso, os botões acompanham por construção. Um
+    // ramo próprio no `submit-form` reprovaria aqui.
+    const { isExactEligible } = await import('@/lib/exact/map-lead')
+
+    const casos = [
+      { form: 'contato' as const, valores: { ...contatoValido, assunto: 'proposta-comercial' } },
+      { form: 'contato' as const, valores: { ...contatoValido, assunto: 'cnd-condominio' } },
+      { form: 'proposta' as const, valores: proposta },
+    ]
+
+    for (const [i, caso] of casos.entries()) {
+      vi.clearAllMocks()
+      queryMock.mockResolvedValue({ rows: [{ id: '4242' }], rowCount: 1 })
+      sendMailMock.mockResolvedValue({ ok: true })
+      verifyTurnstileMock.mockResolvedValue(true)
+      cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+      pushLeadMock.mockResolvedValue(null)
+      headersMock.mockResolvedValue(fakeHeaders(`198.51.100.${200 + i}`))
+
+      await submitForm(caso.form, caso.valores, 'test-token')
+
+      const temBotoes = (await linksDaNotificacao()).length > 0
+      const dados = Object.fromEntries(Object.entries(caso.valores).map(([k, v]) => [k, String(v)]))
+      expect(temBotoes).toBe(isExactEligible(caso.form, dados))
+    }
   })
 
   it('inscrição no Experience não leva botões', async () => {

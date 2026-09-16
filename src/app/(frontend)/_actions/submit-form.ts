@@ -27,6 +27,7 @@ import {
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
 import { botoesDeDesfecho } from '@/lib/desfechoToken'
+import { isExactEligible } from '@/lib/exact/map-lead'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
@@ -302,13 +303,23 @@ export async function submitForm(
           value: String(value),
         }))
 
-      // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead)
-      // — só na Proposta, que é a captação comercial de verdade, e só quando a
-      // linha existe: sem `leadRowId` não há o que assinar. `botoesDeDesfecho`
-      // devolve `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o
-      // e-mail sai como sempre saiu, sem a seção.
+      // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead).
+      //
+      // O critério é `isExactEligible` — a MESMA função que decide o que vira
+      // card no CRM —, e não `formType === 'proposta'`. Perguntar "isto é
+      // captação?" e "vale perguntar o desfecho disto?" é perguntar a mesma
+      // coisa, e duplicar a regra faria as duas respostas divergirem com o
+      // tempo. Na prática isso inclui o Contato com assunto
+      // `proposta-comercial`, que é pedido de proposta escrito no formulário
+      // errado: ele já entra no CRM como lead e agora também tem desfecho. O
+      // resto do Contato (2ª via, CND, acordo) é atendimento a quem já é
+      // cliente, e "fechou" não faz sentido ali.
+      //
+      // `leadRowId` ausente = sem o que assinar. `botoesDeDesfecho` devolve
+      // `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai
+      // como sempre saiu, sem a seção.
       const desfecho =
-        formType === 'proposta' && leadRowId
+        leadRowId && isExactEligible(formType, leadData)
           ? (botoesDeDesfecho(leadRowId) ?? undefined)
           : undefined
 
