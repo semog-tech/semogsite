@@ -44,6 +44,17 @@ const RESUMO_CAMPOS: { chave: string; rotulo: string }[] = [
   { chave: 'telefone', rotulo: 'WhatsApp' },
 ]
 
+/**
+ * Quantas caixas receberam o e-mail deste lead (`notificado_para` guarda os
+ * endereços separados por vírgula). Zero para lead gravado antes da coluna
+ * existir — e aí a tela simplesmente não fala do assunto, em vez de afirmar
+ * "1 responsável" sobre um dado que ela não tem.
+ */
+function contarAvisados(notificadoPara: string | null): number {
+  if (!notificadoPara) return 0
+  return notificadoPara.split(',').filter((e) => e.trim() !== '').length
+}
+
 type LinhaDeLead = {
   id: string
   created_at: Date
@@ -52,6 +63,7 @@ type LinhaDeLead = {
   desfecho: string | null
   desfecho_motivo: string | null
   desfecho_em: Date | null
+  notificado_para: string | null
 }
 
 /**
@@ -79,7 +91,7 @@ export default async function DesfechoPage({
   if (!token || !tokenConfere(id, token)) notFound()
 
   const { rows } = await query<LinhaDeLead>(
-    `select id, created_at, form, data, desfecho, desfecho_motivo, desfecho_em
+    `select id, created_at, form, data, desfecho, desfecho_motivo, desfecho_em, notificado_para
        from cms.leads
       where id = $1`,
     [id],
@@ -94,6 +106,7 @@ export default async function DesfechoPage({
     desfecho: ehDesfecho(linha.desfecho) ? linha.desfecho : null,
     motivo: ehMotivo(linha.desfecho_motivo) ? linha.desfecho_motivo : null,
     registradoEm: linha.desfecho_em ? FORMATO_DATA.format(linha.desfecho_em) : null,
+    avisados: contarAvisados(linha.notificado_para),
   }
 
   const resumo = RESUMO_CAMPOS.map(({ chave, rotulo }) => ({
@@ -103,11 +116,19 @@ export default async function DesfechoPage({
 
   return (
     <main className="mx-auto w-full max-w-[36rem] px-4 py-10 sm:py-14">
+      {/*
+        O título acompanha o estado. Um lead já respondido cai na parada que
+        mostra o registro atual antes de deixar alterar — e perguntar "como
+        terminou?" acima de uma tela que não oferece as opções é contradizer a
+        própria página.
+      */}
       <h1 className="font-display text-[clamp(1.6rem,4.5vw,2.2rem)] leading-tight text-fg">
-        Como terminou este lead?
+        {lead.desfecho ? 'Este lead já tem resposta' : 'Como terminou este lead?'}
       </h1>
       <p className="mt-2 text-[0.95rem] text-fg-2">
-        Sua resposta é o que diz quanto vale uma proposta do site. Leva dez segundos.
+        {lead.desfecho
+          ? 'Confira abaixo o que está registrado. Se mudou, dá para alterar.'
+          : 'Sua resposta é o que diz quanto vale uma proposta do site. Leva dez segundos.'}
       </p>
 
       <section className="mt-6 rounded-card border border-line bg-bg-raise p-5">

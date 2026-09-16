@@ -42,7 +42,26 @@ alter table cms.leads
   add column if not exists desfecho_motivo     text,
   -- Texto livre opcional, também só em 'nao_e_lead'. Contexto para ler depois,
   -- não dimensão de contagem.
-  add column if not exists desfecho_observacao text;
+  add column if not exists desfecho_observacao text,
+  -- Para qual endereço a notificação deste lead foi ENDEREÇADA, gravado no
+  -- momento do envio (`submit-form.ts`). Vários endereços vêm separados por
+  -- vírgula, na ordem em que entraram no `To` — é o caso de "Outra cidade", que
+  -- avisa os três responsáveis de uma vez.
+  --
+  -- É o que separa desfecho com autor conhecido de desfecho sem autor, SEM
+  -- perguntar nada a ninguém: `ivan@` e `galvao@` são caixas individuais, então
+  -- o registro que chega por elas tem dono; o que chega por uma caixa
+  -- compartilhada, ou por um e-mail endereçado a três, veio da equipe. Perguntar
+  -- quem clicou seria atrito num fluxo cujo valor inteiro está em não ter atrito.
+  --
+  -- Coluna própria, e não derivada da cidade na hora da consulta, justamente
+  -- porque o roteamento MUDA: o mapa por cidade já foi reescrito uma vez
+  -- (16/09/2026), e derivar faria os leads antigos responderem com o destino de
+  -- hoje. Aqui fica o endereçamento daquele dia.
+  --
+  -- **Não é comprovante de entrega.** O envio é best-effort e `sendMail` nunca
+  -- lança: esta coluna diz para quem o e-mail foi endereçado, não que ele chegou.
+  add column if not exists notificado_para     text;
 
 -- Não há coluna de "quem registrou", e a ausência é deliberada. O token
 -- assinado no link identifica o LEAD, não a pessoa: quem abre o link é quem

@@ -109,6 +109,25 @@ const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = 
 const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
 
 /**
+ * Para quem vai a notificação interna deste formulário. `undefined` só acontece
+ * no Contato sem `CONTACT_TO` configurado (comum em dev), e aí nenhuma
+ * notificação sai — comportamento original.
+ *
+ * É função, e não um trecho dentro do bloco de e-mail, porque a decisão passou
+ * a ser gravada na linha do lead (`notificado_para`) e portanto precisa
+ * acontecer ANTES do INSERT: quem recebeu o aviso é o que separa, depois, um
+ * desfecho com autor conhecido de um que veio de caixa compartilhada.
+ */
+function destinatariosDaNotificacao(
+  formType: FormType,
+  data: ContatoValues | PropostaValues | ExperienceValues,
+): readonly string[] | undefined {
+  if (formType === 'proposta') return PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
+  if (formType === 'experience') return [EXPERIENCE_TO]
+  return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
+}
+
+/**
  * Schema de validação por formulário. Mapa (e não ternário) porque com três
  * formulários o ternário aninhado já esconde qual schema vale pra qual tipo —
  * e porque assim o `tsc` cobra a entrada quando um `FormType` novo aparecer.
@@ -229,9 +248,15 @@ export async function submitForm(
       paisDaRequisicao(await headers()),
     )
 
+    // Decidido aqui, antes do INSERT, porque vai para a própria linha: é o
+    // registro de a quem este lead foi endereçado, e ele precisa sobreviver a
+    // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
+    const notifyTo = destinatariosDaNotificacao(formType, data)
+
     const { rows: inserted } = await query<{ id: string }>(
-      'insert into cms.leads (form, data, gclid, email, ads_consent) values ($1, $2, $3, $4, $5) returning id',
-      [formType, leadData, gclid ?? null, email ?? null, adsConsent],
+      `insert into cms.leads (form, data, gclid, email, ads_consent, notificado_para)
+       values ($1, $2, $3, $4, $5, $6) returning id`,
+      [formType, leadData, gclid ?? null, email ?? null, adsConsent, notifyTo?.join(', ') ?? null],
     )
     const leadRowId = inserted[0]?.id
 
@@ -276,22 +301,6 @@ export async function submitForm(
           label: labels[field as keyof typeof labels] ?? field,
           value: String(value),
         }))
-
-      // Proposta roteia por região (campo `cidade`) pra caixa da pessoa
-      // responsável; a inscrição do Experience vai pra filial que organiza o
-      // evento. Só o Contato continua no `CONTACT_TO` (que pode estar ausente
-      // em dev — aí nenhuma notificação sai, comportamento original).
-      let notifyTo: readonly string[] | undefined
-      if (formType === 'proposta') {
-        // `cidade` é obrigatória no schema, então o mapa é total e não há mais
-        // destino de fallback: proposta que chega aqui passou pela validação do
-        // servidor e tem uma das cinco cidades.
-        notifyTo = PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
-      } else if (formType === 'experience') {
-        notifyTo = [EXPERIENCE_TO]
-      } else {
-        notifyTo = process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
-      }
 
       // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead)
       // — só na Proposta, que é a captação comercial de verdade, e só quando a

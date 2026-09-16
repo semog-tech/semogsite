@@ -26,6 +26,12 @@ export type LeadEmAvaliacao = {
   desfecho: Desfecho | null
   motivo: MotivoNaoLead | null
   registradoEm: string | null
+  /**
+   * Quantas pessoas receberam o e-mail deste lead. Vem de `notificado_para`.
+   * Acima de uma, a tela avisa que outro responsável pode ter respondido antes
+   * — é o caso de "Outra cidade", que avisa os três de uma vez.
+   */
+  avisados: number
 }
 
 const cardBase =
@@ -68,6 +74,15 @@ export function FormularioDesfecho({
   const [editando, setEditando] = useState(false)
   const gravado = resultado?.ok === true && !editando
 
+  // Lead que JÁ tem desfecho não cai direto no formulário: a tela primeiro diz
+  // o que está registrado, e só então oferece a mudança. Não é firula de fluxo —
+  // o e-mail de "Outra cidade" vai para três responsáveis, e sem esta parada a
+  // segunda pessoa a abrir o link marcaria por cima sem saber que alguém já
+  // respondeu. Com ela, a diferença entre dois cliques concorrentes e uma
+  // correção consciente fica na tela.
+  const [alterando, setAlterando] = useState(false)
+  const mostrarRegistroAtual = !gravado && !alterando && lead.desfecho !== null
+
   // A confirmação SUBSTITUI o `<form>`: o botão que estava em foco some com ele
   // e o foco cairia no `<body>`, deixando o anúncio por conta da sorte. Mesmo
   // tratamento do formulário de inscrição do Experience.
@@ -75,6 +90,41 @@ export function FormularioDesfecho({
   useEffect(() => {
     if (gravado) sucessoRef.current?.focus()
   }, [gravado])
+
+  if (mostrarRegistroAtual && lead.desfecho) {
+    return (
+      <div className="rounded-card border border-line-strong bg-bg-raise p-6">
+        <p className="text-[1.05rem] font-semibold text-fg">
+          Este lead já foi marcado como {DESFECHO_ROTULOS[lead.desfecho]}
+          {lead.registradoEm ? ` em ${lead.registradoEm}` : ''}.
+        </p>
+        {lead.motivo && (
+          <p className="mt-1 text-[0.9rem] text-fg-2">Motivo: {MOTIVO_ROTULOS[lead.motivo]}</p>
+        )}
+        {lead.avisados > 1 && (
+          <p className="mt-3 text-[0.9rem] text-fg-3">
+            O e-mail deste lead foi para {lead.avisados} responsáveis — pode ter sido outra pessoa
+            que respondeu.
+          </p>
+        )}
+        <p className="mt-3 text-[0.9rem] text-fg-2">
+          Se isso mudou, você pode alterar. A resposta anterior é substituída.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setAlterando(true)}
+            className="rounded-pill bg-accent px-5 py-2 text-[0.9rem] font-semibold text-navy-950 transition-opacity duration-200 hover:opacity-90"
+          >
+            Alterar resposta
+          </button>
+        </div>
+        <p className="mt-4 text-[0.85rem] text-fg-3">
+          Se estiver certo, é só fechar esta página — não precisa confirmar de novo.
+        </p>
+      </div>
+    )
+  }
 
   if (gravado && resultado.ok) {
     return (
@@ -115,9 +165,9 @@ export function FormularioDesfecho({
 
       {lead.desfecho && (
         <p className="mb-5 rounded-input border border-line bg-[rgba(10,16,46,0.6)] px-4 py-3 text-[0.9rem] text-fg-2">
-          Já registrado como <strong className="text-fg">{DESFECHO_ROTULOS[lead.desfecho]}</strong>
-          {lead.registradoEm ? ` em ${lead.registradoEm}` : ''}. Confirmar de novo substitui o
-          registro anterior.
+          Substituindo o registro de{' '}
+          <strong className="text-fg">{DESFECHO_ROTULOS[lead.desfecho]}</strong>
+          {lead.registradoEm ? ` de ${lead.registradoEm}` : ''}.
         </p>
       )}
 

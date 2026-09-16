@@ -643,3 +643,86 @@ describe('submitForm — cidade obrigatória na proposta', () => {
     expect(resultado.ok).toBe(true)
   })
 })
+
+/**
+ * `notificado_para` — para qual endereço a notificação deste lead foi
+ * ENDEREÇADA, gravado na própria linha no momento do envio.
+ *
+ * É o que separa, depois, um desfecho com autor conhecido de um que veio de
+ * caixa compartilhada, sem perguntar identidade a ninguém. Está em coluna, e não
+ * derivado da cidade na hora da consulta, porque o roteamento muda: o mapa já
+ * foi reescrito uma vez, e derivar faria o lead antigo responder com o destino
+ * de hoje.
+ */
+describe('submitForm — grava a quem o lead foi endereçado', () => {
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'Recife e região',
+  }
+
+  /** O valor de `notificado_para` no INSERT (6º parâmetro). */
+  function notificadoPara(): unknown {
+    const insert = queryMock.mock.calls.find(([sql]) => /insert into cms\.leads/i.test(sql)) as
+      | [string, unknown[]]
+      | undefined
+    expect(insert?.[0]).toMatch(/notificado_para/i)
+    return insert?.[1][5]
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.70'))
+    process.env.CONTACT_TO = 'caixa-do-contato@example.com'
+  })
+
+  it('caixa individual entra sozinha na coluna', async () => {
+    await submitForm('proposta', proposta, 'test-token')
+
+    expect(notificadoPara()).toBe('ivan@semog.com.br')
+  })
+
+  it('"Outra cidade" grava os três, separados por vírgula', async () => {
+    await submitForm('proposta', { ...proposta, cidade: 'Outra cidade' }, 'test-token')
+
+    // A página conta as vírgulas pra avisar que outra pessoa pode ter
+    // respondido antes — por isso os três precisam caber numa string só.
+    expect(notificadoPara()).toBe(
+      'ivan@semog.com.br, galvao@semog.com.br, comercial.pb@semog.com.br',
+    )
+  })
+
+  it('o endereçado é o MESMO que recebeu o e-mail — não dois caminhos que podem divergir', async () => {
+    await submitForm('proposta', { ...proposta, cidade: 'Belém e região' }, 'test-token')
+
+    const chamada = sendMailMock.mock.calls.find(([arg]) =>
+      /^Novo contato via /.test((arg as { subject: string }).subject),
+    )
+    expect(chamada).toBeDefined()
+    const { to } = (chamada as [{ to: string | string[] }])[0]
+    expect(String(notificadoPara()).split(', ')).toEqual(Array.isArray(to) ? to : [to])
+  })
+
+  it('contato grava o CONTACT_TO', async () => {
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(notificadoPara()).toBe('caixa-do-contato@example.com')
+  })
+
+  it('sem CONTACT_TO grava NULL, e não string vazia', async () => {
+    // Coluna vazia é "não avisamos ninguém"; `''` seria um endereço em branco.
+    delete process.env.CONTACT_TO
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(notificadoPara()).toBeNull()
+  })
+})
