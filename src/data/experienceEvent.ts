@@ -80,11 +80,11 @@ export const EXPERIENCE_EVENT = {
   venueReference: "em frente à Sapore D'Italia",
   city: 'João Pessoa',
   uf: 'PB',
-  seats: 200,
+  seats: 150,
   priceLabel: 'Gratuito',
 
   /**
-   * Kit entregue a cada um dos 200 inscritos. Entra na proposta de patrocínio
+   * Kit entregue a cada um dos 150 inscritos. Entra na proposta de patrocínio
    * como contrapartida física — é onde a marca do patrocinador fica com o
    * participante depois do evento.
    *

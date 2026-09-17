@@ -7,7 +7,7 @@
  * O plano pedia repetir "gratuito e {seats} vagas" aqui; o protótipo aprovado
  * diz "Evento gratuito … Vagas limitadas". Mantido o texto do protótipo: o
  * número já aparece no hero e volta na seção de inscrição (Task 7), e repetir
- * "200" pela terceira vez em meia página cansa sem informar.
+ * "150" pela terceira vez em meia página cansa sem informar.
  */
 export function ExperienceCta() {
   return (

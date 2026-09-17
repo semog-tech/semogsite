@@ -36,7 +36,7 @@ test.describe('Landing do Experience', () => {
     const hero = page.locator('.hero')
     await expect(hero.getByText('26 de setembro de 2026')).toBeVisible()
     await expect(hero.getByText('Centro de Atendimento ao Turista Adaptado')).toBeVisible()
-    await expect(hero.getByText(/200 vagas/i)).toBeVisible()
+    await expect(hero.getByText(/150 vagas/i)).toBeVisible()
   })
 
   test('a home continua com header e rodapé', async ({ page }) => {
