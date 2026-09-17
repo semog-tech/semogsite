@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -26,8 +27,21 @@ vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
 }))
 
+// `pool` entra porque a inscrição do Experience grava por transação explícita
+// num client dedicado (advisory lock — ver `gravarInscricaoDoExperience`). O
+// client do dublê delega ao MESMO `queryMock`, então as asserções seguem
+// olhando uma lista só de SQL.
 vi.mock('@/lib/db', () => ({
   query: (...args: unknown[]) => queryMock(...args),
+  pool: {
+    // `EventEmitter` porque a transação registra um listener de 'error' no
+    // client (ver `gravarInscricaoDoExperience`).
+    connect: async () =>
+      Object.assign(new EventEmitter(), {
+        query: (...args: unknown[]) => queryMock(...args),
+        release: () => {},
+      }),
+  },
 }))
 
 vi.mock('@/lib/sendgrid', () => ({

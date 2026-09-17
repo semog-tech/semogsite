@@ -48,6 +48,14 @@ export const EXPERIENCE_EVENT = {
    */
   edition: '26',
   name: 'Semog Experience 26',
+  /**
+   * O nome da SÉRIE, sem a edição. Existe porque os textos de evento fechado
+   * falam do que se repete todo ano ("o Semog Experience é anual"), e ali
+   * `name` diria que a edição 26 é que é anual. Recortar o número de `name`
+   * com regex no componente resolveria hoje e quebraria calado no dia em que
+   * a edição virar "26.2" ou ganhar um subtítulo.
+   */
+  series: 'Semog Experience',
   /** ISO, para `<time dateTime>` e JSON-LD. 26/09/2026 é sábado. */
   date: '2026-09-26',
   dateLabel: '26 de setembro de 2026',
@@ -84,7 +92,7 @@ export const EXPERIENCE_EVENT = {
   priceLabel: 'Gratuito',
 
   /**
-   * Kit entregue a cada um dos 150 inscritos. Entra na proposta de patrocínio
+   * Kit entregue a cada inscrito. Entra na proposta de patrocínio
    * como contrapartida física — é onde a marca do patrocinador fica com o
    * participante depois do evento.
    *

@@ -20,11 +20,17 @@ export type FormType = 'contato' | 'proposta' | 'experience'
  * Server Actions, e um tipo, que a compilação apaga, deixaria o registro
  * apontando pra um identificador inexistente. `ok: false` com `errors` é falha
  * de validação por campo; com `message`, falha sem campo associado.
+ *
+ * `esgotado` é a recusa por lotação do Experience, e é campo próprio (e não só
+ * mais uma `message`) porque a tela reage diferente: erro genérico pede "tente
+ * de novo" com o botão ainda lá, e aqui tentar de novo nunca vai funcionar —
+ * o formulário sai e dá lugar ao aviso de que as vagas acabaram.
  */
 export type SubmitFormResult = {
   ok: boolean
   errors?: Record<string, string>
   message?: string
+  esgotado?: boolean
 }
 
 export type FormDef<T extends Record<string, unknown>> = {

@@ -47,8 +47,20 @@ const JANELA_DE_ASSENTAMENTO = 2500
  * mudar isso mexeria num componente usado no site inteiro por causa de um
  * ajuste de três formulários.
  */
+/**
+ * Os estados de envio dos formulários do site, reunidos porque este hook é o
+ * único ponto compartilhado pelos três. Só `'error'` faz alguma coisa aqui —
+ * os outros entram na união para que cada formulário possa passar o seu
+ * `status` sem alargar o tipo para `string`.
+ *
+ * `'esgotado'` é exclusivo da inscrição do Experience (a vaga acabou durante o
+ * preenchimento): como ele SUBSTITUI o formulário por um aviso, não há botão a
+ * trazer de volta para a tela — o `<form>` inteiro já saiu do DOM.
+ */
+export type StatusDeEnvio = 'idle' | 'success' | 'error' | 'esgotado'
+
 export function useEnvioVisivelNoErro(
-  status: 'idle' | 'success' | 'error',
+  status: StatusDeEnvio,
   tentativa: number,
   formRef: RefObject<HTMLFormElement | null>,
 ) {

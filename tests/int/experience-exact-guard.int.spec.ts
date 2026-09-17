@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { isExactEligible } from '@/lib/exact/map-lead'
@@ -53,7 +54,25 @@ vi.mock('@/lib/exact/client', () => ({
   createLead: (...args: unknown[]) => createLeadMock(...args),
   createPerson: (...args: unknown[]) => createPersonMock(...args),
 }))
-vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
+/**
+ * `pool` entra no mock porque a inscrição do Experience deixou de usar
+ * `query()` e passou a abrir transação explícita num client dedicado (advisory
+ * lock — ver `gravarInscricaoDoExperience`). O client do dublê delega para o
+ * MESMO `queryMock`, então as asserções continuam olhando uma lista só de SQL;
+ * o que muda é que a lista agora tem `begin`/`commit` em volta do INSERT.
+ */
+vi.mock('@/lib/db', () => ({
+  query: (...args: unknown[]) => queryMock(...args),
+  pool: {
+    // `EventEmitter` porque a transação registra um listener de 'error' no
+    // client (ver `gravarInscricaoDoExperience`).
+    connect: async () =>
+      Object.assign(new EventEmitter(), {
+        query: (...args: unknown[]) => queryMock(...args),
+        release: () => {},
+      }),
+  },
+}))
 vi.mock('@/lib/sendgrid', () => ({ sendMail: (...args: unknown[]) => sendMailMock(...args) }))
 vi.mock('@/lib/turnstile', () => ({
   verifyTurnstile: (...args: unknown[]) => verifyTurnstileMock(...args),
@@ -89,7 +108,13 @@ describe('submitForm — inscrição do Experience', () => {
     const result = await submitForm('experience', inscricao, 'test-token')
 
     expect(result.ok).toBe(true)
-    const [sql, params] = queryMock.mock.calls[0] as [string, unknown[]]
+    // Pelo SQL, e não por índice: a submissão do Experience roda dentro de uma
+    // transação, então `calls[0]` é o `begin`.
+    const chamada = queryMock.mock.calls.find(([sql]) =>
+      /insert into cms\.leads/i.test(sql as string),
+    )
+    expect(chamada).toBeDefined()
+    const [sql, params] = chamada as [string, unknown[]]
     expect(sql).toMatch(/insert into cms\.leads/i)
     expect(params[0]).toBe('experience')
     expect(params[1]).toEqual({

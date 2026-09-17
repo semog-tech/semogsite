@@ -1,5 +1,6 @@
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { EXPERIENCE_SPONSORS, type Sponsor } from '@/data/experienceSponsors'
+import type { EstadoDaInscricao } from '@/lib/experienceEstado'
 
 /**
  * Faixa de patrocínio — porte da `<section class="sponsors s-white">` do
@@ -37,7 +38,7 @@ function listar(itens: string[]) {
   return `${itens.slice(0, -1).join(', ')} e ${itens[itens.length - 1]}`
 }
 
-export function ExperienceSponsors() {
+export function ExperienceSponsors({ estado }: { estado: EstadoDaInscricao }) {
   const grupos = COTAS.map((cota) => ({
     ...cota,
     sponsors: EXPERIENCE_SPONSORS.filter((s) => s.tier === cota.tier),
@@ -90,9 +91,19 @@ export function ExperienceSponsors() {
           escrita à mão: quando a Ouro fechar, basta entrar em
           `EXPERIENCE_SPONSORS` e este convite se corrige sozinho — em vez de
           seguir oferecendo no site uma cota já vendida.
+
+          Passado o evento o convite deixa de ser convite: não há mais cota
+          desta edição para vender, e seguir oferecendo "Ouro e Prata" mandaria
+          um patrocinador interessado pagar por uma manhã que já passou. O
+          contato continua, apontando para a próxima.
         */}
         <p className="aside">
-          {livres.length > 0 ? (
+          {estado === 'encerrado' ? (
+            <>
+              Obrigado a quem apoiou esta edição. Para falar sobre patrocínio na próxima, escreva
+              para <a href="mailto:ola@semog.com.br">ola@semog.com.br</a>.
+            </>
+          ) : livres.length > 0 ? (
             <>
               Quer apoiar o {E.name}? As cotas <strong>{listar(livres)}</strong> ainda estão
               disponíveis — fale com a gente pelo{' '}

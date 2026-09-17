@@ -244,8 +244,33 @@
   font-size: 0.8rem;
   white-space: nowrap;
 }
+/* Nota no lugar do botão da topbar, quando não há mais inscrição a abrir.
+   Discreta de propósito: no topo de uma página fechada, um botão desativado só
+   convida ao clique frustrado. Mesma altura e mesmo raio do `.btn` que ela
+   substitui, para a barra não mudar de forma entre um estado e outro. */
+.exp .topbar-nota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  color: var(--fg-2);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  white-space: nowrap;
+}
+.exp .topbar-nota svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+  color: var(--fg-3);
+}
 @media (max-width: 34rem) {
-  .exp .topbar .btn {
+  .exp .topbar .btn,
+  .exp .topbar-nota {
     display: none;
   }
 }
@@ -1409,14 +1434,43 @@
   background: var(--color-navy-400);
 }
 
-/* Confirmação, no lugar do formulário. Repete data/horário/local porque é a
-   única coisa que a pessoa precisa levar daqui. */
-.exp .signup-done {
+/* Botão que não é botão: o mesmo desenho de pílula do `.btn`, sem ação nem
+   destino. NÃO usa `:disabled` — aquele é o estado "enviando", com cursor de
+   progresso e opacidade; aqui é um selo com forma de botão, deliberadamente
+   sem brilho. Anula o hover herdado do `.btn`, inclusive o da seta. */
+.exp .btn-off {
+  background: transparent;
+  border-color: var(--line-2);
+  color: var(--fg-2);
+  cursor: default;
+}
+.exp .btn-off svg {
+  color: var(--fg-3);
+}
+.exp .btn-off:hover {
+  transform: none;
+  box-shadow: none;
+}
+.exp .btn-off:hover svg {
+  transform: none;
+}
+
+/* Bloco que ENTRA NO LUGAR do formulário. Três ocupantes, mesmo desenho porque
+   é o mesmo papel — o card deixa de pedir dados e passa a entregar o que a
+   pessoa precisa levar daqui:
+   - `.signup-done`: a confirmação logo depois de enviar;
+   - `.aviso`: as vagas esgotadas (na seção e na recusa do próprio formulário)
+     e a edição encerrada.
+   Os seletores andam juntos de propósito: separados, um ajuste de espaçamento
+   em um deixaria o outro para trás e a mesma caixa teria duas alturas. */
+.exp .signup-done,
+.exp .aviso {
   display: grid;
   gap: 0.9rem;
   justify-items: start;
 }
-.exp .signup-done-mark {
+.exp .signup-done-mark,
+.exp .aviso-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1426,11 +1480,13 @@
   border: 1px solid var(--line-2);
   color: var(--accent);
 }
-.exp .signup-done-mark svg {
+.exp .signup-done-mark svg,
+.exp .aviso-mark svg {
   width: 1.35rem;
   height: 1.35rem;
 }
-.exp .signup-done h3 {
+.exp .signup-done h3,
+.exp .aviso h3 {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(1.35rem, 3vw, 1.7rem);
@@ -1439,15 +1495,85 @@
   margin: 0;
   color: var(--fg);
 }
-.exp .signup-done p {
+.exp .signup-done p,
+.exp .aviso p {
   margin: 0;
   color: var(--fg-2);
 }
-.exp .signup-done .facts {
+.exp .signup-done .facts,
+.exp .aviso .facts {
   margin: 0;
 }
-.exp .signup-done .formnote {
+.exp .signup-done .formnote,
+.exp .aviso .formnote {
   text-align: left;
+}
+
+/* Itens de "o que acontece agora", na coluna da seção esgotada. Mesma grade de
+   `.facts`, com o ícone no cinza neutro: um check verde ao lado de "não há
+   inscrição no dia" leria como promessa cumprida, o oposto do que a linha diz. */
+.exp .facts-neutro svg {
+  color: var(--fg-3);
+}
+
+/* As três informações do evento lado a lado, no card da edição encerrada. Vira
+   coluna no celular. */
+.exp .aviso-linha {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 0.4rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+@media (max-width: 48rem) {
+  .exp .aviso-linha {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+}
+/* `align-content: start` não é detalhe: a coluna do horário tem duas linhas e
+   as outras três, e sem ele a grade distribui a sobra e joga o valor do meio
+   para baixo — os três rótulos alinhados e os três valores desalinhados. */
+.exp .aviso-linha div {
+  display: grid;
+  align-content: start;
+  gap: 0.15rem;
+}
+.exp .aviso-linha .rot {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.exp .aviso-linha .val {
+  color: var(--fg);
+  font-size: 0.95rem;
+}
+.exp .aviso-linha small {
+  color: var(--fg-2);
+  font-size: 0.85rem;
+}
+
+/* Seção de inscrição em coluna única, para quando não há formulário nem
+   contraponto à direita. O card NÃO vai até a borda do `.wrap`: a 78rem uma
+   linha de texto passa de 110 caracteres e o olho perde a volta. Respiro menor
+   que o das outras seções — com um card curto no meio, o `padding-block` cheio
+   vira um buraco de tela. */
+.exp .signup-solo {
+  padding-block: clamp(3rem, 5.5vw, 4.5rem);
+}
+.exp .signup-solo .grid {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+}
+.exp .signup-solo .card {
+  display: grid;
+  gap: 1.1rem;
+  width: min(100%, 58rem);
 }
 
 /* ---------- patrocinadores ---------- */

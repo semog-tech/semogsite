@@ -215,20 +215,20 @@ describe('ExperienceVideo', () => {
 
 describe('ExperienceSponsors', () => {
   it('mostra o logo da Superlógica com alt e link', () => {
-    render(<ExperienceSponsors />)
+    render(<ExperienceSponsors estado="aberto" />)
     const link = screen.getByRole('link', { name: /superlógica/i })
     expect(link.getAttribute('href')).toBe('https://www.superlogica.com/')
     expect(within(link).getByRole('img').getAttribute('alt')).toBe('Superlógica')
   })
 
   it('mantém a faixa em superfície clara, como exige a marca do patrocinador', () => {
-    const { container } = render(<ExperienceSponsors />)
+    const { container } = render(<ExperienceSponsors estado="aberto" />)
     const section = container.querySelector('section')
     expect(section?.className).toMatch(/s-(white|paper)/)
   })
 
   it('rotula a cota de cada patrocinador, na ordem da hierarquia', () => {
-    const { container } = render(<ExperienceSponsors />)
+    const { container } = render(<ExperienceSponsors estado="aberto" />)
     const cotas = [...container.querySelectorAll('.sponsor-tiers dt')].map((n) => n.textContent)
     expect(cotas).toEqual(['Diamante', 'Bronze'])
 
@@ -242,14 +242,14 @@ describe('ExperienceSponsors', () => {
   })
 
   it('não mostra coluna vazia para cota sem patrocinador', () => {
-    const { container } = render(<ExperienceSponsors />)
+    const { container } = render(<ExperienceSponsors estado="aberto" />)
     for (const grupo of container.querySelectorAll('.sponsor-tiers .tier')) {
       expect(grupo.querySelectorAll('img').length).toBeGreaterThan(0)
     }
   })
 
   it('anuncia como disponíveis exatamente as cotas que ninguém ocupa', () => {
-    render(<ExperienceSponsors />)
+    render(<ExperienceSponsors estado="aberto" />)
     const ocupadas = new Set(EXPERIENCE_SPONSORS.map((s) => s.tier))
     const aside = screen.getByText(/Quer apoiar/).textContent ?? ''
     // Derivado do dado, não de uma lista escrita à mão: quando a Ouro fechar,

@@ -6,6 +6,8 @@ import { AsYouType } from 'libphonenumber-js/min'
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
+import { ExperienceAgenda } from '@/components/experience/ExperienceAgenda'
+import { ArrowIcon, CheckIcon, InfoIcon } from '@/components/experience/icones'
 import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
@@ -13,23 +15,7 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 
-type Status = 'idle' | 'success' | 'error'
-
-function CheckIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path d="M5 12.5l4.5 4.5L19 7.5" />
-    </svg>
-  )
-}
-
-function ArrowIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  )
-}
+type Status = 'idle' | 'success' | 'error' | 'esgotado'
 
 /**
  * Inscrição no Semog Experience — o `<form>` da seção `#inscricao` da landing.
@@ -59,7 +45,14 @@ function ArrowIcon() {
  * (quem enxerga infere pela marca "(opcional)" nos outros), enquanto o
  * `noValidate` mantém o Zod como dono das mensagens.
  */
-export function ExperienceForm() {
+/**
+ * `onLotacao` avisa a seção de que as vagas acabaram durante o preenchimento.
+ * Sem ele o formulário trocaria só o próprio card, e a coluna de texto ao lado
+ * seguiria dizendo "Garanta a sua vaga" enquanto o card diz que a inscrição não
+ * foi registrada — ver `ExperienceSignupAberto`. Opcional porque o formulário
+ * também é renderizado fora dessa moldura nos testes.
+ */
+export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
   const id = useId()
   const nomeId = `${id}-nome`
   const emailId = `${id}-email`
@@ -93,9 +86,11 @@ export function ExperienceForm() {
   // `role="status"` por conta da sorte. Mover o foco para o bloco (que é
   // `tabIndex={-1}` só para poder recebê-lo) faz o leitor de tela ler a
   // confirmação e deixa o teclado no lugar certo para continuar a navegação.
+  // Vale igual para a recusa por lotação, que substitui o formulário do mesmo
+  // jeito — e cuja notícia é ainda mais importante não se perder.
   const doneRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (status === 'success') doneRef.current?.focus()
+    if (status === 'success' || status === 'esgotado') doneRef.current?.focus()
   }, [status])
 
   // O aviso de erro entra acima do botão e o empurra para baixo — em tela curta
@@ -139,6 +134,15 @@ export function ExperienceForm() {
       return
     }
 
+    // Lotou entre o carregamento desta página e o envio. NÃO é um erro a
+    // corrigir: nenhuma quantidade de tentativas devolve a vaga, então o
+    // formulário sai de cena em vez de ficar convidando a reenviar.
+    if (result.esgotado) {
+      setStatus('esgotado')
+      onLotacao?.()
+      return
+    }
+
     setStatus('error')
     setToken(null)
     setTurnstileKey((key) => key + 1)
@@ -153,6 +157,48 @@ export function ExperienceForm() {
     )
   })
 
+  if (status === 'esgotado') {
+    // A pessoa preencheu tudo e a vaga acabou no caminho — o caso mais provável
+    // de acontecer na vida real, porque a página é servida com ISR e pode estar
+    // até um minuto atrasada em relação ao banco.
+    //
+    // `role="alert"` e não `status`: aqui a notícia é que algo NÃO aconteceu, e
+    // o assertivo é o que interrompe a leitura para dizer isso. A primeira
+    // frase existe para não sobrar dúvida — "não foi registrada" com todas as
+    // letras, porque a alternativa é alguém acordar cedo no sábado e ir à praia
+    // achando que está inscrito.
+    return (
+      <div className="aviso" ref={doneRef} role="alert" tabIndex={-1}>
+        <span aria-hidden="true" className="aviso-mark">
+          <InfoIcon />
+        </span>
+        {/*
+          O card fala só do que é específico de QUEM ACABOU DE SER RECUSADO. O
+          contexto geral — "não há inscrição no dia", "a próxima edição abre
+          aqui" — é papel da coluna ao lado, que trocou junto (ver
+          `ExperienceSignupAberto`). Repetir os dois nos dois lados deixava as
+          mesmas três frases lado a lado, e o que é importante deixa de se
+          destacar quando aparece duas vezes na mesma tela.
+        */}
+        <h3>Sua inscrição não foi registrada</h3>
+        <p>
+          A última vaga foi preenchida enquanto você preenchia o formulário — e não adianta enviar
+          de novo.
+        </p>
+        {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
+        <ul className="facts facts-neutro" role="list">
+          <li>
+            <InfoIcon /> Você não vai receber e-mail de confirmação desta tentativa.
+          </li>
+          <li>
+            <InfoIcon /> Se você acha que já tinha se inscrito antes, procure o e-mail de
+            confirmação na sua caixa de entrada — ele é a prova da vaga.
+          </li>
+        </ul>
+      </div>
+    )
+  }
+
   if (status === 'success') {
     // Repete data, horário e local porque é o que a pessoa precisa levar daqui
     // — e a retirada do kit, que é antecipada: descobrir isso só no sábado, na
@@ -164,37 +210,7 @@ export function ExperienceForm() {
         </span>
         <h3>Inscrição recebida!</h3>
         <p>Anote na agenda — é onde a gente se encontra:</p>
-        {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
-        <ul className="facts" role="list">
-          <li>
-            <CheckIcon /> {E.dateLabel}, {E.weekday}
-          </li>
-          <li>
-            <CheckIcon /> Das {E.timeLabel}
-          </li>
-          <li>
-            <CheckIcon />
-            {/* Três papéis em três linhas, como no painel da programação: o
-                nome diz qual é o lugar, o endereço diz onde fica, o ponto de
-                referência é o que resolve na chegada. Corrida, esta seria uma
-                linha de 120 caracteres onde se procura uma avenida — e é a
-                tela que a pessoa fecha levando o endereço. */}
-            <span className="fact-local">
-              {E.venue}
-              <span className="fact-endereco">
-                {E.street}
-                <br />
-                {E.district} — {E.city}, {E.uf}
-              </span>
-              <em className="fact-ref">{E.venueReference}</em>
-            </span>
-          </li>
-        </ul>
-        <p className="formnote">
-          Chegue 15 minutos antes. Leve roupa leve, garrafa de água e disposição — o resto é com a
-          gente. O kit praia é retirado na filial de {E.city} a partir de{' '}
-          {E.kit.pickup.fromDateLabel}: não há entrega no dia do evento.
-        </p>
+        <ExperienceAgenda />
       </div>
     )
   }

@@ -1,12 +1,13 @@
 import { img } from '@/../content/media'
+import { ArrowIcon, CalendarIcon, CheckIcon, LockIcon } from '@/components/experience/icones'
 import { ImageMedia } from '@/components/Media/ImageMedia'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
+import type { EstadoDaInscricao } from '@/lib/experienceEstado'
 
 /**
  * Hero da landing — porte do `<header class="hero s-dark">` do protótipo
- * aprovado. Server component, sem props: data, horário, local e vagas saem
- * todos de `EXPERIENCE_EVENT` (nada digitado aqui, ver Global Constraints do
- * plano).
+ * aprovado. Data, horário, local e vagas saem todos de `EXPERIENCE_EVENT`
+ * (nada digitado aqui, ver Global Constraints do plano).
  *
  * A foto é o LCP da página: `priority` faz o `next/image` emitir o
  * `<link rel="preload">` no `<head>` em vez de esperar o layout.
@@ -14,9 +15,89 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
  * O logo do topo NÃO é link. No protótipo era `href="#"` (placeholder); numa
  * peça de campanha isolada a única saída da página é a inscrição, então virou
  * imagem — no rodapé ele já é tratado assim.
+ *
+ * Com a inscrição fechada a dobra não perde o CTA — ela **troca** o CTA. Um
+ * botão desativado no topo de uma página só convida ao clique frustrado, e um
+ * hero sem ação nenhuma deixa quem já se inscreveu sem caminho até o endereço.
  */
-export function ExperienceHero() {
+
+/**
+ * O botão do topo. Vira nota quando não há mais o que clicar: `.topbar-nota` é
+ * uma pílula sem ação, com a mesma altura do botão que ela substitui, então a
+ * barra não muda de forma entre um estado e outro.
+ */
+function TopbarAcao({ estado }: { estado: EstadoDaInscricao }) {
+  if (estado === 'aberto') {
+    return (
+      <a className="btn btn-primary" href="#inscricao">
+        Faça sua inscrição
+      </a>
+    )
+  }
+  if (estado === 'esgotado') {
+    return (
+      <span className="topbar-nota">
+        <LockIcon />
+        Inscrições encerradas
+      </span>
+    )
+  }
+  return (
+    <span className="topbar-nota">
+      <CheckIcon />
+      Edição encerrada
+    </span>
+  )
+}
+
+/**
+ * A dupla ação + linha de vagas da dobra.
+ *
+ * No `encerrado` a ação vira `.btn-off`: o desenho de pílula do `.btn` sem
+ * brilho nem destino. Não é `<button disabled>` — não há operação a desabilitar,
+ * é um selo com forma de botão. `aria-disabled` diz isso a quem usa leitor de
+ * tela sem criar um alvo de teclado que não leva a lugar nenhum.
+ */
+function HeroAcoes({ estado }: { estado: EstadoDaInscricao }) {
+  if (estado === 'encerrado') {
+    return (
+      <div className="hero-actions">
+        <span aria-disabled="true" className="btn btn-off">
+          <CheckIcon />O evento já aconteceu
+        </span>
+        {/* O ano sai do ISO de `E.date` — é a mesma fonte da data exibida, e
+            escrever "2026" aqui faria a página mentir na virada da edição. */}
+        <span className="seats">
+          Edição de {E.date.slice(0, 4)}, realizada em {E.city}
+        </span>
+      </div>
+    )
+  }
+
+  const esgotado = estado === 'esgotado'
+  return (
+    <div className="hero-actions">
+      <a className={`btn ${esgotado ? 'btn-light' : 'btn-primary'}`} href="#inscricao">
+        {esgotado ? 'Ver informações do evento' : 'Garantir minha vaga'}
+        <ArrowIcon />
+      </a>
+      <span className="seats">
+        <LockIcon />
+        {esgotado ? (
+          `As ${E.seats} vagas foram preenchidas`
+        ) : (
+          <>
+            {E.priceLabel} · {E.seats} vagas
+          </>
+        )}
+      </span>
+    </div>
+  )
+}
+
+export function ExperienceHero({ estado }: { estado: EstadoDaInscricao }) {
   const hero = img('experience-hero.webp')
+  const encerrado = estado === 'encerrado'
 
   return (
     <header className="hero s-dark">
@@ -30,9 +111,7 @@ export function ExperienceHero() {
             src="/semog-logo-light.svg"
             width={160}
           />
-          <a className="btn btn-primary" href="#inscricao">
-            Faça sua inscrição
-          </a>
+          <TopbarAcao estado={estado} />
         </div>
       </div>
 
@@ -52,23 +131,16 @@ export function ExperienceHero() {
             </span>
           </h1>
         </div>
+        {/* Uma palavra separa a promessa da memória: passado o sábado, "Uma
+            manhã inteira dedicada" vira "Foi uma manhã inteira dedicada". */}
         <p className="lede">
-          Uma manhã inteira dedicada a cuidar de quem cuida do condomínio. Ao ar livre, à beira-mar,
-          e por nossa conta.
+          {encerrado ? 'Foi uma' : 'Uma'} manhã inteira dedicada a cuidar de quem cuida do
+          condomínio. Ao ar livre, à beira-mar, e por nossa conta.
         </p>
 
         <div className="meta">
           <div className="meta-item">
-            <svg
-              aria-hidden="true"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              viewBox="0 0 24 24"
-            >
-              <rect height="16" rx="2" width="18" x="3" y="5" />
-              <path d="M3 10h18M8 3v4M16 3v4" />
-            </svg>
+            <CalendarIcon />
             <div>
               <div className="meta-label">Data</div>
               <div className="meta-value">
@@ -90,9 +162,11 @@ export function ExperienceHero() {
             </svg>
             <div>
               <div className="meta-label">Horário</div>
+              {/* "chegue 15 min antes" é instrução para quem ainda vai — depois
+                  do evento é só ruído numa linha que virou registro. */}
               <div className="meta-value">
                 {E.timeLabel}
-                <small>chegue 15 min antes</small>
+                {!encerrado && <small>chegue 15 min antes</small>}
               </div>
             </div>
           </div>
@@ -122,33 +196,7 @@ export function ExperienceHero() {
           </div>
         </div>
 
-        <div className="hero-actions">
-          <a className="btn btn-primary" href="#inscricao">
-            Garantir minha vaga
-            <svg
-              aria-hidden="true"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </a>
-          <span className="seats">
-            <svg
-              aria-hidden="true"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              viewBox="0 0 24 24"
-            >
-              <rect height="10" rx="2" width="14" x="5" y="11" />
-              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-            </svg>
-            {E.priceLabel} · {E.seats} vagas
-          </span>
-        </div>
+        <HeroAcoes estado={estado} />
       </div>
 
       <div className="badge35">

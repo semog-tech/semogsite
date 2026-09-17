@@ -5,60 +5,82 @@ import { ExperienceHero } from '@/components/experience/ExperienceHero'
 import { ExperienceKit } from '@/components/experience/ExperienceKit'
 import { ExperiencePillars } from '@/components/experience/ExperiencePillars'
 import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
+import { ExperienceSignup } from '@/components/experience/ExperienceSignup'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
 import { ExperienceVideo } from '@/components/experience/ExperienceVideo'
-import { ExperienceForm } from '@/components/forms/ExperienceForm'
-import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import {
   experienceDescription,
   experienceEventJsonLd,
   experienceHeroImage,
   experienceTitle,
 } from '@/lib/experienceSeo'
+import { lerEstadoDaInscricao } from '@/lib/experienceVagas'
 import { absoluteUrl } from '@/lib/seo'
 import '@/components/experience/experience.css'
 
 /**
+ * A página deixou de ser 100% estática quando passou a fechar sozinha: o
+ * estado da inscrição depende de uma contagem no banco, e um HTML gerado no
+ * build ficaria preso ao número do dia do deploy.
+ *
+ * ISR de 60 segundos, e não consulta a cada visita: a landing recebe tráfego
+ * pago e a velocidade dela é parte do custo por lead, enquanto o número de
+ * inscritos muda poucas vezes por dia. O preço dessa escolha é uma janela de
+ * até um minuto em que a página mostra o formulário depois da última vaga ter
+ * sido tomada — e é exatamente por isso que a trava de verdade está no INSERT
+ * (`gravarLead`, em `_actions/submit-form.ts`), não aqui.
+ *
+ * `revalidate` é o mecanismo certo neste projeto porque ele NÃO usa Cache
+ * Components (`cacheComponents` não está ligado em `next.config.ts`). No modelo
+ * sem Cache Components, o `revalidate` do segmento é a API estável do Next 16;
+ * `'use cache'`/`cacheLife` exigem a flag, e ligá-la faria TODA rota que
+ * exporta `dynamic`/`revalidate`/`fetchCache` no site passar a dar erro —
+ * migração do site inteiro, não desta página. `unstable_cache` resolveria a
+ * query, mas aqui não há o que memoizar por fora: a rota inteira é o que
+ * precisa envelhecer junto.
+ */
+export const revalidate = 60
+
+/**
  * Título, descrição, card social e JSON-LD moram em `@/lib/experienceSeo` — um
  * `page.tsx` só pode exportar o que o Next reconhece, e o que nenhum teste
- * importa nenhum teste defende. A trava do local e do horário vive lá.
+ * importa nenhum teste defende. A trava do local, do horário e do número de
+ * vagas vive lá.
+ *
+ * Virou `generateMetadata` porque o título e a descrição acompanham o estado:
+ * com a inscrição fechada, o snippet da busca não pode seguir prometendo as
+ * {seats} vagas para quem procurar o evento no sábado seguinte.
  */
-export const metadata: Metadata = {
-  title: experienceTitle,
-  description: experienceDescription,
-  alternates: { canonical: absoluteUrl('experience') },
-  openGraph: {
-    type: 'website',
-    url: absoluteUrl('experience'),
-    title: experienceTitle,
-    description: experienceDescription,
-    locale: 'pt_BR',
-    images: [experienceHeroImage.url],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: experienceTitle,
-    description: experienceDescription,
-    images: [experienceHeroImage.url],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const estado = await lerEstadoDaInscricao()
+  const title = experienceTitle(estado)
+  const description = experienceDescription(estado)
+
+  return {
+    title,
+    description,
+    alternates: { canonical: absoluteUrl('experience') },
+    openGraph: {
+      type: 'website',
+      url: absoluteUrl('experience'),
+      title,
+      description,
+      locale: 'pt_BR',
+      images: [experienceHeroImage.url],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [experienceHeroImage.url],
+    },
+  }
 }
 
 /**
- * O que a pessoa leva do evento, na coluna ao lado do formulário. Fica aqui
- * (e não em `experienceEvent.ts`) de propósito: é copy de venda da seção de
- * inscrição, não dado operacional do evento — o que é dado (data, horário,
- * local, vagas) continua vindo de `EXPERIENCE_EVENT`.
- */
-const BENEFICIOS = [
-  'Pilates, yoga e treino funcional com profissionais',
-  'Avaliação física individual sem custo',
-  'Café da manhã, água e água de coco durante toda a manhã',
-  'Kit praia, retirado antes na filial de João Pessoa',
-]
-
-/**
  * Landing do Semog Experience 2026 — porte do protótipo aprovado pelo cliente
- * (`docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`).
+ * (`docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`), com os
+ * estados ESGOTADO e ENCERRADO aprovados em 17/09/2026.
  *
  * O `.exp` do contêiner não é decorativo: `experience.css` inteiro é escopado
  * nele, porque o `theme.css` do site carrega no mesmo documento e o protótipo
@@ -70,64 +92,32 @@ const BENEFICIOS = [
  * estiver dentro de `<main>` — sem esse envelope a página não teria região
  * principal para um leitor de tela pular.
  *
- * A seção `#inscricao` fica entre a faixa e os patrocinadores, alvo dos três
- * CTAs da página (topo, hero e faixa). O markup dela mora aqui, e não num
- * componente próprio como as outras seções: metade da seção é a coluna de
- * texto e a outra metade é o `<ExperienceForm />`, que é client component —
- * um invólucro só para o `<div className="card">` não pagaria por si.
+ * **A seção do kit sai quando o evento acaba.** Ela é toda instrução de
+ * retirada antecipada ("a partir de quarta, 23 de setembro", "não há entrega no
+ * dia") — informação com prazo, que depois do sábado manda quem lê à filial
+ * atrás de um kit que não existe mais. As outras seções (pilares, programação,
+ * vídeo) descrevem o evento e seguem valendo como registro do que foi.
  */
-export default function ExperiencePage() {
+export default async function ExperiencePage() {
+  const estado = await lerEstadoDaInscricao()
+
   return (
     <>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD serializado por nós, sem input de usuário
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(experienceEventJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(experienceEventJsonLd(estado)) }}
       />
       <div className="exp">
-        <ExperienceHero />
+        <ExperienceHero estado={estado} />
         <main>
           <ExperiencePillars />
           <ExperienceProgram />
-          <ExperienceKit />
+          {estado !== 'encerrado' && <ExperienceKit />}
           <ExperienceVideo />
-          <ExperienceCta />
-          <section className="signup s-paper" id="inscricao">
-            <div className="wrap">
-              <div className="grid">
-                <div className="intro">
-                  <span className="eyebrow">Inscrição</span>
-                  <h2 className="sec-title">Garanta a sua vaga</h2>
-                  <p style={{ marginTop: '1.1rem' }}>
-                    São {E.seats} vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e
-                    disposição — o resto é com a gente.
-                  </p>
-                  {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
-                  <ul className="facts" role="list">
-                    {BENEFICIOS.map((beneficio) => (
-                      <li key={beneficio}>
-                        <svg
-                          aria-hidden="true"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M5 12.5l4.5 4.5L19 7.5" />
-                        </svg>
-                        {beneficio}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="card">
-                  <ExperienceForm />
-                </div>
-              </div>
-            </div>
-          </section>
-          <ExperienceSponsors />
+          <ExperienceCta estado={estado} />
+          <ExperienceSignup estado={estado} />
+          <ExperienceSponsors estado={estado} />
         </main>
         <ExperienceFooter />
       </div>

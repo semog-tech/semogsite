@@ -22,7 +22,7 @@ e se inscrever.
 | Horário | 07h às 12h |
 | Local | Praia do Cabo Branco, João Pessoa/PB |
 | Preço | Gratuito |
-| Vagas | **200** |
+| Vagas | **150** |
 | Programação | Recepção e alongamento · Pilates · Treino funcional · Alongamento e relaxamento · Água de coco · Avaliação física · Encerramento |
 
 ## Decisões tomadas
@@ -60,17 +60,26 @@ push ao Exact fica condicionado a `form !== 'experience'`.
 | E-mail | sim | confirmação e lembrete |
 | WhatsApp | sim | canal dominante da Semog |
 | Condomínio | não | saber se é cliente, sem barrar quem não é |
-| Acompanhantes (0–3) | não | dimensionar as 200 vagas de verdade |
+| Acompanhantes (0–3) | não | dimensionar as 150 vagas de verdade |
 | Aceite de uso de imagem | **sim** | o evento é fotografado e filmado |
 
 O aceite de imagem é caixa marcável explícita, nunca pré-marcada, com texto
 curto e link para a política de privacidade. Em evento com registro audiovisual
 isso deixa de ser detalhe jurídico e vira proteção da empresa.
 
-**Contagem de vagas.** A página exibe "200 vagas" como informação fixa, **não um
+**Contagem de vagas.** A página exibe "150 vagas" como informação fixa, **não um
 contador ao vivo**. Contador exigiria leitura do banco a cada visita e cria um
 problema pior: se a inscrição andar devagar, o número exposto desestimula. O
 controle real é uma consulta que eu rodo quando você pedir.
+
+> **Atualizado em 17/09/2026.** As vagas passaram de 200 para 150, e o parágrafo
+> acima deixou de valer na segunda metade: a página *lê* a contagem, com ISR de
+> 60s (não a cada visita), e fecha sozinha em dois estados — ESGOTADO ao bater
+> as 150 e ENCERRADO a partir de 27/09. O número exposto continua sendo o total
+> de vagas, nunca o quanto já foi preenchido, então a preocupação original
+> ("se a inscrição andar devagar, o número desestimula") segue respeitada. A
+> trava que de fato impede a vaga 151 é o INSERT condicionado em
+> `_actions/submit-form.ts`, não o que a página mostra.
 
 **Patrocinadores em arquivo de dados** (`src/data/experienceSponsors.ts`), no
 mesmo espírito de `src/data/cityLandings.ts`. Começa só com a **Superlógica** e

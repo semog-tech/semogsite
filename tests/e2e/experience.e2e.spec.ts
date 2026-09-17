@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { EXPERIENCE_EVENT as E } from '../../src/data/experienceEvent'
+import { eventoJaAconteceu } from '../../src/lib/experienceEstado'
 
 /**
  * A landing do Experience vive num route group irmão (`(evento)`) com root
@@ -17,6 +19,21 @@ import { expect, test } from '@playwright/test'
  */
 const URL_EXPERIENCE = 'http://localhost:3000/experience'
 
+/**
+ * O estado da landing depende da data — passado o dia do evento ela vira
+ * registro, sem CTA, sem oferta no JSON-LD e sem promessa de vaga na dobra.
+ *
+ * Isto NÃO é o teste se adaptando ao que encontrou: o valor sai da mesma
+ * função que a página usa para decidir (`eventoJaAconteceu`, com o fuso do
+ * evento), a partir da data em `EXPERIENCE_EVENT`. É determinístico — só muda
+ * de ramo quando a realidade muda —, e cada ramo afirma o que aquele estado
+ * obriga, inclusive o que ele proíbe.
+ *
+ * Sem isto, três asserções passariam a falhar em 27/09/2026 sem ninguém ver:
+ * a CI não roda Playwright.
+ */
+const EVENTO_PASSOU = eventoJaAconteceu(new Date())
+
 test.describe('Landing do Experience', () => {
   test('abre sem a navegação do site', async ({ page }) => {
     await page.goto(URL_EXPERIENCE)
@@ -34,9 +51,19 @@ test.describe('Landing do Experience', () => {
   test('anuncia data, local e vagas', async ({ page }) => {
     await page.goto(URL_EXPERIENCE)
     const hero = page.locator('.hero')
-    await expect(hero.getByText('26 de setembro de 2026')).toBeVisible()
-    await expect(hero.getByText('Centro de Atendimento ao Turista Adaptado')).toBeVisible()
-    await expect(hero.getByText(/150 vagas/i)).toBeVisible()
+    await expect(hero.getByText(E.dateLabel)).toBeVisible()
+    await expect(hero.getByText(E.venue)).toBeVisible()
+
+    // A linha de vagas muda com o estado, e o número vem do dado — um literal
+    // aqui passaria a mentir na primeira troca de `seats` (já aconteceu: 200 -> 150).
+    if (EVENTO_PASSOU) {
+      // Encerrado: a dobra vira registro. Prometer vaga aqui seria falso.
+      await expect(hero.getByText(new RegExp(`${E.seats} vagas`, 'i'))).toHaveCount(0)
+      await expect(hero.getByText(/já aconteceu/i)).toBeVisible()
+    } else {
+      // Aberto ("Gratuito · N vagas") ou esgotado ("As N vagas foram preenchidas").
+      await expect(hero.getByText(new RegExp(`${E.seats} vagas`, 'i'))).toBeVisible()
+    }
   })
 
   test('a home continua com header e rodapé', async ({ page }) => {
@@ -55,15 +82,31 @@ test.describe('Landing do Experience', () => {
     const raw = await page.locator('script[type="application/ld+json"]').first().textContent()
     const jsonLd = JSON.parse(raw ?? '{}')
     expect(jsonLd['@type']).toBe('Event')
-    expect(jsonLd.startDate).toContain('2026-09-26')
-    expect(jsonLd.location.name).toBe('Centro de Atendimento ao Turista Adaptado')
-    expect(jsonLd.location.address.streetAddress).toBe('Avenida Cabo Branco')
-    expect(jsonLd.offers.price).toBe('0')
+    expect(jsonLd.startDate).toContain(E.date)
+    expect(jsonLd.location.name).toBe(E.venue)
+    expect(jsonLd.location.address.streetAddress).toBe(E.street)
+
+    // Depois do evento não há oferta a publicar — `offers` some do JSON-LD
+    // inteiro (ver `experienceSeo`), e ler `.price` ali daria TypeError.
+    if (EVENTO_PASSOU) {
+      expect(jsonLd.offers).toBeUndefined()
+    } else {
+      expect(jsonLd.offers.price).toBe('0')
+    }
   })
 
-  test('os CTAs levam ao formulário', async ({ page }) => {
+  test('os CTAs levam ao formulário enquanto há inscrição', async ({ page }) => {
     await page.goto(URL_EXPERIENCE)
     const ctas = page.locator('a[href="#inscricao"]')
+
+    if (EVENTO_PASSOU) {
+      // Encerrada a edição, os CTAs saem de cena de propósito: não há destino.
+      // A seção continua existindo, como registro do que foi.
+      expect(await ctas.count()).toBe(0)
+      await expect(page.locator('#inscricao')).toHaveCount(1)
+      return
+    }
+
     expect(await ctas.count()).toBeGreaterThanOrEqual(2)
     await ctas.first().click()
     await expect(page.locator('#inscricao')).toBeInViewport()

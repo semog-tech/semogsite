@@ -25,7 +25,7 @@ import {
   parseAttributionCookie,
 } from '@/lib/attribution'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
-import { query } from '@/lib/db'
+import { pool, query } from '@/lib/db'
 import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { isExactEligible } from '@/lib/exact/map-lead'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
@@ -170,6 +170,175 @@ async function getClientIp(): Promise<string | undefined> {
   return forwardedFor.split(',')[0]?.trim() || undefined
 }
 
+/** Uma linha de `cms.leads`, já com tudo decidido — ver `gravarLead`. */
+type LinhaDeLead = {
+  formType: FormType
+  leadData: Record<string, string>
+  gclid: string | null
+  email: string | null
+  adsConsent: string
+  notificadoPara: string | null
+}
+
+const COLUNAS_DO_LEAD = 'form, data, gclid, email, ads_consent, notificado_para'
+
+/**
+ * Chave da trava de vagas do Experience. É um número arbitrário e fixo — o que
+ * importa é que só esta operação o use, porque advisory lock é um espaço de
+ * nomes global do banco: duas operações diferentes com a mesma chave
+ * serializariam uma à outra sem nenhuma relação entre si. Nasceu da data do
+ * evento só para ser reconhecível.
+ */
+const TRAVA_DE_VAGAS = 26092026
+
+/** O INSERT sem limite — Contato e Proposta, que não têm teto de vagas. */
+async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; lotado: false }> {
+  const { rows } = await query<{ id: string }>(
+    `insert into cms.leads (${COLUNAS_DO_LEAD})
+     values ($1, $2, $3, $4, $5, $6) returning id`,
+    valores,
+  )
+  return { id: rows[0]?.id, lotado: false }
+}
+
+/**
+ * A inscrição do Experience, com a trava das `seats` vagas.
+ *
+ * **Por que transação explícita, e não um comando só.** A versão anterior era
+ * `insert ... select ... where (select count(*)) < $7` numa declaração única,
+ * na crença de que um comando só não poderia ter corrida. **Está errado, e foi
+ * medido:** em `read committed` o subselect roda no snapshot da declaração e
+ * não toma lock nenhum, então N envios que caiam na mesma janela leem todos a
+ * mesma contagem e gravam todos. Reproduzido em Postgres 17 partindo de 149
+ * com limite 150: dez envios simultâneos → dez gravados (159 no total); com 30
+ * de concorrência, 179. Nem exige simultaneidade perfeita — seis envios
+ * espalhados em 100ms deram excesso em 3 de 10 rodadas, com janela medida de
+ * ~7ms sem rede (maior em produção, com o HAProxy no caminho). A declaração
+ * única economiza uma ida ao banco; ela não serializa nada.
+ *
+ * **E advisory lock dentro de uma CTE no mesmo comando também não resolve** —
+ * 10 de 10 rodadas ainda com excesso. É contraintuitivo e a próxima pessoa vai
+ * tentar: o snapshot do comando é tirado ANTES de a CTE adquirir o lock, então
+ * quando o lock enfim chega já é tarde, a contagem que será lida é velha.
+ *
+ * O que zerou o excesso, medido (0 em 10 rodadas, com concorrência 10 e 40,
+ * parando exato em 150), é o que está abaixo: `begin` → `pg_advisory_xact_lock`
+ * → INSERT → `commit`. Cada transação toma o snapshot do INSERT **depois** de
+ * já ter o lock, portanto enxerga o que as anteriores gravaram.
+ *
+ * O lock é `xact`: o Postgres o solta sozinho no `commit` E no `rollback`,
+ * inclusive se a conexão cair — não há caminho de saída que o deixe preso.
+ *
+ * A chave é exclusiva desta operação, então **Contato e Proposta não são
+ * serializados**: eles nem passam por aqui (ver `gravarLead`).
+ *
+ * `lock_timeout` existe para o modo de falha oposto: sem ele, uma espera
+ * anômala penduraria a Server Action indefinidamente. Estourando, o erro sobe
+ * e vira o `{ ok: false }` genérico de `submitForm` — nunca um falso sucesso.
+ * **Ele precisa vir ANTES do `pg_advisory_xact_lock`**: depois, não limita a
+ * espera que existe para limitar, e a submissão pendura (medido: >15s).
+ *
+ * **Os 5s são uma decisão consciente, não um número solto — não "otimize" sem
+ * ler isto.** A trava serializa as inscrições, e o pool é pequeno (`max: 5`,
+ * ver `lib/db.ts`), então uma fila no lock ocupa conexões que o resto do site
+ * também usa. Medido: em operação normal o custo é desprezível (40 submissões
+ * simultâneas resolvidas em 144ms); no cenário de cauda, cinco inscrições
+ * disputando o lock ao mesmo tempo esgotam o pool e fazem uma submissão de
+ * Contato — ou uma leitura de página — esperar ~4s. Baixar o timeout trocaria
+ * essa lentidão rara por um erro na cara de quem está se inscrevendo, que é
+ * pior: o pico acontece justamente quando as vagas estão acabando. Mantido em
+ * 5s por decisão do time, 17/09/2026.
+ */
+async function gravarInscricaoDoExperience(
+  valores: unknown[],
+): Promise<{ id?: string; lotado: boolean }> {
+  const client = await pool.connect()
+
+  /**
+   * **Sem isto, uma queda de conexão aqui derruba o processo.**
+   *
+   * `pool.connect()` REMOVE o listener de `'error'` que o pool mantém no client
+   * e só o recoloca no `release` — no intervalo, quem pegou o client é o
+   * responsável por ele. Um erro assíncrono na conexão (backend morto, rede
+   * caindo) emite `'error'` num `EventEmitter` sem ouvinte, e no Node isso vira
+   * `uncaughtException`, não uma promise rejeitada: o `try/catch` abaixo não
+   * pega. Medido derrubando a conexão no meio da transação: este caminho
+   * produzia `Connection terminated unexpectedly` como exceção não tratada,
+   * enquanto o Contato (via `pool.query`) rejeitava limpo — porque `pool.query`
+   * registra exatamente este listener por dentro. Em serverless o crash pode
+   * levar a instância junto.
+   */
+  const aoFalharConexao = (err: Error) => {
+    console.error('[submit-form] conexão da inscrição caiu no meio da transação:', err)
+  }
+  client.on('error', aoFalharConexao)
+
+  // Um rollback que falha deixa a conexão em estado incerto; devolvê-la ao
+  // pool contaminaria a próxima submissão que a pegasse.
+  let conexaoSuspeita = false
+
+  try {
+    await client.query('begin')
+    await client.query("set local lock_timeout = '5s'")
+    await client.query('select pg_advisory_xact_lock($1)', [TRAVA_DE_VAGAS])
+
+    // Cada linha é uma pessoa — acompanhante ocupa vaga e é assim que o kit é
+    // dimensionado. Nada de desduplicar por e-mail nesta contagem.
+    const { rows, rowCount } = await client.query<{ id: string }>(
+      `insert into cms.leads (${COLUNAS_DO_LEAD})
+       select $1, $2, $3, $4, $5, $6
+        where (select count(*) from cms.leads where form = 'experience') < $7
+       returning id`,
+      [...valores, EXPERIENCE_EVENT.seats],
+    )
+    await client.query('commit')
+
+    // Zero linhas = a condição reprovou. É assim, e não por exceção, que a
+    // lotação se anuncia.
+    return { id: rows[0]?.id, lotado: rowCount === 0 }
+  } catch (err) {
+    try {
+      await client.query('rollback')
+    } catch (rollbackErr) {
+      conexaoSuspeita = true
+      console.error('[submit-form] rollback da inscrição falhou:', rollbackErr)
+    }
+    throw err
+  } finally {
+    // Tirar o ouvinte ANTES de devolver: a partir do `release` o pool volta a
+    // ser o dono do client e recoloca o dele. Deixar o nosso aqui vazaria um
+    // listener por submissão (`MaxListenersExceededWarning`) numa conexão que
+    // vive enquanto a instância viver.
+    client.removeListener('error', aoFalharConexao)
+    client.release(conexaoSuspeita)
+  }
+}
+
+/**
+ * Grava a submissão em `cms.leads` e devolve o id da linha — ou `lotado: true`
+ * quando o Experience já bateu as `seats` vagas.
+ *
+ * **A trava de lotação é aqui, não no que a página mostra.** A landing é
+ * servida com ISR (ver `revalidate` em `(evento)/experience/page.tsx`), então
+ * existe sempre uma janela em que alguém está com o formulário aberto numa
+ * versão da página de até um minuto atrás. Barrar só no render deixaria essa
+ * pessoa entrar como vaga 151.
+ */
+async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: boolean }> {
+  const valores = [
+    linha.formType,
+    linha.leadData,
+    linha.gclid,
+    linha.email,
+    linha.adsConsent,
+    linha.notificadoPara,
+  ]
+
+  return linha.formType === 'experience'
+    ? gravarInscricaoDoExperience(valores)
+    : gravarLeadSemLimite(valores)
+}
+
 /**
  * Server Action de submit dos formulários "Contato"/"Proposta"/"Inscrição —
  * Semog Experience" (config estática em `@/lib/forms`). Pipeline: valida com
@@ -254,12 +423,27 @@ export async function submitForm(
     // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
     const notifyTo = destinatariosDaNotificacao(formType, data)
 
-    const { rows: inserted } = await query<{ id: string }>(
-      `insert into cms.leads (form, data, gclid, email, ads_consent, notificado_para)
-       values ($1, $2, $3, $4, $5, $6) returning id`,
-      [formType, leadData, gclid ?? null, email ?? null, adsConsent, notifyTo?.join(', ') ?? null],
-    )
-    const leadRowId = inserted[0]?.id
+    const gravado = await gravarLead({
+      formType,
+      leadData,
+      gclid: gclid ?? null,
+      email: email ?? null,
+      adsConsent,
+      notificadoPara: notifyTo?.join(', ') ?? null,
+    })
+
+    // Lotou enquanto esta pessoa preenchia. Sai ANTES do CRM e do e-mail: não
+    // há lead salvo para empurrar nem inscrição para confirmar, e um e-mail de
+    // "inscrição recebida" para quem não entrou seria pior que o erro.
+    if (gravado.lotado) {
+      return {
+        ok: false,
+        esgotado: true,
+        message: `As ${EXPERIENCE_EVENT.seats} vagas foram preenchidas enquanto você preenchia o formulário. Sua inscrição não foi registrada.`,
+      }
+    }
+
+    const leadRowId = gravado.id
 
     // CRM (Exact) é best-effort, igual aos e-mails: o lead já está salvo acima.
     // Um CRM fora do ar — ou um payload que ele recuse — não pode virar erro
