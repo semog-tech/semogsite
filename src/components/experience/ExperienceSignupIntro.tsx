@@ -13,8 +13,7 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 /**
  * O que a pessoa leva do evento. Fica aqui (e não em `experienceEvent.ts`) de
  * propósito: é copy de venda da seção de inscrição, não dado operacional do
- * evento — o que é dado (data, horário, local, vagas) continua vindo de
- * `EXPERIENCE_EVENT`.
+ * evento — data, horário e local vêm de `EXPERIENCE_EVENT`; vagas vêm do banco.
  */
 const BENEFICIOS = [
   'Pilates, yoga e treino funcional com profissionais',
@@ -23,14 +22,14 @@ const BENEFICIOS = [
   'Kit praia, retirado antes na filial de João Pessoa',
 ]
 
-export function IntroAberto() {
+export function IntroAberto({ capacidade = null }: { capacidade?: number | null }) {
   return (
     <div className="intro">
       <span className="eyebrow">Inscrição</span>
       <h2 className="sec-title">Garanta a sua vaga</h2>
       <p style={{ marginTop: '1.1rem' }}>
-        São {E.seats} vagas e a inscrição é gratuita. Leve roupa leve, garrafa de água e disposição
-        — o resto é com a gente.
+        {capacidade === null ? 'Vagas limitadas' : `São ${capacidade} vagas`} e a inscrição é
+        gratuita. Leve roupa leve, garrafa de água e disposição — o resto é com a gente.
       </p>
       {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
       <ul className="facts" role="list">
@@ -55,12 +54,18 @@ export function IntroAberto() {
  * um aviso dizendo que a inscrição não foi registrada — as duas metades da tela
  * se contradizendo no momento em que a pessoa mais precisa de clareza.
  */
-export function IntroEsgotado({ recemRecusado = false }: { recemRecusado?: boolean }) {
+export function IntroEsgotado({
+  recemRecusado = false,
+  capacidade = null,
+}: {
+  recemRecusado?: boolean
+  capacidade?: number | null
+}) {
   return (
     <div className="intro">
       <span className="eyebrow">Inscrições encerradas</span>
       <h2 className="sec-title">
-        As {E.seats} vagas <em>acabaram</em>
+        As {capacidade === null ? '' : `${capacidade} `}vagas <em>acabaram</em>
       </h2>
       <p style={{ marginTop: '1.1rem' }}>
         {recemRecusado
@@ -75,7 +80,8 @@ export function IntroEsgotado({ recemRecusado = false }: { recemRecusado?: boole
         </li>
         <li>
           <InfoIcon />
-          Não há inscrição no dia, na praia. A lista fechou com as {E.seats} vagas.
+          Não há inscrição no dia, na praia. A lista fechou com as{' '}
+          {capacidade === null ? '' : `${capacidade} `}vagas.
         </li>
         <li>
           <InfoIcon />O {E.series} é anual: a próxima edição abre inscrição nesta mesma página.

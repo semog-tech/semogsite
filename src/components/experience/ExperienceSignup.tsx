@@ -26,10 +26,10 @@ import type { EstadoDaInscricao } from '@/lib/experienceEstado'
  * endereço** — porque a partir daqui quem chega nesta seção é, em boa parte,
  * quem já se inscreveu e voltou para conferir onde é.
  */
-function Esgotado() {
+function Esgotado({ capacidade }: { capacidade: number | null }) {
   return (
     <div className="grid">
-      <IntroEsgotado />
+      <IntroEsgotado capacidade={capacidade} />
 
       <div className="card">
         <div className="aviso">
@@ -60,8 +60,8 @@ function Encerrado() {
           </span>
           <h3>O {E.name} já aconteceu</h3>
           <p>
-            Foram {E.seats} vagas, uma manhã de pilates, yoga e treino funcional na orla do{' '}
-            {E.district} — e muita gente que a gente só encontra por telefone durante o ano.
+            Foi uma manhã de pilates, yoga e treino funcional na orla do {E.district} — e muita
+            gente que a gente só encontra por telefone durante o ano.
           </p>
           <p>
             Fica o agradecimento a quem acordou cedo no sábado, aos profissionais que conduziram as
@@ -96,18 +96,24 @@ function Encerrado() {
   )
 }
 
-export function ExperienceSignup({ estado }: { estado: EstadoDaInscricao }) {
+export function ExperienceSignup({
+  estado,
+  capacidade = null,
+}: {
+  estado: EstadoDaInscricao
+  capacidade?: number | null
+}) {
   const encerrado = estado === 'encerrado'
 
   return (
     <section className={`signup s-paper${encerrado ? ' signup-solo' : ''}`} id="inscricao">
       <div className="wrap">
         {estado === 'aberto' ? (
-          <ExperienceSignupAberto />
+          <ExperienceSignupAberto capacidade={capacidade} />
         ) : encerrado ? (
           <Encerrado />
         ) : (
-          <Esgotado />
+          <Esgotado capacidade={capacidade} />
         )}
       </div>
     </section>

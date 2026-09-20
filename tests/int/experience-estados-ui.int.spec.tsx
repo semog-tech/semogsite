@@ -34,13 +34,13 @@ import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 
 describe('seção de inscrição, por estado', () => {
   it('aberto: o formulário está lá, com o botão de enviar', () => {
-    render(<ExperienceSignup estado="aberto" />)
+    render(<ExperienceSignup capacidade={150} estado="aberto" />)
     expect(screen.getByRole('button', { name: /garantir minha vaga/i })).toBeDefined()
     expect(screen.getByLabelText(/nome completo/i)).toBeDefined()
   })
 
   it('esgotado: o formulário SAI e o endereço entra no lugar', () => {
-    const { container } = render(<ExperienceSignup estado="esgotado" />)
+    const { container } = render(<ExperienceSignup capacidade={150} estado="esgotado" />)
 
     expect(container.querySelector('form')).toBeNull()
     expect(screen.queryByLabelText(/nome completo/i)).toBeNull()
@@ -51,11 +51,11 @@ describe('seção de inscrição, por estado', () => {
     expect(texto).toContain(E.venue)
     expect(texto).toContain(E.street)
     expect(texto).toContain(E.dateLabel)
-    expect(texto).toContain(`As ${E.seats} vagas`)
+    expect(texto).toContain(`As ${150} vagas`)
   })
 
   it('encerrado: sem formulário, sem promessa de vaga, em coluna única', () => {
-    const { container } = render(<ExperienceSignup estado="encerrado" />)
+    const { container } = render(<ExperienceSignup capacidade={150} estado="encerrado" />)
 
     expect(container.querySelector('form')).toBeNull()
     expect(container.querySelector('section')?.className).toContain('signup-solo')
@@ -68,24 +68,26 @@ describe('seção de inscrição, por estado', () => {
   })
 
   it('só o estado aberto usa o número de vagas como oferta', () => {
-    const aberto = render(<ExperienceSignup estado="aberto" />).container.textContent ?? ''
-    expect(aberto).toContain(`São ${E.seats} vagas`)
+    const aberto =
+      render(<ExperienceSignup capacidade={150} estado="aberto" />).container.textContent ?? ''
+    expect(aberto).toContain(`São ${150} vagas`)
 
-    const esgotado = render(<ExperienceSignup estado="esgotado" />).container.textContent ?? ''
-    expect(esgotado).not.toContain(`São ${E.seats} vagas`)
+    const esgotado =
+      render(<ExperienceSignup capacidade={150} estado="esgotado" />).container.textContent ?? ''
+    expect(esgotado).not.toContain(`São ${150} vagas`)
   })
 })
 
 describe('faixa de CTA, por estado', () => {
   it('aberto e esgotado mantêm um botão; encerrado não tem para onde mandar', () => {
-    const aberto = render(<ExperienceCta estado="aberto" />)
+    const aberto = render(<ExperienceCta capacidade={150} estado="aberto" />)
     expect(aberto.container.querySelector('a[href="#inscricao"]')).not.toBeNull()
 
-    const esgotado = render(<ExperienceCta estado="esgotado" />)
+    const esgotado = render(<ExperienceCta capacidade={150} estado="esgotado" />)
     expect(esgotado.container.querySelector('a[href="#inscricao"]')).not.toBeNull()
-    expect(esgotado.container.textContent).toContain(`As ${E.seats} vagas`)
+    expect(esgotado.container.textContent).toContain(`As ${150} vagas`)
 
-    const encerrado = render(<ExperienceCta estado="encerrado" />)
+    const encerrado = render(<ExperienceCta capacidade={150} estado="encerrado" />)
     expect(encerrado.container.querySelector('a')).toBeNull()
     expect(encerrado.container.textContent).toMatch(/obrigado/i)
   })
@@ -118,7 +120,7 @@ describe('recusa por lotação, na tela', () => {
     vi.mocked(submitForm).mockResolvedValueOnce({
       ok: false,
       esgotado: true,
-      message: `As ${E.seats} vagas foram preenchidas enquanto você preenchia o formulário.`,
+      message: `As ${150} vagas foram preenchidas enquanto você preenchia o formulário.`,
     })
 
     const { container } = render(<ExperienceForm />)
@@ -171,7 +173,7 @@ describe('recusa por lotação, na tela', () => {
   it('a coluna ao lado para de oferecer vaga junto com o formulário', async () => {
     vi.mocked(submitForm).mockResolvedValueOnce({ ok: false, esgotado: true })
 
-    const { container } = render(<ExperienceSignup estado="aberto" />)
+    const { container } = render(<ExperienceSignup capacidade={150} estado="aberto" />)
     expect(container.textContent).toContain('Garanta a sua vaga')
 
     preencherEEnviar()
@@ -179,8 +181,8 @@ describe('recusa por lotação, na tela', () => {
 
     const texto = container.textContent ?? ''
     expect(texto).not.toContain('Garanta a sua vaga')
-    expect(texto).not.toContain(`São ${E.seats} vagas`)
-    expect(texto).toContain(`As ${E.seats} vagas`)
+    expect(texto).not.toContain(`São ${150} vagas`)
+    expect(texto).toContain(`As ${150} vagas`)
     // O texto de "já estava esgotado ao abrir" não serve aqui: quem acabou de
     // ser recusado não "garantiu a sua".
     expect(texto).not.toMatch(/Se você garantiu a sua/i)
@@ -194,5 +196,19 @@ describe('recusa por lotação, na tela', () => {
 
     expect(await screen.findByText(/inscrição recebida/i)).toBeDefined()
     expect(container.textContent).not.toMatch(/não foi registrada/i)
+  })
+})
+
+describe('capacidade vinda do banco', () => {
+  it('acompanha outro limite sem trocar uma constante no frontend', () => {
+    const { container } = render(<ExperienceSignup capacidade={73} estado="aberto" />)
+    expect(container.textContent).toContain('São 73 vagas')
+    expect(container.textContent).not.toContain('150 vagas')
+  })
+  it('informa indisponibilidade sem inventar uma capacidade', () => {
+    const { container } = render(<ExperienceSignup capacidade={null} estado="aberto" />)
+    expect(container.textContent).toContain('Vagas limitadas')
+    expect(container.textContent).toContain('Não foi possível consultar as vagas')
+    expect(container.textContent).not.toMatch(/150|200/)
   })
 })

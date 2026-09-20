@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { isExactEligible } from '@/lib/exact/map-lead'
+import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 describe('isExactEligible', () => {
   it('nunca envia inscrição do Experience ao CRM', () => {
@@ -95,7 +96,7 @@ const inscricao = {
 describe('submitForm — inscrição do Experience', () => {
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '77' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '77'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue({ get: () => undefined })

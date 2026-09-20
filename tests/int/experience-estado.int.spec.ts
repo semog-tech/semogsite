@@ -55,21 +55,21 @@ describe('estadoDaInscricao', () => {
   const depois = emRecife('2026-09-27T09:00:00')
 
   it('fica aberto enquanto sobrar vaga', () => {
-    expect(estadoDaInscricao(antes, 0)).toBe('aberto')
-    expect(estadoDaInscricao(antes, E.seats - 1)).toBe('aberto')
+    expect(estadoDaInscricao(antes, 0, 73)).toBe('aberto')
+    expect(estadoDaInscricao(antes, 73 - 1, 73)).toBe('aberto')
   })
 
   it('esgota exatamente na vaga de número seats, não uma depois', () => {
-    expect(estadoDaInscricao(antes, E.seats)).toBe('esgotado')
+    expect(estadoDaInscricao(antes, 73, 73)).toBe('esgotado')
     // Overbooking (a trava do INSERT tem uma janela de milissegundos) não pode
     // reabrir a inscrição por passar do limite.
-    expect(estadoDaInscricao(antes, E.seats + 3)).toBe('esgotado')
+    expect(estadoDaInscricao(antes, 73 + 3, 73)).toBe('esgotado')
   })
 
   it('encerrado tem precedência sobre tudo', () => {
-    expect(estadoDaInscricao(depois, 0)).toBe('encerrado')
-    expect(estadoDaInscricao(depois, E.seats)).toBe('encerrado')
-    expect(estadoDaInscricao(depois, null)).toBe('encerrado')
+    expect(estadoDaInscricao(depois, 0, 73)).toBe('encerrado')
+    expect(estadoDaInscricao(depois, 73, 73)).toBe('encerrado')
+    expect(estadoDaInscricao(depois, null, 73)).toBe('encerrado')
   })
 
   /**
@@ -82,6 +82,6 @@ describe('estadoDaInscricao', () => {
    * nada, só manda gente embora.
    */
   it('cai para aberto quando não dá para contar, em vez de fechar', () => {
-    expect(estadoDaInscricao(antes, null)).toBe('aberto')
+    expect(estadoDaInscricao(antes, null, 73)).toBe('aberto')
   })
 })

@@ -1,6 +1,13 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
+
+const lotacao = {
+  evento_id: '65e40d0c-890c-490e-8c7b-b31f45adf6f8',
+  capacidade: 150,
+  inscritos: 90,
+  acompanhantes: 30,
+  pessoas: 120,
+}
 
 /**
  * A trava de lotação da inscrição do Experience — a única que de fato impede a
@@ -97,7 +104,11 @@ describe('trava de lotação do Experience', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     connectMock.mockResolvedValue(clientFalso())
-    queryMock.mockResolvedValue({ rows: [{ id: '77' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) =>
+      /experience_lotacao/.test(sql)
+        ? { rows: [lotacao], rowCount: 1 }
+        : { rows: [{ id: '77' }], rowCount: 1 },
+    )
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue({ get: () => undefined })
@@ -175,7 +186,9 @@ describe('trava de lotação do Experience', () => {
             // Sem listener registrado, este emit LANÇA — é o uncaughtException.
             emissor.emit('error', new Error('Connection terminated unexpectedly'))
           }
-          return { rows: [{ id: '77' }], rowCount: 1 }
+          return /experience_lotacao/.test(sql)
+            ? { rows: [lotacao], rowCount: 1 }
+            : { rows: [{ id: '77' }], rowCount: 1 }
         }),
         release: releaseMock,
       }),
@@ -195,35 +208,46 @@ describe('trava de lotação do Experience', () => {
     expect(sqlsExecutados().some((s) => /lock_timeout/i.test(s))).toBe(true)
   })
 
-  it('conta pelo limite que vem do dado, não por um número no SQL', async () => {
-    await submitForm('experience', inscricao, 'test-token')
-
-    const insert = sqlDoInsert()
-    expect(insert).toMatch(
-      /\(select count\(\*\) from cms\.leads where form = 'experience'\) < \$7/i,
-    )
-    expect(insert).not.toContain(String(E.seats))
-
-    const chamada = queryMock.mock.calls.find(([sql]) =>
-      /^\s*insert into cms\.leads/i.test(String(sql)),
-    )
-    expect(chamada).toBeDefined()
-    // `as unknown[]`: os parâmetros da query são posicionais e o mock os entrega
-    // sem tipo. O `$7` é o sétimo, e é ele que carrega o limite de vagas.
-    const parametros = chamada?.[1] as unknown[]
-    expect(parametros[6]).toBe(E.seats)
+  it('consulta a ocupação projetada depois do lock e antes de gravar', async () => {
+    const result = await submitForm('experience', inscricao, 'test-token')
+    expect(result.ok).toBe(true)
+    const sqls = sqlsExecutados()
+    const consulta = sqls.findIndex((s) => /experience_lotacao/.test(s))
+    expect(consulta).toBeGreaterThan(sqls.findIndex((s) => /pg_advisory_xact_lock/.test(s)))
+    expect(consulta).toBeLessThan(sqls.findIndex((s) => /^insert/.test(s)))
+    expect(sqlDoInsert()).not.toMatch(/count|where/i)
   })
 
-  it('recusa quando o INSERT não grava nada, e diz por quê', async () => {
-    // É assim que a lotação se anuncia: a condição reprova, zero linhas.
-    queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
-
+  it('recusa ocupação acima da capacidade do banco, sem INSERT', async () => {
+    queryMock.mockImplementation(async (sql: string) =>
+      /experience_lotacao/.test(sql)
+        ? { rows: [{ ...lotacao, capacidade: 73, inscritos: 44, pessoas: 74 }], rowCount: 1 }
+        : { rows: [], rowCount: 0 },
+    )
     const result = await submitForm('experience', inscricao, 'test-token')
-
     expect(result.ok).toBe(false)
     expect(result.esgotado).toBe(true)
-    expect(result.message).toContain(String(E.seats))
     expect(result.message).toMatch(/não foi registrada/i)
+    expect(sqlsExecutados().some((s) => /^insert/.test(s))).toBe(false)
+  })
+
+  it('aceita a última vaga e reenvio cuja projeção continua exatamente na capacidade', async () => {
+    queryMock.mockImplementation(async (sql: string) =>
+      /experience_lotacao/.test(sql)
+        ? { rows: [{ ...lotacao, capacidade: 73, inscritos: 43, pessoas: 73 }], rowCount: 1 }
+        : { rows: [{ id: '77' }], rowCount: 1 },
+    )
+    expect((await submitForm('experience', inscricao, 'test-token')).ok).toBe(true)
+  })
+
+  it('falha fechada quando a função não devolve lotação válida', async () => {
+    queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
+    const result = await submitForm('experience', inscricao, 'test-token')
+    expect(result.ok).toBe(false)
+    expect(result.esgotado).toBeUndefined()
+    expect(sqlsExecutados().some((s) => /^insert/.test(s))).toBe(false)
+    expect(sqlsExecutados()).toContain('rollback')
+    expect(sendMailMock).not.toHaveBeenCalled()
   })
 
   /**
@@ -232,7 +256,10 @@ describe('trava de lotação do Experience', () => {
    * João Pessoa e não está na lista.
    */
   it('não envia e-mail nenhum quando recusa por lotação', async () => {
-    queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
+    queryMock.mockResolvedValue({
+      rows: [{ ...lotacao, inscritos: 121, pessoas: 151 }],
+      rowCount: 1,
+    })
 
     await submitForm('experience', inscricao, 'test-token')
 
@@ -267,7 +294,9 @@ describe('falha no meio da transação', () => {
   it('faz rollback, devolve o client e NÃO reporta sucesso', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (/^\s*insert into cms\.leads/i.test(sql)) throw new Error('boom no insert')
-      return { rows: [], rowCount: 0 }
+      return /experience_lotacao/.test(sql)
+        ? { rows: [lotacao], rowCount: 1 }
+        : { rows: [], rowCount: 0 }
     })
 
     const result = await submitForm('experience', inscricao, 'test-token')
@@ -286,7 +315,11 @@ describe('os outros formulários não ganharam limite', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     connectMock.mockResolvedValue(clientFalso())
-    queryMock.mockResolvedValue({ rows: [{ id: '77' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) =>
+      /experience_lotacao/.test(sql)
+        ? { rows: [lotacao], rowCount: 1 }
+        : { rows: [{ id: '77' }], rowCount: 1 },
+    )
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue({ get: () => undefined })

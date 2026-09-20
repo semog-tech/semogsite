@@ -52,9 +52,9 @@ export const revalidate = 60
  * {seats} vagas para quem procurar o evento no sábado seguinte.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const estado = await lerEstadoDaInscricao()
+  const { estado, capacidade } = await lerEstadoDaInscricao()
   const title = experienceTitle(estado)
-  const description = experienceDescription(estado)
+  const description = experienceDescription(estado, capacidade)
 
   return {
     title,
@@ -99,24 +99,26 @@ export async function generateMetadata(): Promise<Metadata> {
  * vídeo) descrevem o evento e seguem valendo como registro do que foi.
  */
 export default async function ExperiencePage() {
-  const estado = await lerEstadoDaInscricao()
+  const { estado, capacidade } = await lerEstadoDaInscricao()
 
   return (
     <>
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD serializado por nós, sem input de usuário
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(experienceEventJsonLd(estado)) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(experienceEventJsonLd(estado, capacidade)),
+        }}
       />
       <div className="exp">
-        <ExperienceHero estado={estado} />
+        <ExperienceHero capacidade={capacidade} estado={estado} />
         <main>
           <ExperiencePillars />
           <ExperienceProgram />
           {estado !== 'encerrado' && <ExperienceKit />}
           <ExperienceVideo />
-          <ExperienceCta estado={estado} />
-          <ExperienceSignup estado={estado} />
+          <ExperienceCta capacidade={capacidade} estado={estado} />
+          <ExperienceSignup capacidade={capacidade} estado={estado} />
           <ExperienceSponsors estado={estado} />
         </main>
         <ExperienceFooter />

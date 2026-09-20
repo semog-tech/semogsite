@@ -8,7 +8,7 @@ import type { EstadoDaInscricao } from '@/lib/experienceEstado'
  * `--color-navy-600` (a superfície `.s-brand`), botão claro, e o segundo dos
  * dois CTAs da página que apontam para `#inscricao`.
  *
- * O plano pedia repetir "gratuito e {seats} vagas" aqui; o protótipo aprovado
+ * O plano pedia repetir "gratuito e o total de vagas" aqui; o protótipo aprovado
  * diz "Evento gratuito … Vagas limitadas". Mantido o texto do protótipo: o
  * número já aparece no hero e volta na seção de inscrição, e repeti-lo
  * pela terceira vez em meia página cansa sem informar. **Nos outros dois
@@ -18,7 +18,13 @@ import type { EstadoDaInscricao } from '@/lib/experienceEstado'
  * seção de inscrição virou agradecimento, e mandar alguém até lá por um botão
  * que promete ação é promessa vazia.
  */
-export function ExperienceCta({ estado }: { estado: EstadoDaInscricao }) {
+export function ExperienceCta({
+  estado,
+  capacidade = null,
+}: {
+  estado: EstadoDaInscricao
+  capacidade?: number | null
+}) {
   if (estado === 'encerrado') {
     return (
       <section className="band s-brand">
@@ -48,7 +54,9 @@ export function ExperienceCta({ estado }: { estado: EstadoDaInscricao }) {
           </a>
           <p>
             Evento gratuito e aberto a clientes, parceiros e amigos da Semog.{' '}
-            {esgotado ? `As ${E.seats} vagas desta edição foram preenchidas.` : 'Vagas limitadas.'}
+            {esgotado
+              ? `As ${capacidade === null ? '' : `${capacidade} `}vagas desta edição foram preenchidas.`
+              : 'Vagas limitadas.'}
           </p>
         </div>
       </div>

@@ -29,6 +29,7 @@ import { pool, query } from '@/lib/db'
 import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { isExactEligible } from '@/lib/exact/map-lead'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
+import { validarLotacaoExperience } from '@/lib/experienceLotacao'
 import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
 import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
 import { extractLeadColumns, FORMS, type FormType, type SubmitFormResult } from '@/lib/forms'
@@ -202,7 +203,7 @@ async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; l
 }
 
 /**
- * A inscrição do Experience, com a trava das `seats` vagas.
+ * A inscrição do Experience, com a lotação definida no banco.
  *
  * **Por que transação explícita, e não um comando só.** A versão anterior era
  * `insert ... select ... where (select count(*)) < $7` numa declaração única,
@@ -223,7 +224,7 @@ async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; l
  *
  * O que zerou o excesso, medido (0 em 10 rodadas, com concorrência 10 e 40,
  * parando exato em 150), é o que está abaixo: `begin` → `pg_advisory_xact_lock`
- * → INSERT → `commit`. Cada transação toma o snapshot do INSERT **depois** de
+ * → projeção → INSERT → `commit`. A projeção lê o snapshot **depois** de
  * já ter o lock, portanto enxerga o que as anteriores gravaram.
  *
  * O lock é `xact`: o Postgres o solta sozinho no `commit` E no `rollback`,
@@ -282,20 +283,24 @@ async function gravarInscricaoDoExperience(
     await client.query("set local lock_timeout = '5s'")
     await client.query('select pg_advisory_xact_lock($1)', [TRAVA_DE_VAGAS])
 
-    // Cada linha é uma pessoa — acompanhante ocupa vaga e é assim que o kit é
-    // dimensionado. Nada de desduplicar por e-mail nesta contagem.
-    const { rows, rowCount } = await client.query<{ id: string }>(
-      `insert into cms.leads (${COLUNAS_DO_LEAD})
-       select $1, $2, $3, $4, $5, $6
-        where (select count(*) from cms.leads where form = 'experience') < $7
-       returning id`,
-      [...valores, EXPERIENCE_EVENT.seats],
+    // A função do banco aplica a mesma deduplicação e acompanhantes do app.
+    // A projeção já inclui o candidato: um reenvio não consome outra vaga.
+    const projecao = await client.query('select * from cms.experience_lotacao($1::jsonb)', [
+      valores[1],
+    ])
+    const lotacao = validarLotacaoExperience(projecao.rows[0])
+    if (lotacao.pessoas > lotacao.capacidade) {
+      await client.query('rollback')
+      return { lotado: true }
+    }
+    const { rows } = await client.query<{ id: string }>(
+      `insert into cms.leads (${COLUNAS_DO_LEAD}) values ($1, $2, $3, $4, $5, $6) returning id`,
+      valores,
     )
+    if (!rows[0]?.id) throw new Error('Inscrição não retornou identificação após gravar.')
     await client.query('commit')
 
-    // Zero linhas = a condição reprovou. É assim, e não por exceção, que a
-    // lotação se anuncia.
-    return { id: rows[0]?.id, lotado: rowCount === 0 }
+    return { id: rows[0].id, lotado: false }
   } catch (err) {
     try {
       await client.query('rollback')
@@ -316,7 +321,7 @@ async function gravarInscricaoDoExperience(
 
 /**
  * Grava a submissão em `cms.leads` e devolve o id da linha — ou `lotado: true`
- * quando o Experience já bateu as `seats` vagas.
+ * quando a projeção do Experience supera a capacidade cadastrada.
  *
  * **A trava de lotação é aqui, não no que a página mostra.** A landing é
  * servida com ISR (ver `revalidate` em `(evento)/experience/page.tsx`), então
@@ -439,7 +444,8 @@ export async function submitForm(
       return {
         ok: false,
         esgotado: true,
-        message: `As ${EXPERIENCE_EVENT.seats} vagas foram preenchidas enquanto você preenchia o formulário. Sua inscrição não foi registrada.`,
+        message:
+          'As vagas foram preenchidas enquanto você preenchia o formulário. Sua inscrição não foi registrada.',
       }
     }
 

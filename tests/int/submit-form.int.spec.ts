@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
  * `submitForm` (Server Action de Contato/Proposta) reescrita na Fase 3/Task 3
@@ -81,7 +82,7 @@ describe('submitForm — grava lead em cms.leads (sem Payload)', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     // O INSERT usa `returning id` — o id é o que liga a linha ao push do Exact.
-    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -190,7 +191,7 @@ describe('submitForm — push pro Exact', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -306,7 +307,7 @@ describe('submitForm — destino da notificação interna', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -392,7 +393,7 @@ describe('submitForm — destino da notificação interna', () => {
       'Outra cidade',
     ]) {
       vi.clearAllMocks()
-      queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+      queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
       sendMailMock.mockResolvedValue({ ok: true })
       verifyTurnstileMock.mockResolvedValue(true)
       cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -481,7 +482,7 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '4242' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '4242'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -565,7 +566,7 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
 
     for (const [i, caso] of casos.entries()) {
       vi.clearAllMocks()
-      queryMock.mockResolvedValue({ rows: [{ id: '4242' }], rowCount: 1 })
+      queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '4242'))
       sendMailMock.mockResolvedValue({ ok: true })
       verifyTurnstileMock.mockResolvedValue(true)
       cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -640,7 +641,7 @@ describe('submitForm — cidade obrigatória na proposta', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -694,7 +695,7 @@ describe('submitForm — cidade obrigatória na proposta', () => {
       'Outra cidade',
     ]) {
       vi.clearAllMocks()
-      queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+      queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
       sendMailMock.mockResolvedValue({ ok: true })
       verifyTurnstileMock.mockResolvedValue(true)
       cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
@@ -747,7 +748,7 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    queryMock.mockResolvedValue({ rows: [{ id: '99' }], rowCount: 1 })
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())

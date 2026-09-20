@@ -58,15 +58,19 @@ export function eventoJaAconteceu(agora: Date): boolean {
 /**
  * A regra dos três estados.
  *
- * `inscritos === null` significa **não foi possível contar** (banco fora do ar,
+ * `pessoas === null` significa **não foi possível contar** (banco fora do ar,
  * `DATABASE_URI` ausente no build). Nesse caso o estado cai para `aberto`, o de
  * hoje: fechar a inscrição por erro de leitura perderia inscrição real, e o
  * excesso já está barrado onde importa — na trava atômica do INSERT, em
  * `submit-form.ts`. Uma página que mostra o formulário a mais recusa na hora do
  * envio; uma que esconde o formulário a menos não recusa nada, só perde gente.
  */
-export function estadoDaInscricao(agora: Date, inscritos: number | null): EstadoDaInscricao {
+export function estadoDaInscricao(
+  agora: Date,
+  pessoas: number | null,
+  capacidade: number | null,
+): EstadoDaInscricao {
   if (eventoJaAconteceu(agora)) return 'encerrado'
-  if (inscritos !== null && inscritos >= E.seats) return 'esgotado'
+  if (pessoas !== null && capacidade !== null && pessoas >= capacidade) return 'esgotado'
   return 'aberto'
 }

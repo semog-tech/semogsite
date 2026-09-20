@@ -6,8 +6,8 @@ import type { EstadoDaInscricao } from '@/lib/experienceEstado'
 
 /**
  * Hero da landing — porte do `<header class="hero s-dark">` do protótipo
- * aprovado. Data, horário, local e vagas saem todos de `EXPERIENCE_EVENT`
- * (nada digitado aqui, ver Global Constraints do plano).
+ * aprovado. Data, horário e local vêm de `EXPERIENCE_EVENT`;
+ * a capacidade chega do banco, compartilhada com o app.
  *
  * A foto é o LCP da página: `priority` faz o `next/image` emitir o
  * `<link rel="preload">` no `<head>` em vez de esperar o layout.
@@ -58,7 +58,13 @@ function TopbarAcao({ estado }: { estado: EstadoDaInscricao }) {
  * é um selo com forma de botão. `aria-disabled` diz isso a quem usa leitor de
  * tela sem criar um alvo de teclado que não leva a lugar nenhum.
  */
-function HeroAcoes({ estado }: { estado: EstadoDaInscricao }) {
+function HeroAcoes({
+  estado,
+  capacidade = null,
+}: {
+  estado: EstadoDaInscricao
+  capacidade?: number | null
+}) {
   if (estado === 'encerrado') {
     return (
       <div className="hero-actions">
@@ -84,10 +90,10 @@ function HeroAcoes({ estado }: { estado: EstadoDaInscricao }) {
       <span className="seats">
         <LockIcon />
         {esgotado ? (
-          `As ${E.seats} vagas foram preenchidas`
+          `As ${capacidade === null ? '' : `${capacidade} `}vagas foram preenchidas`
         ) : (
           <>
-            {E.priceLabel} · {E.seats} vagas
+            {E.priceLabel} · {capacidade === null ? 'Vagas limitadas' : `${capacidade} vagas`}
           </>
         )}
       </span>
@@ -95,7 +101,13 @@ function HeroAcoes({ estado }: { estado: EstadoDaInscricao }) {
   )
 }
 
-export function ExperienceHero({ estado }: { estado: EstadoDaInscricao }) {
+export function ExperienceHero({
+  estado,
+  capacidade = null,
+}: {
+  estado: EstadoDaInscricao
+  capacidade?: number | null
+}) {
   const hero = img('experience-hero.webp')
   const encerrado = estado === 'encerrado'
 
@@ -196,7 +208,7 @@ export function ExperienceHero({ estado }: { estado: EstadoDaInscricao }) {
           </div>
         </div>
 
-        <HeroAcoes estado={estado} />
+        <HeroAcoes capacidade={capacidade} estado={estado} />
       </div>
 
       <div className="badge35">

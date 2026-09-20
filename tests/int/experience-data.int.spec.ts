@@ -18,8 +18,8 @@ describe('EXPERIENCE_EVENT', () => {
     expect(new Date(`${EXPERIENCE_EVENT.date}T12:00:00Z`).getUTCDay()).toBe(6)
   })
 
-  it('oferece 150 vagas', () => {
-    expect(EXPERIENCE_EVENT.seats).toBe(150)
+  it('não duplica a capacidade definida no banco', () => {
+    expect(EXPERIENCE_EVENT).not.toHaveProperty('seats')
   })
 
   it('tem a programação em ordem cronológica', () => {

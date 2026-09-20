@@ -1,5 +1,5 @@
 /**
- * Fonte única de verdade do Semog Experience 26. Data, horário, local, vagas e
+ * Fonte única de verdade do Semog Experience 26. Data, horário, local e
  * o NOME da edição NÃO podem ser digitados dentro de componente: quando virar
  * a edição, muda aqui e em nenhum outro lugar.
  */
@@ -88,7 +88,6 @@ export const EXPERIENCE_EVENT = {
   venueReference: "em frente à Sapore D'Italia",
   city: 'João Pessoa',
   uf: 'PB',
-  seats: 150,
   priceLabel: 'Gratuito',
 
   /**

@@ -20,14 +20,23 @@ import { ExperienceForm } from '@/components/forms/ExperienceForm'
  * exato momento em que a pessoa mais precisa entender o que houve. O estado
  * mora aqui, acima das duas colunas, porque é das duas que ele é dono.
  */
-export function ExperienceSignupAberto() {
+export function ExperienceSignupAberto({ capacidade = null }: { capacidade?: number | null }) {
   const [lotou, setLotou] = useState(false)
 
   return (
     <div className="grid">
-      {lotou ? <IntroEsgotado recemRecusado /> : <IntroAberto />}
+      {lotou ? (
+        <IntroEsgotado capacidade={capacidade} recemRecusado />
+      ) : (
+        <IntroAberto capacidade={capacidade} />
+      )}
 
       <div className="card">
+        {capacidade === null && (
+          <p role="status">
+            Não foi possível consultar as vagas agora. A disponibilidade será verificada ao enviar.
+          </p>
+        )}
         <ExperienceForm onLotacao={() => setLotou(true)} />
       </div>
     </div>

@@ -56,14 +56,16 @@ export function experienceTitle(estado: EstadoDaInscricao): string {
  * procurando o endereço — está descobrindo que não vai. O endereço completo
  * continua na página, no hero e no JSON-LD.
  */
-const DESCRICOES: Record<EstadoDaInscricao, string> = {
-  aberto: `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, no ${E.venue}. ${E.seats} vagas.`,
-  esgotado: `As ${E.seats} vagas da manhã de pilates, yoga e treino funcional de ${E.dateLabel} foram preenchidas. Não há inscrição no dia do evento.`,
-  encerrado: `O ${E.name} aconteceu em ${E.dateLabel}, em ${E.city}: pilates, yoga e treino funcional. A próxima edição será anunciada aqui.`,
-}
-
-export function experienceDescription(estado: EstadoDaInscricao): string {
-  return DESCRICOES[estado]
+export function experienceDescription(
+  estado: EstadoDaInscricao,
+  capacidade: number | null = null,
+): string {
+  const vagas = capacidade === null ? 'Vagas limitadas' : `${capacidade} vagas`
+  if (estado === 'aberto')
+    return `Manhã gratuita de pilates, yoga e treino funcional em ${E.dateLabel}, das ${E.timeLabel}, no ${E.venue}. ${vagas}.`
+  if (estado === 'esgotado')
+    return `As ${capacidade === null ? '' : `${capacidade} `}vagas da manhã de pilates, yoga e treino funcional de ${E.dateLabel} foram preenchidas. Não há inscrição no dia do evento.`
+  return `O ${E.name} aconteceu em ${E.dateLabel}, em ${E.city}: pilates, yoga e treino funcional. A próxima edição será anunciada aqui.`
 }
 
 /**
@@ -108,12 +110,12 @@ export const experienceHeroImage = img('experience-hero.webp')
  *   publicar, e um `SoldOut` eterno continuaria descrevendo uma inscrição que
  *   não existe mais. `undefined` some do JSON: `JSON.stringify` remove a chave.
  */
-export function experienceEventJsonLd(estado: EstadoDaInscricao) {
+export function experienceEventJsonLd(estado: EstadoDaInscricao, capacidade: number | null = null) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: E.name,
-    description: experienceDescription(estado),
+    description: experienceDescription(estado, capacidade),
     startDate: `${E.date}T${E.startTime}:00-03:00`,
     endDate: `${E.date}T${E.endTime}:00-03:00`,
     eventStatus: 'https://schema.org/EventScheduled',
@@ -142,7 +144,7 @@ export function experienceEventJsonLd(estado: EstadoDaInscricao) {
       url: absoluteUrl(''),
     },
     offers:
-      estado === 'encerrado'
+      estado === 'encerrado' || capacidade === null
         ? undefined
         : {
             '@type': 'Offer',

@@ -54,15 +54,17 @@ test.describe('Landing do Experience', () => {
     await expect(hero.getByText(E.dateLabel)).toBeVisible()
     await expect(hero.getByText(E.venue)).toBeVisible()
 
-    // A linha de vagas muda com o estado, e o número vem do dado — um literal
-    // aqui passaria a mentir na primeira troca de `seats` (já aconteceu: 200 -> 150).
+    // O número vem do banco; indisponibilidade informa a ausência sem inventar capacidade.
     if (EVENTO_PASSOU) {
       // Encerrado: a dobra vira registro. Prometer vaga aqui seria falso.
-      await expect(hero.getByText(new RegExp(`${E.seats} vagas`, 'i'))).toHaveCount(0)
+      await expect(hero.getByText(/\d+ vagas/i)).toHaveCount(0)
       await expect(hero.getByText(/já aconteceu/i)).toBeVisible()
     } else {
       // Aberto ("Gratuito · N vagas") ou esgotado ("As N vagas foram preenchidas").
-      await expect(hero.getByText(new RegExp(`${E.seats} vagas`, 'i'))).toBeVisible()
+      await expect(hero.locator('.seats')).toHaveText(/\d+ vagas|Vagas limitadas/i)
+      if ((await hero.locator('.seats').textContent())?.includes('Vagas limitadas')) {
+        await expect(page.getByRole('status')).toContainText('Não foi possível consultar as vagas')
+      }
     }
   })
 
@@ -88,7 +90,7 @@ test.describe('Landing do Experience', () => {
 
     // Depois do evento não há oferta a publicar — `offers` some do JSON-LD
     // inteiro (ver `experienceSeo`), e ler `.price` ali daria TypeError.
-    if (EVENTO_PASSOU) {
+    if (EVENTO_PASSOU || (await page.getByRole('status').count()) > 0) {
       expect(jsonLd.offers).toBeUndefined()
     } else {
       expect(jsonLd.offers.price).toBe('0')

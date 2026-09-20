@@ -27,7 +27,7 @@ const VAGAS = 150
 
 describe('JSON-LD do Semog Experience', () => {
   it('descreve um Event com data, horário e o local confirmado', () => {
-    const jsonLd = experienceEventJsonLd('aberto')
+    const jsonLd = experienceEventJsonLd('aberto', VAGAS)
     expect(jsonLd['@type']).toBe('Event')
     expect(jsonLd.startDate).toBe('2026-09-26T07:30:00-03:00')
     expect(jsonLd.endDate).toBe('2026-09-26T10:00:00-03:00')
@@ -35,7 +35,7 @@ describe('JSON-LD do Semog Experience', () => {
   })
 
   it('aponta o rich result para o local confirmado, vindo do dado', () => {
-    const local = experienceEventJsonLd('aberto').location
+    const local = experienceEventJsonLd('aberto', VAGAS).location
     expect(local.name).toBe(LOCAL)
     expect(local.name).toBe(E.venue)
 
@@ -65,8 +65,10 @@ describe('JSON-LD do Semog Experience', () => {
    * que não houve, e é a troca que alguém faz de boa fé ao mexer nisto.
    */
   it('publica a disponibilidade que corresponde ao estado da inscrição', () => {
-    expect(experienceEventJsonLd('aberto').offers?.availability).toBe('https://schema.org/InStock')
-    expect(experienceEventJsonLd('esgotado').offers?.availability).toBe(
+    expect(experienceEventJsonLd('aberto', VAGAS).offers?.availability).toBe(
+      'https://schema.org/InStock',
+    )
+    expect(experienceEventJsonLd('esgotado', VAGAS).offers?.availability).toBe(
       'https://schema.org/SoldOut',
     )
 
@@ -83,31 +85,22 @@ describe('JSON-LD do Semog Experience', () => {
 
 describe('descrição da busca', () => {
   it('anuncia o mesmo local e o mesmo horário da página', () => {
-    const description = experienceDescription('aberto')
+    const description = experienceDescription('aberto', VAGAS)
     expect(description).toContain(LOCAL)
     expect(description).toContain(E.venue)
     expect(description).toContain(HORARIO)
     expect(description).toContain(E.timeLabel)
   })
 
-  /**
-   * O número de vagas é o dado que mais viaja: sai daqui para a SERP, para o
-   * card do WhatsApp e para o corpo da página. Ficou de fora da trava até
-   * 17/09/2026 — e nesse dia o evento passou de 200 para 150 vagas, o que
-   * significa que trocar `${E.seats}` por "200" digitado à mão teria saído
-   * verde em biome, tsc, vitest e build.
-   *
-   * Dupla como as outras: contra o literal, para o 200 não voltar; contra o
-   * dado, para a descrição não poder anunciar um número que a página não tem.
-   */
+  // Dois limites distintos provam que o número anunciado vem do banco,
+  // e não de uma constante que coincidentemente bate com a capacidade atual.
   it('anuncia o número de vagas que o evento realmente tem', () => {
-    expect(E.seats).toBe(VAGAS)
-    expect(experienceDescription('aberto')).toContain(`${VAGAS} vagas`)
-    expect(experienceDescription('aberto')).toContain(`${E.seats} vagas`)
+    expect(experienceDescription('aberto', 73)).toContain('73 vagas')
+    expect(experienceDescription('aberto', VAGAS)).toContain(`${VAGAS} vagas`)
 
     // Fechada a inscrição, a descrição fala das vagas no passado — e o número
     // continua sendo o mesmo dado, não um literal que envelhece à parte.
-    expect(experienceDescription('esgotado')).toContain(`As ${E.seats} vagas`)
+    expect(experienceDescription('esgotado', VAGAS)).toContain(`As ${VAGAS} vagas`)
   })
 
   it('cabe no que a SERP mostra, nos três estados', () => {
@@ -117,6 +110,11 @@ describe('descrição da busca', () => {
       expect(experienceDescription(estado).length).toBeLessThanOrEqual(160)
     }
   })
+})
+
+it('não anuncia disponibilidade sem conseguir consultar o banco', () => {
+  expect(experienceEventJsonLd('aberto', null).offers).toBeUndefined()
+  expect(experienceDescription('aberto', null)).toContain('Vagas limitadas')
 })
 
 describe('ExperienceHero', () => {
