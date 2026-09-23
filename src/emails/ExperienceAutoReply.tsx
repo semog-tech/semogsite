@@ -90,7 +90,8 @@ export default function ExperienceAutoReply({ name }: ExperienceAutoReplyProps) 
               {E.priceLabel.toLowerCase()}.
             </Text>
             <Text style={linha}>
-              <strong>O kit praia é retirado antes.</strong> A partir de {E.kit.pickup.fromWeekday},{' '}
+              <strong>O kit praia é retirado antes.</strong> A partir das{' '}
+              {E.kit.pickup.fromTimeLabel} de {E.kit.pickup.fromWeekday},{' '}
               {E.kit.pickup.fromDateLabel}, na filial da Semog em {E.city}.
               {/*
                 Endereço em linha própria, e o aviso numa terceira: num

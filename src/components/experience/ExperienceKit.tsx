@@ -44,7 +44,7 @@ export function ExperienceKit() {
           <div className="card kit-retirada">
             <strong className="kit-rot">Retirada</strong>
             <p className="kit-quando">
-              A partir de{' '}
+              A partir das {pickup.fromTimeLabel} de{' '}
               <time dateTime={pickup.fromDate}>
                 {pickup.fromWeekday}, {pickup.fromDateLabel}
               </time>

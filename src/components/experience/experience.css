@@ -1047,7 +1047,7 @@
   color: var(--fg-2);
 }
 /* Os itens do kit são etiquetas, não texto corrido: lado a lado leem-se de uma
-   vez; empilhados virariam uma coluna de cinco palavras soltas. */
+   vez; empilhados virariam uma coluna de palavras soltas. */
 .exp .kit-itens {
   list-style: none;
   margin: 1.5rem 0 0;

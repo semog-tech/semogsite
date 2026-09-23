@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { site } from '@/../content/site'
+import { ExperienceAgenda } from '@/components/experience/ExperienceAgenda'
 import { ExperienceKit } from '@/components/experience/ExperienceKit'
 import { ExperienceProgram } from '@/components/experience/ExperienceProgram'
 import { ExperienceSponsors } from '@/components/experience/ExperienceSponsors'
@@ -173,6 +174,9 @@ describe('ExperienceKit', () => {
     const quando = container.querySelector('.kit-quando time')
     expect(quando?.getAttribute('datetime')).toBe(EXPERIENCE_EVENT.kit.pickup.fromDate)
     expect(quando?.textContent).toContain(EXPERIENCE_EVENT.kit.pickup.fromDateLabel)
+    expect(container.querySelector('.kit-quando')?.textContent).toContain(
+      `partir das ${EXPERIENCE_EVENT.kit.pickup.fromTimeLabel}`,
+    )
   })
 
   it('avisa, sem rodeio, que não há entrega no dia do evento', () => {
@@ -187,6 +191,15 @@ describe('ExperienceKit', () => {
     const daFonte = site.company.addresses.find((e) => e.city === EXPERIENCE_EVENT.city)?.address
     expect(daFonte).toBeDefined()
     expect(container.querySelector('.kit-onde span')?.textContent).toBe(daFonte)
+  })
+})
+
+describe('ExperienceAgenda', () => {
+  it('mostra o horário de início da retirada na confirmação da inscrição', () => {
+    const { container } = render(<ExperienceAgenda />)
+    expect(container.querySelector('.formnote')?.textContent).toContain(
+      `a partir das ${EXPERIENCE_EVENT.kit.pickup.fromTimeLabel}`,
+    )
   })
 })
 

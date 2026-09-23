@@ -102,12 +102,13 @@ export const EXPERIENCE_EVENT = {
    */
   kit: {
     label: 'Kit praia',
-    items: ['Canga', 'Camiseta', 'Boné', 'Protetor solar', 'Ecobag'],
+    items: ['Canga', 'Camiseta', 'Ecobag'],
     pickup: {
       /** ISO, para `<time dateTime>`. 23/09/2026 é quarta, três dias antes. */
       fromDate: '2026-09-23',
       fromDateLabel: '23 de setembro',
       fromWeekday: 'quarta',
+      fromTimeLabel: '12h',
     },
   },
 

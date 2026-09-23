@@ -78,6 +78,7 @@ describe('ExperienceAutoReply — o e-mail que o inscrito guarda', () => {
     expect(corpo).toContain(E.kit.pickup.fromDateLabel)
     expect(corpo).toContain('quarta')
     expect(corpo).toContain(E.kit.pickup.fromWeekday)
+    expect(corpo).toContain(`partir das ${E.kit.pickup.fromTimeLabel}`)
     // A regra é o que decide se a pessoa chega na praia com kit ou sem: some
     // daqui e ela descobre no sábado que não há entrega.
     expect(corpo).toMatch(/não há entrega no dia do evento/i)

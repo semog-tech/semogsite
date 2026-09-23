@@ -48,8 +48,9 @@ export function ExperienceAgenda() {
       </ul>
       <p className="formnote">
         Chegue 15 minutos antes. Leve roupa leve, garrafa de água e disposição — o resto é com a
-        gente. O kit praia é retirado na filial de {E.city} a partir de {E.kit.pickup.fromDateLabel}
-        : não há entrega no dia do evento.
+        gente. O kit praia é retirado na filial de {E.city} a partir das{' '}
+        {E.kit.pickup.fromTimeLabel} de {E.kit.pickup.fromWeekday}, {E.kit.pickup.fromDateLabel}:
+        não há entrega no dia do evento.
       </p>
     </>
   )
