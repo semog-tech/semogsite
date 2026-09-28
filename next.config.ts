@@ -66,6 +66,27 @@ const nextConfig: NextConfig = {
     // `img-src` o pixel de fallback. SEM esses domínios o CSP bloqueia o gtag
     // INTEIRO → 0 page_view e 0 generate_lead no GA4 (bug corrigido 2026-07-23,
     // confirmado: 2.351 sessões / 0 pageviews em 28 dias por causa disso).
+    //
+    // Segunda rodada do MESMO bug (medida no browser em 2026-09-28, nas quatro
+    // páginas, contra a CSP que estava no ar): em 11/09 o Consent Mode passou a
+    // CONCEDER os sinais fora da Europa, e o gtag começou a chamar endpoints que
+    // antes nem tentava. A CSP não acompanhou, e o bloqueio é SILENCIOSO — nada
+    // quebra na tela, só o dado não chega. Os três hosts que faltavam:
+    //
+    // · `https://analytics.google.com` — o `/g/collect` do GA4 (`page_view`,
+    //   `scroll`). A linha já trazia `https://*.analytics.google.com`, e é o erro
+    //   clássico: em CSP o curinga cobre SUBDOMÍNIO e não cobre o domínio nu. O
+    //   curinga fica, porque o GA4 regionaliza em `region1.analytics.google.com`.
+    // · `https://stats.g.doubleclick.net` — o `/g/collect` que casa a sessão do
+    //   GA4 com o cookie do DoubleClick; é o que alimenta o remarketing.
+    // · `https://ad.doubleclick.net` — o `/ccm/s/collect`. `googleads.` e `td.`
+    //   do mesmo domínio já estavam liberados; este não.
+    //
+    // Todo host de coleta aparece nas DUAS diretivas (`connect-src` e `img-src`)
+    // porque o gtag chama o mesmo endpoint por fetch e por pixel conforme o que
+    // o navegador oferece — o `ccm/s/collect` apareceu bloqueado das duas formas
+    // na mesma carga (`fmt=8` em connect, `fmt=3` em img), e é justamente essa
+    // assimetria que deixou o bloqueio passar despercebido por duas semanas.
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -73,12 +94,12 @@ const nextConfig: NextConfig = {
       "frame-ancestors 'self'",
       "frame-src 'self' https://challenges.cloudflare.com https://td.doubleclick.net https://bid.g.doubleclick.net",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
+      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
       "media-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co blob:",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
     ].join('; ')
 
     // Indexação DESLIGADA por padrão (ambiente de teste): emite
