@@ -307,6 +307,51 @@ const nextConfig: NextConfig = {
         destination: '/administradora-de-condominios-recife',
         permanent: true,
       },
+
+      // O slug das landings é plural (`condominios`), mas "administradora de
+      // condomínio" é como o serviço é falado e escrito — quem remonta o
+      // endereço de memória, de material impresso ou de um link antigo erra
+      // para o singular e bate em 404. Conferido por curl em 28/09/2026: as
+      // QUATRO cidades respondiam 404 no singular, nenhuma tinha cobertura.
+      //
+      // Só a grafia em minúsculas. A caixa alta (`/Administradora-de-...`)
+      // também responde 404 e foi considerada: o matching do Next é sensível a
+      // caixa e não tem como desligar isso aqui, então cobrir de verdade seria
+      // normalizar no middleware. Descartado por ora — nenhuma variante com
+      // maiúscula tem impressão no Search Console, e não se troca a
+      // arquitetura por caso hipotético. Se um dia aparecer tráfego assim
+      // (foi o que aconteceu com o QR do folder), o lugar do conserto é lá.
+      {
+        source: '/administradora-de-condominio-recife',
+        destination: '/administradora-de-condominios-recife',
+        permanent: true,
+      },
+      {
+        source: '/administradora-de-condominio-joao-pessoa',
+        destination: '/administradora-de-condominios-joao-pessoa',
+        permanent: true,
+      },
+      {
+        source: '/administradora-de-condominio-campina-grande',
+        destination: '/administradora-de-condominios-campina-grande',
+        permanent: true,
+      },
+      {
+        source: '/administradora-de-condominio-belem',
+        destination: '/administradora-de-condominios-belem',
+        permanent: true,
+      },
+
+      // Belém repetindo o caso de Recife logo acima: das 58 URLs próprias que
+      // o Search Console registra com impressão nos últimos 90 dias, esta é a
+      // ÚNICA que ainda responde 404 — o Google serve o endereço e a visita
+      // morre. As outras combinações de grafia por cidade não aparecem no GSC;
+      // sem o Google servindo o endereço, não há de onde vir a visita.
+      {
+        source: '/administracao-de-condominios-belem',
+        destination: '/administradora-de-condominios-belem',
+        permanent: true,
+      },
     ]
   },
 }
