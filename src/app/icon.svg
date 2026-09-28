@@ -1,9 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <title>Semog</title>
-  <rect width="32" height="32" rx="7" fill="#0a102e"/>
+  <!--
+    Símbolo das três barras na proporção do logo oficial (`_reference/semog-logo.svg`):
+    barra 36.41 / vão 15.99 (= 0.4392 da barra) e símbolo 141.2x94.93 (aspect 1.4874).
+    Números derivados, não redondos — reescalar exige refazer a conta, não arredondar
+    à mão. Fundo `navy-600` (#1b2d70, a primária em `src/styles/theme.css`).
+
+    Ocupa 80% da largura, mais que os 72% da arte de 1200x1200: em 16px (o tamanho da
+    aba) o vão só alcança um pixel inteiro da cor de fundo a partir de ~78% — abaixo
+    disso ele cai entre dois pixels, sai cinza e as barras borram uma na outra.
+    Enquadramento escolhido pelo cliente. Diminuir aqui custa legibilidade na aba.
+  -->
+  <rect width="32" height="32" rx="7" fill="#1b2d70"/>
   <g fill="#F4F6FB">
-    <rect x="7" y="8" width="4.2" height="16"/>
-    <rect x="13.9" y="8" width="4.2" height="16"/>
-    <rect x="20.8" y="8" width="4.2" height="16"/>
+    <rect x="3.2" y="7.394" width="6.601" height="17.211"/>
+    <rect x="12.7" y="7.394" width="6.601" height="17.211"/>
+    <rect x="22.199" y="7.394" width="6.601" height="17.211"/>
   </g>
 </svg>
