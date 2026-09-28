@@ -338,6 +338,6 @@ const nextConfig: NextConfig = {
 export default withSentryConfig(nextConfig, {
   widenClientFileUpload: true,
   disableLogger: true,
-  org: 'leandro-semog',
+  org: 'semog',
   project: 'semogsite',
 })

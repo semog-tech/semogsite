@@ -943,9 +943,28 @@
   }
 
   /* ---------- Preloader (três barras do logo) — fiel a semog.css:532-549 ----------
-     src/components/layout/Preloader.tsx (client): dismiss no `load` OU após 2.2s;
-     sob prefers-reduced-motion sai de imediato (semog.css:550, aqui via matchMedia
-     no componente porque não existe a classe `.reduced-motion` neste app). */
+     Quem garante a saída é o CSS, não o React. `preloader-cap` começa a contar
+     quando o navegador aplica esta folha de estilo (ou seja, junto com a
+     primeira pintura do overlay) e termina de escondê-lo 3.7s depois, mesmo que
+     o bundle demore, falhe ou o JavaScript esteja desligado — antes disso o
+     único dismiss era o do componente, que em 3G segurava a tela por 21s e sem
+     JS não saía nunca.
+
+     src/components/layout/Preloader.tsx antecipa a saída no `load` da janela OU
+     2.2s depois de hidratar, o que vier primeiro. Nesse caminho a animação
+     ainda está no delay e, com `forwards` (sem `backwards`), não aplica valor
+     nenhum: quem manda é a transição de `.is-done`, como antes.
+
+     O `animation: none` em `.is-done` não é adorno. Sem ele, quando o React
+     apaga o overlay e o teto entra depois, a animação parte do próprio `from`
+     e traz o overlay de volta a 100% de opacidade (medido: +0.999). Com ele,
+     quem chegar primeiro manda. Na direção inversa o cancelamento também não
+     é suave — corta para 0 num frame (medido: -0.85) —, e quem evita isso é o
+     componente, que só aplica `.is-done` enquanto a opacidade ainda for 1.
+
+     Sob prefers-reduced-motion o overlay não aparece (semog.css:550 usava
+     `.reduced-motion`, ausente neste app) — aqui pelo @media, e não só pelo
+     matchMedia do componente, para valer também sem JavaScript. */
   .preloader {
     position: fixed;
     inset: 0;
@@ -957,10 +976,29 @@
     transition:
       opacity 0.7s ease,
       visibility 0.7s;
+    animation: preloader-cap 0.7s ease 3s forwards;
   }
   .preloader.is-done {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+    animation: none;
+  }
+  @keyframes preloader-cap {
+    from {
+      opacity: 1;
+      visibility: visible;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preloader {
+      display: none;
+    }
   }
   .preloader .bars {
     display: flex;
