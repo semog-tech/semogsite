@@ -655,48 +655,54 @@ export function CityLanding({ data }: { data: CityLandingData }) {
       </section>
 
       {/* ============ DEPOIMENTOS (LIGHT) ============ */}
-      <section
-        className="w-full py-[clamp(4.5rem,8vw,7rem)]"
-        style={{ background: LIGHT, color: INK }}
-      >
-        <div className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)]">
-          <Reveal>
-            <p
-              className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: '#3b54be' }}
-            >
-              Quem já é Semog em {data.city}
-            </p>
-            <h2
-              className="mt-3 max-w-[36rem] text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
-              style={{ fontFamily: DISPLAY, color: INK }}
-            >
-              A voz de quem vive nossos resultados.
-            </h2>
-          </Reveal>
-          <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
-            {data.testimonials.map((d) => (
-              <figure
-                key={d.name}
-                className="flex flex-col justify-between rounded-[18px] border bg-white p-[clamp(1.4rem,2.4vw,2rem)]"
-                style={{ borderColor: 'rgba(13,20,57,0.1)' }}
+      {/* Praça sem avaliação no Google (Campina Grande) não exibe a seção — nem o título. */}
+      {data.testimonials.length > 0 && (
+        <section
+          className="w-full py-[clamp(4.5rem,8vw,7rem)]"
+          style={{ background: LIGHT, color: INK }}
+        >
+          <div className="mx-auto w-full max-w-[1280px] px-[clamp(1.25rem,4vw,3rem)]">
+            <Reveal>
+              <p
+                className="text-[0.82rem] font-semibold uppercase tracking-[0.16em]"
+                style={{ color: '#3b54be' }}
               >
-                <blockquote className="text-[1.02rem] leading-relaxed" style={{ color: '#2a3356' }}>
-                  {d.quote}
-                </blockquote>
-                <figcaption className="mt-6">
-                  <div className="text-[0.98rem] font-semibold" style={{ color: INK }}>
-                    {d.name}
-                  </div>
-                  <div className="text-[0.86rem]" style={{ color: '#6a7396' }}>
-                    {d.role}
-                  </div>
-                </figcaption>
-              </figure>
-            ))}
-          </Stagger>
-        </div>
-      </section>
+                Quem já é Semog em {data.city}
+              </p>
+              <h2
+                className="mt-3 max-w-[36rem] text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-[1.06]"
+                style={{ fontFamily: DISPLAY, color: INK }}
+              >
+                A voz de quem vive nossos resultados.
+              </h2>
+            </Reveal>
+            <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
+              {data.testimonials.map((d) => (
+                <figure
+                  key={d.name}
+                  className="flex flex-col justify-between rounded-[18px] border bg-white p-[clamp(1.4rem,2.4vw,2rem)]"
+                  style={{ borderColor: 'rgba(13,20,57,0.1)' }}
+                >
+                  <blockquote
+                    className="text-[1.02rem] leading-relaxed"
+                    style={{ color: '#2a3356' }}
+                  >
+                    {d.quote}
+                  </blockquote>
+                  <figcaption className="mt-6">
+                    <div className="text-[0.98rem] font-semibold" style={{ color: INK }}>
+                      {d.name}
+                    </div>
+                    <div className="text-[0.86rem]" style={{ color: '#6a7396' }}>
+                      {d.role}
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
+            </Stagger>
+          </div>
+        </section>
+      )}
 
       {/* ============ FAQ ============ */}
       <section className="mx-auto w-full max-w-[980px] px-[clamp(1.25rem,4vw,3rem)] py-[clamp(4.5rem,8vw,7rem)]">

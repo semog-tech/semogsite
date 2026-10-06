@@ -68,6 +68,18 @@ export type CityLandingData = {
      */
     mapsHref: string
   }
+  /**
+   * Trechos de avaliações REAIS de 5 estrelas da ficha do Google Business
+   * Profile DESTA praça (até 3). Até 06/10/2026 eram depoimentos fictícios
+   * herdados do protótipo, com nome, cargo e prédio inventados.
+   *
+   * Regras: texto citado fielmente (corte só marcado com "…", sem corrigir
+   * grafia); nome abreviado como primeiro nome + inicial; `role` é só a origem
+   * e o mês da avaliação — nunca cargo ou prédio. Praça sem avaliação fica com
+   * lista vazia, e o componente omite a seção inteira. Não vira `Review` nem
+   * `aggregateRating` no JSON-LD: avaliação republicada pela própria empresa
+   * não pode ser dado estruturado.
+   */
   testimonials: CityTestimonial[]
   faq: CityFaq[]
 }
@@ -163,21 +175,20 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     testimonials: [
       {
         quote:
-          'Trocamos de administradora depois de anos de balancete confuso. Com a prestação de contas digital, a assembleia aprova as contas em minutos.',
-        name: 'Ricardo Menezes',
-        role: 'Síndico · Ed. Solar de Boa Viagem',
+          'Administradora moderna e com todos os serviços em aplicativos , para consulta dos condôminos ….',
+        name: 'Christovam Jr.',
+        role: 'Avaliação no Google · mar/2026',
+      },
+      {
+        quote: 'Excelente atendimento. Equipe competente para administrarem o seu condomínio.',
+        name: 'Marcos B.',
+        role: 'Avaliação no Google · fev/2022',
       },
       {
         quote:
-          'O atendimento é diferenciado. A equipe resolve com rapidez e sempre nos mantém informados do que acontece no prédio.',
-        name: 'Fabiana Correia',
-        role: 'Conselheira · Cond. Parque das Graças',
-      },
-      {
-        quote:
-          'Relatórios e prestação de contas claros, tudo no aplicativo. Muito mais segurança e tranquilidade pra quem é síndico.',
-        name: 'Juliana Rocha',
-        role: 'Síndica · Res. Madalena Prime',
+          'Uma empresa muito estruturada e proativa nas suas prestações de serviços, funcionários excelentes sempre a disposição para qualquer necessidade dos clientes e visitantes. Referência em administração de bens.',
+        name: 'David C.',
+        role: 'Avaliação no Google · out/2019',
       },
     ],
     faq: standardFaq('Recife', 'PE', { name: 'Grande Recife', gender: 'm' }),
@@ -224,21 +235,21 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     testimonials: [
       {
         quote:
-          'Desde que a Semog assumiu, a inadimplência caiu e a prestação de contas ficou transparente. O síndico deixou de administrar no escuro.',
-        name: 'André Vasconcelos',
-        role: 'Síndico · Ed. Atlântico Sul, Manaíra',
+          'Atendimento aconchegante e familiar! Impecável e super me ajudou. Parabéns para todos pelo trabalho 🫶🏼',
+        name: 'Adila P.',
+        role: 'Avaliação no Google · abr/2026',
       },
       {
         quote:
-          'A equipe é presente e resolve rápido. As assembleias digitais facilitaram muito a vida de quem viaja.',
-        name: 'Patrícia Nóbrega',
-        role: 'Conselheira · Cond. Bosque de Tambaú',
+          'Gostaria de registrar formalmente a minha imensa satisfação com os serviços prestados por vocês. Como síndica profissional, sei o valor de uma administradora competente e parceira, e a Semog tem superado as minhas expectativas.',
+        name: 'Nicia A.',
+        role: 'Avaliação no Google · jun/2025',
       },
       {
         quote:
-          'Boletos, avisos e reservas no app. O morador usa de verdade e o clima no prédio melhorou.',
-        name: 'Marcelo Fontes',
-        role: 'Síndico · Res. Ponta do Cabo Branco',
+          'A empresa oferece serviço de qualidade atendendo as necessidades de seus clientes. Contamos com seu serviço em nosso condomínio e somos muito satisfeitos!',
+        name: 'Sara A.',
+        role: 'Avaliação no Google · out/2024',
       },
     ],
     faq: standardFaq('João Pessoa', 'PB', { name: 'Grande João Pessoa', gender: 'f' }),
@@ -282,26 +293,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
       whatsapp: WHATSAPP,
       mapsHref: 'https://www.google.com/maps?cid=13577165401970724901',
     },
-    testimonials: [
-      {
-        quote:
-          'A migração foi tranquila, sem interromper nada. Hoje a prestação de contas é digital e o conselho acompanha tudo de perto.',
-        name: 'Roberto Almeida',
-        role: 'Síndico · Ed. Mirante do Catolé',
-      },
-      {
-        quote:
-          'Atendimento próximo e humano, do jeito de Campina. A cobrança deixou de ser dor de cabeça do síndico.',
-        name: 'Cláudia Ferreira',
-        role: 'Conselheira · Cond. Alto Branco Residence',
-      },
-      {
-        quote:
-          'Relatórios claros e suporte jurídico ágil. Resolveu questões que se arrastavam há anos.',
-        name: 'Fernando Lira',
-        role: 'Síndico · Res. Parque da Prata',
-      },
-    ],
+    testimonials: [],
     faq: standardFaq('Campina Grande', 'PB', { name: 'região de Campina Grande', gender: 'f' }),
   },
 
@@ -346,21 +338,21 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     testimonials: [
       {
         quote:
-          'Chegaram com tecnologia que não existia por aqui. A prestação de contas digital deu transparência total ao condomínio.',
-        name: 'Paulo Sérgio Correa',
-        role: 'Síndico · Ed. Umarizal Prime',
+          'Uma administradora super competente, completa em todos os níveis desde orçamentos até uma assessoria completa nas assembléias do início ao final, garantindo pra nós síndicos uma tranquilidade e harmonia nas assembléias e em toda gestão.',
+        name: 'Ana Cláudia D.',
+        role: 'Avaliação no Google · set/2026',
       },
       {
         quote:
-          'Equipe atenciosa e presente. As assembleias digitais aumentaram muito a participação dos moradores.',
-        name: 'Ana Beatriz Farias',
-        role: 'Conselheira · Cond. Jardim de Nazaré',
+          'Me ajuda em tudo. Desde o início. Comecei como síndica sem saber nada. E eles são meu braço direito',
+        name: 'Izabelle A.',
+        role: 'Avaliação no Google · ago/2026',
       },
       {
         quote:
-          'A inadimplência caiu e o financeiro ficou previsível. O condomínio recebe todo mês, sem surpresa.',
-        name: 'Marcos Tavares',
-        role: 'Síndico · Res. Batista Campos',
+          'A Semog Administradora de Condomínio tem sido uma parceira essencial na gestão dos condomínios em que atuo como síndico profissional. Quando comecei, ainda sem experiência, a administradora me ajudou muito no dia a dia da função (e sabemos que não é fácil). …',
+        name: 'Josias A.',
+        role: 'Avaliação no Google · abr/2026',
       },
     ],
     faq: standardFaq('Belém', 'PA', { name: 'Grande Belém', gender: 'f' }),
