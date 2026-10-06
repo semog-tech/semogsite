@@ -180,9 +180,10 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
         role: 'Avaliação no Google · mar/2026',
       },
       {
-        quote: 'Excelente atendimento. Equipe competente para administrarem o seu condomínio.',
-        name: 'Marcos B.',
-        role: 'Avaliação no Google · fev/2022',
+        quote:
+          'Gostaria de agradecer a equipe da Semog a atenção em me reenviar uns boletos da taxa de condomínio que eu precisava, boletos antigos. Especialmente ao funcionário Robson que muito solicito, prontamente providenciou a minha solicitação!',
+        name: 'Elisabete V.',
+        role: 'Avaliação no Google · mai/2026',
       },
       {
         quote:
