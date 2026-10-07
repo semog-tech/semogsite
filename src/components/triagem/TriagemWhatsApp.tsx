@@ -145,7 +145,8 @@ function Triagem() {
       return
     }
     // A cidade é lida na abertura, e não na montagem: o botão é global e
-    // sobrevive à navegação entre páginas.
+    // sobrevive à navegação entre páginas. Ela pré-seleciona a proposta e
+    // decide a ordem do menu (landing de cidade: proposta primeiro).
     setCidade(cidadeDaLanding(window.location.pathname))
     primeiraOpcao.current = true
     setTela('menu')
@@ -221,7 +222,11 @@ function Triagem() {
 
           <div className="tr-corpo">
             {tela === 'menu' && (
-              <MenuDaTriagem aoEscolherProposta={() => setTela('proposta')} aoSair={fechar} />
+              <MenuDaTriagem
+                aoEscolherProposta={() => setTela('proposta')}
+                aoSair={fechar}
+                propostaPrimeiro={cidade !== undefined}
+              />
             )}
             {tela === 'proposta' && (
               <>

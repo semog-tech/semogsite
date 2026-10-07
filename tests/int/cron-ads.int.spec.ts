@@ -156,22 +156,25 @@ describe('cron upload-ads-conversions', () => {
     expect(sql).toMatch(/uploaded_to_ads\s*=\s*false/i)
   })
 
-  it('SELECT de whatsapp deixa de fora os caminhos da triagem que não são captação', async () => {
+  it('SELECT de whatsapp deixa de fora todos os caminhos da triagem', async () => {
     selects([])
     await GET(fakeRequest(ENV_VARS.CRON_SECRET))
 
     const [sql, params] = queryMock.mock.calls[1] as [string, unknown[]]
-    // Cliente e restrita são atendimento; proposta já conta pela ação do
-    // formulário. Outro assunto e as seções antigas (botão sem JS, cabeçalho,
-    // rodapé, conteúdo) continuam subindo.
+    // Da triagem só a proposta vira conversão, e ela já conta pela ação do
+    // formulário: cliente, restrita, outro assunto e o clique pós-proposta
+    // ficam fora. As seções antigas (botão sem JS, cabeçalho, rodapé,
+    // conteúdo) continuam subindo.
     const excluidas = params[1] as string[]
     expect([...excluidas].sort()).toEqual([
       'triagem_cliente',
+      'triagem_outro',
       'triagem_proposta',
       'triagem_restrita',
     ])
-    expect(excluidas).not.toContain('triagem_outro')
-    expect(excluidas).not.toContain('botao_flutuante')
+    for (const antiga of ['botao_flutuante', 'cabecalho', 'rodape', 'conteudo']) {
+      expect(excluidas).not.toContain(antiga)
+    }
     // `section` nula (clique antigo) não pode sumir: `null <> all(...)` é nulo,
     // e sem o `coalesce` o WHERE descartaria esses cliques em silêncio.
     expect(sql).toMatch(/coalesce\(section, ''\) <> all\(\$2::text\[\]\)/i)

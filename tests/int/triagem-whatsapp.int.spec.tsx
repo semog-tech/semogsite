@@ -127,6 +127,54 @@ describe('menu da triagem', () => {
     )
   })
 
+  /** Os títulos das opções na ordem da tela, e o item que leva o portal. */
+  function ordemDoMenu() {
+    const itens = [...document.querySelectorAll('dialog.triagem .tr-opcoes > li')]
+    return {
+      opcoes: itens.map((li) => li.querySelector('.tr-opcao strong')?.textContent),
+      portalCom: itens
+        .find((li) => li.querySelector('.tr-portal'))
+        ?.querySelector('.tr-opcao strong')?.textContent,
+    }
+  }
+
+  it('na home e nas demais páginas, "Sou cliente" vem primeiro', async () => {
+    for (const caminho of ['/', '/garante']) {
+      window.history.replaceState(null, '', caminho)
+      const { unmount } = render(<TriagemWhatsApp whatsappHref={WA} />)
+      fireEvent.click(await screen.findByRole('button', { name: 'Falar com a Semog' }))
+
+      expect(ordemDoMenu()).toEqual({
+        opcoes: [
+          'Sou cliente: 2ª via e atendimento',
+          'Quero uma proposta para meu condomínio',
+          'Outro assunto',
+        ],
+        portalCom: 'Sou cliente: 2ª via e atendimento',
+      })
+      unmount()
+    }
+  })
+
+  it.each([
+    '/administradora-de-condominios-recife',
+    '/administradora-de-condominios-joao-pessoa',
+    '/administradora-de-condominios-campina-grande',
+    '/administradora-de-condominios-belem',
+  ])('na landing %s, a proposta vem primeiro e o portal segue com o cliente', async (caminho) => {
+    window.history.replaceState(null, '', caminho)
+    await abrirTriagem()
+
+    expect(ordemDoMenu()).toEqual({
+      opcoes: [
+        'Quero uma proposta para meu condomínio',
+        'Sou cliente: 2ª via e atendimento',
+        'Outro assunto',
+      ],
+      portalCom: 'Sou cliente: 2ª via e atendimento',
+    })
+  })
+
   it('Fechar devolve o foco ao botão e recolhe o aria-expanded', async () => {
     const botao = await abrirTriagem()
 

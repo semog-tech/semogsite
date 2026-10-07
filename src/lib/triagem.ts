@@ -40,17 +40,21 @@ export function secaoDoCaminho(caminho: string | undefined): string | undefined 
 }
 
 /**
- * Seções cujo clique **não** sobe como conversão de WhatsApp no Google Ads.
- * `cliente` e `restrita` são atendimento a quem já é cliente; contar isso
- * ensinaria o lance automático a comprar clique de condômino. `proposta` é o
- * clique que vem DEPOIS de o lead já ter sido gravado pelo formulário, que
- * conta pela ação própria — contar de novo seria duplicar a conversão.
+ * Seções cujo clique **não** sobe como conversão de WhatsApp no Google Ads —
+ * todas as da triagem. Decisão do Leandro (06/10/2026): da triagem, só a
+ * proposta vira conversão, e ela já conta pela ação do formulário.
+ *
+ * - `cliente` e `restrita` são atendimento a quem já é cliente; contar isso
+ *   ensinaria o lance automático a comprar clique de condômino.
+ * - `outro` é assunto indefinido: fica medido no GA4 e em `cms.whatsapp_clicks`,
+ *   mas não ensina o lance.
+ * - `proposta` é o clique que vem DEPOIS de o lead já ter sido gravado pelo
+ *   formulário; contar de novo seria duplicar a conversão.
+ *
+ * Cliques de fora da triagem (botão sem JavaScript, cabeçalho, rodapé,
+ * conteúdo) e os antigos, sem seção, continuam subindo.
  */
-export const SECOES_FORA_DO_ADS: readonly string[] = [
-  SECAO_POR_CAMINHO.cliente,
-  SECAO_POR_CAMINHO.restrita,
-  SECAO_POR_CAMINHO.proposta,
-]
+export const SECOES_FORA_DO_ADS: readonly string[] = Object.values(SECAO_POR_CAMINHO)
 
 /**
  * Mensagens prontas. Só palavras, sem número: o filtro do bot do WhatsApp

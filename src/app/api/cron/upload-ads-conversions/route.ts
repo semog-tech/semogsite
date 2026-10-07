@@ -132,10 +132,9 @@ export async function GET(req: Request): Promise<Response> {
       [cutoff],
     )
 
-    // Clique de WhatsApp conta como conversão só quando é captação. Os que
-    // saem da triagem do botão flutuante pelo caminho de cliente (atendimento)
-    // ou depois da proposta curta (o lead já conta pela ação do formulário)
-    // ficam de fora — ver `SECOES_FORA_DO_ADS`. O `coalesce` é necessário:
+    // Nenhum clique saído da triagem do botão flutuante conta como conversão:
+    // cliente é atendimento, outro assunto é indefinido, e a proposta já conta
+    // pela ação do formulário — ver `SECOES_FORA_DO_ADS`. O `coalesce` é necessário:
     // `section` é nula em clique antigo ou com seção recusada pelo beacon, e
     // `null not in (...)` dá nulo, o que descartaria esses cliques em silêncio.
     const { rows: whatsapp } = await query<PendingRow>(
