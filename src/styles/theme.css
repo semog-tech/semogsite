@@ -942,6 +942,420 @@
     }
   }
 
+  /* ---------- Triagem do botão de WhatsApp ----------
+     src/components/triagem/TriagemWhatsApp.tsx. `<dialog>` nativo aberto com
+     `showModal()`: o navegador cuida do `Esc`, do fundo inerte e da camada de
+     topo (acima do `.grain` e do `.wa-float`). Formato "A" da spec: folha que
+     sobe do rodapé no celular, balão ancorado acima do botão no computador.
+     Superfícies e texto são os tokens do site (tema escuro, o único que o site
+     tem). */
+  .wa-float .wa-float-fechar {
+    display: none;
+  }
+  .wa-float[aria-expanded='true'] .wa-float-icone {
+    display: none;
+  }
+  .wa-float[aria-expanded='true'] .wa-float-fechar {
+    display: block;
+  }
+  /* Com o diálogo aberto a página atrás não rola. O Lenis não precisa ser
+     parado: o diálogo leva `data-lenis-prevent`, e o fundo (o `::backdrop`) é
+     parte dele, então nenhuma rodinha sobre a tela chega ao Lenis. */
+  html.tr-travado {
+    overflow: hidden;
+  }
+
+  .triagem {
+    --tr-superficie: var(--bg-raise);
+    --tr-superficie-2: var(--color-navy-800);
+    --tr-erro: #f2a6b4;
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: transparent;
+    color: var(--text);
+  }
+  /* Literal: `::backdrop` não herda custom properties em todos os navegadores. */
+  .triagem::backdrop {
+    background: rgba(5, 8, 26, 0.6);
+  }
+  .tr-painel {
+    display: flex;
+    flex-direction: column;
+    max-height: min(88dvh, 720px);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+    background: var(--tr-superficie);
+    box-shadow:
+      0 30px 80px -30px rgba(0, 0, 0, 0.9),
+      0 0 0 1px rgba(173, 213, 235, 0.06);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tr-alca {
+    flex: none;
+    width: 40px;
+    height: 4px;
+    margin: 8px auto 0;
+    border-radius: 4px;
+    background: var(--line-strong);
+  }
+  @media (min-width: 640px) {
+    .triagem {
+      inset: auto 22px 90px auto;
+      width: 380px;
+    }
+    .triagem::backdrop {
+      background: transparent;
+    }
+    .tr-painel {
+      max-height: min(640px, calc(100dvh - 120px));
+      border-bottom: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      padding-bottom: 0;
+    }
+    .tr-alca {
+      display: none;
+    }
+  }
+
+  .triagem :is(a, button):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .tr-cabecalho {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 12px 10px 20px;
+  }
+  .tr-cabecalho h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+  .tr-cabecalho h2:focus {
+    outline: none;
+  }
+  .tr-icone-btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-2);
+  }
+  .tr-icone-btn:hover {
+    background: var(--tr-superficie-2);
+    color: var(--text);
+  }
+  .tr-icone-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .tr-icone-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+  .tr-voltar {
+    margin-left: -12px;
+  }
+  .tr-corpo {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 20px 20px;
+  }
+  .tr-lead {
+    margin: 0 0 16px;
+    color: var(--text-2);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .tr-opcoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tr-opcao {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 72px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--tr-superficie-2);
+    color: var(--text);
+    text-align: left;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+  .tr-opcao:hover {
+    border-color: var(--line-strong);
+  }
+  .tr-opcao-ico {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--tr-superficie);
+    color: var(--accent);
+  }
+  .tr-opcao-ico svg {
+    width: 22px;
+    height: 22px;
+  }
+  .tr-opcao-texto {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tr-opcao-texto strong {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .tr-opcao-texto span {
+    color: var(--text-2);
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .tr-opcao-seta {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    color: var(--text-3);
+  }
+  .tr-portal {
+    margin: 8px 0 4px 72px;
+    color: var(--text-2);
+    font-size: 0.85rem;
+  }
+  .tr-portal a {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .tr-primario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 54px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-ice-400);
+    color: var(--color-navy-900);
+    font-size: 1rem;
+    font-weight: 700;
+    transition:
+      background-color 0.2s ease,
+      transform 0.15s ease;
+  }
+  .tr-primario:hover {
+    background: var(--color-ice-300);
+  }
+  .tr-primario:active {
+    transform: scale(0.98);
+  }
+  .tr-primario:disabled {
+    cursor: progress;
+    opacity: 0.85;
+  }
+  .tr-primario svg {
+    width: 20px;
+    height: 20px;
+  }
+  .tr-secundario {
+    width: 100%;
+    min-height: 50px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .tr-secundario:hover {
+    background: var(--tr-superficie-2);
+  }
+  .tr-girando {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: tr-girar 0.8s linear infinite;
+  }
+  .tr-erro {
+    margin: 0;
+    color: var(--tr-erro);
+    font-size: 0.9rem;
+  }
+  .tr-erro a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .tr-ok {
+    text-align: center;
+  }
+  .tr-ok-ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 4px auto 14px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-pill);
+    background: rgba(173, 213, 235, 0.1);
+    color: var(--accent);
+  }
+  .tr-ok-ico svg {
+    width: 28px;
+    height: 28px;
+  }
+  .tr-ok p {
+    max-width: 34ch;
+    margin: 0 auto 16px;
+    color: var(--text-2);
+  }
+  .tr-protocolo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--tr-superficie-2);
+    font-size: 0.95rem;
+  }
+  .tr-protocolo strong {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .tr-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Entrada e saída. A saída é animada pelo componente, que marca
+     `data-fechando` e só chama `close()` quando a animação termina. */
+  .triagem[open] .tr-painel {
+    animation: tr-subir 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .triagem[open]::backdrop {
+    animation: tr-esmaecer 0.25s ease;
+  }
+  .triagem[data-fechando] .tr-painel {
+    animation: tr-descer 0.22s ease-in forwards;
+  }
+  .triagem[data-fechando]::backdrop {
+    animation: tr-esmaecer 0.22s ease reverse forwards;
+  }
+  @media (min-width: 640px) {
+    .triagem[open] .tr-painel {
+      transform-origin: bottom right;
+      animation: tr-surgir 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+    .triagem[data-fechando] .tr-painel {
+      animation: tr-sumir 0.16s ease-in forwards;
+    }
+  }
+  @keyframes tr-subir {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes tr-descer {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes tr-surgir {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes tr-sumir {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+    }
+  }
+  @keyframes tr-esmaecer {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes tr-girar {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .triagem .tr-painel,
+    .triagem::backdrop,
+    .tr-opcao,
+    .tr-primario {
+      animation: none !important;
+      transition: none;
+    }
+    .tr-girando {
+      display: none;
+    }
+  }
+
   /* ---------- Preloader (três barras do logo) — fiel a semog.css:532-549 ----------
      Quem garante a saída é o CSS, não o React. `preloader-cap` começa a contar
      quando o navegador aplica esta folha de estilo (ou seja, junto com a
