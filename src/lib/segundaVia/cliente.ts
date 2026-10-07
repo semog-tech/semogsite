@@ -122,8 +122,10 @@ function parserReenviar(status: number, c: Registro): RespostaDe<'reenviar'> | n
 function parserConfirmar(status: number, c: Registro): RespostaDe<'confirmar'> | null {
   if (status === 200) {
     const unidades = todos(c.unidades, unidadePublica)
-    if (!refValida(c.sessao) || !inteiro(c.expiraEmSegundos) || !unidades) return null
-    return { tipo: 'ok', sessao: c.sessao, expiraEmSegundos: c.expiraEmSegundos, unidades }
+    const prazo = c.expiraEmSegundos
+    // Prazo zero criaria um cookie de sessão já expirado.
+    if (!refValida(c.sessao) || !inteiro(prazo) || prazo === 0 || !unidades) return null
+    return { tipo: 'ok', sessao: c.sessao, expiraEmSegundos: prazo, unidades }
   }
   if (status === 401 && c.erro === 'incorreto' && inteiro(c.tentativasRestantes)) {
     return { tipo: 'incorreto', tentativasRestantes: c.tentativasRestantes }

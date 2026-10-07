@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto'
+import { inspect } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { assinarPedido } from '@/lib/segundaVia/assinatura'
 
@@ -16,6 +17,17 @@ const SEGREDO_ORIGINAL = process.env.SEMOGAPP_SEGUNDA_VIA_SEGREDO
 
 function resposta(status: number, corpo?: unknown): Response {
   return new Response(corpo === undefined ? null : JSON.stringify(corpo), { status })
+}
+
+/**
+ * Tudo o que chegou aos espiões do console, como texto. `JSON.stringify`
+ * transforma um `Error` em `{}` e esconderia o vazamento justamente no caminho
+ * de exceção; aqui o erro entra com nome, mensagem e pilha.
+ */
+function textoDosLogs(espioes: { mock: { calls: unknown[][] } }[]): string {
+  const serializa = (v: unknown): string =>
+    v instanceof Error ? `${v.name}: ${v.message} ${v.stack ?? ''}` : inspect(v, { depth: 8 })
+  return espioes.flatMap((e) => e.mock.calls.flat().map(serializa)).join('\n')
 }
 
 function fetchRetornando(r: Response) {
@@ -126,7 +138,7 @@ describe('chamarSegundaVia: requisição', () => {
     expect(h.get('X-Semog-Assinatura')).toBe(`sha256=${esperado}`)
     expect(h.get('Content-Type')).toBe('application/json')
 
-    for (const e of espioes) expect(JSON.stringify(e.mock.calls)).not.toContain(CPF)
+    expect(textoDosLogs(espioes)).not.toContain(CPF)
   })
 
   it('cada chamada leva um nonce diferente', async () => {
@@ -260,6 +272,16 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
         fetch: fetchRetornando(resposta(429, { erro: 'limite', tentarEmSegundos: 5 })),
       }),
     ).resolves.toEqual({ tipo: 'limite', tentarEmSegundos: 5 })
+  })
+
+  it('confirmar: expiraEmSegundos 0 (cookie nasceria morto) vira indisponivel', async () => {
+    const c = { desafio: REF, codigo: '123456', ipCliente: IP }
+    const unidades = [{ ref: REF, condominio: 'Edifício Sol', unidade: 'Apto 302' }]
+    await expect(
+      chamarSegundaVia('confirmar', c, {
+        fetch: fetchRetornando(resposta(200, { sessao: REF, expiraEmSegundos: 0, unidades })),
+      }),
+    ).resolves.toEqual({ tipo: 'indisponivel' })
   })
 
   it('confirmar: unidade fora do formato derruba a resposta inteira', async () => {
@@ -436,6 +458,6 @@ describe('chamarSegundaVia: o link do boleto (credencial)', () => {
   ])('%s: nenhum console.* contém a URL', async (_nome, criaFetch) => {
     const espioes = espionarConsole()
     await chamarSegundaVia('link', c, { fetch: criaFetch() })
-    for (const e of espioes) expect(JSON.stringify(e.mock.calls)).not.toContain('segredo123')
+    expect(textoDosLogs(espioes)).not.toContain('segredo123')
   })
 })

@@ -4,7 +4,7 @@ import type { CorpoDe, RespostaCobrancas, RespostaDe, RotaSegundaVia } from '@/l
 /**
  * Server Actions da 2ª via com as fronteiras mockadas: `next/headers` (IP e
  * cookies), Turnstile e o cliente HTTP do semogapp. O rate limit em memória é
- * o real; cada teste usa um IP próprio para não herdar a contagem de outro.
+ * o real, recarregado a cada teste (ver `carregarActions`).
  */
 
 const chamarMock = vi.fn()
@@ -27,14 +27,29 @@ vi.mock('next/headers', () => ({
   cookies: (...args: unknown[]) => cookiesMock(...args),
 }))
 
-const {
-  solicitarCodigo,
-  reenviarCodigo,
-  confirmarCodigo,
-  listarCobrancas,
-  abrirBoleto,
-  encerrarConsulta,
-} = await import('@/app/(frontend)/_actions/segunda-via')
+type Actions = typeof import('@/app/(frontend)/_actions/segunda-via')
+let solicitarCodigo: Actions['solicitarCodigo']
+let reenviarCodigo: Actions['reenviarCodigo']
+let confirmarCodigo: Actions['confirmarCodigo']
+let listarCobrancas: Actions['listarCobrancas']
+let abrirBoleto: Actions['abrirBoleto']
+let encerrarConsulta: Actions['encerrarConsulta']
+
+/**
+ * Módulos recarregados a cada teste: o `Map` do rate limit em memória nasce
+ * vazio, e o balde `anon` (IP ausente ou inválido) não passa de um teste a outro.
+ */
+async function carregarActions() {
+  vi.resetModules()
+  ;({
+    solicitarCodigo,
+    reenviarCodigo,
+    confirmarCodigo,
+    listarCobrancas,
+    abrirBoleto,
+    encerrarConsulta,
+  } = await import('@/app/(frontend)/_actions/segunda-via'))
+}
 
 const CPF = '529.982.247-25'
 const CPF_DIGITOS = '52998224725'
@@ -70,7 +85,6 @@ function lojaDeCookies(inicial: Record<string, string> = {}) {
 }
 
 let cookies = lojaDeCookies()
-let ipSeq = 0
 
 function usarIp(ip: string | null) {
   headersMock.mockResolvedValue({
@@ -92,12 +106,12 @@ function corpoEnviado<R extends RotaSegundaVia>(): CorpoDe<R> {
 
 const FLAG_ORIGINAL = process.env.SEGUNDA_VIA_ATIVA
 
-beforeEach(() => {
+beforeEach(async () => {
+  await carregarActions()
   process.env.SEGUNDA_VIA_ATIVA = 'true'
   cookies = lojaDeCookies()
   cookiesMock.mockImplementation(async () => cookies)
-  ipSeq += 1
-  usarIp(`10.0.0.${ipSeq}`)
+  usarIp('10.0.0.1')
   verifyTurnstileMock.mockResolvedValue(true)
 })
 
