@@ -18,7 +18,12 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Local, no máximo 2: com vários workers dividindo o mesmo `pnpm dev`, o vídeo
+     do hero baixa mais devagar, o navegador repete trechos e o orçamento de bytes
+     de `hero-video.e2e.spec.ts` estoura. O Firefox da 2ª via aumentou essa carga,
+     mas o teste já falha sem ele: medido em 07/10/2026, com 4 workers falhou 3 de
+     3 na suíte completa e também sem o spec da 2ª via; com 2, passou 62/62. */
+  workers: process.env.CI ? 1 : 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
