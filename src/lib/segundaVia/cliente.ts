@@ -96,7 +96,8 @@ function urlDoBoleto(v: unknown): string | null {
       u.username === '' &&
       u.password === '' &&
       u.hash === ''
-    return ok ? v : null
+    // A forma serializada pelo parser, a mesma que foi conferida acima.
+    return ok ? u.href : null
   } catch {
     return null
   }
@@ -179,7 +180,9 @@ function configuracao(): { base: string; segredo: string } | null {
     const local = u.hostname === 'localhost' || u.hostname === '127.0.0.1'
     // O segredo assina cada pedido: fora do ambiente local, só por TLS.
     if (u.protocol !== 'https:' && !(u.protocol === 'http:' && local)) return null
-    return { base: u.origin, segredo }
+    if (u.search || u.hash || u.username || u.password) return null
+    // Preserva um prefixo de caminho (ex.: `/api`), sem a barra final.
+    return { base: `${u.origin}${u.pathname.replace(/\/+$/, '')}`, segredo }
   } catch {
     return null
   }

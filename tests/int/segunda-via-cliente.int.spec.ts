@@ -361,3 +361,81 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
     ).resolves.toEqual({ tipo: 'ok' })
   })
 })
+
+describe('chamarSegundaVia: caminho de SEMOGAPP_API_URL', () => {
+  it.each([
+    ['https://app.exemplo.test/api', 'https://app.exemplo.test/api/publico/segunda-via/encerrar'],
+    ['https://app.exemplo.test/api/', 'https://app.exemplo.test/api/publico/segunda-via/encerrar'],
+    ['https://app.exemplo.test/', 'https://app.exemplo.test/publico/segunda-via/encerrar'],
+  ])('%s preserva o prefixo e não duplica a barra', async (base, esperada) => {
+    process.env.SEMOGAPP_API_URL = base
+    const fetchFalso = fetchRetornando(resposta(204))
+    await chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso })
+    expect(fetchFalso.mock.calls[0][0]).toBe(esperada)
+  })
+
+  it.each([
+    'https://app.exemplo.test/api?x=1',
+    'https://app.exemplo.test/api#frag',
+    'https://u:s@app.exemplo.test/api',
+  ])('base com query, fragmento ou credencial (%s) não é usada', async (base) => {
+    process.env.SEMOGAPP_API_URL = base
+    const fetchFalso = vi.fn<typeof fetch>()
+    await expect(
+      chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso }),
+    ).resolves.toEqual({ tipo: 'indisponivel' })
+    expect(fetchFalso).not.toHaveBeenCalled()
+  })
+})
+
+describe('chamarSegundaVia: o link do boleto (credencial)', () => {
+  const c = { sessao: REF, unidade: REF, cobranca: REF, ipCliente: IP }
+  const URL_BOLETO =
+    'https://semog.superlogica.net/clients/areadocondomino/segundavia?id=segredo123'
+
+  it('devolve a forma validada pelo parser (href), não a string crua', async () => {
+    await expect(
+      chamarSegundaVia('link', c, {
+        fetch: fetchRetornando(resposta(200, { url: 'https://SEMOG.superlogica.net/x?id=1' })),
+      }),
+    ).resolves.toEqual({ tipo: 'ok', url: 'https://semog.superlogica.net/x?id=1' })
+  })
+
+  function espionarConsole() {
+    return (['log', 'info', 'warn', 'error', 'debug', 'trace'] as const).map((m) =>
+      vi.spyOn(console, m).mockImplementation(() => {}),
+    )
+  }
+
+  it.each([
+    ['caminho feliz', () => fetchRetornando(resposta(200, { url: URL_BOLETO }))],
+    [
+      'fetch lança com a URL na mensagem',
+      () =>
+        vi.fn<typeof fetch>(async () => {
+          throw new TypeError(`fetch failed: ${URL_BOLETO}`)
+        }),
+    ],
+    [
+      'leitura do corpo lança com a URL na mensagem',
+      () =>
+        vi.fn<typeof fetch>(async () => {
+          const r = resposta(200, { url: URL_BOLETO })
+          vi.spyOn(r, 'text').mockRejectedValue(new Error(`corpo: ${URL_BOLETO}`))
+          return r
+        }),
+    ],
+    [
+      'URL recusada pela segunda conferência',
+      () => fetchRetornando(resposta(200, { url: `${URL_BOLETO}#x` })),
+    ],
+    [
+      '401 de assinatura',
+      () => fetchRetornando(resposta(401, { erro: 'assinatura', url: URL_BOLETO })),
+    ],
+  ])('%s: nenhum console.* contém a URL', async (_nome, criaFetch) => {
+    const espioes = espionarConsole()
+    await chamarSegundaVia('link', c, { fetch: criaFetch() })
+    for (const e of espioes) expect(JSON.stringify(e.mock.calls)).not.toContain('segredo123')
+  })
+})

@@ -85,3 +85,33 @@ export type RespostasSegundaVia = {
 
 export type CorpoDe<R extends RotaSegundaVia> = CorposSegundaVia[R]
 export type RespostaDe<R extends RotaSegundaVia> = RespostasSegundaVia[R]
+
+/**
+ * Resultados das Server Actions (`_actions/segunda-via.ts`), o que o navegador
+ * recebe. Partem das respostas do app sem os tokens (`desafio`, `sessao`), que
+ * ficam só nos cookies HttpOnly, e somam os casos decididos no próprio site.
+ */
+
+/** `SEGUNDA_VIA_ATIVA` diferente de `'true'`: nada é chamado. */
+export type Desligada = { tipo: 'desligada' }
+
+export type ResultadoSolicitar =
+  | { tipo: 'ok'; reenvioEmSegundos: number }
+  | Exclude<RespostaSolicitar, { tipo: 'ok' }>
+  | { tipo: 'anti_robo' }
+  | Desligada
+
+/** Sem cookie de desafio, `expirado` (o redutor leva à tela de consulta expirada). */
+export type ResultadoReenviar = RespostaReenviar | Desligada
+
+/** `formato`: código fora de 6 dígitos, recusado sem gastar tentativa no app. */
+export type ResultadoConfirmar =
+  | { tipo: 'ok'; unidades: UnidadePublica[] }
+  | Exclude<RespostaConfirmar, { tipo: 'ok' }>
+  | { tipo: 'formato' }
+  | Desligada
+
+/** Sem cookie de sessão, `sessao_invalida` (Review Focus 4), nunca `indisponivel`. */
+export type ResultadoCobrancas = RespostaCobrancas | Desligada
+
+export type ResultadoLink = RespostaLink | Desligada
