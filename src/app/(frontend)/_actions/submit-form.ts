@@ -24,6 +24,7 @@ import {
   buildAttributionFields,
   parseAttributionCookie,
 } from '@/lib/attribution'
+import { clienteIp } from '@/lib/clienteIp'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { pool, query } from '@/lib/db'
 import { botoesDeDesfecho } from '@/lib/desfechoToken'
@@ -209,19 +210,6 @@ function flattenZodErrors(
     }
   }
   return errors
-}
-
-/**
- * IP do cliente a partir de `x-forwarded-for` (Vercel/proxies padrão
- * preenchem esse header; primeiro valor da lista é o cliente original).
- * `undefined` se ausente (ex.: `next dev` sem proxy na frente) — quem chama
- * cai pro fallback `'anon'` do rate limit.
- */
-async function getClientIp(): Promise<string | undefined> {
-  const headerList = await headers()
-  const forwardedFor = headerList.get('x-forwarded-for')
-  if (!forwardedFor) return undefined
-  return forwardedFor.split(',')[0]?.trim() || undefined
 }
 
 /** Uma linha de `cms.leads`, já com tudo decidido — ver `gravarLead`. */
@@ -605,7 +593,7 @@ async function barrarAbuso(
 async function processarEnvio(envio: Envio, turnstileToken: string): Promise<SubmitFormResult> {
   const { formType, data } = envio
   try {
-    const ip = await getClientIp()
+    const ip = await clienteIp()
     const recusa = await barrarAbuso(formType, ip, turnstileToken)
     if (recusa) return recusa
 
