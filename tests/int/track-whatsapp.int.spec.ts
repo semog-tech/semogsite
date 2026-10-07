@@ -95,6 +95,17 @@ describe('POST /api/track/whatsapp', () => {
     expect(params[2]).toBeNull()
   })
 
+  it.each([
+    'triagem_cliente',
+    'triagem_proposta',
+    'triagem_outro',
+    'triagem_restrita',
+  ])('aceita a seção %s da triagem do botão flutuante', async (section) => {
+    await POST(req({ page: '/', section }))
+    const [, params] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(params[2]).toBe(section)
+  })
+
   it('recusa página que não é caminho relativo (nada de URL externa)', async () => {
     await POST(req({ page: 'https://evil.example/x', section: 'conteudo' }))
     const [, params] = queryMock.mock.calls[0] as [string, unknown[]]

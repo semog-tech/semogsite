@@ -4,6 +4,7 @@ import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
 import { ATTRIBUTION_COOKIE, parseAttributionCookie } from '@/lib/attribution'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
+import { SECAO_POR_CAMINHO } from '@/lib/triagem'
 
 /**
  * Beacon do clique no WhatsApp — registro **server-side**, à prova de ad-block.
@@ -32,7 +33,18 @@ export const dynamic = 'force-dynamic'
 /** Só aceita beacon vindo do próprio site (o header vai no `sendBeacon`). */
 const ALLOWED_ORIGIN = /^https:\/\/([a-z0-9-]+\.)*semog\.com\.br$/
 
-const SECTIONS = new Set(['botao_flutuante', 'cabecalho', 'rodape', 'conteudo'])
+/**
+ * Seções aceitas. As da triagem (`triagem_cliente`, `triagem_proposta`…) dizem
+ * qual caminho a pessoa escolheu no botão flutuante, e é por elas que o cron do
+ * Ads separa captação de atendimento (`SECOES_FORA_DO_ADS`).
+ */
+const SECTIONS = new Set<string>([
+  'botao_flutuante',
+  'cabecalho',
+  'rodape',
+  'conteudo',
+  ...Object.values(SECAO_POR_CAMINHO),
+])
 
 /** Recorta e limpa: só pathname, sem query/hash, limitado no tamanho. */
 function sanitizePage(value: unknown): string | null {

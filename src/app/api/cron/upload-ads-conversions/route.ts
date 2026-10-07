@@ -2,6 +2,7 @@ import { JWT } from 'google-auth-library'
 import { NextResponse } from 'next/server'
 import { paraDataManager } from '@/lib/adsConsent'
 import { query } from '@/lib/db'
+import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
 
 /**
  * Cron (Vercel) — sobe conversões pro Google Ads pelo SERVIDOR, à prova de
@@ -131,11 +132,18 @@ export async function GET(req: Request): Promise<Response> {
       [cutoff],
     )
 
+    // Clique de WhatsApp conta como conversão só quando é captação. Os que
+    // saem da triagem do botão flutuante pelo caminho de cliente (atendimento)
+    // ou depois da proposta curta (o lead já conta pela ação do formulário)
+    // ficam de fora — ver `SECOES_FORA_DO_ADS`. O `coalesce` é necessário:
+    // `section` é nula em clique antigo ou com seção recusada pelo beacon, e
+    // `null not in (...)` dá nulo, o que descartaria esses cliques em silêncio.
     const { rows: whatsapp } = await query<PendingRow>(
       `select id, created_at, gclid, ads_consent from cms.whatsapp_clicks
        where gclid is not null and created_at > $1 and uploaded_to_ads = false
+         and coalesce(section, '') <> all($2::text[])
        order by created_at desc`,
-      [cutoff],
+      [cutoff, SECOES_FORA_DO_ADS],
     )
 
     // Token uma vez só, reaproveitado pelos dois lotes.
