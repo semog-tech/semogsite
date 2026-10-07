@@ -20,6 +20,11 @@ import { registrarCaminho } from './medicao'
 
 type MenuProps = {
   aoEscolherProposta: () => void
+  /**
+   * Presente só com `SEGUNDA_VIA_ATIVA`: "Sou cliente" abre a consulta de
+   * boletos. Ausente, "Sou cliente" é o WhatsApp da fase 1.
+   */
+  aoEscolherSegundaVia?: () => void
   /** Chamado depois do clique num link que sai da triagem (WhatsApp). */
   aoSair: () => void
   /**
@@ -38,11 +43,18 @@ type MenuProps = {
  * Só a ordem das duas primeiras opções muda com a página; "Outro assunto" é
  * sempre a última, e o atalho do portal anda sempre junto da opção de cliente.
  *
- * Fase 1: "Sou cliente" ainda é o WhatsApp com o pedido de segunda via. Na fase
- * 2 ele abre a consulta de boletos.
+ * Fase 1 (ou 2ª via desligada): "Sou cliente" é o WhatsApp com o pedido de
+ * segunda via. Fase 2: abre a consulta de boletos.
  */
-export function MenuDaTriagem({ aoEscolherProposta, aoSair, propostaPrimeiro }: MenuProps) {
-  const cliente = <OpcaoCliente key="cliente" aoSair={aoSair} />
+export function MenuDaTriagem({
+  aoEscolherProposta,
+  aoEscolherSegundaVia,
+  aoSair,
+  propostaPrimeiro,
+}: MenuProps) {
+  const cliente = (
+    <OpcaoCliente key="cliente" aoSair={aoSair} aoEscolherSegundaVia={aoEscolherSegundaVia} />
+  )
   const proposta = <OpcaoProposta key="proposta" aoEscolher={aoEscolherProposta} />
   return (
     <>
@@ -55,30 +67,55 @@ export function MenuDaTriagem({ aoEscolherProposta, aoSair, propostaPrimeiro }: 
   )
 }
 
+const CONTEUDO_DO_CLIENTE = (
+  <>
+    <span className="tr-opcao-ico" aria-hidden="true">
+      <IconeBoleto />
+    </span>
+    <span className="tr-opcao-texto">
+      <strong>Sou cliente: 2ª via e atendimento</strong>
+      <span>Boletos em aberto da sua unidade, ou atendimento</span>
+    </span>
+    <IconeSeta />
+  </>
+)
+
 /** "Sou cliente", com o atalho do portal logo abaixo. */
-function OpcaoCliente({ aoSair }: { aoSair: () => void }) {
+function OpcaoCliente({
+  aoSair,
+  aoEscolherSegundaVia,
+}: {
+  aoSair: () => void
+  aoEscolherSegundaVia?: () => void
+}) {
   return (
     <li>
-      <a
-        className="tr-opcao"
-        href={linkWhatsApp(MENSAGEM_DO_CLIENTE)}
-        target="_blank"
-        rel="noopener"
-        {...{ [ATRIBUTO_CAMINHO]: 'cliente' }}
-        onClick={() => {
-          registrarCaminho('cliente')
-          aoSair()
-        }}
-      >
-        <span className="tr-opcao-ico" aria-hidden="true">
-          <IconeBoleto />
-        </span>
-        <span className="tr-opcao-texto">
-          <strong>Sou cliente: 2ª via e atendimento</strong>
-          <span>Boletos em aberto da sua unidade, ou atendimento</span>
-        </span>
-        <IconeSeta />
-      </a>
+      {aoEscolherSegundaVia ? (
+        <button
+          type="button"
+          className="tr-opcao"
+          onClick={() => {
+            registrarCaminho('cliente')
+            aoEscolherSegundaVia()
+          }}
+        >
+          {CONTEUDO_DO_CLIENTE}
+        </button>
+      ) : (
+        <a
+          className="tr-opcao"
+          href={linkWhatsApp(MENSAGEM_DO_CLIENTE)}
+          target="_blank"
+          rel="noopener"
+          {...{ [ATRIBUTO_CAMINHO]: 'cliente' }}
+          onClick={() => {
+            registrarCaminho('cliente')
+            aoSair()
+          }}
+        >
+          {CONTEUDO_DO_CLIENTE}
+        </a>
+      )}
       <p className="tr-portal">
         Prefere o portal?{' '}
         <a

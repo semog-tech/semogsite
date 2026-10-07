@@ -17,6 +17,9 @@ vi.mock('@/app/(frontend)/_actions/submit-form', () => ({
   submitPropostaRapida: (...args: unknown[]) => submitPropostaRapidaMock(...args),
 }))
 
+// A 2ª via (desligada nestes testes) importa Server Actions que usam cookies do servidor.
+vi.mock('@/app/(frontend)/_actions/segunda-via', () => ({ encerrarConsulta: vi.fn() }))
+
 // Mesmo dublê de `proposta-cidade`: o widget real injeta script e iframe.
 vi.mock('@/components/forms/Turnstile', () => ({
   Turnstile: ({ onToken }: { onToken: (token: string) => void }) => (
@@ -79,7 +82,7 @@ function lerBlob(blob: Blob): Promise<string> {
 
 /** Monta a triagem já hidratada e abre o menu. */
 async function abrirTriagem() {
-  render(<TriagemWhatsApp whatsappHref={WA} />)
+  render(<TriagemWhatsApp whatsappHref={WA} segundaViaAtiva={false} />)
   const botao = await screen.findByRole('button', { name: 'Falar com a Semog' })
   fireEvent.click(botao)
   return botao
@@ -141,7 +144,7 @@ describe('menu da triagem', () => {
   it('na home e nas demais páginas, "Sou cliente" vem primeiro', async () => {
     for (const caminho of ['/', '/garante']) {
       window.history.replaceState(null, '', caminho)
-      const { unmount } = render(<TriagemWhatsApp whatsappHref={WA} />)
+      const { unmount } = render(<TriagemWhatsApp whatsappHref={WA} segundaViaAtiva={false} />)
       fireEvent.click(await screen.findByRole('button', { name: 'Falar com a Semog' }))
 
       expect(ordemDoMenu()).toEqual({

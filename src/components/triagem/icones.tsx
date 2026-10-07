@@ -91,3 +91,13 @@ export function IconeConfirmado() {
     </svg>
   )
 }
+
+/** Círculo com exclamação: avisos da 2ª via (cobranças restritas, consulta expirada). */
+export function IconeAviso() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...TRACO} strokeWidth={2}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v5M12 16h.01" />
+    </svg>
+  )
+}

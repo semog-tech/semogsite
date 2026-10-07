@@ -1271,6 +1271,260 @@
     gap: 10px;
   }
 
+  /* ---------- 2ª via dentro da triagem ----------
+     src/components/triagem/segunda-via/. Estado expandido (variação B da
+     spec): tela cheia no celular, janela central de até 560px no computador.
+     A classe entra no `<dialog>` só enquanto a 2ª via está aberta. */
+  .triagem.triagem-painel--expandido {
+    inset: 0;
+    height: 100%;
+  }
+  .triagem-painel--expandido .tr-painel {
+    height: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+  .triagem-painel--expandido .tr-alca {
+    display: none;
+  }
+  @media (min-width: 640px) {
+    .triagem.triagem-painel--expandido {
+      inset: 0;
+      width: min(560px, calc(100% - 48px));
+      height: fit-content;
+      max-height: calc(100dvh - 48px);
+      margin: auto;
+    }
+    /* Literal pelo mesmo motivo do `::backdrop` acima. */
+    .triagem.triagem-painel--expandido::backdrop {
+      background: rgba(5, 8, 26, 0.6);
+    }
+    .triagem-painel--expandido .tr-painel {
+      height: auto;
+      max-height: calc(100dvh - 48px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+    }
+  }
+
+  .tr-etapa {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 20px 12px;
+    color: var(--text-2);
+    font-size: 0.82rem;
+  }
+  .tr-etapa-barra {
+    height: 4px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--line);
+  }
+  .tr-etapa-barra span {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .tr-dica {
+    margin: 0;
+    color: var(--text-3);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .tr-dica a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .tr-dica-destaque {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    color: var(--text);
+  }
+  .tr-campo-codigo input {
+    min-height: 58px;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.4em;
+    text-align: center;
+  }
+  .tr-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 14px;
+  }
+  .tr-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .tr-link:disabled {
+    cursor: default;
+    color: var(--text-3);
+    text-decoration: none;
+  }
+  .tr-alternativa {
+    margin: 14px 0 0;
+    color: var(--text-2);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .tr-alternativa a {
+    display: inline-block;
+    padding: 10px 4px;
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .tr-link-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tr-unidade-atual {
+    margin: 0 0 12px;
+    color: var(--text-2);
+    font-size: 0.9rem;
+  }
+  .tr-unidade-atual strong {
+    color: var(--text);
+  }
+  .tr-carregando {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    color: var(--text-2);
+  }
+  .tr-boleto {
+    align-items: flex-start;
+    min-height: 0;
+  }
+  .tr-boleto .tr-opcao-texto span {
+    color: var(--text-3);
+    font-size: 0.82rem;
+  }
+  .tr-boleto-valor {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .tr-boleto-valor strong {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .tr-situacao {
+    padding: 2px 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    color: var(--text-2);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .tr-situacao[data-situacao='vencido'] {
+    border-color: var(--tr-erro);
+    background: color-mix(in srgb, var(--tr-erro) 10%, transparent);
+    color: var(--tr-erro);
+  }
+  .tr-aviso-restrita {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  .tr-aviso-restrita > svg {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    color: var(--accent);
+  }
+  .tr-aviso-restrita p {
+    margin: 0 0 6px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .tr-aviso-restrita a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .tr-aviso-restrita a svg {
+    width: 18px;
+    height: 18px;
+  }
+  .tr-vazio {
+    padding: 8px 0;
+    text-align: center;
+  }
+  .tr-vazio p {
+    margin: 0 0 10px;
+    color: var(--text-2);
+  }
+  .tr-vazio p:first-child {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .tr-resumo {
+    margin: 0 0 18px;
+    padding: 4px 16px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--tr-superficie-2);
+  }
+  .tr-resumo div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.94rem;
+  }
+  .tr-resumo div:last-child {
+    border-bottom: 0;
+  }
+  .tr-resumo dt {
+    color: var(--text-2);
+  }
+  .tr-resumo dd {
+    margin: 0;
+    font-weight: 500;
+    text-align: right;
+  }
+  .tr-aviso-link {
+    text-align: center;
+  }
+
   /* Entrada e saída. A saída é animada pelo componente, que marca
      `data-fechando` e só chama `close()` quando a animação termina. */
   .triagem[open] .tr-painel {
@@ -1292,6 +1546,28 @@
     }
     .triagem[data-fechando] .tr-painel {
       animation: tr-sumir 0.16s ease-in forwards;
+    }
+  }
+  /* Ao expandir para a 2ª via, o painel ganha uma entrada curta própria. */
+  .triagem.triagem-painel--expandido[open] .tr-painel {
+    animation: tr-expandir 0.24s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .triagem.triagem-painel--expandido[data-fechando] .tr-painel {
+    animation: tr-descer 0.22s ease-in forwards;
+  }
+  @media (min-width: 640px) {
+    .triagem.triagem-painel--expandido[data-fechando] .tr-painel {
+      animation: tr-sumir 0.16s ease-in forwards;
+    }
+  }
+  @keyframes tr-expandir {
+    from {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
   @keyframes tr-subir {
@@ -1347,7 +1623,8 @@
     .triagem .tr-painel,
     .triagem::backdrop,
     .tr-opcao,
-    .tr-primario {
+    .tr-primario,
+    .tr-etapa-barra span {
       animation: none !important;
       transition: none;
     }

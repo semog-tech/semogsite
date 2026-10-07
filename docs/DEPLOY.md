@@ -102,6 +102,23 @@ depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fic
 Detalhes do contrato da API — que diverge do PDF oficial da Exact — em
 `scripts/probe-exact-create-lead.ts`.
 
+### 2ª via de boleto na triagem (opcional; desligada sem `SEGUNDA_VIA_ATIVA=true`)
+
+| Variável | Obrigatório | Client-exposed | Descrição |
+|---|---|---|---|
+| `SEGUNDA_VIA_ATIVA` | Opcional | Não | `true` liga a 2ª via: "Sou cliente" abre a consulta por CPF em vez do WhatsApp da fase 1. Qualquer outro valor (ou ausente) mantém a fase 1. Lida no servidor (`WhatsAppFloat` e cada Server Action de `src/app/(frontend)/_actions/segunda-via.ts`); só o booleano chega ao navegador. |
+| `SEMOGAPP_API_URL` | Com a flag | Não | Base da API pública do `semogapp` (as rotas são `<base>/publico/segunda-via/*`). Só `https`, exceto `localhost`. [A CONFIRMAR o host público] |
+| `SEMOGAPP_SEGUNDA_VIA_SEGREDO` | Com a flag | Não | Segredo HMAC compartilhado com o `semogapp` (≥ 32 bytes), próprio desta integração. Assina cada pedido; **nunca** como `NEXT_PUBLIC_*`. |
+
+As três são **só de servidor** e entram **só em Production e no Preview autorizado** para o
+ensaio — nunca em todo Preview: cada consulta envia e-mail de verdade ao condômino e abre
+boleto real. Sem `SEMOGAPP_API_URL` ou com segredo curto, as actions respondem
+"indisponível" e a tela manda ao WhatsApp, nunca a uma lista vazia.
+
+Ligar ou desligar pede **deploy novo**: as páginas são estáticas e o botão sai no HTML do
+build com o valor da flag daquele momento. As actions conferem a flag a cada chamada, então
+desligar no meio de uma consulta leva a pessoa ao WhatsApp.
+
 ### Sentry (opcional)
 
 | Variável | Obrigatório | Client-exposed | Descrição |

@@ -10,7 +10,17 @@ import { TriagemWhatsApp } from '@/components/triagem/TriagemWhatsApp'
  * cliente, proposta, outro assunto — em vez de levar todo mundo à mesma fila.
  * O link direto continua sendo o HTML do servidor: sem JavaScript, o botão
  * segue abrindo o WhatsApp (ver `TriagemWhatsApp`).
+ *
+ * `SEGUNDA_VIA_ATIVA` é lida aqui, no servidor, e só o booleano desce ao
+ * navegador. Nas páginas estáticas o valor fica no HTML do build: ligar ou
+ * desligar pede um deploy novo (as Server Actions conferem a flag de novo a
+ * cada chamada).
  */
 export async function WhatsAppFloat() {
-  return <TriagemWhatsApp whatsappHref={`https://wa.me/${site.company.whatsapp}`} />
+  return (
+    <TriagemWhatsApp
+      whatsappHref={`https://wa.me/${site.company.whatsapp}`}
+      segundaViaAtiva={process.env.SEGUNDA_VIA_ATIVA === 'true'}
+    />
+  )
 }

@@ -63,6 +63,12 @@ export const SECOES_FORA_DO_ADS: readonly string[] = Object.values(SECAO_POR_CAM
  */
 export const MENSAGEM_DO_CLIENTE = 'Olá! Sou cliente e quero a segunda via do boleto.'
 export const MENSAGEM_DE_OUTRO_ASSUNTO = 'Olá! Vim pelo site e tenho outra dúvida.'
+/** 2ª via: quem não recebe o código porque não acessa o e-mail do cadastro. */
+export const MENSAGEM_SEM_ACESSO_AO_EMAIL =
+  'Olá! Sou cliente e não tenho acesso ao meu e-mail cadastrado.'
+/** 2ª via: a unidade tem cobranças que só a equipe trata (caminho `restrita`). */
+export const MENSAGEM_COBRANCAS_RESTRITAS =
+  'Olá! Sou cliente e preciso tratar de cobranças com a equipe.'
 
 export function mensagemDaProposta(protocolo: string): string {
   return `Olá! Acabei de pedir uma proposta pelo site. Protocolo ${protocolo}.`

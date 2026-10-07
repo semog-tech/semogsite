@@ -2,17 +2,20 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { type CidadeDaLanding, cidadeDaLanding } from '@/lib/cidadeDaLanding'
-import { IconeFechar, IconeVoltar, IconeWhatsApp, IconeX } from './icones'
+import { Cabecalho } from './Cabecalho'
+import { IconeFechar, IconeWhatsApp } from './icones'
 import { registrarTriagemAberta } from './medicao'
 import { PropostaRapidaForm } from './PropostaRapidaForm'
+import { encerrarSegundaVia, SegundaVia } from './segunda-via/SegundaVia'
 import { ConfirmacaoDaProposta, MenuDaTriagem } from './TelasDaTriagem'
 
 /** Duração da animação de saída mais longa (folha do celular), em ms. */
 const TEMPO_DE_SAIDA_MS = 220
 
-type Tela = 'menu' | 'proposta' | 'confirmacao'
+/** `segunda-via` tem telas e títulos próprios (`SegundaVia`). */
+type Tela = 'menu' | 'proposta' | 'confirmacao' | 'segunda-via'
 
-const TITULOS: Record<Tela, string> = {
+const TITULOS: Record<Exclude<Tela, 'segunda-via'>, string> = {
   menu: 'Como podemos ajudar?',
   proposta: 'Peça sua proposta',
   confirmacao: 'Pedido recebido',
@@ -26,8 +29,17 @@ const TITULOS: Record<Tela, string> = {
  *
  * O botão hidratado não é link, então não dispara `whatsapp_click`: quem conta
  * é o link escolhido lá dentro, com a seção do caminho.
+ *
+ * `segundaViaAtiva` vem de `SEGUNDA_VIA_ATIVA`, lida no servidor
+ * (`WhatsAppFloat`). Desligada, "Sou cliente" é o WhatsApp da fase 1.
  */
-export function TriagemWhatsApp({ whatsappHref }: { whatsappHref: string }) {
+export function TriagemWhatsApp({
+  whatsappHref,
+  segundaViaAtiva,
+}: {
+  whatsappHref: string
+  segundaViaAtiva: boolean
+}) {
   const [hidratado, setHidratado] = useState(false)
   useEffect(() => setHidratado(true), [])
 
@@ -39,7 +51,7 @@ export function TriagemWhatsApp({ whatsappHref }: { whatsappHref: string }) {
       </a>
     )
   }
-  return <Triagem />
+  return <Triagem segundaViaAtiva={segundaViaAtiva} />
 }
 
 /**
@@ -115,7 +127,7 @@ function useDialogoAnimado(aoFechar: () => void) {
 }
 
 /** A triagem hidratada: o botão e o diálogo, com a troca de telas. */
-function Triagem() {
+function Triagem({ segundaViaAtiva }: { segundaViaAtiva: boolean }) {
   const tituloId = useId()
   const botaoRef = useRef<HTMLButtonElement>(null)
   const tituloRef = useRef<HTMLHeadingElement>(null)
@@ -126,8 +138,14 @@ function Triagem() {
   const [protocolo, setProtocolo] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
   const [cidade, setCidade] = useState<CidadeDaLanding | undefined>(undefined)
+  // Entrou na 2ª via desde que abriu: ao fechar, a consulta é encerrada.
+  const usouSegundaVia = useRef(false)
 
   const aoFechar = useCallback(() => {
+    if (usouSegundaVia.current) {
+      usouSegundaVia.current = false
+      encerrarSegundaVia()
+    }
     document.documentElement.classList.remove('tr-travado')
     setAberto(false)
     setTela('menu')
@@ -175,6 +193,12 @@ function Triagem() {
     setProtocolo(novo)
     setTela('confirmacao')
   }, [])
+  const irParaSegundaVia = useCallback(() => {
+    usouSegundaVia.current = true
+    setTela('segunda-via')
+  }, [])
+  const voltarAoMenu = useCallback(() => setTela('menu'), [])
+  const titulo = { id: tituloId, ref: tituloRef }
 
   return (
     <>
@@ -193,37 +217,33 @@ function Triagem() {
 
       <dialog
         ref={dialogoRef}
-        className="triagem"
+        className={tela === 'segunda-via' ? 'triagem triagem-painel--expandido' : 'triagem'}
         aria-labelledby={tituloId}
         data-lenis-prevent
         data-clarity-mask="true"
       >
         <div className="tr-painel">
           <div className="tr-alca" aria-hidden="true" />
-          <div className="tr-cabecalho">
-            {tela === 'proposta' && (
-              <button
-                type="button"
-                className="tr-icone-btn tr-voltar"
-                aria-label="Voltar às opções"
-                disabled={enviando}
-                onClick={() => setTela('menu')}
-              >
-                <IconeVoltar />
-              </button>
-            )}
-            <h2 id={tituloId} ref={tituloRef} tabIndex={-1}>
-              {TITULOS[tela]}
-            </h2>
-            <button type="button" className="tr-icone-btn" aria-label="Fechar" onClick={fechar}>
-              <IconeX />
-            </button>
-          </div>
+          {tela === 'segunda-via' ? (
+            <SegundaVia titulo={titulo} aoFechar={fechar} aoVoltarAoMenu={voltarAoMenu} />
+          ) : (
+            <Cabecalho
+              texto={TITULOS[tela]}
+              titulo={titulo}
+              voltar={
+                tela === 'proposta'
+                  ? { rotulo: 'Voltar às opções', desabilitado: enviando, aoVoltar: voltarAoMenu }
+                  : undefined
+              }
+              aoFechar={fechar}
+            />
+          )}
 
-          <div className="tr-corpo">
+          <div className="tr-corpo" hidden={tela === 'segunda-via'}>
             {tela === 'menu' && (
               <MenuDaTriagem
                 aoEscolherProposta={() => setTela('proposta')}
+                aoEscolherSegundaVia={segundaViaAtiva ? irParaSegundaVia : undefined}
                 aoSair={fechar}
                 propostaPrimeiro={cidade !== undefined}
               />
