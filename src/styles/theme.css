@@ -1522,7 +1522,11 @@
     text-align: right;
   }
   .tr-aviso-link {
+    color: var(--text-2);
     text-align: center;
+  }
+  .triagem-painel--expandido .tr-ok p {
+    max-width: 42ch;
   }
 
   /* Entrada e saída. A saída é animada pelo componente, que marca
