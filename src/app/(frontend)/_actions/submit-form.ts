@@ -30,9 +30,26 @@ import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { isExactEligible } from '@/lib/exact/map-lead'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import { validarLotacaoExperience } from '@/lib/experienceLotacao'
-import type { ContatoValues, ExperienceValues, PropostaValues } from '@/lib/form-schemas'
-import { contatoSchema, experienceSchema, propostaSchema } from '@/lib/form-schemas'
-import { extractLeadColumns, FORMS, type FormType, type SubmitFormResult } from '@/lib/forms'
+import type {
+  ContatoValues,
+  ExperienceValues,
+  PropostaRapidaValues,
+  PropostaValues,
+} from '@/lib/form-schemas'
+import {
+  contatoSchema,
+  experienceSchema,
+  propostaRapidaSchema,
+  propostaSchema,
+} from '@/lib/form-schemas'
+import {
+  extractLeadColumns,
+  FORMS,
+  type FormType,
+  type SubmitFormResult,
+  VARIANTE_CONTATO_RAPIDO,
+} from '@/lib/forms'
+import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
@@ -68,6 +85,40 @@ const EXPERIENCE_LABELS: Record<keyof ExperienceValues, string> = {
   telefone: 'WhatsApp',
   condominio: 'Condomínio',
   aceiteImagem: 'Autoriza uso de imagem',
+}
+
+/**
+ * A proposta curta da triagem do WhatsApp. Grava como `proposta`, então os
+ * rótulos dos campos que ela tem em comum vêm de `PROPOSTA_LABELS`; estes são
+ * só os dois que ela acrescenta, para quem recebe o e-mail saber de onde veio o
+ * pedido e com que protocolo a pessoa vai aparecer no WhatsApp.
+ */
+const CONTATO_RAPIDO_LABELS: Record<'variante' | 'protocolo', string> = {
+  variante: 'Variante',
+  protocolo: 'Protocolo',
+}
+
+/** Rótulos do e-mail interno por formulário (campo sem rótulo sai com a chave). */
+function rotulosDoFormulario(formType: FormType): Record<string, string> {
+  if (formType === 'contato') return CONTATO_LABELS
+  if (formType === 'experience') return EXPERIENCE_LABELS
+  return { ...PROPOSTA_LABELS, ...CONTATO_RAPIDO_LABELS }
+}
+
+/** O que a proposta curta grava: os campos dela mais a marca e o protocolo. */
+type DadosDaPropostaRapida = PropostaRapidaValues & {
+  variante: typeof VARIANTE_CONTATO_RAPIDO
+  protocolo: string
+}
+
+type DadosDoEnvio = ContatoValues | PropostaValues | ExperienceValues | DadosDaPropostaRapida
+
+/** Uma submissão já validada, pronta para o pipeline comum (`processarEnvio`). */
+type Envio = {
+  formType: FormType
+  /** Assunto do e-mail interno ("Novo contato via …"). */
+  formTitle: string
+  data: DadosDoEnvio
 }
 
 /**
@@ -122,8 +173,10 @@ const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
  */
 function destinatariosDaNotificacao(
   formType: FormType,
-  data: ContatoValues | PropostaValues | ExperienceValues,
+  data: DadosDoEnvio,
 ): readonly string[] | undefined {
+  // `as`: com `formType === 'proposta'` os dados são do formulário completo ou
+  // da proposta curta, e os dois têm `cidade` com o mesmo enum.
   if (formType === 'proposta') return PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
   if (formType === 'experience') return [EXPERIENCE_TO]
   return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
@@ -345,14 +398,203 @@ async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: bo
 }
 
 /**
- * Server Action de submit dos formulários "Contato"/"Proposta"/"Inscrição —
- * Semog Experience" (config estática em `@/lib/forms`). Pipeline: valida com
- * Zod → rate limit por formulário+IP → Turnstile → grava em `cms.leads` (via `pg`,
- * `@/lib/db`) → cria o lead no CRM (Exact, só quando é captação) → e-mail. Os
- * dois últimos são best-effort.
+ * Monta o `data` (jsonb) do lead: campos do formulário (chave = nome do campo
+ * do schema Zod) + origem, como objeto `{field: value}`.
+ */
+function montarLeadData(
+  data: DadosDoEnvio,
+  attributionFields: { label: string; value: string }[],
+): Record<string, string> {
+  const leadData: Record<string, string> = {}
+  for (const [field, value] of Object.entries(data)) {
+    if (value !== undefined) {
+      leadData[field] = String(value)
+    }
+  }
+  for (const f of attributionFields) {
+    leadData[`origem — ${f.label}`] = f.value
+  }
+  return leadData
+}
+
+/**
+ * CRM (Exact) é best-effort, igual aos e-mails: o lead já está salvo. Um CRM
+ * fora do ar — ou um payload que ele recuse — não pode virar erro pra quem
+ * preencheu o formulário; o cron `push-exact-leads` retenta depois. Só passa
+ * por aqui quem é captação de verdade (o próprio `pushLeadToExact` devolve
+ * `null` pro resto e pra integração desligada).
+ */
+async function enviarAoExact(
+  formType: FormType,
+  leadData: Record<string, string>,
+  leadRowId: string,
+): Promise<void> {
+  try {
+    const push = await pushLeadToExact(formType, leadData)
+    if (push) {
+      await query(
+        `update cms.leads
+            set exact_lead_id = $1, exact_error = $2, exact_attempts = exact_attempts + 1
+          where id = $3`,
+        [
+          push.ok ? push.exactLeadId : null,
+          push.ok ? (push.personError ?? null) : push.error,
+          leadRowId,
+        ],
+      )
+    }
+  } catch (exactErr) {
+    console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
+  }
+}
+
+/** O que os e-mails de uma submissão precisam saber, já decidido antes do INSERT. */
+type EmailsDoEnvio = {
+  envio: Envio
+  leadData: Record<string, string>
+  leadRowId?: string
+  attributionFields: { label: string; value: string }[]
+  notifyTo?: readonly string[]
+  /** E-mail de quem preencheu; ausente na proposta curta, que não o pergunta. */
+  email?: string
+}
+
+/**
+ * Notificação interna, com os botões de desfecho quando é captação.
  *
- * A inscrição do Experience passa pelo mesmo pipeline, mas **nunca** chega ao
- * CRM: `isExactEligible` a barra (evento é relacionamento, não captação).
+ * O critério dos botões (Em negociação / Fechou / Não evoluiu / Não é lead) é
+ * `isExactEligible` — a MESMA função que decide o que vira card no CRM —, e não
+ * `formType === 'proposta'`. Perguntar "isto é captação?" e "vale perguntar o
+ * desfecho disto?" é perguntar a mesma coisa, e duplicar a regra faria as duas
+ * respostas divergirem com o tempo. Na prática isso inclui o Contato com
+ * assunto `proposta-comercial`, que é pedido de proposta escrito no formulário
+ * errado: ele já entra no CRM como lead e agora também tem desfecho. O resto do
+ * Contato (2ª via, CND, acordo) é atendimento a quem já é cliente, e "fechou"
+ * não faz sentido ali.
+ *
+ * `leadRowId` ausente = sem o que assinar. `botoesDeDesfecho` devolve
+ * `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai como
+ * sempre saiu, sem a seção.
+ */
+async function enviarNotificacao(emails: EmailsDoEnvio): Promise<void> {
+  const { envio, leadData, leadRowId, attributionFields, notifyTo } = emails
+  if (!notifyTo || notifyTo.length === 0) {
+    console.info(
+      '[submit-form] destinatário da notificação ausente — notificação interna não enviada.',
+    )
+    return
+  }
+
+  const labels = rotulosDoFormulario(envio.formType)
+  const fields = Object.entries(envio.data)
+    .filter(([, value]) => value !== undefined)
+    .map(([field, value]) => ({ label: labels[field] ?? field, value: String(value) }))
+
+  const desfecho =
+    leadRowId && isExactEligible(envio.formType, leadData)
+      ? (botoesDeDesfecho(leadRowId) ?? undefined)
+      : undefined
+
+  const notificationResult = await sendMail({
+    to: [...notifyTo],
+    subject: `Novo contato via ${envio.formTitle}`,
+    react: ContactNotification({
+      formTitle: envio.formTitle,
+      fields,
+      attribution: attributionFields,
+      desfecho,
+    }),
+  })
+  if (notificationResult.ok === false) {
+    console.error('[submit-form] sendMail falhou:', notificationResult.error)
+  }
+}
+
+/**
+ * Auto-reply: a inscrição no evento tem o seu, e não é firula. O genérico diz
+ * "Recebemos seu contato" e promete que "em breve alguém vai retornar pra você"
+ * — para quem se inscreveu num evento gratuito isso é falso (ninguém vai
+ * retornar) e contradiz a frase que o próprio formulário mostra acima do botão.
+ * O do evento confirma a inscrição repetindo data, horário e local de
+ * `EXPERIENCE_EVENT`.
+ *
+ * A proposta curta não pergunta e-mail: sem endereço não há para quem
+ * responder, e o envio é pulado (e registrado) em vez de tentado.
+ */
+async function enviarAutoReply(envio: Envio, email: string | undefined): Promise<void> {
+  if (!email) {
+    console.info('[submit-form] lead sem e-mail — auto-reply não enviado.')
+    return
+  }
+
+  const autoReply =
+    envio.formType === 'experience'
+      ? {
+          subject: `Inscrição recebida — ${EXPERIENCE_EVENT.name}`,
+          react: ExperienceAutoReply({ name: envio.data.nome }),
+        }
+      : {
+          subject: 'Recebemos seu contato — Semog',
+          react: ContactAutoReply({ name: envio.data.nome }),
+        }
+
+  const autoReplyResult = await sendMail({
+    to: email,
+    subject: autoReply.subject,
+    react: autoReply.react,
+  })
+  if (autoReplyResult.ok === false) {
+    console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
+  }
+}
+
+/**
+ * E-mail é best-effort: a submissão já está salva, então uma falha de SendGrid
+ * (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`) não deve derrubar o retorno
+ * `ok: true` pro usuário.
+ */
+async function enviarEmails(emails: EmailsDoEnvio): Promise<void> {
+  try {
+    await enviarNotificacao(emails)
+    await enviarAutoReply(emails.envio, emails.email)
+  } catch (mailErr) {
+    console.error('[submit-form] falha ao enviar e-mail (submissão já salva):', mailErr)
+  }
+}
+
+/**
+ * Rate limit e Turnstile. Devolve a recusa pronta, ou `null` para seguir.
+ *
+ * Rate limit ANTES do Turnstile, de propósito. `verifyTurnstile` é uma chamada
+ * de rede ao siteverify da Cloudflare: na ordem inversa, uma enxurrada de
+ * tokens inválidos nunca chegava a contar e cada tentativa ainda custava uma
+ * requisição de saída. A chave leva o formulário na frente (como pede o
+ * docblock de `rateLimit`) para que uma rajada na landing do evento não consuma
+ * a cota de quem está preenchendo Contato ou Proposta do mesmo IP — escritório
+ * inteiro sai por um NAT só. A proposta curta grava como `proposta` e por isso
+ * divide a cota com o formulário completo.
+ */
+async function barrarAbuso(
+  formType: FormType,
+  ip: string | undefined,
+  turnstileToken: string,
+): Promise<SubmitFormResult | null> {
+  const rate = rateLimit(`${formType}:${ip ?? 'anon'}`, { max: 5, windowMs: 60_000 })
+  if (!rate.ok) {
+    return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
+  }
+
+  const turnstileOk = await verifyTurnstile(turnstileToken, ip)
+  if (!turnstileOk) {
+    return { ok: false, message: 'Verificação anti-spam falhou.' }
+  }
+  return null
+}
+
+/**
+ * O pipeline comum a todos os formulários, depois da validação: rate limit →
+ * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no CRM
+ * (Exact, só quando é captação) → e-mail. Os dois últimos são best-effort.
  *
  * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
@@ -360,40 +602,12 @@ async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: bo
  * precisa ter sucesso pra `ok: true` — falha de CRM ou de e-mail depois disso
  * é só registrada (no banco e no log).
  */
-export async function submitForm(
-  formType: FormType,
-  values: unknown,
-  turnstileToken: string,
-): Promise<SubmitFormResult> {
-  const schema = SCHEMAS[formType]
-  const parsed = schema.safeParse(values)
-
-  if (!parsed.success) {
-    return { ok: false, errors: flattenZodErrors(parsed.error.issues) }
-  }
-
+async function processarEnvio(envio: Envio, turnstileToken: string): Promise<SubmitFormResult> {
+  const { formType, data } = envio
   try {
     const ip = await getClientIp()
-
-    // Rate limit ANTES do Turnstile, de propósito. `verifyTurnstile` é uma
-    // chamada de rede ao siteverify da Cloudflare: na ordem inversa, uma
-    // enxurrada de tokens inválidos nunca chegava a contar e cada tentativa
-    // ainda custava uma requisição de saída. A chave leva o formulário na
-    // frente (como pede o docblock de `rateLimit`) para que uma rajada na
-    // landing do evento não consuma a cota de quem está preenchendo Contato ou
-    // Proposta do mesmo IP — escritório inteiro sai por um NAT só.
-    const rate = rateLimit(`${formType}:${ip ?? 'anon'}`, { max: 5, windowMs: 60_000 })
-    if (!rate.ok) {
-      return { ok: false, message: 'Muitas tentativas, tente em instantes.' }
-    }
-
-    const turnstileOk = await verifyTurnstile(turnstileToken, ip)
-    if (!turnstileOk) {
-      return { ok: false, message: 'Verificação anti-spam falhou.' }
-    }
-
-    const formTitle = FORMS[formType].title
-    const data = parsed.data as ContatoValues | PropostaValues | ExperienceValues
+    const recusa = await barrarAbuso(formType, ip, turnstileToken)
+    if (recusa) return recusa
 
     // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
     // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
@@ -401,18 +615,7 @@ export async function submitForm(
     const attributionCookie = jar.get(ATTRIBUTION_COOKIE)?.value
     const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
 
-    // Monta o `data` (jsonb) do lead: campos do formulário (chave = nome do
-    // campo do schema Zod) + origem, como objeto `{field: value}`.
-    const leadData: Record<string, string> = {}
-    for (const [field, value] of Object.entries(data)) {
-      if (value !== undefined) {
-        leadData[field] = String(value)
-      }
-    }
-    for (const f of attributionFields) {
-      leadData[`origem — ${f.label}`] = f.value
-    }
-
+    const leadData = montarLeadData(data, attributionFields)
     const { gclid, email } = extractLeadColumns(leadData)
 
     // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
@@ -450,121 +653,72 @@ export async function submitForm(
     }
 
     const leadRowId = gravado.id
+    if (leadRowId) await enviarAoExact(formType, leadData, leadRowId)
 
-    // CRM (Exact) é best-effort, igual aos e-mails: o lead já está salvo acima.
-    // Um CRM fora do ar — ou um payload que ele recuse — não pode virar erro
-    // pra quem preencheu o formulário; o cron `push-exact-leads` retenta
-    // depois. Só passa por aqui quem é captação de verdade (o próprio
-    // `pushLeadToExact` devolve `null` pro resto e pra integração desligada).
-    if (leadRowId) {
-      try {
-        const push = await pushLeadToExact(formType, leadData)
-        if (push) {
-          await query(
-            `update cms.leads
-                set exact_lead_id = $1, exact_error = $2, exact_attempts = exact_attempts + 1
-              where id = $3`,
-            [
-              push.ok ? push.exactLeadId : null,
-              push.ok ? (push.personError ?? null) : push.error,
-              leadRowId,
-            ],
-          )
-        }
-      } catch (exactErr) {
-        console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
-      }
-    }
-
-    // E-mail é best-effort: a submissão já está salva acima, então uma
-    // falha de SendGrid (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`)
-    // não deve derrubar o retorno `ok: true` pro usuário.
-    try {
-      const labels =
-        formType === 'contato'
-          ? CONTATO_LABELS
-          : formType === 'experience'
-            ? EXPERIENCE_LABELS
-            : PROPOSTA_LABELS
-      const fields = Object.entries(data)
-        .filter(([, value]) => value !== undefined)
-        .map(([field, value]) => ({
-          label: labels[field as keyof typeof labels] ?? field,
-          value: String(value),
-        }))
-
-      // Botões de desfecho (Em negociação / Fechou / Não evoluiu / Não é lead).
-      //
-      // O critério é `isExactEligible` — a MESMA função que decide o que vira
-      // card no CRM —, e não `formType === 'proposta'`. Perguntar "isto é
-      // captação?" e "vale perguntar o desfecho disto?" é perguntar a mesma
-      // coisa, e duplicar a regra faria as duas respostas divergirem com o
-      // tempo. Na prática isso inclui o Contato com assunto
-      // `proposta-comercial`, que é pedido de proposta escrito no formulário
-      // errado: ele já entra no CRM como lead e agora também tem desfecho. O
-      // resto do Contato (2ª via, CND, acordo) é atendimento a quem já é
-      // cliente, e "fechou" não faz sentido ali.
-      //
-      // `leadRowId` ausente = sem o que assinar. `botoesDeDesfecho` devolve
-      // `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai
-      // como sempre saiu, sem a seção.
-      const desfecho =
-        leadRowId && isExactEligible(formType, leadData)
-          ? (botoesDeDesfecho(leadRowId) ?? undefined)
-          : undefined
-
-      if (notifyTo && notifyTo.length > 0) {
-        const notificationResult = await sendMail({
-          to: [...notifyTo],
-          subject: `Novo contato via ${formTitle}`,
-          react: ContactNotification({
-            formTitle,
-            fields,
-            attribution: attributionFields,
-            desfecho,
-          }),
-        })
-        if (notificationResult.ok === false) {
-          console.error('[submit-form] sendMail falhou:', notificationResult.error)
-        }
-      } else {
-        console.info(
-          '[submit-form] destinatário da notificação ausente — notificação interna não enviada.',
-        )
-      }
-
-      // Auto-reply: a inscrição no evento tem o seu, e não é firula. O
-      // genérico diz "Recebemos seu contato" e promete que "em breve alguém
-      // vai retornar pra você" — para quem se inscreveu num evento gratuito
-      // isso é falso (ninguém vai retornar) e contradiz a frase que o próprio
-      // formulário mostra acima do botão. O do evento confirma a inscrição
-      // repetindo data, horário e local de `EXPERIENCE_EVENT`.
-      const autoReply =
-        formType === 'experience'
-          ? {
-              subject: `Inscrição recebida — ${EXPERIENCE_EVENT.name}`,
-              react: ExperienceAutoReply({ name: data.nome }),
-            }
-          : {
-              subject: 'Recebemos seu contato — Semog',
-              react: ContactAutoReply({ name: data.nome }),
-            }
-
-      const autoReplyResult = await sendMail({
-        to: data.email,
-        subject: autoReply.subject,
-        react: autoReply.react,
-      })
-      if (autoReplyResult.ok === false) {
-        console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
-      }
-    } catch (mailErr) {
-      console.error('[submit-form] falha ao enviar e-mail (submissão já salva):', mailErr)
-    }
+    await enviarEmails({ envio, leadData, leadRowId, attributionFields, notifyTo, email })
 
     return { ok: true, message: 'Recebemos sua mensagem!' }
   } catch (err) {
     console.error('[submit-form] erro inesperado:', err)
     return { ok: false, message: 'Erro ao enviar. Tente novamente.' }
   }
+}
+
+/**
+ * Server Action de submit dos formulários "Contato"/"Proposta"/"Inscrição —
+ * Semog Experience" (config estática em `@/lib/forms`). Valida com Zod e
+ * entrega ao pipeline comum (`processarEnvio`).
+ *
+ * A inscrição do Experience passa pelo mesmo pipeline, mas **nunca** chega ao
+ * CRM: `isExactEligible` a barra (evento é relacionamento, não captação).
+ */
+export async function submitForm(
+  formType: FormType,
+  values: unknown,
+  turnstileToken: string,
+): Promise<SubmitFormResult> {
+  const schema = SCHEMAS[formType]
+  const parsed = schema.safeParse(values)
+
+  if (!parsed.success) {
+    return { ok: false, errors: flattenZodErrors(parsed.error.issues) }
+  }
+
+  // `as`: o `safeParse` de um schema escolhido por chave devolve a união dos
+  // três tipos sem relação com `formType`; o mapa `SCHEMAS` garante o par.
+  const data = parsed.data as ContatoValues | PropostaValues | ExperienceValues
+  return processarEnvio({ formType, formTitle: FORMS[formType].title, data }, turnstileToken)
+}
+
+/**
+ * Server Action da proposta curta ("contato rápido") da triagem do botão de
+ * WhatsApp: nome, WhatsApp, condomínio (opcional) e cidade.
+ *
+ * Grava como `form = 'proposta'` pelo MESMO pipeline do formulário completo —
+ * é isso que mantém o lead nos dois crons (Exact e Google Ads, que filtram por
+ * esse valor) e com os botões de desfecho. O que o distingue vai no `data`:
+ * `variante: 'contato-rapido'` e o `protocolo`.
+ *
+ * O protocolo só volta para a tela no `ok: true`. Se a gravação falhar, a tela
+ * mostra a falha e não oferece o WhatsApp com um protocolo que não existe.
+ */
+export async function submitPropostaRapida(
+  values: unknown,
+  turnstileToken: string,
+): Promise<SubmitFormResult> {
+  const parsed = propostaRapidaSchema.safeParse(values)
+  if (!parsed.success) {
+    return { ok: false, errors: flattenZodErrors(parsed.error.issues) }
+  }
+
+  const protocolo = gerarProtocolo()
+  const resultado = await processarEnvio(
+    {
+      formType: 'proposta',
+      formTitle: 'Proposta (contato rápido)',
+      data: { ...parsed.data, variante: VARIANTE_CONTATO_RAPIDO, protocolo },
+    },
+    turnstileToken,
+  )
+  return resultado.ok ? { ...resultado, protocolo } : resultado
 }

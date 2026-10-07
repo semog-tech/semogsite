@@ -143,6 +143,30 @@ export type PropostaValues = z.infer<typeof propostaSchema>
  */
 export type PropostaInput = z.input<typeof propostaSchema>
 
+/**
+ * Proposta curta, a "contato rápido" da triagem do botão de WhatsApp: só o
+ * necessário para um consultor chamar a pessoa no WhatsApp. Sem `tipo`,
+ * `email`, `cargo`, `unidades` e `mensagem` — quem escolhe este caminho quer
+ * falar com alguém, não preencher o formulário completo.
+ *
+ * Não é um formulário novo: grava como `form = 'proposta'` (ver
+ * `submitPropostaRapida`), para continuar dentro dos dois crons e dos botões de
+ * desfecho, que filtram por esse valor. Os campos que sobram têm os mesmos
+ * nomes e mensagens do `propostaSchema`, e `cidade` usa o mesmo enum, então o
+ * roteamento por praça e o mapa do Exact valem sem mudança.
+ *
+ * `nome` e `nomeCondominio` levam `.max(120)` pelo mesmo motivo do Experience:
+ * sem teto, uma string arbitrária entraria inteira no `jsonb` de `cms.leads`.
+ */
+export const propostaRapidaSchema = z.object({
+  nome: requiredText('Informe seu nome.').max(120, 'Use no máximo 120 caracteres.'),
+  telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um WhatsApp válido.'),
+  nomeCondominio: z.string().trim().max(120, 'Use no máximo 120 caracteres.').optional(),
+  cidade: z.enum(CIDADE_OPTIONS, 'Selecione a cidade do condomínio.'),
+})
+
+export type PropostaRapidaValues = z.infer<typeof propostaRapidaSchema>
+
 // ---------------------------------------------------------------------------
 // Experience (inscrição no evento)
 // ---------------------------------------------------------------------------

@@ -25,13 +25,26 @@ export type FormType = 'contato' | 'proposta' | 'experience'
  * mais uma `message`) porque a tela reage diferente: erro genérico pede "tente
  * de novo" com o botão ainda lá, e aqui tentar de novo nunca vai funcionar —
  * o formulário sai e dá lugar ao aviso de que as vagas acabaram.
+ *
+ * `protocolo` só vem no `ok: true` da proposta curta (`submitPropostaRapida`):
+ * sem lead gravado não há protocolo, e a tela nunca mostra um.
  */
 export type SubmitFormResult = {
   ok: boolean
   errors?: Record<string, string>
   message?: string
   esgotado?: boolean
+  protocolo?: string
 }
+
+/**
+ * Valor de `data.variante` na proposta curta da triagem do WhatsApp. Ela grava
+ * como `form = 'proposta'` (para seguir nos crons e no desfecho), e é este
+ * campo que a distingue do formulário completo — no e-mail interno e na
+ * descrição do Exact, onde a SDR precisa saber que o lead tem só nome, WhatsApp
+ * e cidade.
+ */
+export const VARIANTE_CONTATO_RAPIDO = 'contato-rapido'
 
 export type FormDef<T extends Record<string, unknown>> = {
   title: string

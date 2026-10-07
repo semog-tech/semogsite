@@ -1,5 +1,5 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
-import { type FormType, GCLID_FIELD } from '@/lib/forms'
+import { type FormType, GCLID_FIELD, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 
 /**
  * Tradução do lead do site pro vocabulário do Exact Spotter. Função **pura**:
@@ -113,6 +113,27 @@ function linhasDeOrigem(data: Record<string, string>): string[] {
     .map(([key, value]) => `${key.replace('origem — ', '')}: ${value}`)
 }
 
+/**
+ * Qual formulário originou o lead muda o que esperar dele: "proposta" é
+ * pedido explícito com os campos do condomínio; "contato" é alguém que
+ * escreveu pedindo proposta pela página de atendimento, normalmente com
+ * menos dados e mais texto livre. Quem for qualificar precisa saber disso.
+ *
+ * O contato rápido da triagem do WhatsApp grava como `proposta`, mas chega só
+ * com nome, WhatsApp e cidade — a linha diz isso e traz o protocolo, que é como
+ * a pessoa se identifica quando continua a conversa no WhatsApp.
+ */
+function linhaDoFormulario(formType: FormType, data: Record<string, string>): string {
+  if (formType !== 'proposta') {
+    return 'Origem: formulário de contato do site (assunto proposta comercial).'
+  }
+  if (data.variante === VARIANTE_CONTATO_RAPIDO) {
+    const protocolo = nonEmpty(data.protocolo)
+    return `Origem: contato rápido pelo botão de WhatsApp do site.${protocolo ? ` Protocolo ${protocolo}.` : ''}`
+  }
+  return 'Origem: formulário de proposta do site.'
+}
+
 export function mapLead(
   formType: FormType,
   data: Record<string, string>,
@@ -137,19 +158,10 @@ export function mapLead(
     nonEmpty(data.email) && `e-mail: ${data.email}`,
   ].filter(Boolean) as string[]
 
-  // Qual formulário originou o lead muda o que esperar dele: "proposta" é
-  // pedido explícito com os campos do condomínio; "contato" é alguém que
-  // escreveu pedindo proposta pela página de atendimento, normalmente com
-  // menos dados e mais texto livre. Quem for qualificar precisa saber disso.
-  const origemFormulario =
-    formType === 'proposta'
-      ? 'Origem: formulário de proposta do site.'
-      : 'Origem: formulário de contato do site (assunto proposta comercial).'
-
   const descricao = [
     nonEmpty(data.mensagem),
     informado.length ? `Informado no site — ${informado.join(' · ')}` : undefined,
-    origemFormulario,
+    linhaDoFormulario(formType, data),
     ...linhasDeOrigem(data),
   ].filter(Boolean) as string[]
 
