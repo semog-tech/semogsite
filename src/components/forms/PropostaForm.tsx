@@ -11,6 +11,7 @@ import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
+import { cidadeDaLanding } from '@/lib/cidadeDaLanding'
 import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 
@@ -43,18 +44,6 @@ const CIDADE_OPTIONS: { label: string; value: PropostaValues['cidade'] }[] = [
   { label: 'Campina Grande e região', value: 'Campina Grande e região' },
   { label: 'Belém e região', value: 'Belém e região' },
   { label: 'Outra cidade', value: 'Outra cidade' },
-]
-
-/**
- * Infere a `cidade` pelo slug da landing de unidade, pra pré-selecionar o campo
- * quando o form está embutido nessas páginas (ex.: /administradora-de-
- * condominios-recife). Menos atrito + atribuição/roteamento corretos.
- */
-const CIDADE_BY_SLUG: [slug: string, cidade: PropostaValues['cidade']][] = [
-  ['recife', 'Recife e região'],
-  ['joao-pessoa', 'João Pessoa e região'],
-  ['campina-grande', 'Campina Grande e região'],
-  ['belem', 'Belém e região'],
 ]
 
 type Status = 'idle' | 'success' | 'error'
@@ -136,8 +125,7 @@ export function PropostaForm({
   // nenhum slug casa e o campo fica no placeholder, agora obrigatório.
   useEffect(() => {
     if (cidade) return
-    const path = window.location.pathname
-    const cidadeDoSlug = CIDADE_BY_SLUG.find(([slug]) => path.includes(slug))?.[1]
+    const cidadeDoSlug = cidadeDaLanding(window.location.pathname)?.cidade
     if (cidadeDoSlug) setValue('cidade', cidadeDoSlug)
   }, [cidade, setValue])
 
