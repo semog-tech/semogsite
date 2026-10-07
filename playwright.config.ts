@@ -5,6 +5,7 @@ import { defineConfig, devices } from '@playwright/test'
  * https://github.com/motdotla/dotenv
  */
 import 'dotenv/config'
+import { SEGREDO_DE_TESTE } from './tests/e2e/helpers/semogappFalso'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -32,10 +33,27 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], channel: 'chromium' },
     },
+    // Só o spec da 2ª via roda no Firefox por enquanto [A CONFIRMAR se os
+    // demais entram]: `--project=firefox`.
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: /segunda-via\.e2e\.spec\.ts/,
+    },
   ],
   webServer: {
     command: 'pnpm dev',
     reuseExistingServer: true,
     url: 'http://localhost:3000',
+    // 2ª via ligada contra o semogapp FALSO do e2e (`tests/e2e/helpers/semogappFalso.ts`,
+    // porta 4599), nunca o app real. Turnstile com as chaves de TESTE públicas da
+    // Cloudflare, que sempre passam.
+    env: {
+      SEGUNDA_VIA_ATIVA: 'true',
+      SEMOGAPP_API_URL: 'http://127.0.0.1:4599',
+      SEMOGAPP_SEGUNDA_VIA_SEGREDO: SEGREDO_DE_TESTE,
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
+      TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+    },
   },
 })
