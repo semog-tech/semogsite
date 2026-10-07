@@ -110,7 +110,12 @@ function TelaAtual({ fluxo, sair }: { fluxo: FluxoSegundaVia; sair: () => void }
           estado={estado}
           ocupado={ocupado}
           avisoDeReenvio={fluxo.avisoDeReenvio}
-          acoes={{ sair, confirmar: acoes.confirmar, reenviar: acoes.reenviar }}
+          acoes={{
+            sair,
+            confirmar: acoes.confirmar,
+            reenviar: acoes.reenviar,
+            recomecar: acoes.recomecar,
+          }}
         />
       )
     case 'unidades':

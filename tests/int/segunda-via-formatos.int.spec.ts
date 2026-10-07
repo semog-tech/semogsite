@@ -11,18 +11,29 @@ describe('código (Review Focus 2)', () => {
 })
 
 describe('refValida', () => {
-  const ref22 = 'A'.repeat(22)
-  it('aceita 22 e 43 caracteres do alfabeto base64url', () => {
-    expect(refValida(ref22)).toBe(true)
-    expect(refValida(`${'a-_9'.repeat(10)}ab`)).toBe(true)
-    expect(refValida('B'.repeat(43))).toBe(true)
+  it.each([
+    ['desafio', 43],
+    ['sessao', 43],
+    ['referencia', 22],
+  ] as const)('%s: aceita só o tamanho exato (%i)', (tipo, tamanho) => {
+    expect(refValida('a-_9'.repeat(11).slice(0, tamanho), tipo)).toBe(true)
+    expect(refValida('A'.repeat(tamanho - 1), tipo)).toBe(false)
+    expect(refValida('A'.repeat(tamanho + 1), tipo)).toBe(false)
   })
-  it('recusa tamanho fora da faixa, caracteres estranhos e não string', () => {
-    expect(refValida('A'.repeat(21))).toBe(false)
-    expect(refValida('A'.repeat(44))).toBe(false)
-    expect(refValida(`${'A'.repeat(21)}=`)).toBe(false)
-    expect(refValida(`${'A'.repeat(21)}\n`)).toBe(false)
-    expect(refValida(undefined)).toBe(false)
-    expect(refValida(123)).toBe(false)
+  it('um tipo não aceita o tamanho do outro', () => {
+    expect(refValida('A'.repeat(22), 'sessao')).toBe(false)
+    expect(refValida('A'.repeat(43), 'referencia')).toBe(false)
+  })
+  it('recusa caracteres estranhos e não string', () => {
+    expect(refValida(`${'A'.repeat(21)}=`, 'referencia')).toBe(false)
+    expect(
+      refValida(
+        `${'A'.repeat(21)}
+`,
+        'referencia',
+      ),
+    ).toBe(false)
+    expect(refValida(undefined, 'desafio')).toBe(false)
+    expect(refValida(123, 'desafio')).toBe(false)
   })
 })

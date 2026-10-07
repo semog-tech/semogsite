@@ -16,7 +16,15 @@ export function normalizarCodigo(v: string): string | null {
   return /^\d+$/.test(limpo) && limpo.length === TAMANHO_DO_CODIGO ? limpo : null
 }
 
-/** Referência opaca (desafio/sessão) devolvida pelo app: base64url de 22 a 43 caracteres. */
-export function refValida(v: unknown): v is string {
-  return typeof v === 'string' && /^[A-Za-z0-9_-]{22,43}$/.test(v)
+/**
+ * Tamanho exato, em caracteres base64url, de cada referência opaca do app:
+ * desafio e sessão têm 43 (32 bytes); unidade e cobrança, 22 (16 bytes).
+ */
+const TAMANHO_DA_REF = { desafio: 43, sessao: 43, referencia: 22 } as const
+
+export type TipoDeRef = keyof typeof TAMANHO_DA_REF
+
+/** Referência opaca devolvida pelo app, conferida com o tamanho exato do seu tipo. */
+export function refValida(v: unknown, tipo: TipoDeRef): v is string {
+  return typeof v === 'string' && v.length === TAMANHO_DA_REF[tipo] && /^[A-Za-z0-9_-]+$/.test(v)
 }

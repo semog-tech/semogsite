@@ -56,7 +56,7 @@ export function mensagemDoErroCodigo(erro: ErroCodigo): string {
         ? 'Código incorreto. Resta 1 tentativa.'
         : `Código incorreto. Restam ${erro.tentativasRestantes} tentativas.`
     case 'expirado':
-      return 'Este código expirou. Peça um novo código.'
+      return 'Este código expirou. Comece de novo pelo CPF.'
     case 'bloqueado':
       return SEM_TENTATIVAS
     case 'limite':

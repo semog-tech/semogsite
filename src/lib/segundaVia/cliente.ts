@@ -51,13 +51,13 @@ function limite(status: number, c: Registro): Limite | null {
 }
 
 function unidadePublica(v: unknown): UnidadePublica | null {
-  if (!ehRegistro(v) || !refValida(v.ref)) return null
+  if (!ehRegistro(v) || !refValida(v.ref, 'referencia')) return null
   if (typeof v.condominio !== 'string' || typeof v.unidade !== 'string') return null
   return { ref: v.ref, condominio: v.condominio, unidade: v.unidade }
 }
 
 function cobrancaPublica(v: unknown): CobrancaPublica | null {
-  if (!ehRegistro(v) || !refValida(v.ref)) return null
+  if (!ehRegistro(v) || !refValida(v.ref, 'referencia')) return null
   if (typeof v.vencimento !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v.vencimento)) return null
   if (v.valorCentavos !== null && !inteiro(v.valorCentavos)) return null
   if (typeof v.vencida !== 'boolean') return null
@@ -104,7 +104,7 @@ function urlDoBoleto(v: unknown): string | null {
 }
 
 function parserSolicitar(status: number, c: Registro): RespostaDe<'solicitar'> | null {
-  if (status === 202 && refValida(c.desafio) && inteiro(c.reenvioEmSegundos)) {
+  if (status === 202 && refValida(c.desafio, 'desafio') && inteiro(c.reenvioEmSegundos)) {
     return { tipo: 'ok', desafio: c.desafio, reenvioEmSegundos: c.reenvioEmSegundos }
   }
   if (status === 400 && c.erro === 'entrada_invalida') return { tipo: 'entrada_invalida' }
@@ -124,7 +124,7 @@ function parserConfirmar(status: number, c: Registro): RespostaDe<'confirmar'> |
     const unidades = todos(c.unidades, unidadePublica)
     const prazo = c.expiraEmSegundos
     // Prazo zero criaria um cookie de sessão já expirado.
-    if (!refValida(c.sessao) || !inteiro(prazo) || prazo === 0 || !unidades) return null
+    if (!refValida(c.sessao, 'sessao') || !inteiro(prazo) || prazo === 0 || !unidades) return null
     return { tipo: 'ok', sessao: c.sessao, expiraEmSegundos: prazo, unidades }
   }
   if (status === 401 && c.erro === 'incorreto' && inteiro(c.tentativasRestantes)) {

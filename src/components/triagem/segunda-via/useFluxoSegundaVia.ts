@@ -77,8 +77,9 @@ export function useFluxoSegundaVia() {
     })
   }, [carregando, unidadeRef, chamar])
 
-  // O link é pedido ao escolher o boleto, para "Abrir boleto" ser um link de
-  // verdade (aba nova sem bloqueio de pop-up). Sai da memória ao deixar a tela.
+  // O link é pedido ao escolher o boleto, para o clique em "Abrir boleto" já ter
+  // a URL e abrir a aba nova (window.open) sem bloqueio de pop-up. Fica só na
+  // memória, fora do DOM, e sai ao deixar a tela.
   const cobrancaRef = estado.tela === 'boleto' ? estado.cobranca?.ref : undefined
   useEffect(() => {
     setLink(null)

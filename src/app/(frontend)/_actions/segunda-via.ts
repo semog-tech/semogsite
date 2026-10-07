@@ -128,7 +128,7 @@ async function aposConsulta<T extends ResultadoCobrancas | ResultadoLink>(r: T):
 
 export async function listarCobrancas(unidade: string): Promise<ResultadoCobrancas> {
   if (desligada()) return DESLIGADA
-  if (!refValida(unidade)) return aposConsulta({ tipo: 'referencia_invalida' })
+  if (!refValida(unidade, 'referencia')) return aposConsulta({ tipo: 'referencia_invalida' })
   const sessao = await lerSessao()
   // Review Focus 4: sem cookie, nunca `indisponivel`.
   if (!sessao) return aposConsulta({ tipo: 'sessao_invalida' })
@@ -139,7 +139,7 @@ export async function listarCobrancas(unidade: string): Promise<ResultadoCobranc
 
 export async function abrirBoleto(unidade: string, cobranca: string): Promise<ResultadoLink> {
   if (desligada()) return DESLIGADA
-  if (!refValida(unidade) || !refValida(cobranca)) {
+  if (!refValida(unidade, 'referencia') || !refValida(cobranca, 'referencia')) {
     return aposConsulta({ tipo: 'referencia_invalida' })
   }
   const sessao = await lerSessao()

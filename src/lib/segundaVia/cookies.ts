@@ -1,6 +1,6 @@
 import 'server-only'
 import { cookies } from 'next/headers'
-import { refValida } from './formatos'
+import { refValida, type TipoDeRef } from './formatos'
 
 /**
  * Cookies da 2ª via: o `desafio` (entre pedir e confirmar o código) e a
@@ -36,21 +36,21 @@ function apagar(loja: Loja, nome: string): void {
 }
 
 /** Valor com o formato de referência opaca, ou `null`. Valor adulterado é apagado. */
-async function ler(nome: string): Promise<string | null> {
+async function ler(nome: string, tipo: TipoDeRef): Promise<string | null> {
   const loja = await cookies()
   const valor = loja.get(nome)?.value
   if (valor === undefined) return null
-  if (refValida(valor)) return valor
+  if (refValida(valor, tipo)) return valor
   apagar(loja, nome)
   return null
 }
 
 export function lerDesafio(): Promise<string | null> {
-  return ler(DESAFIO)
+  return ler(DESAFIO, 'desafio')
 }
 
 export function lerSessao(): Promise<string | null> {
-  return ler(SESSAO)
+  return ler(SESSAO, 'sessao')
 }
 
 /** Grava (ou renova, no reenvio) o desafio com prazo cheio de 10 min. */

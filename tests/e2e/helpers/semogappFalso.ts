@@ -36,7 +36,7 @@ type Unidade = { ref: string; condominio: string; unidade: string }
 type Situacao = 'aberto' | 'sem_aberto' | 'indeterminado'
 type Lista = { situacao: Situacao; haRestritas: boolean; cobrancas: Cobranca[] }
 
-const ref = (letra: string) => letra.repeat(24)
+const ref = (letra: string) => letra.repeat(22)
 
 const A_VENCER: Cobranca = {
   ref: ref('a'),
@@ -106,7 +106,7 @@ type Desafio = { cpf: string; tentativas: number }
 type Sessao = { cenario: Cenario; sumidas: Set<string> }
 
 function token(): string {
-  return randomBytes(24).toString('base64url')
+  return randomBytes(32).toString('base64url')
 }
 
 function assinaturaConfere(segredo: string, req: IncomingMessage, corpo: string): boolean {

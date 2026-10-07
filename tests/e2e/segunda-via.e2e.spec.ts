@@ -115,7 +115,9 @@ test('fluxo completo: CPF → código → boletos → link em aba nova', async (
   expect(solicitados).toHaveLength(1)
 })
 
-test('código errado conta as tentativas; código expirado pede outro', async ({ page }) => {
+test('código errado conta as tentativas; código expirado leva a recomeçar pelo CPF', async ({
+  page,
+}) => {
   await abrirSegundaVia(page)
   await pedirCodigo(page, CPFS_DE_EXEMPLO.umaUnidade)
   await confirmar(page, '654321')
@@ -124,8 +126,10 @@ test('código errado conta as tentativas; código expirado pede outro', async ({
   )
   await confirmar(page, CODIGO_EXPIRADO)
   await expect(page.locator('dialog').getByRole('alert')).toHaveText(
-    'Este código expirou. Peça um novo código.',
+    'Este código expirou. Comece de novo pelo CPF.',
   )
+  await page.locator('dialog').getByRole('button', { name: 'Começar de novo' }).click()
+  await expect(page.locator('dialog').getByLabel(/^CPF/)).toHaveValue('')
 })
 
 test('cookie de sessão ausente: "sua consulta expirou" e recomeça pelo CPF', async ({

@@ -49,7 +49,13 @@ export function registrarBoletoAberto(vencida: boolean) {
   window.gtag?.('event', 'segunda_via_boleto_aberto', { vencida })
 }
 
-export type MotivoDaFalha = 'limite' | 'expirado' | 'bloqueado' | 'indisponivel' | 'sessao'
+export type MotivoDaFalha =
+  | 'limite'
+  | 'expirado'
+  | 'bloqueado'
+  | 'indisponivel'
+  | 'sessao'
+  | 'sem_unidade'
 
 export function registrarFalhaSegundaVia(etapa: TelaSegundaVia, motivo: MotivoDaFalha) {
   window.gtag?.('event', 'segunda_via_falhou', { etapa, motivo })

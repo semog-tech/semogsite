@@ -1247,6 +1247,8 @@
     max-width: 34ch;
     margin: 0 auto 16px;
     color: var(--text-2);
+    /* Sem palavra órfã na última linha ("novo." sozinho no celular). */
+    text-wrap: balance;
   }
   .tr-protocolo {
     display: inline-flex;

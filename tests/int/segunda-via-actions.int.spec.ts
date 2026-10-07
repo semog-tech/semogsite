@@ -249,8 +249,13 @@ describe('reenviarCodigo', () => {
     expect(chamarMock).not.toHaveBeenCalled()
   })
 
-  it('cookie de desafio malformado → expirado e apagado, sem chamar o app', async () => {
-    cookies = lojaDeCookies({ segvia_desafio: 'curto' })
+  it.each([
+    ['curto', 'curto'],
+    ['com o tamanho de uma referência (22)', 'U'.repeat(22)],
+    ['um caractere a menos (42)', 'D'.repeat(42)],
+    ['um caractere a mais (44)', 'D'.repeat(44)],
+  ])('cookie de desafio malformado (%s) → expirado e apagado, sem chamar o app', async (_, valor) => {
+    cookies = lojaDeCookies({ segvia_desafio: valor })
     await expect(reenviarCodigo()).resolves.toEqual({ tipo: 'expirado' })
     expect(chamarMock).not.toHaveBeenCalled()
     expect(cookies.valores.has('segvia_desafio')).toBe(false)

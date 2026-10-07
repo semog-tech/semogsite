@@ -262,7 +262,6 @@ describe('tela do código', () => {
   })
 
   it.each([
-    [{ tipo: 'expirado' }, 'Este código expirou. Peça um novo código.'],
     [{ tipo: 'bloqueado' }, 'Você usou as 3 tentativas. Peça um novo código.'],
     [{ tipo: 'incorreto', tentativasRestantes: 1 }, 'Código incorreto. Resta 1 tentativa.'],
   ])('erro %o mostra a mensagem da spec', async (resposta, mensagem) => {
@@ -271,6 +270,35 @@ describe('tela do código', () => {
     fireEvent.change(screen.getByLabelText('Código'), { target: { value: '654321' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe(mensagem))
+  })
+})
+
+describe('código expirado e cadastro sem unidade', () => {
+  it('código expirado: texto direto e um clique em "Começar de novo" leva ao CPF vazio', async () => {
+    acoes.confirmarCodigo.mockResolvedValue({ tipo: 'expirado' })
+    await irAoCodigo()
+    fireEvent.change(screen.getByLabelText('Código'), { target: { value: '654321' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(
+        'Este código expirou. Comece de novo pelo CPF.',
+      ),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Começar de novo' }))
+    await screen.findByRole('heading', { name: 'Segunda via do boleto' })
+    expect((screen.getByLabelText(/^CPF/) as HTMLInputElement).value).toBe('')
+  })
+
+  it('código aceito sem nenhuma unidade: tela de falha e evento segunda_via_falhou', async () => {
+    acoes.confirmarCodigo.mockResolvedValue({ tipo: 'ok', unidades: [] })
+    await irAoCodigo()
+    fireEvent.change(screen.getByLabelText('Código'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
+    await screen.findByRole('heading', { name: 'Não conseguimos consultar' })
+    expect(gtag).toHaveBeenCalledWith('event', 'segunda_via_falhou', {
+      etapa: 'codigo',
+      motivo: 'sem_unidade',
+    })
   })
 })
 

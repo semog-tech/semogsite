@@ -11,10 +11,16 @@ type Props = {
   ocupado: boolean
   /** "Enviamos um novo código…" depois de um reenvio aceito. */
   avisoDeReenvio: string | null
-  acoes: { confirmar: (codigo: string) => void; reenviar: () => void; sair: () => void }
+  acoes: {
+    confirmar: (codigo: string) => void
+    reenviar: () => void
+    recomecar: () => void
+    sair: () => void
+  }
 }
 
 const TAMANHO = 6
+const REENVIO_MAXIMO_EXIBIDO_S = 60
 
 /** Relógio de parede que bate a cada segundo, para a contagem do reenvio. */
 function useAgora(): number {
@@ -38,9 +44,12 @@ export function TelaCodigo({ estado, ocupado, avisoDeReenvio, acoes }: Props) {
   const [codigo, setCodigo] = useState('')
   const [erroLocal, setErroLocal] = useState<string | null>(null)
 
-  const espera = segundosParaReenvio(estado, agora)
+  // Arredonda para não mostrar "61 s" logo depois do reenvio (o piso é 60 s).
+  const espera = Math.min(segundosParaReenvio(estado, agora), REENVIO_MAXIMO_EXIBIDO_S)
   const erro = estado.erroCodigo
-  // Expirado ou sem tentativas: só um código novo resolve.
+  // O código e a consulta expiram juntos: não há como pedir outro, só recomeçar.
+  const expirado = erro?.tipo === 'expirado'
+  // Expirado ou sem tentativas: não adianta tentar este código de novo.
   const semSaida =
     erro?.tipo === 'expirado' ||
     erro?.tipo === 'bloqueado' ||
@@ -86,10 +95,16 @@ export function TelaCodigo({ estado, ocupado, avisoDeReenvio, acoes }: Props) {
               {avisoDeReenvio}
             </p>
           )}
-          <button type="submit" className="tr-primario" disabled={semSaida}>
-            {ocupado && <span className="tr-girando" aria-hidden="true" />}
-            {ocupado ? 'Verificando…' : 'Confirmar código'}
-          </button>
+          {expirado && !ocupado ? (
+            <button type="button" className="tr-primario" onClick={acoes.recomecar}>
+              Começar de novo
+            </button>
+          ) : (
+            <button type="submit" className="tr-primario" disabled={semSaida}>
+              {ocupado && <span className="tr-girando" aria-hidden="true" />}
+              {ocupado ? 'Verificando…' : 'Confirmar código'}
+            </button>
+          )}
         </fieldset>
       </form>
       <div className="tr-links">

@@ -77,8 +77,10 @@ export function aoReenviar(despachar: Despachar, r: ResultadoReenviar) {
 export function aoConfirmar(despachar: Despachar, r: ResultadoConfirmar) {
   medirFalha('codigo', r.tipo)
   if (r.tipo === 'desligada') return despachar({ tipo: 'falhou' })
-  if (r.tipo === 'ok' && r.unidades.length > 0) {
-    registrarCodigoValidado(r.unidades.length === 1 ? 'uma' : 'varias')
+  if (r.tipo === 'ok') {
+    // Código aceito, mas o cadastro ficou sem unidade: o redutor leva à falha.
+    if (r.unidades.length === 0) registrarFalhaSegundaVia('codigo', 'sem_unidade')
+    else registrarCodigoValidado(r.unidades.length === 1 ? 'uma' : 'varias')
   }
   despachar({ tipo: 'confirmar_respondido', agora: Date.now(), resposta: r })
 }
@@ -99,8 +101,8 @@ export function aoListar(despachar: Despachar, r: ResultadoCobrancas) {
 }
 
 /**
- * O link é credencial: no "ok" ele vai só para `guardarLink` (o `href` da aba
- * nova), nunca para o redutor, o log ou o GA4.
+ * O link é credencial: no "ok" ele vai só para `guardarLink` (memória do hook,
+ * aberto por `window.open` no clique), nunca para o redutor, o DOM, o log ou o GA4.
  */
 export function aoPedirLink(
   despachar: Despachar,

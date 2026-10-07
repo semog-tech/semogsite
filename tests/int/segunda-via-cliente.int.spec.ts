@@ -10,6 +10,7 @@ const { chamarSegundaVia } = await import('@/lib/segundaVia/cliente')
 
 const SEGREDO = 's'.repeat(32)
 const REF = 'A'.repeat(22)
+const TOKEN = 'T'.repeat(43)
 const CPF = '52998224725'
 const IP = '1.2.3.4'
 const URL_ORIGINAL = process.env.SEMOGAPP_API_URL
@@ -69,7 +70,7 @@ describe('chamarSegundaVia: Review Focus 5 (semogapp lento ou fora)', () => {
   })
 
   it('não desiste antes dos 10 s', async () => {
-    const corpo = { desafio: REF, reenvioEmSegundos: 60 }
+    const corpo = { desafio: TOKEN, reenvioEmSegundos: 60 }
     const fetchLento = vi.fn<typeof fetch>(
       () => new Promise<Response>((ok) => setTimeout(() => ok(resposta(202, corpo)), 9_000)),
     )
@@ -94,9 +95,9 @@ describe('chamarSegundaVia: Review Focus 5 (semogapp lento ou fora)', () => {
       new Response('<html>Bad Gateway</html>', { status: 502 }),
       resposta(500, { erro: 'x' }),
       new Response('{quebrado', { status: 202 }),
-      resposta(200, { desafio: REF, reenvioEmSegundos: 60 }), // 200 não é contrato do /solicitar
+      resposta(200, { desafio: TOKEN, reenvioEmSegundos: 60 }), // 200 não é contrato do /solicitar
       resposta(202, { desafio: 'curto', reenvioEmSegundos: 60 }), // ref fora do formato
-      resposta(202, { desafio: REF }), // falta campo
+      resposta(202, { desafio: TOKEN }), // falta campo
     ]
     for (const r of casos) {
       const fetchFalso = fetchRetornando(r)
@@ -112,7 +113,7 @@ describe('chamarSegundaVia: requisição', () => {
     const espioes = (['log', 'info', 'warn', 'error', 'debug'] as const).map((m) =>
       vi.spyOn(console, m).mockImplementation(() => {}),
     )
-    const fetchFalso = fetchRetornando(resposta(202, { desafio: REF, reenvioEmSegundos: 60 }))
+    const fetchFalso = fetchRetornando(resposta(202, { desafio: TOKEN, reenvioEmSegundos: 60 }))
     await chamarSegundaVia(
       'solicitar',
       { cpf: CPF, ipCliente: IP },
@@ -143,8 +144,8 @@ describe('chamarSegundaVia: requisição', () => {
 
   it('cada chamada leva um nonce diferente', async () => {
     const fetchFalso = vi.fn<typeof fetch>(async () => resposta(204))
-    await chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso })
-    await chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso })
+    await chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchFalso })
+    await chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchFalso })
     const nonces = fetchFalso.mock.calls.map(
       (c) => (JSON.parse(String(c[1]?.body)) as { nonce: string }).nonce,
     )
@@ -152,7 +153,7 @@ describe('chamarSegundaVia: requisição', () => {
   })
 
   it('não segue redirecionamento (o corpo assinado não pode ir parar em outro lugar)', async () => {
-    const fetchFalso = fetchRetornando(resposta(202, { desafio: REF, reenvioEmSegundos: 60 }))
+    const fetchFalso = fetchRetornando(resposta(202, { desafio: TOKEN, reenvioEmSegundos: 60 }))
     await chamarSegundaVia('solicitar', { cpf: CPF, ipCliente: IP }, { fetch: fetchFalso })
     expect(fetchFalso.mock.calls[0][1]?.redirect).toBe('error')
   })
@@ -184,7 +185,7 @@ describe('chamarSegundaVia: configuração', () => {
     process.env.SEMOGAPP_API_URL = 'http://localhost:3001'
     const fetchFalso = fetchRetornando(resposta(204))
     await expect(
-      chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso }),
+      chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchFalso }),
     ).resolves.toEqual({ tipo: 'ok' })
   })
 })
@@ -204,7 +205,7 @@ describe('chamarSegundaVia: 401 de assinatura', () => {
 describe('chamarSegundaVia: mapeamento por rota', () => {
   it('solicitar: 202 ok, 400 entrada_invalida, 429 limite, 503 indisponivel', async () => {
     const c = { cpf: CPF, ipCliente: IP }
-    const ok = { desafio: REF, reenvioEmSegundos: 60 }
+    const ok = { desafio: TOKEN, reenvioEmSegundos: 60 }
     await expect(
       chamarSegundaVia('solicitar', c, { fetch: fetchRetornando(resposta(202, ok)) }),
     ).resolves.toEqual({ tipo: 'ok', ...ok })
@@ -226,7 +227,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
   })
 
   it('reenviar: 202 ok, 410 expirado, 429 limite', async () => {
-    const c = { desafio: REF, ipCliente: IP }
+    const c = { desafio: TOKEN, ipCliente: IP }
     await expect(
       chamarSegundaVia('reenviar', c, {
         fetch: fetchRetornando(resposta(202, { reenvioEmSegundos: 60 })),
@@ -245,13 +246,13 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
   })
 
   it('confirmar: ok com unidades, incorreto, expirado, bloqueado, limite', async () => {
-    const c = { desafio: REF, codigo: '123456', ipCliente: IP }
+    const c = { desafio: TOKEN, codigo: '123456', ipCliente: IP }
     const unidades = [{ ref: REF, condominio: 'Edifício Sol', unidade: 'Apto 302' }]
     await expect(
       chamarSegundaVia('confirmar', c, {
-        fetch: fetchRetornando(resposta(200, { sessao: REF, expiraEmSegundos: 900, unidades })),
+        fetch: fetchRetornando(resposta(200, { sessao: TOKEN, expiraEmSegundos: 900, unidades })),
       }),
-    ).resolves.toEqual({ tipo: 'ok', sessao: REF, expiraEmSegundos: 900, unidades })
+    ).resolves.toEqual({ tipo: 'ok', sessao: TOKEN, expiraEmSegundos: 900, unidades })
     await expect(
       chamarSegundaVia('confirmar', c, {
         fetch: fetchRetornando(resposta(401, { erro: 'incorreto', tentativasRestantes: 2 })),
@@ -275,29 +276,29 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
   })
 
   it('confirmar: expiraEmSegundos 0 (cookie nasceria morto) vira indisponivel', async () => {
-    const c = { desafio: REF, codigo: '123456', ipCliente: IP }
+    const c = { desafio: TOKEN, codigo: '123456', ipCliente: IP }
     const unidades = [{ ref: REF, condominio: 'Edifício Sol', unidade: 'Apto 302' }]
     await expect(
       chamarSegundaVia('confirmar', c, {
-        fetch: fetchRetornando(resposta(200, { sessao: REF, expiraEmSegundos: 0, unidades })),
+        fetch: fetchRetornando(resposta(200, { sessao: TOKEN, expiraEmSegundos: 0, unidades })),
       }),
     ).resolves.toEqual({ tipo: 'indisponivel' })
   })
 
   it('confirmar: unidade fora do formato derruba a resposta inteira', async () => {
-    const c = { desafio: REF, codigo: '123456', ipCliente: IP }
+    const c = { desafio: TOKEN, codigo: '123456', ipCliente: IP }
     const ruim = [{ ref: REF, condominio: 'Edifício Sol' }]
     await expect(
       chamarSegundaVia('confirmar', c, {
         fetch: fetchRetornando(
-          resposta(200, { sessao: REF, expiraEmSegundos: 900, unidades: ruim }),
+          resposta(200, { sessao: TOKEN, expiraEmSegundos: 900, unidades: ruim }),
         ),
       }),
     ).resolves.toEqual({ tipo: 'indisponivel' })
   })
 
   it('cobrancas: ok preserva valorCentavos nulo; sessão e referência inválidas', async () => {
-    const c = { sessao: REF, unidade: REF, ipCliente: IP }
+    const c = { sessao: TOKEN, unidade: REF, ipCliente: IP }
     const cobrancas = [
       { ref: REF, vencimento: '2026-10-10', valorCentavos: 15050, vencida: false },
       { ref: 'B'.repeat(22), vencimento: '2026-09-10', valorCentavos: null, vencida: true },
@@ -332,7 +333,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
       { ref: REF, vencimento: '10/10/2026', valorCentavos: 100, vencida: false },
     ],
   ])('cobrancas: item com %s vira indisponivel', async (_nome, item) => {
-    const c = { sessao: REF, unidade: REF, ipCliente: IP }
+    const c = { sessao: TOKEN, unidade: REF, ipCliente: IP }
     const corpo = { situacao: 'aberto', haRestritas: false, cobrancas: [item] }
     await expect(
       chamarSegundaVia('cobrancas', c, { fetch: fetchRetornando(resposta(200, corpo)) }),
@@ -340,7 +341,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
   })
 
   it('cobrancas: situação desconhecida vira indisponivel', async () => {
-    const c = { sessao: REF, unidade: REF, ipCliente: IP }
+    const c = { sessao: TOKEN, unidade: REF, ipCliente: IP }
     const corpo = { situacao: 'quitado', haRestritas: false, cobrancas: [] }
     await expect(
       chamarSegundaVia('cobrancas', c, { fetch: fetchRetornando(resposta(200, corpo)) }),
@@ -348,7 +349,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
   })
 
   it('link: ok com host da Superlógica; 409 cobranca_indisponivel', async () => {
-    const c = { sessao: REF, unidade: REF, cobranca: REF, ipCliente: IP }
+    const c = { sessao: TOKEN, unidade: REF, cobranca: REF, ipCliente: IP }
     const url = 'https://semog.superlogica.net/clients/areadocondomino/segundavia?id=abc'
     await expect(
       chamarSegundaVia('link', c, { fetch: fetchRetornando(resposta(200, { url })) }),
@@ -371,7 +372,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
     'javascript:alert(1)',
     'nao-e-url',
   ])('link com URL %s vira indisponivel (host conferido de novo no site)', async (url) => {
-    const c = { sessao: REF, unidade: REF, cobranca: REF, ipCliente: IP }
+    const c = { sessao: TOKEN, unidade: REF, cobranca: REF, ipCliente: IP }
     await expect(
       chamarSegundaVia('link', c, { fetch: fetchRetornando(resposta(200, { url })) }),
     ).resolves.toEqual({ tipo: 'indisponivel' })
@@ -379,7 +380,7 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
 
   it('encerrar: 204 ok', async () => {
     await expect(
-      chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchRetornando(resposta(204)) }),
+      chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchRetornando(resposta(204)) }),
     ).resolves.toEqual({ tipo: 'ok' })
   })
 })
@@ -392,7 +393,7 @@ describe('chamarSegundaVia: caminho de SEMOGAPP_API_URL', () => {
   ])('%s preserva o prefixo e não duplica a barra', async (base, esperada) => {
     process.env.SEMOGAPP_API_URL = base
     const fetchFalso = fetchRetornando(resposta(204))
-    await chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso })
+    await chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchFalso })
     expect(fetchFalso.mock.calls[0][0]).toBe(esperada)
   })
 
@@ -404,14 +405,14 @@ describe('chamarSegundaVia: caminho de SEMOGAPP_API_URL', () => {
     process.env.SEMOGAPP_API_URL = base
     const fetchFalso = vi.fn<typeof fetch>()
     await expect(
-      chamarSegundaVia('encerrar', { sessao: REF }, { fetch: fetchFalso }),
+      chamarSegundaVia('encerrar', { sessao: TOKEN }, { fetch: fetchFalso }),
     ).resolves.toEqual({ tipo: 'indisponivel' })
     expect(fetchFalso).not.toHaveBeenCalled()
   })
 })
 
 describe('chamarSegundaVia: o link do boleto (credencial)', () => {
-  const c = { sessao: REF, unidade: REF, cobranca: REF, ipCliente: IP }
+  const c = { sessao: TOKEN, unidade: REF, cobranca: REF, ipCliente: IP }
   const URL_BOLETO =
     'https://semog.superlogica.net/clients/areadocondomino/segundavia?id=segredo123'
 
