@@ -26,6 +26,29 @@ const CIDADE_OPTIONS: { label: string; value: PropostaRapidaValues['cidade'] }[]
   { label: 'Outra cidade', value: 'Outra cidade' },
 ]
 
+/** Para onde levar o painel depois de uma falha (ver `levarAteAFalha`). */
+type AlvoDaFalha = { n: number; campo?: keyof PropostaRapidaValues }
+
+/**
+ * Rola o painel até o alvo da falha e põe o foco nele. Campo: o `focus()` já
+ * rola o painel até ele. Aviso: rola centralizando, suave só para quem não pede
+ * movimento reduzido, e foca sem rolar de novo.
+ */
+function levarAteAFalha(
+  alvo: AlvoDaFalha,
+  aviso: HTMLElement | null,
+  focarCampo: (campo: keyof PropostaRapidaValues) => void,
+) {
+  if (alvo.campo) {
+    focarCampo(alvo.campo)
+    return
+  }
+  if (!aviso) return
+  const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  aviso.scrollIntoView?.({ block: 'center', behavior: reduzido ? 'auto' : 'smooth' })
+  aviso.focus({ preventScroll: true })
+}
+
 type Props = {
   /** Praça da landing em que a triagem foi aberta, se for uma. */
   cidadeDaPagina?: CidadeDaLanding
@@ -48,6 +71,7 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
     register,
     handleSubmit,
     setError,
+    setFocus,
     watch,
     control,
     formState: { errors, isSubmitting },
@@ -75,15 +99,39 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
     aoMudarEnvio(isSubmitting)
   }, [isSubmitting, aoMudarEnvio])
 
-  function recomecarVerificacao(mensagem: ReactNode) {
-    setToken(null)
-    setTurnstileKey((key) => key + 1)
+  // Na folha do celular (390px) o aviso de falha nasce abaixo da dobra do
+  // painel, entre o Turnstile e o botão: sem rolar, quem enviou não vê que
+  // falhou. A cada falha o painel rola até o alvo e o foco vai para ele (o que
+  // também faz o leitor de tela anunciá-lo): o primeiro campo recusado pelo
+  // servidor, se houver, ou o aviso. Espera o envio terminar porque, enquanto
+  // ele corre, o fieldset está desabilitado e campo desabilitado não recebe
+  // foco. `n` é o gatilho: a mesma falha duas vezes seguidas rola de novo.
+  const falhaRef = useRef<HTMLParagraphElement>(null)
+  const [alvo, setAlvo] = useState<AlvoDaFalha>({ n: 0 })
+  const alvoAtendido = useRef(0)
+  useEffect(() => {
+    if (alvo.n === alvoAtendido.current || isSubmitting) return
+    alvoAtendido.current = alvo.n
+    levarAteAFalha(alvo, falhaRef.current, setFocus)
+  }, [alvo, isSubmitting, setFocus])
+
+  /** Mostra a falha e marca para onde levar o painel e o foco. */
+  function mostrarFalha(mensagem: ReactNode, campo?: keyof PropostaRapidaValues) {
     setFalha(mensagem)
+    setAlvo((anterior) => ({ n: anterior.n + 1, campo }))
   }
 
+  function recomecarVerificacao(mensagem: ReactNode, campo?: keyof PropostaRapidaValues) {
+    setToken(null)
+    setTurnstileKey((key) => key + 1)
+    mostrarFalha(mensagem, campo)
+  }
+
+  // Erro de validação no navegador: o RHF já leva o foco ao primeiro campo
+  // inválido (`shouldFocusError`), e o foco rola o painel até ele.
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
-      setFalha('Aguarde a verificação de segurança concluir antes de enviar.')
+      mostrarFalha('Aguarde a verificação de segurança concluir antes de enviar.')
       return
     }
 
@@ -105,11 +153,16 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
       return
     }
 
-    for (const [campo, mensagem] of Object.entries(result.errors ?? {})) {
+    // Recusa por campo vinda do servidor: o foco vai ao primeiro campo
+    // recusado (o que a pessoa precisa corrigir), não ao aviso geral.
+    const errosDeCampo = Object.entries(result.errors ?? {})
+    for (const [campo, mensagem] of errosDeCampo) {
+      // chaves do `propostaRapidaSchema`, devolvidas pela própria action
       setError(campo as keyof PropostaRapidaValues, { type: 'server', message: mensagem })
     }
     recomecarVerificacao(
       result.message ?? 'Não foi possível enviar. Confira os campos e tente novamente.',
+      errosDeCampo[0]?.[0] as keyof PropostaRapidaValues | undefined, // idem
     )
   })
 
@@ -156,7 +209,7 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
         />
         <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
         {falha && (
-          <p role="alert" className="tr-erro">
+          <p ref={falhaRef} role="alert" tabIndex={-1} className="tr-erro">
             {falha}
           </p>
         )}

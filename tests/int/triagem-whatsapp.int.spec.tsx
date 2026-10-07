@@ -252,4 +252,53 @@ describe('proposta curta', () => {
     expect(screen.queryByText(/Protocolo/)).toBeNull()
     expect(gtag).not.toHaveBeenCalledWith('event', 'generate_lead', expect.anything())
   })
+
+  /**
+   * Na folha do celular o aviso nasce abaixo da dobra do painel. O que se
+   * defende: depois da falha, o painel rola até o aviso e o foco vai para ele —
+   * ou para o primeiro campo recusado, quando o servidor aponta um.
+   */
+  describe('falha leva o painel até o erro', () => {
+    const rolagens: { el: Element; opcoes: unknown }[] = []
+    beforeAll(() => {
+      Element.prototype.scrollIntoView = function scrollIntoView(this: Element, opcoes?: unknown) {
+        rolagens.push({ el: this, opcoes })
+      }
+    })
+    beforeEach(() => {
+      rolagens.length = 0
+    })
+
+    async function enviarComCidade() {
+      await preencherProposta()
+      fireEvent.change(screen.getByLabelText(/cidade do condomínio/i), {
+        target: { value: 'Outra cidade' },
+      })
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Pedir proposta' }))
+      })
+    }
+
+    it('falha sem campo: rola até o aviso e põe o foco nele', async () => {
+      submitPropostaRapidaMock.mockResolvedValue({ ok: false, message: 'Erro ao enviar.' })
+      await enviarComCidade()
+
+      const aviso = await screen.findByText('Erro ao enviar.')
+      await waitFor(() => expect(document.activeElement).toBe(aviso))
+      expect(rolagens.some((r) => r.el === aviso)).toBe(true)
+      expect(rolagens.find((r) => r.el === aviso)?.opcoes).toMatchObject({ block: 'center' })
+    })
+
+    it('recusa de campo pelo servidor: o foco vai ao campo, não ao aviso', async () => {
+      submitPropostaRapidaMock.mockResolvedValue({
+        ok: false,
+        errors: { nome: 'Informe seu nome.' },
+      })
+      await enviarComCidade()
+
+      const nome = screen.getByLabelText(/seu nome/i)
+      await waitFor(() => expect(document.activeElement).toBe(nome))
+      expect(nome.getAttribute('aria-invalid')).toBe('true')
+    })
+  })
 })
