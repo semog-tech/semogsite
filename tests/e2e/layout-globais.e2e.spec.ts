@@ -72,8 +72,13 @@ test.describe('footer (global content/site.ts)', () => {
 })
 
 test.describe('WhatsApp float (global content/site.ts)', () => {
-  test('botão flutuante aponta pro número real da Semog', async ({ page }) => {
+  test('sem JS, o botão flutuante aponta pro número real da Semog', async ({ request }) => {
+    const html = await (await request.get('http://localhost:3000/')).text()
+    expect(html).toMatch(/<a[^>]*class="wa-float"[^>]*href="https:\/\/wa\.me\/551130034506"/)
+  })
+
+  test('com JS, o botão flutuante abre a triagem', async ({ page }) => {
     await page.goto('http://localhost:3000/')
-    await expect(page.locator('.wa-float')).toHaveAttribute('href', 'https://wa.me/551130034506')
+    await expect(page.locator('.wa-float')).toHaveAttribute('aria-haspopup', 'dialog')
   })
 })

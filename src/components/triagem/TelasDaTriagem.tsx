@@ -85,7 +85,10 @@ function OpcaoCliente({ aoSair }: { aoSair: () => void }) {
           href={LINK_AREA_DO_CLIENTE}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => registrarCaminho('portal')}
+          onClick={() => {
+            registrarCaminho('portal')
+            aoSair()
+          }}
         >
           Acessar a área do cliente
         </a>

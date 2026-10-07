@@ -159,10 +159,13 @@ describe('submitPropostaRapida', () => {
   })
 
   it('notifica a praça da cidade, com protocolo e desfecho; não tenta auto-reply sem e-mail', async () => {
+    vi.stubEnv('LEAD_OUTCOME_SECRET', 'segredo-de-teste')
     const info = vi.spyOn(console, 'info').mockImplementation(() => {})
     const result = await submitPropostaRapida(valida, 'token')
 
     expect(sendMailMock).toHaveBeenCalledTimes(1)
+    expect(JSON.stringify(sendMailMock.mock.calls[0])).toContain('desfecho/321?t=')
+    vi.unstubAllEnvs()
     const [mail] = sendMailMock.mock.calls[0] as [{ to: string[]; subject: string }]
     expect(mail.to).toEqual(['ivan@semog.com.br'])
     expect(mail.subject).toBe('Novo contato via Proposta (contato rápido)')
