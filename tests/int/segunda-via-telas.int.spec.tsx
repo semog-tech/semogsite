@@ -95,6 +95,12 @@ beforeEach(() => {
   acoes.encerrarConsulta.mockResolvedValue(undefined)
 })
 
+const windowOpen = vi.fn()
+
+beforeEach(() => {
+  window.open = windowOpen
+})
+
 afterEach(() => {
   window.gtag = undefined
 })
@@ -394,20 +400,44 @@ describe('unidades e boletos', () => {
 })
 
 describe('tela do boleto', () => {
-  it('"Abrir boleto" abre nova aba com rel="noopener noreferrer" e o aviso de não encaminhar está junto', async () => {
+  it('"Abrir boleto" abre nova aba sem opener nem referrer e o aviso de não encaminhar está junto', async () => {
     await irAosBoletos()
     fireEvent.click(screen.getByRole('button', { name: /10\/10\/2026/ }))
     await screen.findByRole('heading', { name: 'Seu boleto' })
 
-    const abrir = await screen.findByRole('link', { name: 'Abrir boleto' })
+    const abrir = await screen.findByRole('button', { name: 'Abrir boleto' })
     expect(acoes.abrirBoleto).toHaveBeenCalledWith(U1.ref, A_VENCER.ref)
-    expect(abrir.getAttribute('href')).toBe(URL_BOLETO)
-    expect(abrir.getAttribute('target')).toBe('_blank')
-    expect(abrir.getAttribute('rel')).toBe('noopener noreferrer')
     const bloco = abrir.closest('.tr-acoes')
     expect(bloco?.textContent).toContain(
       'Este link abre o boleto com seus dados pessoais. Não encaminhe para outras pessoas.',
     )
+    fireEvent.click(abrir)
+    expect(windowOpen).toHaveBeenCalledWith(URL_BOLETO, '_blank', 'noopener,noreferrer')
+  })
+
+  it('a URL do boleto (credencial) não aparece em nenhum lugar do DOM', async () => {
+    await irAosBoletos()
+    fireEvent.click(screen.getByRole('button', { name: /10\/10\/2026/ }))
+    await screen.findByRole('button', { name: 'Abrir boleto' })
+
+    const html = document.documentElement.outerHTML
+    expect(html).not.toContain(URL_BOLETO)
+    expect(html).not.toContain('areadocondomino/exemplo')
+  })
+
+  it('sem lista depois da cobrança sumir, o aviso não promete "lista atualizada"', async () => {
+    acoes.abrirBoleto.mockResolvedValue({ tipo: 'cobranca_indisponivel' })
+    await irAosBoletos()
+    acoes.listarCobrancas.mockResolvedValue({
+      tipo: 'ok',
+      situacao: 'sem_aberto',
+      haRestritas: false,
+      cobrancas: [],
+    })
+    fireEvent.click(screen.getByRole('button', { name: /10\/10\/2026/ }))
+
+    await screen.findByText('Não encontramos boletos em aberto para esta unidade.')
+    expect(screen.getByRole('status').textContent).toBe('Este boleto não está mais disponível.')
   })
 
   it('cobrança indisponível volta à lista, avisa e reconsulta (nunca fica em "carregando")', async () => {
@@ -426,7 +456,9 @@ describe('tela do boleto', () => {
     await waitFor(() => expect(acoes.listarCobrancas).toHaveBeenCalledTimes(2))
     expect(await screen.findByText('Vence em 10/09/2026')).toBeTruthy()
     expect(screen.queryByText('Vence em 10/10/2026')).toBeNull()
-    expect(screen.getByText(/Este boleto não está mais disponível/)).toBeTruthy()
+    expect(screen.getByText(/Este boleto não está mais disponível/).textContent).toBe(
+      'Este boleto não está mais disponível. Mostramos a lista atualizada.',
+    )
   })
 })
 
@@ -524,6 +556,41 @@ describe('respostas atrasadas e clique duplo', () => {
   })
 })
 
+describe('consulta nova depois de fechar', () => {
+  it('resposta atrasada não encerra a consulta que começou depois dela', async () => {
+    let responder: (v: unknown) => void = () => {}
+    acoes.confirmarCodigo.mockReturnValueOnce(new Promise((r) => (responder = r)))
+    await irAoCodigo()
+    fireEvent.change(screen.getByLabelText('Código'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    await waitFor(() => expect(acoes.encerrarConsulta).toHaveBeenCalledTimes(1))
+
+    // A pessoa reabre e começa outra consulta antes de a resposta velha chegar.
+    fireEvent.click(screen.getByRole('button', { name: 'Falar com a Semog' }))
+    fireEvent.click(screen.getByRole('button', { name: /Sou cliente: 2ª via e atendimento/ }))
+    await screen.findByRole('heading', { name: 'Segunda via do boleto' })
+
+    await act(async () => responder({ tipo: 'ok', unidades: [U1] }))
+    expect(acoes.encerrarConsulta).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('heading', { name: 'Segunda via do boleto' })).toBeTruthy()
+  })
+
+  it('Voltar da tela do CPF fica desabilitado com o pedido do código em voo', async () => {
+    let responder: (v: unknown) => void = () => {}
+    acoes.solicitarCodigo.mockReturnValue(new Promise((r) => (responder = r)))
+    await irAoCpf()
+    expect(screen.getByRole('button', { name: 'Voltar' })).toHaveProperty('disabled', false)
+    fireEvent.change(screen.getByLabelText(/^CPF/), { target: { value: CPF } })
+    fireEvent.click(screen.getByRole('button', { name: 'turnstile' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar' }))
+
+    expect(screen.getByRole('button', { name: 'Voltar' })).toHaveProperty('disabled', true)
+    await act(async () => responder({ tipo: 'ok', reenvioEmSegundos: 60 }))
+    await screen.findByRole('heading', { name: 'Digite o código' })
+  })
+})
+
 describe('fechar, acessibilidade e medição', () => {
   it('fechar o diálogo chama encerrarConsulta e limpa o estado', async () => {
     await irAosBoletos()
@@ -557,7 +624,7 @@ describe('fechar, acessibilidade e medição', () => {
     })
     await irAosBoletos()
     fireEvent.click(screen.getByRole('button', { name: /10\/09\/2026/ }))
-    fireEvent.click(await screen.findByRole('link', { name: 'Abrir boleto' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir boleto' }))
 
     expect(eventosSegundaVia()).toEqual([
       ['event', 'segunda_via_solicitada'],

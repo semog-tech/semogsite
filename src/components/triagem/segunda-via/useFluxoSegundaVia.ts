@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import {
   abrirBoleto,
   confirmarCodigo,
@@ -18,6 +18,18 @@ import {
 } from './respostas'
 import { useChamadaUnica } from './useChamadaUnica'
 
+/**
+ * Contador das consultas abertas nesta aba. Uma resposta "ok" que chega com a
+ * triagem já fechada pode ter gravado cookie: ela encerra a consulta, mas só se
+ * nenhuma consulta nova começou desde então — senão apagaria os cookies dela.
+ */
+let ultimaConsulta = 0
+
+/** Abre o boleto numa aba nova, sem `opener` nem referrer, a partir da memória. */
+function abrirEmAbaNova(url: string) {
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 const AVISO_DE_REENVIO =
   'Se este CPF tiver cadastro, enviamos um novo código. O código anterior deixou de valer.'
 
@@ -26,7 +38,8 @@ const AVISO_DE_REENVIO =
  * continua montado quando a Server Action grava cookie e o Next re-renderiza a
  * página (docs do Next, "Mutating data → Cookies": o estado de cliente é
  * preservado). O CPF fica só no campo, os tokens só nos cookies HttpOnly e o
- * link do boleto só aqui, enquanto a tela do boleto está aberta.
+ * link do boleto só aqui, na memória, enquanto a tela do boleto está aberta:
+ * nunca no DOM, no redutor, em log ou no GA4.
  */
 export function useFluxoSegundaVia() {
   const [estado, despachar] = useReducer(reduzirSegundaVia, estadoInicial)
@@ -35,7 +48,15 @@ export function useFluxoSegundaVia() {
   // O redutor apaga `avisoLink` quando a lista nova chega; o aviso precisa
   // ficar visível depois disso, até a pessoa sair da lista.
   const [cobrancaSumiu, setCobrancaSumiu] = useState(false)
-  const { chamar, ocupado } = useChamadaUnica(estado.tela, encerrarSegundaVia)
+  const consulta = useRef(0)
+  useEffect(() => {
+    ultimaConsulta += 1
+    consulta.current = ultimaConsulta
+  }, [])
+  const encerrarSeForAUltima = useCallback(() => {
+    if (consulta.current === ultimaConsulta) encerrarSegundaVia()
+  }, [])
+  const { chamar, ocupado } = useChamadaUnica(estado.tela, encerrarSeForAUltima)
   const falhou = aoFalharChamada(despachar, estado.tela)
 
   useEffect(() => {
@@ -100,7 +121,18 @@ export function useFluxoSegundaVia() {
   }
 
   const linkDaTela = link && link.cobranca === estado.cobranca?.ref ? link.url : null
-  return { estado, despachar, ocupado, avisoDeReenvio, cobrancaSumiu, link: linkDaTela, acoes }
+  const abrirLink = () => {
+    if (linkDaTela) abrirEmAbaNova(linkDaTela)
+  }
+  return {
+    estado,
+    despachar,
+    ocupado,
+    avisoDeReenvio,
+    cobrancaSumiu,
+    linkPronto: linkDaTela !== null,
+    acoes: { ...acoes, abrirLink },
+  }
 }
 
 export type FluxoSegundaVia = ReturnType<typeof useFluxoSegundaVia>

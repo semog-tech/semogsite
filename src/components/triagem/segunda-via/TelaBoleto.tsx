@@ -15,20 +15,20 @@ type Props = {
   unidade: UnidadePublica
   cobranca: CobrancaPublica
   /**
-   * Link da Superlógica pedido ao servidor ao escolher o boleto. É credencial:
-   * vive só neste `href`, nunca no estado das telas, em log ou no GA4.
-   * `null` enquanto o servidor responde.
+   * O link da Superlógica já chegou do servidor. Ele é credencial e não passa
+   * por aqui: fica só na memória do fluxo, fora do DOM, e `aoAbrir` o abre.
    */
-  link: string | null
+  linkPronto: boolean
   acoes: { aoAbrir: () => void; verOutro: () => void; sair: () => void }
 }
 
 /**
- * Seu boleto: resumo, "Abrir boleto" (aba nova, sem `opener` nem referrer) e
+ * Seu boleto: resumo, "Abrir boleto" (aba nova sem `opener` nem referrer, por
+ * `window.open` no clique — a URL nunca vai a um `href`) e
  * o aviso de não encaminhar junto do botão. O vencido explica em linguagem
  * simples que o original ainda é aceito, sem prometer valor.
  */
-export function TelaBoleto({ unidade, cobranca, link, acoes }: Props) {
+export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
   return (
     <>
       <dl className="tr-resumo">
@@ -53,16 +53,10 @@ export function TelaBoleto({ unidade, cobranca, link, acoes }: Props) {
       </dl>
       {cobranca.vencida && <p className="tr-lead">{EXPLICACAO_DO_VENCIDO}</p>}
       <div className="tr-acoes">
-        {link ? (
-          <a
-            className="tr-primario"
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={acoes.aoAbrir}
-          >
+        {linkPronto ? (
+          <button type="button" className="tr-primario" onClick={acoes.aoAbrir}>
             Abrir boleto
-          </a>
+          </button>
         ) : (
           <button type="button" className="tr-primario" disabled aria-busy="true">
             <span className="tr-girando" aria-hidden="true" />

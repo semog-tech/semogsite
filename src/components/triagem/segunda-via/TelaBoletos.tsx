@@ -28,7 +28,9 @@ export function TelaBoletos({ unidade, boletos, cobrancaSumiu, acoes }: Props) {
       </p>
       {cobrancaSumiu && (
         <p role="status" className="tr-dica tr-dica-destaque">
-          Este boleto não está mais disponível. Mostramos a lista atualizada.
+          {boletos.modo === 'lista'
+            ? 'Este boleto não está mais disponível. Mostramos a lista atualizada.'
+            : 'Este boleto não está mais disponível.'}
         </p>
       )}
       <ConteudoDosBoletos boletos={boletos} acoes={acoes} />

@@ -1,10 +1,12 @@
+import { createHash } from 'node:crypto'
 import { type BrowserContext, expect, type Page, test } from '@playwright/test'
+import { PORTA_DO_SEMOGAPP_FALSO } from './global-setup'
 import {
   CODIGO_CERTO,
   CODIGO_EXPIRADO,
   CPFS_DE_EXEMPLO,
-  iniciarSemogappFalso,
-  type SemogappFalso,
+  type PedidoRecebido,
+  ROTA_DOS_PEDIDOS,
 } from './helpers/semogappFalso'
 
 /**
@@ -12,27 +14,40 @@ import {
  * (`helpers/semogappFalso.ts`, dados de exemplo): CPF → código → boletos →
  * link, sem tocar o app real. O servidor de dev precisa subir com
  * `SEGUNDA_VIA_ATIVA=true` e `SEMOGAPP_API_URL` apontando para a porta do
- * falso — é o que o `webServer` do `playwright.config.ts` faz. Se o teste
- * encontrar um servidor reaproveitado sem a flag, ele falha avisando.
+ * falso — é o que o `webServer` do `playwright.config.ts` faz; o falso sobe
+ * uma vez só no `global-setup.ts`. Se o teste encontrar um servidor
+ * reaproveitado sem a flag, ele falha avisando.
  *
- * Roda em Chromium e Firefox:
- * `pnpm exec playwright test tests/e2e/segunda-via.e2e.spec.ts --project=chromium`
- * (e `--project=firefox`).
+ * Roda em Chromium e Firefox, juntos em `pnpm run test:e2e` ou um de cada vez
+ * com `--project=chromium` / `--project=firefox`.
  */
 
 const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:3000'
-const PORTA_DO_FALSO = 4599
 
-let falso: SemogappFalso | undefined
+/**
+ * IP de documentação (2001:db8::/32) próprio de cada teste, projeto e
+ * tentativa, enviado como `x-forwarded-for`. O site limita 5 pedidos de
+ * código por minuto por IP, e os dois projetos somam 8: com um IP por teste,
+ * nenhum divide balde com outro. O falso registra esse IP em cada pedido.
+ */
+function ipDoTeste(projeto: string, idDoTeste: string, tentativa: number): string {
+  const h = createHash('sha256').update(`${projeto}:${idDoTeste}:${tentativa}`).digest('hex')
+  return `2001:db8::${h.slice(0, 4)}:${h.slice(4, 8)}:${h.slice(8, 12)}`
+}
 
-test.beforeAll(async () => {
-  falso = await iniciarSemogappFalso(PORTA_DO_FALSO)
+let ip = ''
+
+test.beforeEach(async ({ context }, testInfo) => {
+  ip = ipDoTeste(testInfo.project.name, testInfo.testId, testInfo.retry)
+  await context.setExtraHTTPHeaders({ 'x-forwarded-for': ip })
 })
 
-test.afterAll(async () => {
-  // Se o `beforeAll` falhou (porta ocupada), não há o que fechar.
-  await falso?.fechar()
-})
+/** Pedidos que o falso recebeu com o IP deste teste. */
+async function pedidosDesteTeste(): Promise<PedidoRecebido[]> {
+  const r = await fetch(`http://127.0.0.1:${PORTA_DO_SEMOGAPP_FALSO}${ROTA_DOS_PEDIDOS}`)
+  const todos = (await r.json()) as PedidoRecebido[] // as: o falso do próprio teste responde esse formato
+  return todos.filter((p) => p.ip === ip)
+}
 
 /** A aba do boleto vai a `semog.superlogica.net`: aqui ela recebe uma página de exemplo. */
 async function interceptarSuperlogica(context: BrowserContext) {
@@ -86,14 +101,18 @@ test('fluxo completo: CPF → código → boletos → link em aba nova', async (
   await expect(page.getByText('valor indisponível')).toBeVisible()
 
   await page.getByRole('button', { name: /10\/10\/2026/ }).click()
-  const abrir = page.getByRole('link', { name: 'Abrir boleto' })
-  await expect(abrir).toHaveAttribute('rel', 'noopener noreferrer')
-  await expect(abrir).toHaveAttribute('target', '_blank')
+  const abrir = page.locator('dialog').getByRole('button', { name: 'Abrir boleto' })
+  await expect(abrir).toBeEnabled()
+  // A URL do boleto é credencial: fica na memória, nunca no DOM.
+  expect(await page.content()).not.toContain('exemplo-segunda-via')
   const [aba] = await Promise.all([context.waitForEvent('page'), abrir.click()])
   await expect(aba.getByText('Boleto de EXEMPLO (e2e)')).toBeVisible()
+  // `noopener`: a aba do boleto não alcança a página do site.
+  expect(await aba.evaluate(() => window.opener)).toBeNull()
 
   // `/solicitar` uma vez só: repetir mandaria outro e-mail.
-  expect(falso?.pedidos.filter((p) => p === 'solicitar')).toHaveLength(1)
+  const solicitados = (await pedidosDesteTeste()).filter((p) => p.rota === 'solicitar')
+  expect(solicitados).toHaveLength(1)
 })
 
 test('código errado conta as tentativas; código expirado pede outro', async ({ page }) => {

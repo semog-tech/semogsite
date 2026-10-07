@@ -5,6 +5,7 @@ import { defineConfig, devices } from '@playwright/test'
  * https://github.com/motdotla/dotenv
  */
 import 'dotenv/config'
+import { PORTA_DO_SEMOGAPP_FALSO } from './tests/e2e/global-setup'
 import { SEGREDO_DE_TESTE } from './tests/e2e/helpers/semogappFalso'
 
 /**
@@ -41,6 +42,8 @@ export default defineConfig({
       testMatch: /segunda-via\.e2e\.spec\.ts/,
     },
   ],
+  // Sobe o semogapp FALSO da 2ª via uma vez só, para todos os projetos.
+  globalSetup: './tests/e2e/global-setup.ts',
   webServer: {
     command: 'pnpm dev',
     reuseExistingServer: true,
@@ -50,7 +53,7 @@ export default defineConfig({
     // Cloudflare, que sempre passam.
     env: {
       SEGUNDA_VIA_ATIVA: 'true',
-      SEMOGAPP_API_URL: 'http://127.0.0.1:4599',
+      SEMOGAPP_API_URL: `http://127.0.0.1:${PORTA_DO_SEMOGAPP_FALSO}`,
       SEMOGAPP_SEGUNDA_VIA_SEGREDO: SEGREDO_DE_TESTE,
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',

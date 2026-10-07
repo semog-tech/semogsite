@@ -1,9 +1,9 @@
 'use client'
 
-import { type Dispatch, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Cabecalho, type TituloDoPainel, type Voltar } from '../Cabecalho'
 import { registrarBoletoAberto } from '../medicao'
-import { type AcaoSegundaVia, type EstadoSegundaVia, etapaVisivel } from './estado'
+import { type EstadoSegundaVia, etapaVisivel } from './estado'
 import { encerrarSegundaVia } from './respostas'
 import { TelaBoleto } from './TelaBoleto'
 import { TelaBoletos } from './TelaBoletos'
@@ -25,14 +25,14 @@ type Props = {
 
 /** Para onde o Voltar leva em cada tela; sem destino, não há botão. */
 function voltarDe(
-  estado: EstadoSegundaVia,
-  despachar: Dispatch<AcaoSegundaVia>,
+  { estado, despachar, ocupado }: Pick<FluxoSegundaVia, 'estado' | 'despachar' | 'ocupado'>,
   aoVoltarAoMenu: () => void,
 ): Voltar | undefined {
   const rotulo = 'Voltar'
   switch (estado.tela) {
     case 'cpf':
-      return { rotulo, aoVoltar: aoVoltarAoMenu }
+      // Com o pedido do código em voo, sair para o menu deixaria o desafio órfão.
+      return { rotulo, desabilitado: ocupado, aoVoltar: aoVoltarAoMenu }
     case 'codigo':
     case 'boleto':
       return { rotulo, aoVoltar: () => despachar({ tipo: 'voltar' }) }
@@ -80,10 +80,13 @@ function TelaDaConsulta({ fluxo, sair }: { fluxo: FluxoSegundaVia; sair: () => v
       <TelaBoleto
         unidade={unidade}
         cobranca={cobranca}
-        link={fluxo.link}
+        linkPronto={fluxo.linkPronto}
         acoes={{
           sair,
-          aoAbrir: () => registrarBoletoAberto(cobranca.vencida),
+          aoAbrir: () => {
+            acoes.abrirLink()
+            registrarBoletoAberto(cobranca.vencida)
+          },
           verOutro: () => despachar({ tipo: 'voltar' }),
         }}
       />
@@ -129,7 +132,7 @@ function TelaAtual({ fluxo, sair }: { fluxo: FluxoSegundaVia; sair: () => void }
  */
 export function SegundaVia({ titulo, aoFechar, aoVoltarAoMenu }: Props) {
   const fluxo = useFluxoSegundaVia()
-  const { estado, despachar } = fluxo
+  const { estado } = fluxo
 
   // Título focado a cada troca de tela, para o leitor de tela anunciar onde a
   // pessoa está. A primeira tela já é focada pela triagem.
@@ -148,7 +151,7 @@ export function SegundaVia({ titulo, aoFechar, aoVoltarAoMenu }: Props) {
       <Cabecalho
         texto={TITULOS[estado.tela]}
         titulo={titulo}
-        voltar={voltarDe(estado, despachar, aoVoltarAoMenu)}
+        voltar={voltarDe(fluxo, aoVoltarAoMenu)}
         aoFechar={aoFechar}
       />
       {estado.tela !== 'expirada' && <IndicadorDeEtapa estado={estado} />}

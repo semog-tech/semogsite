@@ -196,9 +196,17 @@ function rotas(desafios: Map<string, Desafio>, sessoes: Map<string, Sessao>) {
   }
 }
 
+/** Rota e `ipCliente` de cada pedido assinado, na ordem. Nada mais do corpo. */
+export type PedidoRecebido = { rota: string; ip: string }
+
+/**
+ * Leitura dos pedidos pelo teste. O falso sobe uma vez só (no `globalSetup`,
+ * outro processo), então o teste pergunta por HTTP, filtrando pelo IP dele.
+ */
+export const ROTA_DOS_PEDIDOS = '/_teste/pedidos'
+
 export type SemogappFalso = {
-  /** Nome da rota de cada pedido recebido, na ordem (nada do corpo). */
-  pedidos: string[]
+  pedidos: PedidoRecebido[]
   fechar: () => Promise<void>
 }
 
@@ -206,18 +214,20 @@ export function iniciarSemogappFalso(
   porta: number,
   segredo = SEGREDO_DE_TESTE,
 ): Promise<SemogappFalso> {
-  const pedidos: string[] = []
+  const pedidos: PedidoRecebido[] = []
   const tratar = rotas(new Map(), new Map())
   const servidor = createServer((req, res) => {
+    if (req.method === 'GET' && req.url === ROTA_DOS_PEDIDOS) return responder(res, 200, pedidos)
     const rota = (req.url ?? '').replace('/publico/segunda-via/', '')
     lerCorpo(req)
       .then((texto) => {
-        pedidos.push(rota)
         if (req.method !== 'POST' || !Object.hasOwn(tratar, rota)) return responder(res, 404)
         if (!assinaturaConfere(segredo, req, texto))
           return responder(res, 401, { erro: 'assinatura' })
-        const [status, corpo] = tratar[rota as keyof typeof tratar](JSON.parse(texto) as Corpo) // as: rota conferida por `hasOwn`; corpo é o JSON assinado pelo site
-        responder(res, status, corpo)
+        const corpo = JSON.parse(texto) as Corpo // as: JSON assinado pelo site, conferido acima
+        pedidos.push({ rota, ip: String(corpo.ipCliente ?? '') })
+        const [status, resposta] = tratar[rota as keyof typeof tratar](corpo) // as: rota conferida por `hasOwn`
+        responder(res, status, resposta)
       })
       .catch((erro: unknown) => {
         console.error('[semogapp falso] pedido falhou:', erro)
