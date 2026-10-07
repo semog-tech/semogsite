@@ -23,14 +23,15 @@ import {
 const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:3000'
 const PORTA_DO_FALSO = 4599
 
-let falso: SemogappFalso
+let falso: SemogappFalso | undefined
 
 test.beforeAll(async () => {
   falso = await iniciarSemogappFalso(PORTA_DO_FALSO)
 })
 
 test.afterAll(async () => {
-  await falso.fechar()
+  // Se o `beforeAll` falhou (porta ocupada), não há o que fechar.
+  await falso?.fechar()
 })
 
 /** A aba do boleto vai a `semog.superlogica.net`: aqui ela recebe uma página de exemplo. */
@@ -92,7 +93,7 @@ test('fluxo completo: CPF → código → boletos → link em aba nova', async (
   await expect(aba.getByText('Boleto de EXEMPLO (e2e)')).toBeVisible()
 
   // `/solicitar` uma vez só: repetir mandaria outro e-mail.
-  expect(falso.pedidos.filter((p) => p === 'solicitar')).toHaveLength(1)
+  expect(falso?.pedidos.filter((p) => p === 'solicitar')).toHaveLength(1)
 })
 
 test('código errado conta as tentativas; código expirado pede outro', async ({ page }) => {
