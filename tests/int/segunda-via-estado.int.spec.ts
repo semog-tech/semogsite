@@ -391,3 +391,71 @@ describe('reenvio (relógio injetado)', () => {
     expect(reenvioHabilitado(estadoInicial, T0 + 1_000_000)).toBe(false)
   })
 })
+
+/**
+ * S5: o redutor recebe também o que as Server Actions devolvem — "ok" sem os
+ * tokens (eles ficam só nos cookies HttpOnly) e os casos decididos no site.
+ */
+describe('resultados das Server Actions', () => {
+  it('"ok" sem desafio e sem sessão avança igual ao da API', () => {
+    const cod = aplicar(estadoInicial, {
+      tipo: 'solicitar_respondido',
+      agora: T0,
+      resposta: { tipo: 'ok', reenvioEmSegundos: 60 },
+    })
+    expect(cod.tela).toBe('codigo')
+    const uma = aplicar(cod, {
+      tipo: 'confirmar_respondido',
+      agora: T0,
+      resposta: { tipo: 'ok', unidades: [U1] },
+    })
+    expect(uma.tela).toBe('boletos')
+    expect(uma.unidade).toEqual(U1)
+  })
+
+  it('anti_robo fica na tela do CPF; formato fica na tela do código', () => {
+    const robo = aplicar(estadoInicial, {
+      tipo: 'solicitar_respondido',
+      agora: T0,
+      resposta: { tipo: 'anti_robo' },
+    })
+    expect(robo.tela).toBe('cpf')
+    expect(robo.erroCpf).toEqual({ tipo: 'anti_robo' })
+
+    const formato = aplicar(estadoInicial, solicitado, {
+      tipo: 'confirmar_respondido',
+      agora: T0,
+      resposta: { tipo: 'formato' },
+    })
+    expect(formato.tela).toBe('codigo')
+    expect(formato.erroCodigo).toEqual({ tipo: 'formato' })
+  })
+
+  it('"falhou" (action desligada ou que lançou) vai a "falha" guardando a etapa', () => {
+    const cod = aplicar(estadoInicial, solicitado)
+    const f = aplicar(cod, { tipo: 'falhou' })
+    expect(f.tela).toBe('falha')
+    expect(f.falhaEm).toBe('codigo')
+    expect(etapaVisivel(f)).toEqual({ atual: 2, total: 3 })
+    // Já em falha, a etapa original não se perde.
+    expect(aplicar(f, { tipo: 'falhou' }).falhaEm).toBe('codigo')
+  })
+
+  it('"reconsultar" volta a lista a "carregando" só na tela de boletos', () => {
+    const nao = aplicar(emBoletosUmaUnidade(), cobrancasOk('indeterminado', false, []))
+    expect(nao.boletos).toEqual({ modo: 'nao_consultou' })
+    expect(aplicar(nao, { tipo: 'reconsultar' }).boletos).toEqual({ modo: 'carregando' })
+    const cod = aplicar(estadoInicial, solicitado)
+    expect(aplicar(cod, { tipo: 'reconsultar' })).toBe(cod)
+  })
+
+  it('depois de "expirada", cobrança e aviso do link ficam nulos', () => {
+    const indisponivel = aplicar(emBoleto(), {
+      tipo: 'link_respondido',
+      resposta: { tipo: 'cobranca_indisponivel' },
+    })
+    const e = aplicar(indisponivel, { tipo: 'sessao_expirada' })
+    expect(e.cobranca).toBeNull()
+    expect(e.avisoLink).toBeNull()
+  })
+})

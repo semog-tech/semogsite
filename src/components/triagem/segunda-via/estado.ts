@@ -1,17 +1,22 @@
 import type {
   CobrancaPublica,
+  Desligada,
   RespostaCobrancas,
   RespostaConfirmar,
   RespostaLink,
   RespostaReenviar,
   RespostaSolicitar,
+  ResultadoConfirmar,
+  ResultadoSolicitar,
   UnidadePublica,
 } from '@/lib/segundaVia/tipos'
 
 /**
  * Redutor puro das telas da 2ª via. Sem DOM, sem relógio próprio (o `agora`
  * vem na ação, em ms) e sem I/O: as telas chamam as Server Actions e despacham
- * a resposta tal como veio do cliente HTTP.
+ * o resultado tal como veio. Aceita a resposta da API e o resultado da action
+ * (que chega sem os tokens e com os casos decididos no site); `desligada` não
+ * entra: a tela a despacha como `falhou`.
  *
  * O estado NUNCA guarda CPF, código, token de desafio/sessão nem a URL do
  * boleto (credencial): isso fica nos cookies HttpOnly ou só na ação que abre
@@ -30,13 +35,18 @@ export type TelaSegundaVia =
 /** Reenvio só depois de 60 s: o piso vale mesmo que o app diga menos. */
 const REENVIO_MINIMO_S = 60
 
-export type ErroCpf = { tipo: 'entrada_invalida' } | { tipo: 'limite'; tentarEmSegundos: number }
+export type ErroCpf =
+  | { tipo: 'entrada_invalida' }
+  | { tipo: 'anti_robo' }
+  | { tipo: 'limite'; tentarEmSegundos: number }
 
 export type ErroCodigo =
   | { tipo: 'incorreto'; tentativasRestantes: number }
   | { tipo: 'expirado' }
   | { tipo: 'bloqueado' }
   | { tipo: 'limite'; tentarEmSegundos: number }
+  /** Código fora de 6 dígitos, recusado no site sem gastar tentativa. */
+  | { tipo: 'formato' }
 
 /**
  * Conteúdo da tela de boletos. `carregando` e `nao_consultou` são estados
@@ -78,10 +88,13 @@ export const estadoInicial: EstadoSegundaVia = {
   avisoLink: null,
 }
 
+type AoSolicitar = RespostaSolicitar | Exclude<ResultadoSolicitar, Desligada>
+type AoConfirmar = RespostaConfirmar | Exclude<ResultadoConfirmar, Desligada>
+
 export type AcaoSegundaVia =
-  | { tipo: 'solicitar_respondido'; agora: number; resposta: RespostaSolicitar }
+  | { tipo: 'solicitar_respondido'; agora: number; resposta: AoSolicitar }
   | { tipo: 'reenviar_respondido'; agora: number; resposta: RespostaReenviar }
-  | { tipo: 'confirmar_respondido'; agora: number; resposta: RespostaConfirmar }
+  | { tipo: 'confirmar_respondido'; agora: number; resposta: AoConfirmar }
   | { tipo: 'escolher_unidade'; ref: string }
   | { tipo: 'cobrancas_respondido'; resposta: RespostaCobrancas }
   | { tipo: 'escolher_cobranca'; ref: string }
@@ -89,9 +102,14 @@ export type AcaoSegundaVia =
   | { tipo: 'voltar' }
   /** O cookie da sessão já não existe no navegador (Review Focus 4). */
   | { tipo: 'sessao_expirada' }
+  /** Nova consulta da lista ("Tentar de novo" depois de não conseguir consultar). */
+  | { tipo: 'reconsultar' }
+  /** A action lançou (rede) ou a 2ª via foi desligada no meio do fluxo. */
+  | { tipo: 'falhou' }
   | { tipo: 'recomecar' }
 
 function falha(estado: EstadoSegundaVia): EstadoSegundaVia {
+  if (estado.tela === 'falha') return estado
   return { ...estado, tela: 'falha', falhaEm: estado.tela }
 }
 
@@ -113,7 +131,7 @@ function liberaEm(agora: number, segundos: number): number {
   return agora + Math.max(segundos, REENVIO_MINIMO_S) * 1000
 }
 
-function aoSolicitar(estado: EstadoSegundaVia, agora: number, r: RespostaSolicitar) {
+function aoSolicitar(estado: EstadoSegundaVia, agora: number, r: AoSolicitar) {
   switch (r.tipo) {
     case 'ok':
       return {
@@ -124,6 +142,7 @@ function aoSolicitar(estado: EstadoSegundaVia, agora: number, r: RespostaSolicit
         reenvioLiberadoEm: liberaEm(agora, r.reenvioEmSegundos),
       }
     case 'entrada_invalida':
+    case 'anti_robo':
       return { ...estado, erroCpf: r }
     case 'limite':
       return { ...estado, erroCpf: r }
@@ -161,7 +180,7 @@ function comUnidades(estado: EstadoSegundaVia, unidades: UnidadePublica[]): Esta
   return { ...base, tela: 'unidades', unidade: null }
 }
 
-function aoConfirmar(estado: EstadoSegundaVia, r: RespostaConfirmar): EstadoSegundaVia {
+function aoConfirmar(estado: EstadoSegundaVia, r: AoConfirmar): EstadoSegundaVia {
   switch (r.tipo) {
     case 'ok':
       return comUnidades(estado, r.unidades)
@@ -169,6 +188,7 @@ function aoConfirmar(estado: EstadoSegundaVia, r: RespostaConfirmar): EstadoSegu
     case 'expirado':
     case 'bloqueado':
     case 'limite':
+    case 'formato':
       return { ...estado, erroCodigo: r }
     case 'indisponivel':
       return falha(estado)
@@ -176,7 +196,7 @@ function aoConfirmar(estado: EstadoSegundaVia, r: RespostaConfirmar): EstadoSegu
 }
 
 /** Traduz a resposta de `/cobrancas` sem nunca transformar dúvida em "sem boletos". */
-function boletosDa(r: Extract<RespostaCobrancas, { tipo: 'ok' }>): BoletosDaUnidade {
+export function boletosDa(r: Extract<RespostaCobrancas, { tipo: 'ok' }>): BoletosDaUnidade {
   const temLista = r.cobrancas.length > 0
   if (r.situacao === 'aberto' && temLista) {
     return { modo: 'lista', cobrancas: r.cobrancas, haRestritas: r.haRestritas }
@@ -254,6 +274,11 @@ function voltar(estado: EstadoSegundaVia): EstadoSegundaVia {
   }
 }
 
+function reconsultar(estado: EstadoSegundaVia): EstadoSegundaVia {
+  if (estado.tela !== 'boletos') return estado
+  return { ...estado, boletos: estadoInicial.boletos }
+}
+
 function aoSessaoExpirar(estado: EstadoSegundaVia): EstadoSegundaVia {
   const posCodigo =
     estado.tela === 'unidades' || estado.tela === 'boletos' || estado.tela === 'boleto'
@@ -283,6 +308,10 @@ export function reduzirSegundaVia(
       return voltar(estado)
     case 'sessao_expirada':
       return aoSessaoExpirar(estado)
+    case 'reconsultar':
+      return reconsultar(estado)
+    case 'falhou':
+      return falha(estado)
     case 'recomecar':
       return estadoInicial
   }
