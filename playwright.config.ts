@@ -62,6 +62,13 @@ export default defineConfig({
       SEMOGAPP_SEGUNDA_VIA_SEGREDO: SEGREDO_DE_TESTE,
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       TURNSTILE_SECRET_KEY: '1x0000000000000000000000000000000AA',
+      // Com o Turnstile de teste (que sempre passa), um e2e de formulário gravaria
+      // lead real a partir do .env do checkout principal. O Next não sobrescreve
+      // variável já presente, mesmo vazia: zerar aqui desliga banco, e-mail e CRM.
+      DATABASE_URI: '',
+      SENDGRID_API_KEY: '',
+      CONTACT_TO: '',
+      EXACT_SPOTTER_TOKEN: '',
     },
   },
 })
