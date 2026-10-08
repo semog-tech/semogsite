@@ -152,6 +152,19 @@ const nextConfig: NextConfig = {
         source: '/media/:file*.mp4',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      // Logo do e-mail do código da 2ª via (enviado pelo semogapp); o proxy de
+      // imagem do Gmail e os outros clientes buscam daqui. Cache de um dia, sem
+      // `immutable`: o nome é semântico e o arquivo pode ser trocado no lugar.
+      // Caminho EXATO, não curinga: a regra de `headers()` vale também para o
+      // 404, e um endereço errado não pode ficar um dia em cache. As duas
+      // grafias porque o `@` pode chegar codificado (`%40`) e o `source` casa
+      // o caminho como veio. Outra imagem de e-mail entra com o próprio caminho.
+      ...['/email/semog-logo-claro@2x.png', '/email/semog-logo-claro%402x.png'].map(
+        (source) => ({
+          source,
+          headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
+        }),
+      ),
     ]
   },
   async redirects() {
