@@ -47,18 +47,29 @@ const A_VENCER = {
   vencimento: '2026-10-10',
   valorCentavos: 45000,
   vencida: false,
+  disponivelPeloLink: true,
 }
 const VENCIDA = {
   ref: 'D'.repeat(22),
   vencimento: '2026-09-10',
   valorCentavos: 123456,
   vencida: true,
+  disponivelPeloLink: true,
 }
 const SEM_VALOR = {
   ref: 'E'.repeat(22),
   vencimento: '2026-11-10',
   valorCentavos: null,
   vencida: false,
+  disponivelPeloLink: true,
+}
+/** Baixado: aparece na lista, mas não pode mais ser pago pelo link. */
+const BAIXADA = {
+  ref: 'F'.repeat(22),
+  vencimento: '2026-06-10',
+  valorCentavos: 98765,
+  vencida: true,
+  disponivelPeloLink: false,
 }
 const URL_BOLETO = 'https://semog.superlogica.net/clients/areadocondomino/exemplo?id=1'
 
@@ -711,5 +722,75 @@ describe('fechar, acessibilidade e medição', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Voltar' }))
     await screen.findByRole('heading', { name: 'Segunda via do boleto' })
     await waitFor(() => expect(document.activeElement?.textContent).toBe('Segunda via do boleto'))
+  })
+})
+
+describe('boleto baixado (disponivelPeloLink: false)', () => {
+  const NOTA = 'Este boleto não pode mais ser pago pelo link. Fale com a equipe no WhatsApp.'
+
+  async function abrirBaixado() {
+    await irAosBoletos()
+    const item = screen.getByRole('button', { name: /10\/06\/2026/ })
+    // Na lista: vencimento, valor e situação, sem a nota de encargos.
+    expect(item.textContent).toMatch(/R\$\s987,65/)
+    expect(item.textContent).toContain('Vencido')
+    expect(item.textContent).toContain('Não pode mais ser pago pelo link.')
+    expect(item.textContent).not.toContain('juros e a multa')
+    fireEvent.click(item)
+    await screen.findByRole('heading', { name: 'Seu boleto' })
+  }
+
+  it('tela do boleto: resumo, nota com WhatsApp no lugar de "Abrir boleto", e o link nunca é pedido', async () => {
+    acoes.listarCobrancas.mockResolvedValue({
+      tipo: 'ok',
+      situacao: 'aberto',
+      haRestritas: false,
+      cobrancas: [A_VENCER, BAIXADA],
+    })
+    await abrirBaixado()
+
+    expect(dialogo().textContent).toContain('10/06/2026')
+    expect(dialogo().textContent).toMatch(/R\$\s987,65/)
+    const nota = screen.getByText(/Este boleto não pode mais ser pago pelo link\./).closest('p')
+    expect(nota?.textContent).toBe(NOTA)
+    expect(nota?.classList.contains('tr-nota-baixa')).toBe(true)
+    const wa = within(nota as HTMLElement).getByRole('link', {
+      name: 'Fale com a equipe no WhatsApp',
+    })
+    expect(wa.getAttribute('href')).toBe(
+      linkEsperado('Olá! Sou cliente e quero a segunda via do boleto.'),
+    )
+    expect(screen.queryByRole('button', { name: /Abrir boleto|Preparando o boleto/ })).toBeNull()
+    expect(screen.queryByText(/Não encaminhe/)).toBeNull()
+    // Dá tempo a qualquer efeito pendente antes de afirmar que nada foi pedido.
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50))
+    })
+    expect(acoes.abrirBoleto).not.toHaveBeenCalled()
+    expect(windowOpen).not.toHaveBeenCalled()
+    expect(eventosSegundaVia().map((c) => c[1])).not.toContain('segunda_via_boleto_aberto')
+
+    // Voltar e escolher um disponível continua pedindo o link normalmente.
+    fireEvent.click(screen.getByRole('button', { name: 'Ver outro boleto' }))
+    fireEvent.click(await screen.findByRole('button', { name: /10\/10\/2026/ }))
+    await screen.findByRole('button', { name: 'Abrir boleto' })
+    expect(acoes.abrirBoleto).toHaveBeenCalledTimes(1)
+    expect(acoes.abrirBoleto).toHaveBeenCalledWith(U1.ref, A_VENCER.ref)
+  })
+
+  it('lista só com baixados: mostra a lista, nunca "sem boletos"', async () => {
+    acoes.listarCobrancas.mockResolvedValue({
+      tipo: 'ok',
+      situacao: 'aberto',
+      haRestritas: false,
+      cobrancas: [BAIXADA],
+    })
+    await irAoCodigo()
+    fireEvent.change(screen.getByLabelText('Código'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
+    await screen.findByText('Vence em 10/06/2026')
+    expect(dialogo().textContent).not.toContain('Não encontramos boletos')
+    expect(eventosSegundaVia().map((c) => c[1])).not.toContain('segunda_via_sem_boleto')
+    expect(acoes.abrirBoleto).not.toHaveBeenCalled()
   })
 })

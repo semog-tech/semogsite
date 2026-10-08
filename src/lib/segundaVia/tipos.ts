@@ -22,6 +22,13 @@ export type CobrancaPublica = {
   /** Centavos inteiros, sempre o valor de emissão; `null` = o ERP não trouxe valor legível. */
   valorCentavos: number | null
   vencida: boolean
+  /**
+   * `false`: a cobrança foi baixada e não pode mais ser paga pelo link (o app
+   * responderia 409 a `/link`). A tela mostra o boleto sem "Abrir boleto" e
+   * nunca pede o link. Normalizado em `cliente.ts` a partir de
+   * `disponivelPeloLink`/`motivoIndisponivel` do app.
+   */
+  disponivelPeloLink: boolean
 }
 
 export type SituacaoCobrancas = 'aberto' | 'sem_aberto' | 'indeterminado'

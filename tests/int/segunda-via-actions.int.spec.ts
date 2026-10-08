@@ -375,7 +375,13 @@ describe('listarCobrancas e abrirBoleto (Review Focus 4)', () => {
       situacao: 'aberto',
       haRestritas: false,
       cobrancas: [
-        { ref: REF_COBRANCA, vencimento: '2026-10-10', valorCentavos: 12345, vencida: false },
+        {
+          ref: REF_COBRANCA,
+          vencimento: '2026-10-10',
+          valorCentavos: 12345,
+          vencida: false,
+          disponivelPeloLink: true,
+        },
       ],
     }
     appResponde('cobrancas', resposta)

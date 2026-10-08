@@ -156,3 +156,41 @@ test('app fora do ar: "não conseguimos consultar" e WhatsApp', async ({ page })
     page.locator('dialog').getByRole('link', { name: /Falar no WhatsApp/ }),
   ).toHaveAttribute('data-wa-caminho', 'cliente')
 })
+
+test('boleto baixado: resumo e WhatsApp no lugar de "Abrir boleto", e /link nunca é chamado', async ({
+  page,
+}) => {
+  await abrirSegundaVia(page)
+  await pedirCodigo(page, CPFS_DE_EXEMPLO.comBaixado)
+  await confirmar(page, CODIGO_CERTO)
+  const item = page.getByRole('button', { name: /10\/06\/2026/ })
+  await expect(item).toContainText('Não pode mais ser pago pelo link.')
+  await item.click()
+
+  const dialogo = page.locator('dialog')
+  await expect(page.getByRole('heading', { name: 'Seu boleto' })).toBeVisible()
+  await expect(dialogo).toContainText(
+    'Este boleto não pode mais ser pago pelo link. Fale com a equipe no WhatsApp.',
+  )
+  await expect(
+    dialogo.getByRole('link', { name: 'Fale com a equipe no WhatsApp' }),
+  ).toHaveAttribute('data-wa-caminho', 'cliente')
+  await expect(dialogo.getByRole('button', { name: /Abrir boleto|Preparando/ })).toHaveCount(0)
+
+  // O boleto disponível ao lado continua pedindo o link: a contagem abaixo é a
+  // prova de que o baixado não pediu.
+  await dialogo.getByRole('button', { name: 'Ver outro boleto' }).click()
+  await page.getByRole('button', { name: /10\/10\/2026/ }).click()
+  await expect(dialogo.getByRole('button', { name: 'Abrir boleto' })).toBeEnabled()
+  const links = (await pedidosDesteTeste()).filter((p) => p.rota === 'link')
+  expect(links).toHaveLength(1)
+})
+
+test('só boletos baixados: a lista aparece, nunca "sem boletos"', async ({ page }) => {
+  await abrirSegundaVia(page)
+  await pedirCodigo(page, CPFS_DE_EXEMPLO.soBaixados)
+  await confirmar(page, CODIGO_CERTO)
+  await expect(page.getByText('Vence em 10/06/2026')).toBeVisible()
+  await expect(page.locator('dialog')).not.toContainText('Não encontramos boletos')
+  expect((await pedidosDesteTeste()).filter((p) => p.rota === 'link')).toHaveLength(0)
+})

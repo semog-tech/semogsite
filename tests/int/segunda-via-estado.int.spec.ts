@@ -17,6 +17,7 @@ const C1: CobrancaPublica = {
   vencimento: '2026-10-10',
   valorCentavos: 45000,
   vencida: false,
+  disponivelPeloLink: true,
 }
 
 function aplicar(inicial: EstadoSegundaVia, ...acoes: AcaoSegundaVia[]): EstadoSegundaVia {

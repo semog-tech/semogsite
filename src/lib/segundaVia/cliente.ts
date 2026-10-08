@@ -66,7 +66,19 @@ function cobrancaPublica(v: unknown): CobrancaPublica | null {
     vencimento: v.vencimento,
     valorCentavos: v.valorCentavos,
     vencida: v.vencida,
+    disponivelPeloLink: disponivelPeloLink(v),
   }
+}
+
+/**
+ * Sem os dois campos (app anterior à PR #506 do semogapp), disponível, como
+ * antes: o app ainda barra o link com 409. Com eles, só `true` sem motivo
+ * libera; `false`, valor que não é booleano ou qualquer motivo, mesmo um que o
+ * site não conhece, deixa o item indisponível sem invalidar a lista.
+ */
+function disponivelPeloLink(v: Registro): boolean {
+  if (v.disponivelPeloLink === undefined && v.motivoIndisponivel === undefined) return true
+  return v.disponivelPeloLink === true && v.motivoIndisponivel === undefined
 }
 
 /** Lista em que TODO item precisa passar; um item ruim invalida a resposta inteira. */

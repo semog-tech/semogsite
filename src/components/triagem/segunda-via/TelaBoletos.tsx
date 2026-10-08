@@ -4,7 +4,13 @@ import type { CobrancaPublica, UnidadePublica } from '@/lib/segundaVia/tipos'
 import { IconeAviso, IconeWhatsApp } from '../icones'
 import type { BoletosDaUnidade } from './estado'
 import { LinkCobrancasRestritas, LinkDoCliente } from './LinksDeWhatsApp'
-import { dataBrasileira, NOTA_DE_ENCARGOS, rotuloDaUnidade, valorEmReais } from './textos'
+import {
+  dataBrasileira,
+  NOTA_DE_BAIXA,
+  NOTA_DE_ENCARGOS,
+  rotuloDaUnidade,
+  valorEmReais,
+} from './textos'
 
 type Props = {
   unidade: UnidadePublica
@@ -114,24 +120,42 @@ function ListaDeBoletos({
   return (
     <ul className="tr-opcoes" aria-label="Boletos em aberto">
       {cobrancas.map((c) => (
-        <li key={c.ref}>
-          <button type="button" className="tr-opcao tr-boleto" onClick={() => aoEscolher(c.ref)}>
-            <span className="tr-opcao-texto">
-              <strong>{`Vence em ${dataBrasileira(c.vencimento)}`}</strong>
-              {c.vencida && <span>{NOTA_DE_ENCARGOS}</span>}
-            </span>
-            <span className="tr-boleto-valor">
-              {c.valorCentavos === null ? (
-                <span className="tr-indisponivel">{valorEmReais(null)}</span>
-              ) : (
-                <strong>{valorEmReais(c.valorCentavos)}</strong>
-              )}
-              <Situacao vencida={c.vencida} />
-            </span>
-          </button>
-        </li>
+        <ItemDeBoleto key={c.ref} cobranca={c} aoEscolher={aoEscolher} />
       ))}
     </ul>
+  )
+}
+
+/**
+ * Um boleto da lista. O baixado também abre a tela do boleto, para mostrar o
+ * resumo e o caminho pelo WhatsApp; quem não pede o link é o fluxo.
+ */
+function ItemDeBoleto({
+  cobranca: c,
+  aoEscolher,
+}: {
+  cobranca: CobrancaPublica
+  aoEscolher: (ref: string) => void
+}) {
+  // O baixado não leva a nota de encargos: ela promete um pagamento que o link não faz.
+  const nota = !c.disponivelPeloLink ? NOTA_DE_BAIXA : c.vencida ? NOTA_DE_ENCARGOS : null
+  return (
+    <li>
+      <button type="button" className="tr-opcao tr-boleto" onClick={() => aoEscolher(c.ref)}>
+        <span className="tr-opcao-texto">
+          <strong>{`Vence em ${dataBrasileira(c.vencimento)}`}</strong>
+          {nota && <span>{nota}</span>}
+        </span>
+        <span className="tr-boleto-valor">
+          {c.valorCentavos === null ? (
+            <span className="tr-indisponivel">{valorEmReais(null)}</span>
+          ) : (
+            <strong>{valorEmReais(c.valorCentavos)}</strong>
+          )}
+          <Situacao vencida={c.vencida} />
+        </span>
+      </button>
+    </li>
   )
 }
 

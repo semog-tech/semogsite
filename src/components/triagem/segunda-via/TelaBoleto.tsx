@@ -6,7 +6,9 @@ import { LinkDoCliente } from './LinksDeWhatsApp'
 import { Situacao } from './TelaBoletos'
 import {
   AVISO_DE_NAO_ENCAMINHAR,
+  CHAMADA_DA_BAIXA,
   dataBrasileira,
+  EXPLICACAO_DA_BAIXA,
   EXPLICACAO_DO_VENCIDO,
   rotuloDaUnidade,
   valorEmReais,
@@ -28,37 +30,33 @@ type Props = {
  * `window.open` no clique — a URL nunca vai a um `href`) e
  * o aviso de não encaminhar junto do botão. O vencido explica em linguagem
  * simples que o original ainda é aceito, sem prometer valor, numa nota
- * informativa: o "Vencido" vermelho da situação já dá o alerta.
+ * informativa: o "Vencido" vermelho da situação já dá o alerta. O baixado
+ * (`disponivelPeloLink: false`) troca o botão por uma nota com o WhatsApp.
  */
 export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
+  if (!cobranca.disponivelPeloLink) {
+    // Baixado: resumo e WhatsApp, sem "Abrir boleto" (o link nem é pedido).
+    return (
+      <>
+        <ResumoDoBoleto unidade={unidade} cobranca={cobranca} />
+        <p className="tr-nota-baixa">
+          <IconeInfo />
+          <span>
+            {EXPLICACAO_DA_BAIXA}{' '}
+            <LinkDoCliente aoSair={acoes.sair}>{CHAMADA_DA_BAIXA}</LinkDoCliente>.
+          </span>
+        </p>
+        <div className="tr-acoes">
+          <button type="button" className="tr-secundario" onClick={acoes.verOutro}>
+            Ver outro boleto
+          </button>
+        </div>
+      </>
+    )
+  }
   return (
     <>
-      <dl className="tr-resumo">
-        <div>
-          <dt>Unidade</dt>
-          <dd>{rotuloDaUnidade(unidade)}</dd>
-        </div>
-        <div>
-          <dt>Vencimento</dt>
-          <dd>{dataBrasileira(cobranca.vencimento)}</dd>
-        </div>
-        <div>
-          <dt>Valor de emissão</dt>
-          <dd>
-            {cobranca.valorCentavos === null ? (
-              <span className="tr-indisponivel">{valorEmReais(null)}</span>
-            ) : (
-              valorEmReais(cobranca.valorCentavos)
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Situação</dt>
-          <dd>
-            <Situacao vencida={cobranca.vencida} />
-          </dd>
-        </div>
-      </dl>
+      <ResumoDoBoleto unidade={unidade} cobranca={cobranca} />
       {cobranca.vencida && (
         <p className="tr-nota-vencido">
           <IconeInfo />
@@ -88,5 +86,36 @@ export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
         Ainda precisa de ajuda? <LinkDoCliente aoSair={acoes.sair}>Fale no WhatsApp</LinkDoCliente>
       </p>
     </>
+  )
+}
+
+function ResumoDoBoleto({ unidade, cobranca }: Pick<Props, 'unidade' | 'cobranca'>) {
+  return (
+    <dl className="tr-resumo">
+      <div>
+        <dt>Unidade</dt>
+        <dd>{rotuloDaUnidade(unidade)}</dd>
+      </div>
+      <div>
+        <dt>Vencimento</dt>
+        <dd>{dataBrasileira(cobranca.vencimento)}</dd>
+      </div>
+      <div>
+        <dt>Valor de emissão</dt>
+        <dd>
+          {cobranca.valorCentavos === null ? (
+            <span className="tr-indisponivel">{valorEmReais(null)}</span>
+          ) : (
+            valorEmReais(cobranca.valorCentavos)
+          )}
+        </dd>
+      </div>
+      <div>
+        <dt>Situação</dt>
+        <dd>
+          <Situacao vencida={cobranca.vencida} />
+        </dd>
+      </div>
+    </dl>
   )
 }

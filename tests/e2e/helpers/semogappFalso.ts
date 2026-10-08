@@ -23,6 +23,10 @@ export const CPFS_DE_EXEMPLO = {
   appFora: '00000000604',
   /** A sessão "expira" no app: `/cobrancas` responde `sessao_invalida`. */
   sessaoExpira: '00000000787',
+  /** Um boleto a vencer e um baixado (`disponivelPeloLink: false`, `/link` responde 409). */
+  comBaixado: '00000000868',
+  /** Só boletos baixados: a lista não vira "sem boletos". */
+  soBaixados: '00000000949',
 } as const
 
 /** Códigos do e-mail de exemplo: o certo, e o que o app trata como expirado. */
@@ -31,7 +35,14 @@ export const CODIGO_EXPIRADO = '000000'
 
 export const SEGREDO_DE_TESTE = 'segredo-de-teste-da-segunda-via-e2e-0123456789'
 
-type Cobranca = { ref: string; vencimento: string; valorCentavos: number | null; vencida: boolean }
+type Cobranca = {
+  ref: string
+  vencimento: string
+  valorCentavos: number | null
+  vencida: boolean
+  disponivelPeloLink: boolean
+  motivoIndisponivel?: 'baixa'
+}
 type Unidade = { ref: string; condominio: string; unidade: string }
 type Situacao = 'aberto' | 'sem_aberto' | 'indeterminado'
 type Lista = { situacao: Situacao; haRestritas: boolean; cobrancas: Cobranca[] }
@@ -43,18 +54,21 @@ const A_VENCER: Cobranca = {
   vencimento: '2026-10-10',
   valorCentavos: 45000,
   vencida: false,
+  disponivelPeloLink: true,
 }
 const VENCIDA: Cobranca = {
   ref: ref('b'),
   vencimento: '2026-09-10',
   valorCentavos: 123456,
   vencida: true,
+  disponivelPeloLink: true,
 }
 const SEM_VALOR: Cobranca = {
   ref: ref('c'),
   vencimento: '2026-11-10',
   valorCentavos: null,
   vencida: false,
+  disponivelPeloLink: true,
 }
 /** Paga "entre a lista e o clique": `/link` responde 409 e ela sai da lista. */
 const SOME: Cobranca = {
@@ -62,6 +76,16 @@ const SOME: Cobranca = {
   vencimento: '2026-10-20',
   valorCentavos: 9990,
   vencida: false,
+  disponivelPeloLink: true,
+}
+/** Baixada (regra da Área do Condômino): aparece na lista, mas `/link` responde 409. */
+const BAIXADA: Cobranca = {
+  ref: ref('e'),
+  vencimento: '2026-06-10',
+  valorCentavos: 98765,
+  vencida: true,
+  disponivelPeloLink: false,
+  motivoIndisponivel: 'baixa',
 }
 
 const U_A: Unidade = {
@@ -100,6 +124,16 @@ const CENARIOS: Record<string, Cenario> = {
     listas: { [U_A.ref]: { situacao: 'indeterminado', haRestritas: false, cobrancas: [] } },
   },
   [CPFS_DE_EXEMPLO.sessaoExpira]: { unidades: [U_A], listas: {}, sessaoInvalida: true },
+  [CPFS_DE_EXEMPLO.comBaixado]: {
+    unidades: [U_A],
+    listas: {
+      [U_A.ref]: { situacao: 'aberto', haRestritas: false, cobrancas: [BAIXADA, A_VENCER] },
+    },
+  },
+  [CPFS_DE_EXEMPLO.soBaixados]: {
+    unidades: [U_A],
+    listas: { [U_A.ref]: { situacao: 'aberto', haRestritas: false, cobrancas: [BAIXADA] } },
+  },
 }
 
 type Desafio = { cpf: string; tentativas: number }
@@ -180,6 +214,8 @@ function rotas(desafios: Map<string, Desafio>, sessoes: Map<string, Sessao>) {
       const s = sessaoDe(c)
       if (!s || s.cenario.sessaoInvalida) return [401, { erro: 'sessao_invalida' }]
       const cobranca = String(c.cobranca)
+      // Mesmo 409 do app real para a baixada: nenhum link sai.
+      if (cobranca === BAIXADA.ref) return [409, { erro: 'cobranca_indisponivel' }]
       if (cobranca === SOME.ref) {
         s.sumidas.add(cobranca)
         return [409, { erro: 'cobranca_indisponivel' }]

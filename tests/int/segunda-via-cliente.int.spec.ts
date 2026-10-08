@@ -309,7 +309,13 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
           resposta(200, { situacao: 'aberto', haRestritas: false, cobrancas }),
         ),
       }),
-    ).resolves.toEqual({ tipo: 'ok', situacao: 'aberto', haRestritas: false, cobrancas })
+    ).resolves.toEqual({
+      tipo: 'ok',
+      situacao: 'aberto',
+      haRestritas: false,
+      // App anterior aos campos de baixa: sem eles, o item segue disponível.
+      cobrancas: cobrancas.map((x) => ({ ...x, disponivelPeloLink: true })),
+    })
     await expect(
       chamarSegundaVia('cobrancas', c, {
         fetch: fetchRetornando(resposta(401, { erro: 'sessao_invalida' })),
@@ -338,6 +344,29 @@ describe('chamarSegundaVia: mapeamento por rota', () => {
     await expect(
       chamarSegundaVia('cobrancas', c, { fetch: fetchRetornando(resposta(200, corpo)) }),
     ).resolves.toEqual({ tipo: 'indisponivel' })
+  })
+
+  it.each([
+    ['disponível', { disponivelPeloLink: true }, true],
+    ['baixado', { disponivelPeloLink: false, motivoIndisponivel: 'baixa' }, false],
+    ['false sem motivo', { disponivelPeloLink: false }, false],
+    ['motivo desconhecido', { disponivelPeloLink: false, motivoIndisponivel: 'outro' }, false],
+    ['true com motivo', { disponivelPeloLink: true, motivoIndisponivel: 'baixa' }, false],
+    ['não booleano', { disponivelPeloLink: 'true' }, false],
+    ['motivo sem o booleano', { motivoIndisponivel: 'baixa' }, false],
+    ['sem os dois campos (app antigo)', {}, true],
+  ])('cobrancas: item %s → disponivelPeloLink %s, sem invalidar a lista', async (_nome, extra, esperado) => {
+    const c = { sessao: TOKEN, unidade: REF, ipCliente: IP }
+    const base = { ref: REF, vencimento: '2026-06-10', valorCentavos: 12345, vencida: true }
+    const corpo = { situacao: 'aberto', haRestritas: false, cobrancas: [{ ...base, ...extra }] }
+    await expect(
+      chamarSegundaVia('cobrancas', c, { fetch: fetchRetornando(resposta(200, corpo)) }),
+    ).resolves.toEqual({
+      tipo: 'ok',
+      situacao: 'aberto',
+      haRestritas: false,
+      cobrancas: [{ ...base, disponivelPeloLink: esperado }],
+    })
   })
 
   it('cobrancas: situação desconhecida vira indisponivel', async () => {

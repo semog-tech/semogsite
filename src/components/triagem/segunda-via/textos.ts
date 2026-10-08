@@ -25,6 +25,13 @@ export const NOTA_DE_ENCARGOS =
 export const EXPLICACAO_DO_VENCIDO =
   'Este boleto já venceu, mas ainda pode ser pago. Ao abrir, a página mostra o valor do dia para pagar hoje. Se preferir imprimir o boleto original, o banco também aceita e cobra os juros automaticamente.'
 
+/** Boleto baixado (`disponivelPeloLink: false`): na lista, no lugar da nota de encargos. */
+export const NOTA_DE_BAIXA = 'Não pode mais ser pago pelo link.'
+
+/** Boleto baixado: na tela do boleto, no lugar de "Abrir boleto"; o fim é o link do WhatsApp. */
+export const EXPLICACAO_DA_BAIXA = 'Este boleto não pode mais ser pago pelo link.'
+export const CHAMADA_DA_BAIXA = 'Fale com a equipe no WhatsApp'
+
 export const AVISO_DE_NAO_ENCAMINHAR =
   'Este link abre o boleto com seus dados pessoais. Não encaminhe para outras pessoas.'
 

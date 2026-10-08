@@ -79,8 +79,10 @@ export function useFluxoSegundaVia() {
 
   // O link é pedido ao escolher o boleto, para o clique em "Abrir boleto" já ter
   // a URL e abrir a aba nova (window.open) sem bloqueio de pop-up. Fica só na
-  // memória, fora do DOM, e sai ao deixar a tela.
-  const cobrancaRef = estado.tela === 'boleto' ? estado.cobranca?.ref : undefined
+  // memória, fora do DOM, e sai ao deixar a tela. O baixado nunca pede o link:
+  // o app responderia 409, e a tela dele não tem "Abrir boleto".
+  const cobranca = estado.tela === 'boleto' ? estado.cobranca : null
+  const cobrancaRef = cobranca?.disponivelPeloLink ? cobranca.ref : undefined
   useEffect(() => {
     setLink(null)
     if (!cobrancaRef || !unidadeRef) return
