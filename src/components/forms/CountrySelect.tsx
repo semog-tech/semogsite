@@ -234,6 +234,8 @@ export function CountrySelect({ options, value, onChange, label }: CountrySelect
                 }}
                 role="option"
                 aria-selected={isSelected}
+                // Gancho de estilo: a triagem clara marca a opção ativa com uma barra.
+                data-ativa={isActive || undefined}
                 // `tabIndex={-1}`: focalizável programaticamente (nunca alcançado via Tab — o
                 // foco real fica sempre no container, ver `aria-activedescendant` acima), só pra
                 // satisfazer `useFocusableInteractive`. `onKeyDown` aqui é o mesmo motivo (regra
@@ -249,7 +251,7 @@ export function CountrySelect({ options, value, onChange, label }: CountrySelect
                   }
                 }}
                 className={`flex cursor-pointer items-baseline justify-between gap-3 px-[0.9rem] py-[0.5rem] text-[0.9rem] ${
-                  isActive ? 'bg-ice-400/15 text-fg' : 'text-fg-2'
+                  isActive ? 'bg-[color:var(--campo-opcao-ativa)] text-fg' : 'text-fg-2'
                 } ${isSelected ? 'font-semibold' : ''}`}
               >
                 <span>{option.name}</span>
