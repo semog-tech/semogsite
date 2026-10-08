@@ -9,6 +9,7 @@
  * `whatsapp_click` pelo `LeadClickTracker`, com a seção do caminho.
  */
 
+import { registrarLeadGerado } from '@/lib/medicaoLead'
 import type { TelaSegundaVia } from './segunda-via/estado'
 
 /** O que a pessoa escolheu no menu — `portal` é o atalho para a área do cliente. */
@@ -27,12 +28,7 @@ export function registrarCaminho(caminho: CaminhoEscolhido) {
  * com a variante ao lado, para não abrir uma série nova de conversão.
  */
 export function registrarPropostaEnviada() {
-  window.gtag?.('event', 'generate_lead', {
-    form: 'proposta',
-    variante: 'contato_rapido',
-    currency: 'BRL',
-    value: 1,
-  })
+  registrarLeadGerado('proposta', { variante: 'contato_rapido' })
 }
 
 /** Marcos da 2ª via sem parâmetro: pedido aceito, unidade sem boleto, cobranças restritas. */

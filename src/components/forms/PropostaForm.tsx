@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button'
 import { cidadeDaLanding } from '@/lib/cidadeDaLanding'
 import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
+import { registrarLeadGerado } from '@/lib/medicaoLead'
 
 /**
  * Opções de `tipo`/`cargo`/`cidade` — copiadas de propósito de
@@ -167,7 +168,7 @@ export function PropostaForm({
     if (result.ok) {
       // Conversão de lead → GA4 `generate_lead`. Marcar como evento-chave no GA4
       // e importar como conversão no Google Ads (o Consent Mode cuida do gating).
-      window.gtag?.('event', 'generate_lead', { form: 'proposta', currency: 'BRL', value: 1 })
+      registrarLeadGerado('proposta')
       setStatus('success')
       setMessage(result.message ?? 'Solicitação recebida!')
       return

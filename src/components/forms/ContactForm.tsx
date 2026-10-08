@@ -13,6 +13,7 @@ import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
 import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
+import { registrarLeadGerado } from '@/lib/medicaoLead'
 
 /**
  * Rótulos das opções de `assunto` — copiados de propósito de
@@ -102,6 +103,11 @@ export function ContactForm() {
     }
 
     if (result.ok) {
+      // Só "proposta comercial" é captação: o servidor já manda esse lead ao Google
+      // Ads e ao Exact. Os demais assuntos são atendimento a cliente e NÃO podem
+      // virar `generate_lead` — inflariam a contagem de leads e o custo por lead
+      // (mesmo raciocínio do `ExperienceForm`).
+      if (values.assunto === 'proposta-comercial') registrarLeadGerado('contato')
       setStatus('success')
       setMessage(result.message ?? 'Recebemos sua mensagem!')
       return
