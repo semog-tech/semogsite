@@ -152,6 +152,15 @@ const nextConfig: NextConfig = {
         source: '/media/:file*.mp4',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      {
+        // Imagens dos e-mails transacionais (hoje o logo do código da 2ª via,
+        // enviado pelo semogapp). O proxy de imagem do Gmail e os outros
+        // clientes buscam daqui. Cache de um dia, sem `immutable`: o nome é
+        // semântico e o mesmo arquivo pode ser trocado no lugar; o e-mail já
+        // enviado continua apontando para o mesmo endereço.
+        source: '/email/:file*.png',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
+      },
     ]
   },
   async redirects() {
