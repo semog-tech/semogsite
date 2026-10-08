@@ -27,8 +27,8 @@ const TITULOS: Record<Exclude<Tela, 'segunda-via'>, string> = {
  * antes da hidratação, continua chegando à conversa. Depois de hidratar vira um
  * botão que abre o menu de três caminhos.
  *
- * O botão hidratado não é link, então não dispara `whatsapp_click`: quem conta
- * é o link escolhido lá dentro, com a seção do caminho.
+ * O botão hidratado não é link, então não dispara evento de clique: quem conta
+ * é o link escolhido lá dentro (`triagem_whatsapp_click`, com a seção do caminho).
  *
  * `segundaViaAtiva` vem de `SEGUNDA_VIA_ATIVA`, lida no servidor
  * (`WhatsAppFloat`). Desligada, "Sou cliente" é o WhatsApp da fase 1.

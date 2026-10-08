@@ -202,11 +202,79 @@ describe('LeadClickTracker com os links da triagem', () => {
     expect(decodeURIComponent(cliente.href)).toContain('Sou cliente e quero a segunda via')
     expect(gtag).toHaveBeenCalledWith(
       'event',
-      'whatsapp_click',
+      'triagem_whatsapp_click',
       expect.objectContaining({ link_section: 'triagem_cliente', link_url: WA }),
     )
     const corpo = await lerBlob(sendBeacon.mock.calls[0]?.[1] as Blob)
     expect(JSON.parse(corpo)).toEqual({ page: '/', section: 'triagem_cliente' })
+  })
+
+  /** Clica no link sem navegar e devolve os nomes dos eventos que saíram. */
+  function eventosDoClique(link: HTMLAnchorElement): string[] {
+    gtag.mockClear()
+    link.addEventListener('click', (e) => e.preventDefault())
+    fireEvent.click(link)
+    return gtag.mock.calls.map((chamada) => String(chamada[1]))
+  }
+
+  it.each([
+    'cliente',
+    'proposta',
+    'outro',
+    'restrita',
+  ])('o caminho %s sai como triagem_whatsapp_click e nunca como whatsapp_click', (caminho) => {
+    render(
+      <>
+        <LeadClickTracker />
+        <a href={WA} data-wa-caminho={caminho}>
+          link da triagem
+        </a>
+      </>,
+    )
+    const link = screen.getByRole('link', { name: 'link da triagem' }) as HTMLAnchorElement
+
+    expect(eventosDoClique(link)).toEqual(['triagem_whatsapp_click'])
+    expect(gtag).toHaveBeenCalledWith(
+      'event',
+      'triagem_whatsapp_click',
+      expect.objectContaining({
+        link_section: `triagem_${caminho}`,
+        page_path: '/',
+        transport_type: 'beacon',
+      }),
+    )
+  })
+
+  it('clique comum de WhatsApp continua whatsapp_click, e só ele', () => {
+    render(
+      <>
+        <LeadClickTracker />
+        <a href={WA}>WhatsApp do conteúdo</a>
+        <footer>
+          <a href={WA}>WhatsApp do rodapé</a>
+        </footer>
+        <div className="wa-float">
+          <a href={WA}>WhatsApp sem JavaScript</a>
+        </div>
+      </>,
+    )
+    for (const nome of ['WhatsApp do conteúdo', 'WhatsApp do rodapé', 'WhatsApp sem JavaScript']) {
+      const link = screen.getByRole('link', { name: nome }) as HTMLAnchorElement
+      expect(eventosDoClique(link)).toEqual(['whatsapp_click'])
+    }
+  })
+
+  it('atributo com valor desconhecido não vira evento da triagem', () => {
+    render(
+      <>
+        <LeadClickTracker />
+        <a href={WA} data-wa-caminho="inexistente">
+          link estranho
+        </a>
+      </>,
+    )
+    const link = screen.getByRole('link', { name: 'link estranho' }) as HTMLAnchorElement
+    expect(eventosDoClique(link)).toEqual(['whatsapp_click'])
   })
 
   it('link de WhatsApp fora da triagem continua ganhando a mensagem genérica', () => {

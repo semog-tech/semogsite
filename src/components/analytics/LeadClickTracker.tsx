@@ -2,7 +2,12 @@
 
 import { useEffect } from 'react'
 import { cidadeDaLanding } from '@/lib/cidadeDaLanding'
-import { ATRIBUTO_CAMINHO, secaoDoCaminho } from '@/lib/triagem'
+import {
+  ATRIBUTO_CAMINHO,
+  EVENTO_WHATSAPP_DA_TRIAGEM,
+  ehSecaoDaTriagem,
+  secaoDoCaminho,
+} from '@/lib/triagem'
 import { useConsent } from '@/providers/ConsentProvider'
 
 /**
@@ -42,7 +47,9 @@ export function mensagemWhatsApp(pathname: string): string {
  * Faz três coisas no clique de WhatsApp:
  *
  * 1. **Evento GA4** `whatsapp_click` / `phone_click` com `transport_type:
- *    'beacon'` (entrega garantida mesmo se a página navegar).
+ *    'beacon'` (entrega garantida mesmo se a página navegar). Os links da
+ *    triagem saem como `triagem_whatsapp_click`, com os mesmos parâmetros: o
+ *    `whatsapp_click` é evento-chave de lead e atendimento não é lead.
  * 2. **Mensagem pré-preenchida** com a cidade da landing, reescrevendo o
  *    `href` no momento do clique — é o único momento em que dá pra saber a
  *    página atual, já que os links globais sobrevivem à navegação SPA.
@@ -90,12 +97,15 @@ export function LeadClickTracker() {
       if (!anchor) return
 
       const href = anchor.getAttribute('href') ?? ''
-      let name: 'whatsapp_click' | 'phone_click' | null = null
-      if (/(?:wa\.me|whatsapp)/i.test(href)) name = 'whatsapp_click'
-      else if (/^tel:/i.test(href)) name = 'phone_click'
-      if (!name) return
+      const ehWhatsApp = /(?:wa\.me|whatsapp)/i.test(href)
+      if (!ehWhatsApp && !/^tel:/i.test(href)) return
 
       const section = sectionOf(anchor)
+      const name = !ehWhatsApp
+        ? 'phone_click'
+        : ehSecaoDaTriagem(section)
+          ? EVENTO_WHATSAPP_DA_TRIAGEM
+          : 'whatsapp_click'
       const page = window.location.pathname
       const daTriagem = anchor.hasAttribute(ATRIBUTO_CAMINHO)
 
@@ -108,7 +118,7 @@ export function LeadClickTracker() {
         transport_type: 'beacon',
       })
 
-      if (name !== 'whatsapp_click') return
+      if (!ehWhatsApp) return
 
       // Reescreve o href antes da navegação (listener é de captura, roda antes
       // da ação padrão do link). Link da triagem fica como está — ver o item 2

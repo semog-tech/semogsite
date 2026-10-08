@@ -6,7 +6,8 @@
  * (ver `Analytics`).
  *
  * O clique nos links de WhatsApp da triagem NÃO é registrado aqui: ele já vira
- * `whatsapp_click` pelo `LeadClickTracker`, com a seção do caminho.
+ * `triagem_whatsapp_click` (e não `whatsapp_click`, que é evento-chave de lead)
+ * pelo `LeadClickTracker`, com a seção do caminho.
  */
 
 import { registrarLeadGerado } from '@/lib/medicaoLead'

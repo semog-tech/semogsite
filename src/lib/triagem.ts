@@ -40,6 +40,20 @@ export function secaoDoCaminho(caminho: string | undefined): string | undefined 
 }
 
 /**
+ * Evento GA4 do clique de WhatsApp saído da triagem. É de propósito outro nome
+ * que `whatsapp_click` (evento-chave de lead no GA4): "Sou cliente" e "Outro
+ * assunto" não são captação, e contados como `whatsapp_click` inflavam os leads.
+ * Decisão do Leandro (08/10/2026). Não é evento-chave: não marcar como tal.
+ * O beacon server-side segue gravando a seção, igual a antes.
+ */
+export const EVENTO_WHATSAPP_DA_TRIAGEM = 'triagem_whatsapp_click'
+
+/** A seção é de um caminho da triagem (`triagem_*`)? */
+export function ehSecaoDaTriagem(secao: string): boolean {
+  return (Object.values(SECAO_POR_CAMINHO) as string[]).includes(secao) // alarga o literal para comparar com string
+}
+
+/**
  * Seções cujo clique **não** sobe como conversão de WhatsApp no Google Ads —
  * todas as da triagem. Decisão do Leandro (06/10/2026): da triagem, só a
  * proposta vira conversão, e ela já conta pela ação do formulário.
