@@ -40,9 +40,13 @@ export type FieldProps = InputVariant | TextareaVariant | SelectVariant
  * `radius-input`, foco em `ice-400` com halo, erro em rosa. `has-error` do
  * ref vira `aria-invalid` + texto de erro sempre visível (não `display:none`
  * condicional) — mais simples de auditar e já nativamente acessível.
+ *
+ * As cores vêm dos tokens `--campo-*` (theme.css): os do `:root` são os do
+ * site escuro, e a triagem do WhatsApp, que é clara, redefine todos. Sem
+ * `--campo-borda`, a borda segue `line-strong` do contexto.
  */
 const controlClass =
-  'w-full rounded-input border border-line-strong bg-[rgba(10,16,46,0.6)] px-[1.1rem] py-[0.9rem] font-body text-[1rem] text-fg outline-none transition-[border-color,box-shadow] duration-[250ms] ease-out placeholder:text-fg-3 focus:border-ice-400 focus:shadow-[0_0_0_3px_rgba(173,213,235,0.18)] disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-[#E27287]'
+  'w-full rounded-input border border-[color:var(--campo-borda,var(--color-line-strong))] bg-[color:var(--campo-bg)] px-[1.1rem] py-[0.9rem] font-body text-[1rem] text-fg outline-none transition-[border-color,box-shadow] duration-[250ms] ease-out placeholder:text-fg-3 focus:border-[color:var(--campo-foco)] focus:shadow-[0_0_0_3px_var(--campo-halo)] disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-[color:var(--campo-erro-borda)]'
 
 export const Field = forwardRef<
   HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
@@ -118,7 +122,11 @@ export const Field = forwardRef<
         </span>
       )}
       {props.error && (
-        <span id={errorId} role="alert" className="text-[0.82rem] text-[#F2A6B4]">
+        <span
+          id={errorId}
+          role="alert"
+          className="campo-erro text-[0.82rem] text-[color:var(--campo-erro-texto)]"
+        >
           {props.error}
         </span>
       )}

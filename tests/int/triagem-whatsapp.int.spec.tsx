@@ -334,7 +334,8 @@ describe('proposta curta', () => {
       submitPropostaRapidaMock.mockResolvedValue({ ok: false, message: 'Erro ao enviar.' })
       await enviarComCidade()
 
-      const aviso = await screen.findByText('Erro ao enviar.')
+      // O texto fica num <span> ao lado do ícone; quem recebe foco e rolagem é o <p>.
+      const aviso = (await screen.findByText('Erro ao enviar.')).closest('p')
       await waitFor(() => expect(document.activeElement).toBe(aviso))
       expect(rolagens.some((r) => r.el === aviso)).toBe(true)
       expect(rolagens.find((r) => r.el === aviso)?.opcoes).toMatchObject({ block: 'center' })

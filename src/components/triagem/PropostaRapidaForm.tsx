@@ -12,6 +12,7 @@ import { Turnstile } from '@/components/forms/Turnstile'
 import type { CidadeDaLanding } from '@/lib/cidadeDaLanding'
 import { type PropostaRapidaValues, propostaRapidaSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
+import { IconeAviso } from './icones'
 import { registrarPropostaEnviada } from './medicao'
 
 /**
@@ -207,10 +208,11 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
           error={errors.cidade?.message}
           {...register('cidade')}
         />
-        <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
+        <Turnstile key={turnstileKey} onToken={setToken} theme="light" className="min-h-[65px]" />
         {falha && (
           <p ref={falhaRef} role="alert" tabIndex={-1} className="tr-erro">
-            {falha}
+            <IconeAviso />
+            <span>{falha}</span>
           </p>
         )}
         <button type="submit" className="tr-primario">

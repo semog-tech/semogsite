@@ -188,7 +188,7 @@ export function CountrySelect({ options, value, onChange, label }: CountrySelect
         aria-labelledby={`${labelId} ${buttonId}`}
         onClick={() => (open ? closeList() : openList())}
         onKeyDown={handleButtonKeyDown}
-        className="flex h-full w-[68px] items-center justify-center gap-1 rounded-l-[var(--radius-input)] px-[0.5rem] py-[0.9rem] font-body text-[0.92rem] font-semibold text-fg outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/5"
+        className="flex h-full w-[68px] items-center justify-center gap-1 rounded-l-[var(--radius-input)] px-[0.5rem] py-[0.9rem] font-body text-[0.92rem] font-semibold text-fg outline-none transition-colors hover:bg-[color:var(--campo-realce)] focus-visible:bg-[color:var(--campo-realce)]"
       >
         <span>{selected.code}</span>
         <svg
@@ -220,7 +220,7 @@ export function CountrySelect({ options, value, onChange, label }: CountrySelect
           aria-labelledby={labelId}
           aria-activedescendant={optionId(activeIndex)}
           onKeyDown={handleListKeyDown}
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-input border border-line-strong bg-navy-900 py-1 shadow-[0_24px_60px_-24px_rgba(5,8,26,0.7)] outline-none"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-input border border-line-strong bg-[color:var(--campo-lista-bg)] py-1 shadow-[0_24px_60px_-24px_rgba(5,8,26,0.7)] outline-none"
         >
           {options.map((option, index) => {
             const isActive = index === activeIndex

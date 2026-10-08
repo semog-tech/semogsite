@@ -1,6 +1,7 @@
 'use client'
 
 import type { CobrancaPublica, UnidadePublica } from '@/lib/segundaVia/tipos'
+import { IconeCadeado, IconeInfo } from '../icones'
 import { LinkDoCliente } from './LinksDeWhatsApp'
 import { Situacao } from './TelaBoletos'
 import {
@@ -26,7 +27,8 @@ type Props = {
  * Seu boleto: resumo, "Abrir boleto" (aba nova sem `opener` nem referrer, por
  * `window.open` no clique — a URL nunca vai a um `href`) e
  * o aviso de não encaminhar junto do botão. O vencido explica em linguagem
- * simples que o original ainda é aceito, sem prometer valor.
+ * simples que o original ainda é aceito, sem prometer valor, numa nota
+ * informativa: o "Vencido" vermelho da situação já dá o alerta.
  */
 export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
   return (
@@ -42,7 +44,13 @@ export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
         </div>
         <div>
           <dt>Valor de emissão</dt>
-          <dd>{valorEmReais(cobranca.valorCentavos)}</dd>
+          <dd>
+            {cobranca.valorCentavos === null ? (
+              <span className="tr-indisponivel">{valorEmReais(null)}</span>
+            ) : (
+              valorEmReais(cobranca.valorCentavos)
+            )}
+          </dd>
         </div>
         <div>
           <dt>Situação</dt>
@@ -51,7 +59,12 @@ export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
           </dd>
         </div>
       </dl>
-      {cobranca.vencida && <p className="tr-lead">{EXPLICACAO_DO_VENCIDO}</p>}
+      {cobranca.vencida && (
+        <p className="tr-nota-vencido">
+          <IconeInfo />
+          <span>{EXPLICACAO_DO_VENCIDO}</span>
+        </p>
+      )}
       <div className="tr-acoes">
         {linkPronto ? (
           <button type="button" className="tr-primario" onClick={acoes.aoAbrir}>
@@ -63,7 +76,10 @@ export function TelaBoleto({ unidade, cobranca, linkPronto, acoes }: Props) {
             Preparando o boleto…
           </button>
         )}
-        <p className="tr-dica tr-aviso-link">{AVISO_DE_NAO_ENCAMINHAR}</p>
+        <p className="tr-dica tr-aviso-link">
+          <IconeCadeado />
+          <span>{AVISO_DE_NAO_ENCAMINHAR}</span>
+        </p>
         <button type="button" className="tr-secundario" onClick={acoes.verOutro}>
           Ver outro boleto
         </button>

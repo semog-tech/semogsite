@@ -4,6 +4,7 @@ import { type FormEvent, useId, useState } from 'react'
 import { Field } from '@/components/forms/Field'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { cpfValido, mascararCpf, somenteDigitos } from '@/lib/cpf'
+import { IconeAviso } from '../icones'
 import type { ErroCpf } from './estado'
 import { LinkDoCliente } from './LinksDeWhatsApp'
 import { mensagemDoErroCpf } from './textos'
@@ -85,10 +86,11 @@ export function TelaCpf({ erro, ocupado, aoEnviar, aoSair }: Props) {
             </a>
             .
           </p>
-          <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
+          <Turnstile key={turnstileKey} onToken={setToken} theme="light" className="min-h-[65px]" />
           {erroGeral && (
             <p role="alert" className="tr-erro">
-              {erroGeral}
+              <IconeAviso />
+              <span>{erroGeral}</span>
             </p>
           )}
           <button type="submit" className="tr-primario">

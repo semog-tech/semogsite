@@ -350,7 +350,10 @@ describe('unidades e boletos', () => {
     fireEvent.change(screen.getByLabelText('Código'), { target: { value: '123456' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar código' }))
 
-    expect(await screen.findByText('valor indisponível')).toBeTruthy()
+    // Ausência de dado, não um valor: fora do <strong> dos valores, com a classe do cinza.
+    const indisponivel = await screen.findByText('valor indisponível')
+    expect(indisponivel.tagName).toBe('SPAN')
+    expect(indisponivel.classList.contains('tr-indisponivel')).toBe(true)
     expect(dialogo().textContent).not.toMatch(/R\$\s0,00/)
   })
 
@@ -365,11 +368,14 @@ describe('unidades e boletos', () => {
 
     fireEvent.click(itemVencido)
     await screen.findByRole('heading', { name: 'Seu boleto' })
-    expect(
-      screen.getByText(
-        'Este boleto já venceu, mas ainda pode ser pago. Ao abrir, a página mostra o valor do dia para pagar hoje. Se preferir imprimir o boleto original, o banco também aceita e cobra os juros automaticamente.',
-      ),
-    ).toBeTruthy()
+    const explicacao = screen.getByText(
+      'Este boleto já venceu, mas ainda pode ser pago. Ao abrir, a página mostra o valor do dia para pagar hoje. Se preferir imprimir o boleto original, o banco também aceita e cobra os juros automaticamente.',
+    )
+    // Nota informativa, não erro: o alerta vermelho é só a pill "Vencido".
+    const caixa = explicacao.closest('p')
+    expect(caixa?.classList.contains('tr-nota-vencido')).toBe(true)
+    expect(caixa?.classList.contains('tr-erro')).toBe(false)
+    expect(caixa?.getAttribute('role')).toBeNull()
   })
 
   it('com restritas: aviso + link WhatsApp com data-wa-caminho="restrita" e a mensagem exata', async () => {

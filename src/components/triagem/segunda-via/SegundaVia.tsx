@@ -158,8 +158,9 @@ export function SegundaVia({ titulo, aoFechar, aoVoltarAoMenu }: Props) {
         titulo={titulo}
         voltar={voltarDe(fluxo, aoVoltarAoMenu)}
         aoFechar={aoFechar}
-      />
-      {estado.tela !== 'expirada' && <IndicadorDeEtapa estado={estado} />}
+      >
+        {estado.tela !== 'expirada' && <IndicadorDeEtapa estado={estado} />}
+      </Cabecalho>
       <div className="tr-corpo">
         <TelaAtual fluxo={fluxo} sair={aoFechar} />
       </div>

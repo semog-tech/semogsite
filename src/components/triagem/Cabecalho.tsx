@@ -1,6 +1,6 @@
 'use client'
 
-import type { RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import { IconeVoltar, IconeX } from './icones'
 
 /** O título do painel: o `id` dá nome ao diálogo e o `ref` recebe o foco a cada tela. */
@@ -14,29 +14,38 @@ type Props = {
   /** Sem `voltar`, a tela não tem para onde voltar e o botão não aparece. */
   voltar?: Voltar
   aoFechar: () => void
+  /** O que mais fica na faixa navy, abaixo do título (o indicador de etapa da 2ª via). */
+  children?: ReactNode
 }
 
-/** Cabeçalho do painel da triagem: Voltar (quando há), título e Fechar. */
-export function Cabecalho({ texto, titulo, voltar, aoFechar }: Props) {
+/**
+ * Faixa navy do topo do painel: alça (só na folha do celular), Voltar (quando
+ * há), título, Fechar e o que vier em `children`.
+ */
+export function Cabecalho({ texto, titulo, voltar, aoFechar, children }: Props) {
   return (
-    <div className="tr-cabecalho">
-      {voltar && (
-        <button
-          type="button"
-          className="tr-icone-btn tr-voltar"
-          aria-label={voltar.rotulo}
-          disabled={voltar.desabilitado}
-          onClick={voltar.aoVoltar}
-        >
-          <IconeVoltar />
+    <div className="tr-topo">
+      <div className="tr-alca" aria-hidden="true" />
+      <div className="tr-cabecalho">
+        {voltar && (
+          <button
+            type="button"
+            className="tr-icone-btn tr-voltar"
+            aria-label={voltar.rotulo}
+            disabled={voltar.desabilitado}
+            onClick={voltar.aoVoltar}
+          >
+            <IconeVoltar />
+          </button>
+        )}
+        <h2 id={titulo.id} ref={titulo.ref} tabIndex={-1}>
+          {texto}
+        </h2>
+        <button type="button" className="tr-icone-btn" aria-label="Fechar" onClick={aoFechar}>
+          <IconeX />
         </button>
-      )}
-      <h2 id={titulo.id} ref={titulo.ref} tabIndex={-1}>
-        {texto}
-      </h2>
-      <button type="button" className="tr-icone-btn" aria-label="Fechar" onClick={aoFechar}>
-        <IconeX />
-      </button>
+      </div>
+      {children}
     </div>
   )
 }

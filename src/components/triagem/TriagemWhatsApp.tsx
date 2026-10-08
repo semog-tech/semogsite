@@ -222,8 +222,7 @@ function Triagem({ segundaViaAtiva }: { segundaViaAtiva: boolean }) {
         data-lenis-prevent
         data-clarity-mask="true"
       >
-        <div className="tr-painel">
-          <div className="tr-alca" aria-hidden="true" />
+        <div className="tr-painel sec-light">
           {tela === 'segunda-via' ? (
             <SegundaVia titulo={titulo} aoFechar={fechar} aoVoltarAoMenu={voltarAoMenu} />
           ) : (

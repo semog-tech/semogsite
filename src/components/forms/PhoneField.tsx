@@ -121,8 +121,10 @@ export function PhoneField<TFieldValues extends FieldValues>({
               )}
             </label>
             <div
-              className={`flex w-full items-stretch rounded-input border bg-[rgba(10,16,46,0.6)] transition-[border-color,box-shadow] duration-[250ms] ease-out focus-within:border-ice-400 focus-within:shadow-[0_0_0_3px_rgba(173,213,235,0.18)] ${
-                error ? 'border-[#E27287]' : 'border-line-strong'
+              className={`flex w-full items-stretch rounded-input border bg-[color:var(--campo-bg)] transition-[border-color,box-shadow] duration-[250ms] ease-out focus-within:border-[color:var(--campo-foco)] focus-within:shadow-[0_0_0_3px_var(--campo-halo)] ${
+                error
+                  ? 'border-[color:var(--campo-erro-borda)]'
+                  : 'border-[color:var(--campo-borda,var(--color-line-strong))]'
               }`}
             >
               <CountrySelect
@@ -156,7 +158,11 @@ export function PhoneField<TFieldValues extends FieldValues>({
               </span>
             )}
             {error && (
-              <span id={errorId} role="alert" className="text-[0.82rem] text-[#F2A6B4]">
+              <span
+                id={errorId}
+                role="alert"
+                className="campo-erro text-[0.82rem] text-[color:var(--campo-erro-texto)]"
+              >
                 {error}
               </span>
             )}

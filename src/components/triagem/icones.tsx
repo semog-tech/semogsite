@@ -92,12 +92,32 @@ export function IconeConfirmado() {
   )
 }
 
-/** Círculo com exclamação: avisos da 2ª via (cobranças restritas, consulta expirada). */
+/** Círculo com exclamação: avisos e erros (cobranças restritas, consulta expirada, falha de envio). */
 export function IconeAviso() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...TRACO} strokeWidth={2}>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 8v5M12 16h.01" />
+    </svg>
+  )
+}
+
+/** Círculo com "i": informação que não é erro (a nota do boleto vencido). */
+export function IconeInfo() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...TRACO} strokeWidth={2}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 8h.01" />
+    </svg>
+  )
+}
+
+/** Cadeado: o aviso de não encaminhar o link do boleto. */
+export function IconeCadeado() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...TRACO}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </svg>
   )
 }

@@ -121,7 +121,11 @@ function ListaDeBoletos({
               {c.vencida && <span>{NOTA_DE_ENCARGOS}</span>}
             </span>
             <span className="tr-boleto-valor">
-              <strong>{valorEmReais(c.valorCentavos)}</strong>
+              {c.valorCentavos === null ? (
+                <span className="tr-indisponivel">{valorEmReais(null)}</span>
+              ) : (
+                <strong>{valorEmReais(c.valorCentavos)}</strong>
+              )}
               <Situacao vencida={c.vencida} />
             </span>
           </button>

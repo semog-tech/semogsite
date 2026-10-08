@@ -70,6 +70,16 @@
     --grad-ice: linear-gradient(120deg, #add5eb 0%, #d8ecf7 60%, #add5eb 100%);
     --grad-hero: radial-gradient(120% 90% at 70% 10%, #1b2d70 0%, #0d1439 48%, #05081a 100%);
     --grad-band: linear-gradient(160deg, #101a48 0%, #1b2d70 55%, #16225c 100%);
+    /* Controles de formulário (Field, PhoneField, CountrySelect). Os valores
+       são os do tema escuro do site; a triagem do WhatsApp, que é clara,
+       redefine todos no `.triagem`. */
+    --campo-bg: rgba(10, 16, 46, 0.6);
+    --campo-foco: var(--color-ice-400);
+    --campo-halo: rgba(173, 213, 235, 0.18);
+    --campo-erro-borda: #e27287;
+    --campo-erro-texto: #f2a6b4;
+    --campo-lista-bg: var(--color-navy-900);
+    --campo-realce: rgb(255 255 255 / 0.05);
   }
 
   *,
@@ -947,8 +957,10 @@
      `showModal()`: o navegador cuida do `Esc`, do fundo inerte e da camada de
      topo (acima do `.grain` e do `.wa-float`). Formato "A" da spec: folha que
      sobe do rodapé no celular, balão ancorado acima do botão no computador.
-     Superfícies e texto são os tokens do site (tema escuro, o único que o site
-     tem). */
+     Painel claro, direção C: cabeçalho navy curto (`.tr-topo`: alça, título,
+     voltar, fechar e etapa) e corpo branco. O `.tr-painel` leva a classe
+     `sec-light`, que troca os semânticos (`--text`, `--line`, `--color-*`)
+     para os da seção clara; os `--tr-*` abaixo cobrem o que é só da triagem. */
   .wa-float .wa-float-fechar {
     display: none;
   }
@@ -966,9 +978,49 @@
   }
 
   .triagem {
-    --tr-superficie: var(--bg-raise);
-    --tr-superficie-2: var(--color-navy-800);
-    --tr-erro: #f2a6b4;
+    /* Corpo branco. Contraste medido sobre #fff: texto de `.sec-light`
+       5,8–18:1; borda de controle #7c84a3 3,7:1; erro #b42339 6,5:1. */
+    --tr-superficie: #ffffff;
+    --tr-cartao-hover: #f5f7fb;
+    --tr-cartao-borda: #dde1ec;
+    --tr-borda-controle: #7c84a3;
+    --tr-icone-bg: #eef2fb;
+    --tr-linha-resumo: #e3e7f1;
+    --tr-primario: var(--color-navy-600);
+    --tr-primario-hover: var(--color-navy-500);
+    --tr-primario-texto: #ffffff;
+    --tr-erro: #b42339;
+    --tr-erro-bg: #fdf0f2;
+    --tr-vencido-texto: #9c1c31;
+    --tr-vencido-bg: #fde8ec;
+    --tr-vencido-borda: #e9a3b0;
+    --tr-a-vencer-texto: #3e4870;
+    --tr-a-vencer-bg: #eef1f8;
+    /* Nota do boleto vencido: informação, não erro (o "Vencido" vermelho já
+       está na pill). Texto #10152e sobre #eef2fb 16:1; ícone navy-500 8,3:1. */
+    --tr-nota-bg: #eef2fb;
+    --tr-nota-borda: #d3dbf0;
+    --tr-nota-icone: var(--color-navy-500);
+    /* Cabeçalho navy. Branco sobre navy-600 12,7:1; ice-300 10,4:1; a barra
+       cheia ice-400 sobre o trilho #34488f 5,5:1. */
+    --tr-cab-bg: var(--color-navy-600);
+    --tr-cab-texto: #ffffff;
+    --tr-cab-texto-2: var(--color-ice-300);
+    --tr-cab-icone-hover: var(--color-navy-500);
+    --tr-etapa-trilho: #34488f;
+    --tr-etapa-cheio: var(--color-ice-400);
+    --tr-alca: #6f80bf;
+    /* Anel gelo: separa o cabeçalho navy do navy da página. */
+    --tr-anel: rgba(173, 213, 235, 0.32);
+    /* Field, PhoneField e CountrySelect (tokens `--campo-*` do :root). */
+    --campo-bg: #ffffff;
+    --campo-borda: var(--tr-borda-controle);
+    --campo-foco: var(--color-navy-500);
+    --campo-halo: rgba(42, 63, 150, 0.18);
+    --campo-erro-borda: var(--tr-erro);
+    --campo-erro-texto: var(--tr-erro);
+    --campo-lista-bg: #ffffff;
+    --campo-realce: var(--tr-a-vencer-bg);
     position: fixed;
     inset: auto 0 0 0;
     width: 100%;
@@ -990,14 +1042,20 @@
     flex-direction: column;
     max-height: min(88dvh, 720px);
     overflow: hidden;
-    border: 1px solid var(--line);
+    border: 1px solid var(--tr-anel);
     border-bottom: 0;
     border-radius: 22px 22px 0 0;
     background: var(--tr-superficie);
+    color: var(--text);
     box-shadow:
-      0 30px 80px -30px rgba(0, 0, 0, 0.9),
-      0 0 0 1px rgba(173, 213, 235, 0.06);
+      0 28px 70px -20px rgba(0, 0, 0, 0.6),
+      0 4px 14px rgba(0, 0, 0, 0.22);
     padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tr-topo {
+    flex: none;
+    background: var(--tr-cab-bg);
+    color: var(--tr-cab-texto);
   }
   .tr-alca {
     flex: none;
@@ -1005,7 +1063,7 @@
     height: 4px;
     margin: 8px auto 0;
     border-radius: 4px;
-    background: var(--line-strong);
+    background: var(--tr-alca);
   }
   @media (min-width: 640px) {
     .triagem {
@@ -1017,7 +1075,7 @@
     }
     .tr-painel {
       max-height: min(640px, calc(100dvh - 120px));
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid var(--tr-anel);
       border-radius: var(--radius-card);
       padding-bottom: 0;
     }
@@ -1027,19 +1085,25 @@
   }
 
   .triagem :is(a, button):focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
+  .tr-topo :is(a, button):focus-visible {
+    outline-color: var(--tr-etapa-cheio);
+  }
+  /* Respiro do protótipo aprovado: a faixa navy fecha com 14px (ou 16px com a
+     etapa) e o corpo branco abre com 18px. */
   .tr-cabecalho {
     flex: none;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 12px 10px 20px;
+    padding: 14px 12px 14px 20px;
   }
   .tr-cabecalho h2 {
     flex: 1;
     margin: 0;
+    color: var(--tr-cab-texto);
     font-size: 1.35rem;
     line-height: 1.15;
   }
@@ -1056,11 +1120,11 @@
     border: 0;
     border-radius: var(--radius-pill);
     background: transparent;
-    color: var(--text-2);
+    color: var(--tr-cab-texto-2);
   }
   .tr-icone-btn:hover {
-    background: var(--tr-superficie-2);
-    color: var(--text);
+    background: var(--tr-cab-icone-hover);
+    color: var(--tr-cab-texto);
   }
   .tr-icone-btn:disabled {
     cursor: not-allowed;
@@ -1077,7 +1141,7 @@
     flex: 1 1 auto;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 4px 20px 20px;
+    padding: 18px 20px 20px;
   }
   .tr-lead {
     margin: 0 0 16px;
@@ -1101,9 +1165,9 @@
     width: 100%;
     min-height: 72px;
     padding: 14px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--tr-cartao-borda);
     border-radius: 16px;
-    background: var(--tr-superficie-2);
+    background: var(--tr-superficie);
     color: var(--text);
     text-align: left;
     transition:
@@ -1111,7 +1175,8 @@
       background-color 0.2s ease;
   }
   .tr-opcao:hover {
-    border-color: var(--line-strong);
+    border-color: var(--tr-borda-controle);
+    background: var(--tr-cartao-hover);
   }
   .tr-opcao-ico {
     flex: none;
@@ -1120,10 +1185,10 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--tr-icone-bg);
     border-radius: 12px;
-    background: var(--tr-superficie);
-    color: var(--accent);
+    background: var(--tr-icone-bg);
+    color: var(--color-accent);
   }
   .tr-opcao-ico svg {
     width: 22px;
@@ -1157,7 +1222,7 @@
     font-size: 0.85rem;
   }
   .tr-portal a {
-    color: var(--accent);
+    color: var(--color-accent);
     font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -1172,16 +1237,17 @@
     min-height: 54px;
     border: 0;
     border-radius: var(--radius-pill);
-    background: var(--color-ice-400);
-    color: var(--color-navy-900);
+    background: var(--tr-primario);
+    color: var(--tr-primario-texto);
     font-size: 1rem;
     font-weight: 700;
+    box-shadow: 0 10px 24px -14px rgba(27, 45, 112, 0.7);
     transition:
       background-color 0.2s ease,
       transform 0.15s ease;
   }
   .tr-primario:hover {
-    background: var(--color-ice-300);
+    background: var(--tr-primario-hover);
   }
   .tr-primario:active {
     transform: scale(0.98);
@@ -1197,14 +1263,14 @@
   .tr-secundario {
     width: 100%;
     min-height: 50px;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--tr-borda-controle);
     border-radius: var(--radius-pill);
-    background: transparent;
+    background: var(--tr-superficie);
     color: var(--text);
     font-weight: 500;
   }
   .tr-secundario:hover {
-    background: var(--tr-superficie-2);
+    background: var(--tr-cartao-hover);
   }
   .tr-girando {
     width: 18px;
@@ -1215,9 +1281,39 @@
     animation: tr-girar 0.8s linear infinite;
   }
   .tr-erro {
+    display: flex;
+    gap: 8px;
     margin: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--tr-erro-bg);
     color: var(--tr-erro);
     font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .tr-erro > svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+  }
+  /* Erro de campo (Field, PhoneField) dentro da triagem: o mesmo ícone de
+     aviso, desenhado por máscara para não mexer nos formulários escuros. */
+  .triagem .campo-erro {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    font-weight: 500;
+  }
+  .triagem .campo-erro::before {
+    content: '';
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 8v5M12 16h.01'/%3E%3C/svg%3E")
+      center / contain no-repeat;
   }
   .tr-erro a {
     text-decoration: underline;
@@ -1234,10 +1330,10 @@
     width: 64px;
     height: 64px;
     margin: 4px auto 14px;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--tr-icone-bg);
     border-radius: var(--radius-pill);
-    background: rgba(173, 213, 235, 0.1);
-    color: var(--accent);
+    background: var(--tr-icone-bg);
+    color: var(--color-accent);
   }
   .tr-ok-ico svg {
     width: 28px;
@@ -1258,12 +1354,14 @@
     gap: 10px;
     margin-bottom: 20px;
     padding: 10px 14px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--tr-cartao-borda);
     border-radius: 12px;
-    background: var(--tr-superficie-2);
+    background: var(--tr-superficie);
+    color: var(--text-2);
     font-size: 0.95rem;
   }
   .tr-protocolo strong {
+    color: var(--text);
     font-weight: 700;
     letter-spacing: 0.02em;
   }
@@ -1305,7 +1403,7 @@
     .triagem-painel--expandido .tr-painel {
       height: auto;
       max-height: calc(100dvh - 48px);
-      border: 1px solid var(--line);
+      border: 1px solid var(--tr-anel);
       border-radius: var(--radius-card);
     }
   }
@@ -1315,21 +1413,22 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 0 20px 12px;
-    color: var(--text-2);
+    padding: 0 20px 16px;
+    color: var(--tr-cab-texto-2);
     font-size: 0.82rem;
+    font-weight: 500;
   }
   .tr-etapa-barra {
     height: 4px;
     overflow: hidden;
     border-radius: 4px;
-    background: var(--line);
+    background: var(--tr-etapa-trilho);
   }
   .tr-etapa-barra span {
     display: block;
     height: 100%;
     border-radius: 4px;
-    background: var(--accent);
+    background: var(--tr-etapa-cheio);
     transition: width 0.3s ease;
   }
   .tr-dica {
@@ -1339,14 +1438,14 @@
     line-height: 1.5;
   }
   .tr-dica a {
-    color: var(--accent);
+    color: var(--color-accent);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
   .tr-dica-destaque {
     margin-bottom: 12px;
     padding: 10px 12px;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--tr-cartao-borda);
     border-radius: 12px;
     color: var(--text);
   }
@@ -1372,7 +1471,7 @@
     border: 0;
     border-radius: 8px;
     background: transparent;
-    color: var(--accent);
+    color: var(--color-accent);
     font-size: 0.92rem;
     font-weight: 500;
     text-decoration: underline;
@@ -1392,7 +1491,7 @@
   .tr-alternativa a {
     display: inline-block;
     padding: 10px 4px;
-    color: var(--accent);
+    color: var(--color-accent);
     font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -1436,35 +1535,43 @@
     font-weight: 700;
     white-space: nowrap;
   }
+  /* "valor indisponível" é ausência de dado, não um valor: cinza, sem negrito. */
+  .tr-indisponivel {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
   .tr-situacao {
     padding: 2px 8px;
-    border: 1px solid var(--line-strong);
+    border: 1px solid var(--tr-a-vencer-bg);
     border-radius: var(--radius-pill);
-    color: var(--text-2);
+    background: var(--tr-a-vencer-bg);
+    color: var(--tr-a-vencer-texto);
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
   }
   .tr-situacao[data-situacao='vencido'] {
-    border-color: var(--tr-erro);
-    background: color-mix(in srgb, var(--tr-erro) 10%, transparent);
-    color: var(--tr-erro);
+    border-color: var(--tr-vencido-borda);
+    background: var(--tr-vencido-bg);
+    color: var(--tr-vencido-texto);
   }
   .tr-aviso-restrita {
     display: flex;
     gap: 10px;
     margin-bottom: 14px;
     padding: 12px 14px;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--tr-nota-borda);
     border-radius: 14px;
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    background: var(--tr-nota-bg);
   }
   .tr-aviso-restrita > svg {
     flex: none;
     width: 20px;
     height: 20px;
     margin-top: 1px;
-    color: var(--accent);
+    color: var(--color-accent);
   }
   .tr-aviso-restrita p {
     margin: 0 0 6px;
@@ -1476,7 +1583,7 @@
     align-items: center;
     gap: 6px;
     min-height: 44px;
-    color: var(--accent);
+    color: var(--color-accent);
     font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -1500,16 +1607,16 @@
   .tr-resumo {
     margin: 0 0 18px;
     padding: 4px 16px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--tr-cartao-borda);
     border-radius: 16px;
-    background: var(--tr-superficie-2);
+    background: var(--tr-superficie);
   }
   .tr-resumo div {
     display: flex;
     justify-content: space-between;
     gap: 16px;
     padding: 10px 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--tr-linha-resumo);
     font-size: 0.94rem;
   }
   .tr-resumo div:last-child {
@@ -1524,8 +1631,36 @@
     text-align: right;
   }
   .tr-aviso-link {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    justify-content: center;
     color: var(--text-2);
-    text-align: center;
+  }
+  .tr-aviso-link > svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+  .tr-nota-vencido {
+    display: flex;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--tr-nota-borda);
+    border-radius: 14px;
+    background: var(--tr-nota-bg);
+    color: var(--text);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .tr-nota-vencido > svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--tr-nota-icone);
   }
   .triagem-painel--expandido .tr-ok p {
     max-width: 42ch;
