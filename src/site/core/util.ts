@@ -12,7 +12,15 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 /* Utilidades das cenas (ctx.util). Tudo que anda por quadro usa o ticker do GSAP (um único
    requestAnimationFrame na página). */
 
-export { aoImprimir, formatarNumero, formatarPercentual, pausasDaTimeline, snapPatamares, soToque }
+export {
+  aoImprimir,
+  formatarNumero,
+  formatarPercentual,
+  pausasDaTimeline,
+  registrarDesligamento,
+  snapPatamares,
+  soToque,
+}
 
 /* ---- Tela ---------------------------------------------------------------------- */
 

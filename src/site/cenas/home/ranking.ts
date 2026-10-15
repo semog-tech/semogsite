@@ -4,8 +4,8 @@ import type { Pintura } from '@/site/core/util'
 /**
  * Cena do ranking. Abre com a chamada de liderança e a explica pelos números num palco fixado:
  * um campo de pontos (as administradoras da base Superlógica) se filtra no Top 200, depois no
- * G20 Condo, e um único ponto acende em marinho na 5ª posição e viaja até virar a régua de onde
- * nasce o "5º". Depois do pin, a linha dos três ciclos se desenha e a foto abre. Sem canvas 2D,
+ * G20 Condo, e um único ponto (a Semog, 5º entre mais de 3.500 administradoras) acende em
+ * marinho e viaja até virar a régua de onde nasce o "5º". Depois do pin, a linha dos três ciclos se desenha e a foto abre. Sem canvas 2D,
  * a cena segue só com o texto, que é a versão completa.
  */
 
@@ -143,6 +143,11 @@ function montarTextos(ctx: ContextoCena): { aplicar: (e: EstadoRanking) => void 
   // `as` com motivo: o `quickSetter` do GSAP é tipado como `Function` (gsap-core.d.ts), o que
   // faria `subir(...)` devolver `any`; a assinatura real é (valor: number) => void.
   const subir = gsap.quickSetter(numeral, 'yPercent') as (valor: number) => void
+  // O quickSetter e o style direto não entram no gsap.context: sem isto, a cena que quebra
+  // depois do primeiro `aplicar` deixava o "5º" escondido abaixo da máscara no HTML estático.
+  ctx.util.registrarDesligamento(() => {
+    gsap.set(numeral, { clearProps: 'transform,fontVariationSettings' })
+  })
   const expoOut = gsap.parseEase('expo.out')
   const pesoEase = gsap.parseEase('power2.inOut')
 
@@ -234,7 +239,10 @@ function linhaDeIdaEVolta(
 
 /* ---- Campo de pontos (canvas 2D) ---------------------------------------------------- */
 
-/** Liga o campo; devolve a limpeza do ouvinte de refresh (o gsap.context a chama no revert). */
+/**
+ * Liga o campo; devolve a limpeza do ouvinte de refresh. Ela roda no revert do gsap.context e,
+ * por estar registrada, também no desmonte e quando a cena quebra depois daqui (uma vez só).
+ */
 function ligarCampo(ctx: ContextoCena, palco: HTMLElement, estado: EstadoRanking): () => void {
   const { root, util, ScrollTrigger, conteudo } = ctx
   const canvas = root.querySelector('.ranking-campo')
@@ -259,6 +267,10 @@ function ligarCampo(ctx: ContextoCena, palco: HTMLElement, estado: EstadoRanking
     }
   }
   ScrollTrigger.addEventListener('refresh', montar)
+  // Registrado no rastreamento da cena: sai também se ela quebrar depois daqui.
+  const desligar = util.registrarDesligamento(() =>
+    ScrollTrigger.removeEventListener('refresh', montar),
+  )
   montar()
   const quadro = criarQuadro(sementes.n)
   util.lacoVisivel(root, (tempo) => {
@@ -266,7 +278,7 @@ function ligarCampo(ctx: ContextoCena, palco: HTMLElement, estado: EstadoRanking
     calcularQuadro(quadro, { geo, sementes, estado, tempo })
     desenhar(pintura, quadro, cor)
   })
-  return () => ScrollTrigger.removeEventListener('refresh', montar)
+  return desligar
 }
 
 /** Números pseudoaleatórios estáveis (mulberry32): o campo é o mesmo a cada visita. */

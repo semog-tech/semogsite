@@ -277,6 +277,52 @@ describe('montarPagina: cena que quebra não deixa callback vivo', () => {
     expect(chamadasB).toBe(1)
     desmontar()
   })
+
+  it('cena que quebra devolve à seção as classes e os data-* de antes do init', () => {
+    palco('a')
+    const secao = document.getElementById('a')
+    secao?.classList.add('cena')
+    const desmontar = montarPagina(
+      [
+        [
+          'a',
+          (ctx) => {
+            // O CSS de palco fixado depende destas marcas; sem a cena, o texto ficaria sobreposto.
+            ctx.root.classList.add('ranking-com-palco')
+            ctx.root.dataset.patamares = '0 1'
+            ctx.root.dataset.tema = 'escuro'
+            throw new Error('quebrou depois de marcar')
+          },
+        ],
+      ],
+      { reportar, criarLenis: lenisFalso() },
+    )
+    expect(secao?.className).toBe('cena')
+    expect(secao?.dataset.patamares).toBeUndefined()
+    expect(secao?.dataset.tema).toBe('claro')
+    expect(secao?.dataset.cenaErro).toBe('')
+    desmontar()
+  })
+
+  it('desligamento registrado por util.registrarDesligamento roda quando a cena quebra', () => {
+    palco('a')
+    const desligar = vi.fn()
+    const desmontar = montarPagina(
+      [
+        [
+          'a',
+          (ctx) => {
+            ctx.util.registrarDesligamento(desligar)
+            throw new Error('quebrou depois de ligar')
+          },
+        ],
+      ],
+      { reportar, criarLenis: lenisFalso() },
+    )
+    expect(desligar).toHaveBeenCalledTimes(1)
+    desmontar()
+    expect(desligar).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('RunnerDeCenas', () => {

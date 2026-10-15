@@ -38,13 +38,43 @@ type Infra = {
 }
 
 /** Uma cena montada: a seção, o contexto e o que ela registrou para desligar no `init`. */
-type Cena = { id: string; root: HTMLElement; contexto: gsap.Context; desligamentos: Desligamentos }
+type Cena = {
+  id: string
+  root: HTMLElement
+  contexto: gsap.Context
+  desligamentos: Desligamentos
+  marcas: Marcas
+}
 
 /**
- * Desfaz o que a cena montou: o contexto, os gatilhos criados fora dele (depois de await) e os
- * desligamentos que ela registrou (`util.aoRolar`, `util.lacoVisivel`), só os dela.
+ * `class` e `data-*` da seção antes do init. O `revert` do GSAP não desfaz o que a cena pôs
+ * direto no `classList` (o ranking marca `ranking-com-palco`), e o CSS de palco fixado
+ * continuaria valendo com a cena morta: os textos ficariam um sobre o outro.
  */
-function neutralizarCena({ id, root, contexto, desligamentos }: Cena, reportar: Reportar): void {
+type Marcas = { classe: string; dados: Array<[nome: string, valor: string]> }
+
+function lerMarcas(root: HTMLElement): Marcas {
+  const dados = Array.from(root.attributes)
+    .filter(({ name }) => name.startsWith('data-'))
+    .map(({ name, value }): [string, string] => [name, value])
+  return { classe: root.className, dados }
+}
+
+function restaurarMarcas(root: HTMLElement, { classe, dados }: Marcas): void {
+  root.className = classe
+  for (const { name } of Array.from(root.attributes)) {
+    if (name.startsWith('data-')) root.removeAttribute(name)
+  }
+  for (const [nome, valor] of dados) root.setAttribute(nome, valor)
+}
+
+/**
+ * Desfaz o que a cena montou: o contexto, os gatilhos criados fora dele (depois de await), os
+ * desligamentos que ela registrou (`util.aoRolar`, `util.lacoVisivel`,
+ * `util.registrarDesligamento`), só os dela, e as classes e `data-*` que pôs na seção.
+ */
+function neutralizarCena(cena: Cena, reportar: Reportar): void {
+  const { id, root, contexto, desligamentos } = cena
   contexto.revert()
   for (const gatilho of ScrollTrigger.getAll()) {
     const alvo = gatilho.trigger
@@ -57,6 +87,7 @@ function neutralizarCena({ id, root, contexto, desligamentos }: Cena, reportar: 
       reportar(erro, `cena:${id}:neutralizar`)
     }
   }
+  restaurarMarcas(root, cena.marcas)
   root.dataset.cenaErro = ''
 }
 
@@ -106,6 +137,7 @@ function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context
     apoio.reportar(new Error(`<section id="${id}"> não está na página.`), `cena:${id}`)
     return null
   }
+  const marcas = lerMarcas(root)
   const contexto = gsap.context(() => {}, root)
   const ctx: ContextoCena = {
     ...apoio.base,
@@ -113,7 +145,7 @@ function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context
     reportar: (erro, parte) => apoio.reportar(erro, `cena:${id}:${parte}`),
   }
   const { retorno, erros, desligamentos } = executarInit(contexto, init, ctx)
-  const cena: Cena = { id, root, contexto, desligamentos }
+  const cena: Cena = { id, root, contexto, desligamentos, marcas }
   if (erros.length > 0) {
     tratarFalhaDeCena(cena, erros[0], apoio)
   } else if (retorno instanceof Promise) {
