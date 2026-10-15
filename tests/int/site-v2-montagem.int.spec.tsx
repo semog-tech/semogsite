@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type Lenis from 'lenis'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { montarPagina, type Reportar } from '@/site/core/montagem'
@@ -181,6 +182,100 @@ describe('montarPagina: desmonte e ida e volta', () => {
     }
     expect(document.documentElement.classList.contains('motion')).toBe(false)
     expect(reportar).not.toHaveBeenCalled()
+  })
+})
+
+describe('montarPagina: falha fora das cenas', () => {
+  afterEach(() => {
+    history.replaceState(null, '', '/')
+  })
+
+  it('erro ao assentar a posição é reportado, desliga o Lenis e não lança', () => {
+    palco('a')
+    history.replaceState(null, '', '#a')
+    const desligar = vi.fn()
+    // Só o que `rolarAgora` usa: o `resize` lança para simular o Lenis quebrando no assentar.
+    const lenisQuebrado = {
+      resize: () => {
+        throw new Error('resize quebrou')
+      },
+      scrollTo: vi.fn(),
+    } as unknown as Lenis // dublê parcial: o tipo completo do Lenis não importa aqui
+    const criarLenis = vi.fn(() => ({ lenis: lenisQuebrado, desligar }))
+    let desmontar: () => void = () => undefined
+    expect(() => {
+      desmontar = montarPagina([['a', () => undefined]], { reportar, criarLenis })
+    }).not.toThrow()
+    expect(reportar).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'resize quebrou' }),
+      'montagem',
+    )
+    expect(desligar).toHaveBeenCalledTimes(1)
+    expect(gsap.context()).toBeFalsy()
+    expect(ScrollTrigger.getAll()).toHaveLength(0)
+    desmontar()
+    expect(desligar).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('montarPagina: html.motion', () => {
+  it('a classe é marcada quando a página fica pronta e sai no desmonte', async () => {
+    palco('a')
+    let pronto: Promise<void> | null = null
+    const desmontar = montarPagina(
+      [
+        [
+          'a',
+          (ctx) => {
+            pronto = ctx.pronto
+          },
+        ],
+      ],
+      { reportar, criarLenis: lenisFalso() },
+    )
+    expect(pronto).not.toBeNull()
+    await pronto
+    expect(document.documentElement.classList.contains('motion')).toBe(true)
+    desmontar()
+    expect(document.documentElement.classList.contains('motion')).toBe(false)
+    expect(reportar).not.toHaveBeenCalled()
+  })
+})
+
+describe('montarPagina: cena que quebra não deixa callback vivo', () => {
+  it('aoRolar registrado antes do erro é desligado; o da outra cena continua', () => {
+    palco('a', 'b')
+    let chamadasA = 0
+    let chamadasB = 0
+    const desmontar = montarPagina(
+      [
+        [
+          'a',
+          (ctx) => {
+            ctx.util.aoRolar(() => {
+              chamadasA += 1
+            }, ctx.lenis)
+            throw new Error('quebrou depois de ligar')
+          },
+        ],
+        [
+          'b',
+          (ctx) => {
+            ctx.util.aoRolar(() => {
+              chamadasB += 1
+            }, ctx.lenis)
+          },
+        ],
+      ],
+      { reportar, criarLenis: lenisFalso() },
+    )
+    chamadasA = 0
+    chamadasB = 0
+    window.dispatchEvent(new Event('scroll'))
+    gsap.ticker.tick()
+    expect(chamadasA).toBe(0)
+    expect(chamadasB).toBe(1)
+    desmontar()
   })
 })
 

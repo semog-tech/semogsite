@@ -1,6 +1,6 @@
 import type Lenis from 'lenis'
 import { conteudo } from '../conteudo/conteudo'
-import { desligarTudo, type Reportar } from './ganchos'
+import { coletarDesligamentos, desligarTudo, type Reportar } from './ganchos'
 import { iniciarImpressao } from './impressao'
 import {
   criarLenis,
@@ -37,28 +37,35 @@ type Infra = {
   motion: ReturnType<typeof marcarMotionQuandoPronto>
 }
 
-/** Desfaz o que a cena montou, inclusive gatilhos criados fora do context (depois de await). */
-function neutralizarCena(root: HTMLElement, contexto: gsap.Context): void {
+/** Uma cena montada: a seção, o contexto e o que ela registrou para desligar no `init`. */
+type Cena = { id: string; root: HTMLElement; contexto: gsap.Context; desligamentos: Desligamentos }
+
+/**
+ * Desfaz o que a cena montou: o contexto, os gatilhos criados fora dele (depois de await) e os
+ * desligamentos que ela registrou (`util.aoRolar`, `util.lacoVisivel`), só os dela.
+ */
+function neutralizarCena({ id, root, contexto, desligamentos }: Cena, reportar: Reportar): void {
   contexto.revert()
   for (const gatilho of ScrollTrigger.getAll()) {
     const alvo = gatilho.trigger
     if (alvo instanceof Element && root.contains(alvo)) gatilho.kill(true)
   }
+  for (const desligar of desligamentos) {
+    try {
+      desligar()
+    } catch (erro) {
+      reportar(erro, `cena:${id}:neutralizar`)
+    }
+  }
   root.dataset.cenaErro = ''
 }
 
-function tratarFalhaDeCena(
-  id: string,
-  root: HTMLElement,
-  contexto: gsap.Context,
-  erro: unknown,
-  { reportar, estado }: Apoio,
-): void {
-  reportar(erro, `cena:${id}`)
+function tratarFalhaDeCena(cena: Cena, erro: unknown, { reportar, estado }: Apoio): void {
+  reportar(erro, `cena:${cena.id}`)
   try {
-    neutralizarCena(root, contexto)
+    neutralizarCena(cena, reportar)
   } catch (erroLimpeza) {
-    reportar(erroLimpeza, `cena:${id}:neutralizar`)
+    reportar(erroLimpeza, `cena:${cena.id}:neutralizar`)
   }
   // Exceção no meio de um refresh deixa os pins das OUTRAS cenas sem espaçador. Fora da
   // montagem, um refresh global no próximo tique remonta todos.
@@ -67,6 +74,30 @@ function tratarFalhaDeCena(
       if (!estado.encerrado) ScrollTrigger.refresh(true)
     })
   }
+}
+
+type Execucao = { retorno: unknown; erros: unknown[]; desligamentos: Desligamentos }
+
+/**
+ * Roda o init no contexto da cena. O `Context.add` do GSAP 3.15 não tem try/finally: se o init
+ * lançasse aqui dentro, o `_context` global ficaria preso neste contexto e os das cenas
+ * seguintes nasceriam como filhos dele. Por isso o erro é guardado DENTRO da função e só
+ * tratado depois que o `add` terminou. O valor devolvido continua sendo o do init (o GSAP
+ * guarda a limpeza em `_r`).
+ */
+function executarInit(contexto: gsap.Context, init: InitCena, ctx: ContextoCena): Execucao {
+  const execucao: Execucao = { retorno: undefined, erros: [], desligamentos: [] }
+  execucao.desligamentos = coletarDesligamentos(() => {
+    execucao.retorno = contexto.add(() => {
+      try {
+        return init(ctx)
+      } catch (erro) {
+        execucao.erros.push(erro)
+        return undefined
+      }
+    })
+  })
+  return execucao
 }
 
 function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context | null {
@@ -81,34 +112,22 @@ function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context
     root,
     reportar: (erro, parte) => apoio.reportar(erro, `cena:${id}:${parte}`),
   }
-  // O `Context.add` do GSAP 3.15 não tem try/finally: se o init lançasse aqui dentro, o
-  // `_context` global ficaria preso neste contexto e os das cenas seguintes nasceriam como
-  // filhos dele. Por isso o erro é guardado DENTRO da função e só tratado depois que o `add`
-  // terminou. O valor devolvido continua sendo o do init (o GSAP guarda a limpeza em `_r`).
-  const erros: unknown[] = []
-  const retorno: unknown = contexto.add(() => {
-    try {
-      return init(ctx)
-    } catch (erro) {
-      erros.push(erro)
-      return undefined
-    }
-  })
+  const { retorno, erros, desligamentos } = executarInit(contexto, init, ctx)
+  const cena: Cena = { id, root, contexto, desligamentos }
   if (erros.length > 0) {
-    tratarFalhaDeCena(id, root, contexto, erros[0], apoio)
+    tratarFalhaDeCena(cena, erros[0], apoio)
   } else if (retorno instanceof Promise) {
-    retorno.catch((erro: unknown) => tratarFalhaDeCena(id, root, contexto, erro, apoio))
+    retorno.catch((erro: unknown) => tratarFalhaDeCena(cena, erro, apoio))
   }
   return contexto
 }
 
-function montarCenas(cenas: ListaCenas, apoio: ApoioCenas): gsap.Context[] {
-  const contextos: gsap.Context[] = []
+/** Preenche `contextos` à medida que monta, para o desmonte de emergência ver os já criados. */
+function montarCenas(cenas: ListaCenas, apoio: ApoioCenas, contextos: gsap.Context[]): void {
   for (const [id, init] of cenas) {
     const contexto = montarCena(id, init, apoio)
     if (contexto) contextos.push(contexto)
   }
-  return contextos
 }
 
 /** Ligar: Lenis, topo e promessa de `html.motion`. Cada item registra como se desliga. */
@@ -172,16 +191,8 @@ function criarDesmonte(
   }
 }
 
-export function montarPagina(cenas: ListaCenas, opcoes: OpcoesMontagem): () => void {
-  const apoio: Apoio = {
-    reportar: opcoes.reportar,
-    estado: { montando: false, encerrado: false },
-  }
-  const desligar: Desligamentos = []
-  const infra = ligarInfraestrutura(opcoes, desligar)
-
-  apoio.estado.montando = true
-  const base: Base = {
+function criarBase(infra: Infra): Base {
+  return {
     gsap,
     ScrollTrigger,
     SplitText,
@@ -191,9 +202,36 @@ export function montarPagina(cenas: ListaCenas, opcoes: OpcoesMontagem): () => v
     pronto: infra.motion.pronto,
     estreito: util.estreito,
   }
-  const contextos = montarCenas(cenas, { ...apoio, base })
-  apoio.estado.montando = false
+}
 
-  ligarAposCenas(infra, apoio, desligar)
-  return criarDesmonte(contextos, apoio, desligar)
+/**
+ * Qualquer exceção fora das cenas (Lenis, topo, assentar a posição) é reportada como
+ * `montagem`, desliga o que já foi ligado e devolve um desmonte vazio: a exceção não sai para o
+ * `useGSAP`, que deixaria o contexto global do GSAP preso e trocaria a página pela tela de erro.
+ * A página fica em HTML estático.
+ */
+export function montarPagina(cenas: ListaCenas, opcoes: OpcoesMontagem): () => void {
+  const apoio: Apoio = {
+    reportar: opcoes.reportar,
+    estado: { montando: false, encerrado: false },
+  }
+  const desligar: Desligamentos = []
+  const contextos: gsap.Context[] = []
+  const desmontar = criarDesmonte(contextos, apoio, desligar)
+  try {
+    const infra = ligarInfraestrutura(opcoes, desligar)
+    apoio.estado.montando = true
+    montarCenas(cenas, { ...apoio, base: criarBase(infra) }, contextos)
+    apoio.estado.montando = false
+    ligarAposCenas(infra, apoio, desligar)
+    return desmontar
+  } catch (erro) {
+    opcoes.reportar(erro, 'montagem')
+    try {
+      desmontar()
+    } catch (erroDesmonte) {
+      opcoes.reportar(erroDesmonte, 'desmonte')
+    }
+    return () => {}
+  }
 }

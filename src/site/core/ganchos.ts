@@ -7,6 +7,8 @@ export type Reportar = (erro: unknown, origem: string) => void
 
 const ganchosImpressao = new Set<() => void>()
 const desligamentos = new Set<() => void>()
+/** Enquanto uma cena monta, também guarda aqui o que ela registrou (ver `coletarDesligamentos`). */
+let coletor: Array<() => void> | null = null
 
 /** Registra o que deve acontecer antes de imprimir (ex.: escrever o valor final). */
 export function aoImprimir(gancho: () => void): () => void {
@@ -37,7 +39,25 @@ export function registrarDesligamento(desligar: () => void): () => void {
     desligar()
   }
   desligamentos.add(umaVez)
+  coletor?.push(umaVez)
   return umaVez
+}
+
+/**
+ * Roda `executar` e devolve os desligamentos registrados durante ele, para a montagem desligar
+ * só os de uma cena que quebrou. Só vê a parte síncrona: o que a cena registra depois de um
+ * `await` fica apenas no desmonte geral.
+ */
+export function coletarDesligamentos(executar: () => void): Array<() => void> {
+  const anterior = coletor
+  const coletados: Array<() => void> = []
+  coletor = coletados
+  try {
+    executar()
+  } finally {
+    coletor = anterior
+  }
+  return coletados
 }
 
 /** Desliga tudo o que foi registrado e esquece os ganchos de impressão. Devolve os erros. */
