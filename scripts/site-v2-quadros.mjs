@@ -27,6 +27,9 @@ function lerArgs(argv) {
     else if (opcao === '--largura') args.largura = Number(valor)
     else throw new Error(`Opção desconhecida: ${opcao}`)
   }
+  if (!Number.isFinite(args.largura) || args.largura <= 0) {
+    throw new Error('--largura deve ser um número positivo (ex.: 1440 ou 390).')
+  }
   if (!args.url || !args.cena || !args.saida) {
     throw new Error('Obrigatórios: --url, --cena e --saida.')
   }

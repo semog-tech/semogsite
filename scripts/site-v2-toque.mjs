@@ -30,8 +30,11 @@ function lerArgs(argv) {
   const fila = [...argv]
   while (fila.length) {
     const opcao = fila.shift()
-    if (opcao === '--cena') args.cenas.push(fila.shift())
-    else if (opcao === '--sem-desktop') args.desktop = false
+    if (opcao === '--cena') {
+      const id = fila.shift()
+      if (!id || id.startsWith('--')) throw new Error('Opção sem valor: --cena <id>.')
+      args.cenas.push(id)
+    } else if (opcao === '--sem-desktop') args.desktop = false
     else if (opcao === '--relatorio') args.relatorio = true
     else if (opcao === '--url') args.url = fila.shift()
     else throw new Error(`Opção desconhecida: ${opcao}`)
@@ -168,8 +171,8 @@ async function celular(navegador, base, cenas, falhas, relatorio) {
     for (const f of FLICKS) {
       const linha = { cena: id, ...(await medirFlick(pagina, cdp, geo, partida(geo), f)) }
       linhas.push(linha)
-      if (!linha.preparo) falhas.push(`${id} ${f.nome}: não assentou no patamar de partida`)
       if (relatorio) continue
+      if (!linha.preparo) falhas.push(`${id} ${f.nome}: não assentou no patamar de partida`)
       if (linha.patamar !== null && !linha.noPatamar) {
         falhas.push(`${id} ${f.nome}: parou em ${linha.para}, fora de patamar`)
       }
@@ -190,9 +193,14 @@ async function celular(navegador, base, cenas, falhas, relatorio) {
 async function desktop(navegador, base, cenas, falhas) {
   const contexto = await navegador.newContext({ viewport: { width: 1440, height: 900 } })
   const pagina = await contexto.newPage()
+  pagina.on('pageerror', (e) => falhas.push(`desktop: ${e.message}`))
   for (const [arquivo, id] of cenas) {
     await abrir(pagina, `${base}${arquivo}`)
     const geo = await geometria(pagina, id)
+    if (geo.patamares.length < 3) {
+      falhas.push(`desktop ${id}: precisa de ao menos 3 patamares (tem ${geo.patamares.length})`)
+      continue
+    }
     const meio = (geo.patamares[1] + geo.patamares[2]) / 2
     await irPara(pagina, geo, geo.patamares[1])
     await pagina.mouse.move(720, 450)

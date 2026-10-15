@@ -7,7 +7,8 @@ import Lenis from 'lenis'
 /* Lenis dirigido pelo ticker do GSAP (README do Lenis 1.3): ScrollTrigger atualizado a cada
    rolagem e lagSmoothing desligado. O ticker do GSAP é o ÚNICO requestAnimationFrame da página.
    O movimento não consulta a preferência de movimento reduzido do sistema: decisão do Leandro.
-   Nada roda no topo do módulo fora do `if` abaixo: o Next avalia este arquivo no servidor. */
+   O Next avalia este arquivo no servidor: aqui nada toca o DOM fora do `if` abaixo. Os módulos
+   `patamares.ts` e `util.ts` registram plugins do GSAP no topo; é idempotente e não usa DOM. */
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
   // Celular: a barra de endereço que some e volta muda a altura da janela; sem isto cada vez
