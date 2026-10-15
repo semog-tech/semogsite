@@ -2,6 +2,7 @@ import type React from 'react'
 import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
 import { Clarity } from '@/components/analytics/Clarity'
+import { LeadClickTracker } from '@/components/analytics/LeadClickTracker'
 import { ConsentProvider } from '@/providers/ConsentProvider'
 import { barlow, saira } from '@/site/fontes'
 import '@/site/estilos/tokens.css'
@@ -16,7 +17,8 @@ import '@/site/estilos/base.css'
  * classe já trocada: daí o `suppressHydrationWarning`.
  *
  * Consentimento e medição como no `(evento)`: Analytics e Clarity só sobem em host mensurável
- * (`measurableHost`), então Preview e local não medem.
+ * (`measurableHost`), então Preview e local não medem. Como no `(frontend)`, o LeadClickTracker
+ * mede os cliques de WhatsApp e telefone e escreve a mensagem do WhatsApp com a cidade.
  */
 const TROCA_SEM_JS = `(function(){var d=document.documentElement;d.classList.remove('sem-js');d.classList.add('js');setTimeout(function(){d.classList.add('motion')},6000)})()`
 
@@ -36,6 +38,7 @@ export default function LayoutSite({ children }: { children: React.ReactNode }) 
           <Analytics />
           <Clarity />
           <AttributionTracker />
+          <LeadClickTracker />
           {children}
         </ConsentProvider>
       </body>

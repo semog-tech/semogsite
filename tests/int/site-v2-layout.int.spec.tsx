@@ -1,13 +1,36 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { isValidElement, type ReactElement, type ReactNode } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+import LayoutSite from '@/app/(site)/layout'
+import GlobalError from '@/app/global-error'
+import { AttributionTracker } from '@/components/analytics/AttributionTracker'
+import { LeadClickTracker } from '@/components/analytics/LeadClickTracker'
+import { ConsentProvider } from '@/providers/ConsentProvider'
 import { entradaDe } from '@/site/inventario'
 import { Cabecalho } from '@/site/layout/Cabecalho'
 import { Rodape } from '@/site/layout/Rodape'
 import { SimbolosSvg } from '@/site/layout/SimbolosSvg'
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
+// next/font/local é transformado pelo compilador do Next; no Vitest basta o nome da classe.
+vi.mock('@/site/fontes', () => ({
+  saira: { variable: 'fonte-saira' },
+  barlow: { variable: 'fonte-barlow' },
+}))
+
+/** Elementos React da árvore, em profundidade, na ordem em que aparecem. */
+function elementos(no: ReactNode): ReactElement<{ children?: ReactNode }>[] {
+  if (Array.isArray(no)) return no.flatMap(elementos)
+  if (!isValidElement<{ children?: ReactNode }>(no)) return []
+  return [no, ...elementos(no.props.children)]
+}
+
+function lerFonte(...partes: string[]): string {
+  return readFileSync(path.join(process.cwd(), ...partes), 'utf8').replace(/\r\n?/g, '\n')
+}
 
 function linksInternos(raiz: HTMLElement): string[] {
   return Array.from(raiz.querySelectorAll('a[href^="/"]')).map((a) => a.getAttribute('href') ?? '')
@@ -97,5 +120,36 @@ describe('logo', () => {
     )
     expect(dDoSimbolo).toEqual(dDaReferencia)
     expect(container.querySelectorAll('#logo-semog rect')).toHaveLength(3)
+  })
+})
+
+describe('layout raiz (site)', () => {
+  it('mede cliques de WhatsApp e telefone: LeadClickTracker dentro do ConsentProvider, logo depois do AttributionTracker', () => {
+    const arvore = elementos(LayoutSite({ children: null }))
+    const consentimento = arvore.find((e) => e.type === ConsentProvider)
+    expect(consentimento).toBeDefined()
+    const dentro = elementos(consentimento?.props.children).map((e) => e.type)
+    const posicao = dentro.indexOf(LeadClickTracker)
+    expect(posicao).toBeGreaterThan(-1)
+    expect(dentro[posicao - 1]).toBe(AttributionTracker)
+  })
+})
+
+describe('global-error', () => {
+  it('não importa fontes nem CSS do site antigo (o Next os pré-carregaria em todo layout raiz)', () => {
+    const fonte = lerFonte('src', 'app', 'global-error.tsx')
+    expect(fonte).not.toMatch(/from '@\/fonts'/)
+    expect(fonte).not.toMatch(/import '[^']+\.css'/)
+    expect(fonte).not.toMatch(/@\/components\//)
+  })
+
+  it('mantém texto, botão de tentar de novo e lang', () => {
+    const html = renderToStaticMarkup(
+      <GlobalError error={new Error('teste')} reset={() => undefined} />,
+    )
+    expect(html).toContain('<html lang="pt-BR"')
+    expect(html).toContain('Algo saiu do controle')
+    expect(html).toContain('Tentar de novo')
+    expect(html).toContain('href="/"')
   })
 })

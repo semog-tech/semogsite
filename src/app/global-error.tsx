@@ -1,27 +1,35 @@
 'use client'
 
 import * as Sentry from '@sentry/nextjs'
-import { useEffect } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Container } from '@/components/ui/Container'
-import { clash, satoshi } from '@/fonts'
-import '@/styles/theme.css'
+import { type CSSProperties, useEffect } from 'react'
 
 /**
- * Fallback catastrófico: só ativa em produção (em dev o overlay de erro do
- * Next assume) e apenas quando o erro acontece acima de qualquer error.js de
- * segmento — ex.: um dos root layouts (`(frontend)/layout.tsx` ou
- * `(payload)/layout.tsx`) lança. Por isso substitui o root layout inteiro:
- * define <html>/<body> própria e NÃO reusa HeaderServer/FooterServer (que
- * dependem do Payload local API — se o erro raiz foi causado por isso,
- * chamá-los de novo aqui só repetiria a falha). Fica na raiz de `src/app`
- * (fora de `(frontend)`/`(payload)`) porque este projeto usa múltiplos root
- * layouts (sem `src/app/layout.tsx` único): global-error precisa ficar fora
- * de qualquer grupo para cobrir os dois — dentro de um grupo, só capturaria
- * erros daquele root layout específico. Diferente de um `not-found.tsx` na
- * raiz (que erra em build por não ter root layout pra herdar), global-error
- * funciona aqui porque ele mesmo fornece html/body, não depende de nenhum.
+ * Fallback catastrófico: ativa quando o erro acontece acima de qualquer error.js de segmento,
+ * ou seja, quando um dos root layouts (`(frontend)`, `(evento)`, `(interno)`, `(site)`) lança.
+ * Substitui o root layout inteiro, por isso define <html>/<body> próprios (doc do Next 16:
+ * "Global error UI must define its own <html> and <body> tags, global styles, fonts").
+ * Fica na raiz de `src/app`, fora dos grupos, para cobrir todos os root layouts.
+ *
+ * Não importa fonte, CSS nem componente de nenhum site: o Next pré-carrega os recursos do
+ * global-error em todo root layout, então um import de `@/fonts` ou `theme.css` aqui fazia
+ * cada página do site v2 baixar as fontes e o CSS do site antigo. Estilo embutido e fonte do
+ * sistema; as cores literais abaixo são as do tema escuro antigo (marinho, texto claro).
  */
+const MARINHO = '#0a102e'
+const TEXTO = '#edf1fa'
+const TEXTO_2 = '#b4bdd9'
+const ACENTO = '#add5eb'
+const FONTE_DO_SISTEMA = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+
+const estiloBotao: CSSProperties = {
+  font: 'inherit',
+  fontWeight: 600,
+  padding: '0.9rem 1.6rem',
+  border: `1px solid ${ACENTO}`,
+  cursor: 'pointer',
+  textDecoration: 'none',
+}
+
 export default function GlobalError({
   error,
   reset,
@@ -35,29 +43,47 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">
-      <body className="bg-navy-900 text-fg">
-        <main className="flex min-h-dvh flex-col items-center justify-center text-center">
-          <Container>
-            <p className="mb-[1rem] text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-ice-500">
-              Erro inesperado
-            </p>
-            <h1 className="mx-auto mb-[1.2rem] max-w-xl text-[clamp(2rem,5vw,3.2rem)] tracking-normal">
-              Algo saiu do controle
-            </h1>
-            <p className="mx-auto mb-[2rem] max-w-[46ch] text-lead text-fg-2">
-              Um erro grave impediu o carregamento do site. Tente novamente — se continuar,
-              recarregue a página.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button onClick={reset} variant="primary" size="lg">
-                Tentar de novo
-              </Button>
-              <Button href="/" variant="ghost" size="lg">
-                Voltar para o início
-              </Button>
-            </div>
-          </Container>
+    <html lang="pt-BR">
+      <body style={{ margin: 0, background: MARINHO, color: TEXTO, fontFamily: FONTE_DO_SISTEMA }}>
+        <main
+          style={{
+            minHeight: '100dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '0 1.5rem',
+          }}
+        >
+          <p style={{ margin: '0 0 1rem', fontSize: '0.9rem', fontWeight: 600, color: ACENTO }}>
+            Erro inesperado
+          </p>
+          <h1
+            style={{
+              margin: '0 0 1.2rem',
+              maxWidth: '36rem',
+              fontSize: 'clamp(2rem, 5vw, 3.2rem)',
+            }}
+          >
+            Algo saiu do controle
+          </h1>
+          <p style={{ margin: '0 0 2rem', maxWidth: '46ch', fontSize: '1.15rem', color: TEXTO_2 }}>
+            Um erro grave impediu o carregamento do site. Tente novamente — se continuar, recarregue
+            a página.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+            <button
+              type="button"
+              onClick={reset}
+              style={{ ...estiloBotao, background: ACENTO, color: MARINHO }}
+            >
+              Tentar de novo
+            </button>
+            <a href="/" style={{ ...estiloBotao, background: 'transparent', color: TEXTO }}>
+              Voltar para o início
+            </a>
+          </div>
         </main>
       </body>
     </html>
