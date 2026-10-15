@@ -1,0 +1,162 @@
+/* Evolução: uma superfície que começa no marinho exato das casas do mês seguinte e desce,
+   pelo gradiente Transparência, até o branco da conferência. O texto mora no marinho; a
+   descida não tem texto e é curta. O header acompanha o trecho sob ele (ver a cena). */
+#evolucao {
+  --ev-agora: 68%;
+  padding-block: 0;
+  background: var(--marinho);
+}
+/* Com o mês fixado, a evolução sobe por cima dos últimos 45svh dele, quando as casas do mês
+   seguinte já cobrem o pé do palco (SOBREPOSICAO_TELAS, em 02-mes.js). Sem JS e na
+   impressão, cada cena no seu lugar. */
+#mes.ms-pin + #evolucao {
+  z-index: 4;
+  margin-top: -45svh;
+}
+@media print {
+  #mes.ms-pin + #evolucao {
+    margin-top: 0;
+  }
+}
+#evolucao .ev-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+  padding-block: var(--e6) var(--e6);
+}
+#evolucao .ev-topo > * {
+  min-width: 0;
+}
+#evolucao .ev-titulo {
+  max-width: 14ch;
+  font-size: clamp(2.75rem, 0.9rem + 4.6vw, 6rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#evolucao .ev-texto {
+  max-width: 36ch;
+  padding-bottom: 0.4em;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+
+/* ---- Linha das semanas: de ponta a ponta da tela ------------------------------------- */
+#evolucao .ev-semanas {
+  position: relative;
+  padding-block: var(--e6) var(--e5);
+}
+#evolucao .ev-linha {
+  position: relative;
+  height: var(--e2);
+}
+/* Uma marca céu por semana, com a linha de base, até esta semana. */
+#evolucao .ev-feito {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--ev-agora);
+  background:
+    linear-gradient(var(--ceu), var(--ceu)) 0 100% / 100% 2px no-repeat,
+    linear-gradient(to right, var(--ceu) 0 2px, transparent 2px 100%) 0 0 / var(--e4) 100% repeat-x;
+}
+/* Daqui para a frente, tracejado: o que está em desenvolvimento, sem data. */
+#evolucao .ev-proxima {
+  position: absolute;
+  left: var(--ev-agora);
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--ceu) 0 var(--e1), transparent var(--e1) 100%) 0 0 /
+    var(--e3) 100% repeat-x;
+  opacity: 0.55;
+}
+#evolucao .ev-agora {
+  position: absolute;
+  left: calc(var(--ev-agora) - 6px);
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  background: var(--ceu);
+}
+#evolucao .ev-rotulo-agora {
+  position: absolute;
+  left: var(--ev-agora);
+  bottom: calc(100% + var(--e2));
+  overflow: clip;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--tema-titulo);
+}
+#evolucao .ev-legendas {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e4);
+  width: min(var(--largura), 100% - 2 * var(--margem));
+  margin: var(--e3) auto 0;
+}
+#evolucao .ev-esquema,
+#evolucao .ev-rotulo-proxima {
+  overflow: clip;
+}
+#evolucao .ev-rotulo-proxima {
+  max-width: 26ch;
+  text-align: right;
+  color: var(--tema-titulo);
+}
+#evolucao .ev-in {
+  display: block;
+}
+
+/* ---- Descida: marinho → gelo → branco, as mesmas paradas dos ganhos de Incorporadoras ---- */
+#evolucao .ev-descida {
+  height: 55svh;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho) 0%,
+    color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 6.6%,
+    color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 13.4%,
+    color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 20%,
+    color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 26.6%,
+    color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 33.4%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 40%,
+    color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 46.6%,
+    color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 53.4%,
+    color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 60%,
+    color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 66.6%,
+    color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 73.4%,
+    var(--gelo) 80%,
+    color-mix(in oklab, var(--gelo) 50%, var(--branco)) 90%,
+    var(--branco) 100%
+  );
+}
+
+@media (max-width: 760px) {
+  #evolucao {
+    --ev-agora: 62%;
+  }
+  #evolucao .ev-topo {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+    padding-block: var(--e5) var(--e5);
+  }
+  #evolucao .ev-titulo {
+    font-size: 2.875rem;
+  }
+  #evolucao .ev-legendas {
+    flex-direction: column;
+    gap: var(--e2);
+  }
+  #evolucao .ev-rotulo-proxima {
+    order: -1;
+    max-width: none;
+    text-align: left;
+  }
+  #evolucao .ev-descida {
+    height: 48svh;
+  }
+}

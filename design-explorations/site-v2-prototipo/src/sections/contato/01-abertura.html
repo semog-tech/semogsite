@@ -1,0 +1,50 @@
+<!-- Contato · abertura: para quem NÃO quer proposta (condômino, fornecedor, imprensa,
+     trabalhe conosco). Título e frase; abaixo, quatro atalhos verdadeiros: a proposta (que
+     tem página própria), a 2ª via (rota a confirmar: no site atual ela mora no botão de
+     atendimento, sem endereço próprio), a área do cliente e o formulário desta página. -->
+<section id="contato-abertura" class="ct" data-tema="claro" aria-labelledby="ct-titulo">
+  <div class="container">
+    <h1 id="ct-titulo" class="ct-titulo">
+      <span class="linha"
+        ><span class="linha-interna" style="--i: 0"
+          >{{contatoPagina.titulo}}
+          <em class="peso peso-fixo" data-texto="{{contatoPagina.enfase}}"
+            >{{contatoPagina.enfase}}</em
+          ></span
+        ></span
+      >
+    </h1>
+    <p class="ct-sub">{{contatoPagina.sub}}</p>
+
+    <ul class="ct-atalhos">
+      <li style="--i: 0">
+        <a class="ct-atalho" href="proposta.html">
+          <strong>{{contatoPagina.atalhos.proposta.titulo}}</strong>
+          <span>{{contatoPagina.atalhos.proposta.texto}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+      <li style="--i: 1">
+        <div class="ct-atalho ct-atalho--pendente">
+          <strong>{{contatoPagina.atalhos.segundaVia.titulo}}</strong>
+          <span>{{contatoPagina.atalhos.segundaVia.texto}}</span>
+          <span class="a-confirmar">{{contatoPagina.atalhos.segundaVia.confirmar}}</span>
+        </div>
+      </li>
+      <li style="--i: 2">
+        <a class="ct-atalho" href="{{marca.loginUrl}}">
+          <strong>{{contatoPagina.atalhos.login.titulo}}</strong>
+          <span>{{contatoPagina.atalhos.login.texto}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+      <li style="--i: 3">
+        <a class="ct-atalho" href="#contato-mensagem">
+          <strong>{{contatoPagina.atalhos.mensagem.titulo}}</strong>
+          <span>{{contatoPagina.atalhos.mensagem.texto}}</span>
+          <svg class="seta ct-seta-baixo" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>

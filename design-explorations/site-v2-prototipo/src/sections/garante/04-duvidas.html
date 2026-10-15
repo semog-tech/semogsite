@@ -1,0 +1,87 @@
+<!-- Dúvidas · o que o síndico pergunta antes de levar o Garante à assembleia. Divisão 38,2/61,8:
+     à esquerda o título e o caminho para outra dúvida (pedido de proposta); à direita as perguntas, uma
+     por bloco gelo, abertas e fechadas pelo próprio <details> (sem JS, tudo funciona). A
+     primeira vem aberta. O que ainda depende de confirmação está marcado na resposta. Na saída,
+     a coluna lavanda sobe e vira o véu do convite da proposta. -->
+<section
+  id="duvidas-garante"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="duvidas-garante-titulo"
+>
+  <div class="container gd-quadro">
+    <div class="gd-cabeca">
+      <h2 id="duvidas-garante-titulo" class="gd-titulo">{{garantePagina.duvidas.titulo}}</h2>
+      <div class="gd-outra">
+        <p class="rotulo">{{garantePagina.duvidas.outra}}</p>
+        <!-- Sem WhatsApp (decisão do Leandro): a dúvida segue pelo pedido de proposta. -->
+        <a class="link-seta" href="#proposta"
+          ><span>Pergunte no pedido de proposta</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+    </div>
+
+    <div class="gd-lista">
+      <details class="gd-item" open>
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.0.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>
+            {{garantePagina.duvidas.itens.0.resposta}}
+            <span class="a-confirmar">{{garantePagina.duvidas.itens.0.confirmar}}</span>
+          </p>
+        </div>
+      </details>
+      <details class="gd-item">
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.1.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>{{garantePagina.duvidas.itens.1.resposta}}</p>
+        </div>
+      </details>
+      <details class="gd-item">
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.2.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>{{garantePagina.duvidas.itens.2.resposta}}</p>
+        </div>
+      </details>
+      <details class="gd-item">
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.3.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>
+            {{garantePagina.duvidas.itens.3.resposta}}
+            <span class="a-confirmar">{{garantePagina.duvidas.itens.3.confirmar}}</span>
+          </p>
+        </div>
+      </details>
+      <details class="gd-item">
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.4.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>
+            {{garantePagina.duvidas.itens.4.resposta}}
+            <span class="a-confirmar">{{garantePagina.duvidas.itens.4.confirmar}}</span>
+          </p>
+        </div>
+      </details>
+      <details class="gd-item">
+        <summary class="gd-pergunta">
+          <span>{{garantePagina.duvidas.itens.5.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gd-resposta">
+          <p>{{garantePagina.duvidas.itens.5.resposta}}</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="gd-saida" aria-hidden="true"><span class="gd-veu"></span></div>
+</section>

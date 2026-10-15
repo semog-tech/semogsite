@@ -1,0 +1,24 @@
+<!-- Landing de cidade · troca de administradora: três passos num traço só, que se desenha
+     uma vez quando chega à tela (horizontal no desktop, vertical no celular). -->
+<section id="cidade-troca" class="cena cx" data-tema="claro" aria-labelledby="cidade-troca-titulo">
+  <div class="container cx-quadro">
+    <h2 id="cidade-troca-titulo" class="cx-titulo revelar">
+      <span class="linha"
+        ><span class="linha-interna"
+          >{{landing.troca.titulo}}
+          <em class="peso peso-fixo" data-texto="{{landing.troca.enfase}}"
+            >{{landing.troca.enfase}}</em
+          ></span
+        ></span
+      >
+    </h2>
+    <ol class="cx-passos revelar">
+      {{#cada landing.troca.passos}}
+      <li class="cx-passo">
+        <h3>{{item.titulo}}</h3>
+        <p>{{item.texto}}</p>
+      </li>
+      {{/cada}}
+    </ol>
+  </div>
+</section>

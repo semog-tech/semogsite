@@ -1,0 +1,182 @@
+/* Landing de cidade · abertura. A mesma composição de metades da home: a foto sangra pela
+   esquerda e a coluna de texto termina onde termina o header. A coluna é mais larga que a
+   da home (o título é mais longo) e o título se mede por ela (cqi) e pela altura (svh):
+   título, frase e etapa 1 cabem na dobra em 1440×900 e em 390×844.
+   Entrada só de CSS, a partir da primeira pintura, sem esperar fonte, load nem JS: o
+   título sobe pela máscara (0,9 s, expo.out, 80 ms entre linhas), a cidade ganha peso (sem
+   mudar a caixa: ver .peso-fixo em 00-comum.css), a
+   moldura da foto abre de baixo (1,1 s, expo.inOut) enquanto a foto assenta do zoom. */
+#cidade-abertura {
+  container: abertura-cidade / inline-size;
+  position: relative;
+  padding-top: var(--cab);
+  background: var(--branco);
+}
+#cidade-abertura .ca-palco {
+  --g: max(var(--margem), (100cqw - var(--largura)) / 2);
+  --coluna: calc((100cqw - 2 * var(--g)) * 0.5);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--coluna);
+  column-gap: var(--e6);
+  min-height: calc(100svh - var(--cab));
+  padding-right: var(--g);
+}
+
+/* ---- Foto ------------------------------------------------------------------------ */
+#cidade-abertura .ca-foto {
+  position: relative;
+  margin: 0;
+  overflow: clip;
+  background: var(--gelo);
+  animation: ca-moldura 1.1s var(--ease-expo-in-out) both;
+}
+#cidade-abertura .ca-moldura {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+#cidade-abertura .ca-moldura img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: ca-assentar 1.6s var(--ease-expo) both;
+}
+#cidade-abertura .ca-legenda {
+  position: absolute;
+  left: var(--g);
+  bottom: var(--e4);
+  padding: var(--e1) var(--e2);
+  background: var(--branco);
+  color: var(--marinho);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  line-height: 1.4;
+  animation: ca-subir-bloco 0.9s var(--ease-expo) 0.7s both;
+}
+
+/* ---- Texto ------------------------------------------------------------------------ */
+#cidade-abertura .ca-texto {
+  container: texto-cidade / inline-size;
+  align-self: center;
+  padding-block: clamp(var(--e3), 3.5svh, var(--e5));
+}
+/* "Administradora de condomínios" quebra em duas linhas; a cidade fica na de baixo e pode
+   quebrar sozinha (Campina Grande). 10,4cqi põe "Administradora de" em ~90% da coluna. */
+#cidade-abertura .ca-titulo {
+  font-size: min(4.75rem, 10.4cqi, 7.6svh);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+#cidade-abertura .ca-titulo .linha-interna {
+  display: block;
+  animation: ca-subir 0.9s var(--ease-expo) calc(var(--i) * 80ms + 60ms) both;
+}
+#cidade-abertura .ca-titulo .peso-fixo::after {
+  animation: ca-peso 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.45s both;
+}
+#cidade-abertura .ca-sub {
+  max-width: 40ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--texto);
+  animation: ca-subir-bloco 0.9s var(--ease-expo) 0.22s both;
+}
+#cidade-abertura .ca-form {
+  position: relative;
+  margin-top: clamp(var(--e3), 3.6svh, var(--e5));
+}
+#cidade-abertura .fp-par {
+  align-items: start;
+}
+/* O aviso de demonstração não empurra nada: fica logo abaixo do formulário. */
+#cidade-abertura .fp-status {
+  position: absolute;
+  top: calc(100% + var(--e2));
+  left: 0;
+}
+#cidade-abertura .fp-acoes .fp-indicador {
+  margin: 0;
+}
+/* Em tela baixa e no celular o rótulo do formulário fica só para leitor de tela. */
+@media (max-height: 820px), (max-width: 760px) {
+  #cidade-abertura .fp-titulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ---- Celular: a foto vira faixa no alto, o texto ocupa a largura ---------------- */
+@media (max-width: 760px) {
+  #cidade-abertura .ca-palco {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: clamp(64px, 11svh, 120px) auto;
+    min-height: 0;
+    padding-right: 0;
+  }
+  #cidade-abertura .ca-legenda {
+    left: var(--margem);
+    bottom: var(--e2);
+    padding: 4px var(--e1);
+    font-size: 0.8125rem;
+  }
+  #cidade-abertura .ca-texto {
+    padding: var(--e3) var(--margem) var(--e5);
+  }
+  #cidade-abertura .ca-titulo {
+    font-size: min(10.4cqi, 6svh);
+  }
+  #cidade-abertura .ca-sub {
+    margin-top: var(--e2);
+    font-size: 1.0625rem;
+  }
+  #cidade-abertura .ca-form {
+    margin-top: var(--e3);
+  }
+  #cidade-abertura .fp-etapa {
+    gap: var(--e2);
+  }
+}
+
+@keyframes ca-subir {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes ca-subir-bloco {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+    transform: none;
+  }
+}
+@keyframes ca-peso {
+  from {
+    font-variation-settings: "wght" var(--peso-enfase-de);
+  }
+}
+@keyframes ca-moldura {
+  from {
+    clip-path: inset(100% 0% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+@keyframes ca-assentar {
+  from {
+    transform: scale(1.18);
+  }
+}

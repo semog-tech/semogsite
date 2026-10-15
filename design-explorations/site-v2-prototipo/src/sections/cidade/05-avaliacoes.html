@@ -1,0 +1,31 @@
+<!-- Landing de cidade · avaliações públicas da Unidade no Google, citadas como publicadas
+     (nome abreviado, mês/ano). Cidade sem avaliação não lista esta seção no paginas.json; o
+     bloco #se garante que uma lista vazia não vira título solto. -->
+{{#se dados.avaliacoes}}
+<section
+  id="cidade-avaliacoes"
+  class="cena ct"
+  data-tema="claro"
+  aria-labelledby="cidade-avaliacoes-titulo"
+>
+  <div class="container ct-quadro">
+    <div class="ct-cabeca revelar">
+      <h2 id="cidade-avaliacoes-titulo" class="ct-titulo">
+        <span class="linha"><span class="linha-interna">{{depoimentos.titulo}}</span></span>
+      </h2>
+      <p class="rotulo">{{landing.avaliacoes.rotulo}} {{dados.nome}}</p>
+    </div>
+    <div class="ct-lista">
+      {{#cada dados.avaliacoes}}
+      <figure class="ct-citacao revelar revelar--bloco">
+        <blockquote class="ct-texto">{{item.texto}}</blockquote>
+        <figcaption class="ct-autoria">
+          <span class="ct-nome">{{item.nome}}</span>
+          <span class="rotulo">{{aSemog.depoimentos.origem}} · {{item.data}}</span>
+        </figcaption>
+      </figure>
+      {{/cada}}
+    </div>
+  </div>
+</section>
+{{/se}}

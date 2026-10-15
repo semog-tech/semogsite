@@ -1,0 +1,103 @@
+<!-- Assembleia · a pauta que o conselheiro leva: seis perguntas para fazer a qualquer
+     administradora e, ao lado, o que a Semog responde, com o dado em destaque. É uma folha
+     (papel branco sobre o gelo, faixa marinho no topo); o fio desce pela margem da pauta e
+     tica cada item quando passa por ele. Respostas só com fatos do conteúdo da home e desta
+     página; as perguntas e o enquadramento são texto novo. Na saída, a coluna lavanda sobe e
+     vira o véu do pedido de proposta. -->
+<section id="assembleia" class="cena" data-tema="gelo" aria-labelledby="assembleia-titulo">
+  <div class="container">
+    <article class="as-folha">
+      <header class="as-cabeca">
+        <!-- TEXTO-NOVO -->
+        <p class="as-rotulo rotulo">{{aSemog.assembleia.rotulo}}</p>
+        <h2 id="assembleia-titulo" class="as-titulo">
+          {{aSemog.assembleia.tituloA}} <em class="peso">{{aSemog.assembleia.tituloB}}</em>
+        </h2>
+        <p class="as-lead">{{aSemog.assembleia.lead}}</p>
+      </header>
+      <div class="as-colunas rotulo" aria-hidden="true">
+        <span>{{aSemog.assembleia.colunaPergunta}}</span>
+        <span>{{aSemog.assembleia.colunaResposta}}</span>
+      </div>
+      <div class="as-lista">
+        <div class="as-fio" aria-hidden="true"><span class="as-fio-traco"></span></div>
+        <ol class="as-itens">
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.0.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.0.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.0.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.0.apoio}}</p>
+            </div>
+          </li>
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.1.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.1.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.1.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.1.apoio}}</p>
+            </div>
+          </li>
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.2.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.2.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.2.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.2.apoio}}</p>
+            </div>
+          </li>
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.3.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.3.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.3.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.3.apoio}}</p>
+            </div>
+          </li>
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.4.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.4.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.4.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.4.apoio}}</p>
+            </div>
+          </li>
+          <li class="as-item">
+            <svg class="as-check" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+              <rect class="as-check-caixa" x="0.75" y="0.75" width="19.5" height="19.5"></rect>
+              <path class="as-check-marca" d="M5 10.5l4 4 7.5-8"></path>
+            </svg>
+            <p class="as-pergunta">{{aSemog.assembleia.itens.5.pergunta}}</p>
+            <div class="as-resposta">
+              <p class="as-dado num">{{aSemog.assembleia.itens.5.dado}}</p>
+              <p class="as-afirmacao">{{aSemog.assembleia.itens.5.resposta}}</p>
+              <p class="as-apoio">{{aSemog.assembleia.itens.5.apoio}}</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </article>
+  </div>
+
+  <div class="as-saida" aria-hidden="true"><span class="as-veu"></span></div>
+</section>

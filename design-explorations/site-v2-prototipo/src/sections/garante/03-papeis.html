@@ -1,0 +1,38 @@
+<!-- Papéis · quem faz o quê. Nasce no marinho em que o patamar dos 100% cobriu a tela: o
+     título em Saira leve e os quatro papéis (o condomínio, a Semog Garante, a equipe da Semog e
+     o síndico) numa fila ligada por um traço céu, de ponta reta, que corre com a rolagem; o nó
+     de cada papel acende quando o traço chega a ele. A superfície desce do marinho ao branco das
+     dúvidas. -->
+<section id="papeis" class="cena" data-tema="marinho" aria-labelledby="papeis-titulo">
+  <div class="container gp-topo">
+    <h2 id="papeis-titulo" class="gp-titulo">{{garantePagina.papeis.titulo}}</h2>
+  </div>
+
+  <div class="container gp-fila">
+    <span class="gp-linha" aria-hidden="true"></span>
+    <ol class="gp-lista">
+      <li class="gp-papel">
+        <i class="gp-no" aria-hidden="true"></i>
+        <h3 class="gp-quem">{{garantePagina.papeis.itens.0.quem}}</h3>
+        <p class="gp-faz">{{garantePagina.papeis.itens.0.faz}}</p>
+      </li>
+      <li class="gp-papel">
+        <i class="gp-no" aria-hidden="true"></i>
+        <h3 class="gp-quem">{{garantePagina.papeis.itens.1.quem}}</h3>
+        <p class="gp-faz">{{garantePagina.papeis.itens.1.faz}}</p>
+      </li>
+      <li class="gp-papel">
+        <i class="gp-no" aria-hidden="true"></i>
+        <h3 class="gp-quem">{{garantePagina.papeis.itens.2.quem}}</h3>
+        <p class="gp-faz">{{garantePagina.papeis.itens.2.faz}}</p>
+      </li>
+      <li class="gp-papel">
+        <i class="gp-no" aria-hidden="true"></i>
+        <h3 class="gp-quem">{{garantePagina.papeis.itens.3.quem}}</h3>
+        <p class="gp-faz">{{garantePagina.papeis.itens.3.faz}}</p>
+      </li>
+    </ol>
+  </div>
+
+  <div class="gp-descida" aria-hidden="true"></div>
+</section>

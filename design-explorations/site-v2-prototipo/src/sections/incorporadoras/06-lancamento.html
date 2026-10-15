@@ -1,0 +1,28 @@
+<!-- Lançamento · o convite antes do pedido de proposta. A pergunta em Saira grande, "no
+     radar?" em peso; a frase que diz o que se ganha entrando na planta; o botão desce ao
+     pedido, que nesta página já chega com "Construtora" marcado. O espaço das construtoras
+     parceiras fica visível e marcado: os nomes dependem de autorização. Na saída, a coluna
+     lavanda sobe e vira o véu do pedido de proposta. -->
+<section id="lancamento" class="cena" data-tema="claro" aria-labelledby="lancamento-titulo">
+  <div class="container ln-quadro">
+    <h2 id="lancamento-titulo" class="ln-titulo titulo-display">
+      {{incorporadoras.lancamento.tituloA}}
+      <em class="peso">{{incorporadoras.lancamento.tituloB}}</em>
+    </h2>
+    <div class="ln-corpo">
+      <p class="ln-texto">{{incorporadoras.lancamento.texto}}</p>
+      <div class="ln-acoes">
+        <a class="botao" href="#proposta"
+          >{{incorporadoras.lancamento.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+      <p class="ln-parceiras rotulo">
+        {{incorporadoras.lancamento.parceiras}}
+        <span class="a-confirmar">{{incorporadoras.lancamento.parceirasConfirmar}}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ln-saida" aria-hidden="true"><span class="ln-veu"></span></div>
+</section>

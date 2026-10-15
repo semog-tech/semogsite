@@ -1,0 +1,550 @@
+[
+  {
+    "id": "home",
+    "saida": "index.html",
+    "titulo": "Semog · Administradora de condomínios",
+    "descricao": "Semog, administradora de condomínios há 35 anos, com Unidades em Recife, João Pessoa, Campina Grande e Belém. {{marca.slogan}}",
+    "inicio": "",
+    "rodape": "Protótipo da nova home.",
+    "secoes": [
+      {
+        "id": "abertura",
+        "arquivo": "01-abertura"
+      },
+      {
+        "id": "condominios",
+        "arquivo": "02-condominios"
+      },
+      {
+        "id": "pilares",
+        "arquivo": "03-pilares"
+      },
+      {
+        "id": "tecnologia",
+        "arquivo": "04-tecnologia"
+      },
+      {
+        "id": "ranking",
+        "arquivo": "05-ranking"
+      },
+      {
+        "id": "unidades",
+        "arquivo": "06-unidades"
+      },
+      {
+        "id": "comunidade",
+        "arquivo": "07-comunidade"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "semog",
+    "saida": "semog.html",
+    "titulo": "A Semog · 35 anos administrando condomínios no Nordeste",
+    "descricao": "Fundada no Recife em 1991, hoje em João Pessoa, Campina Grande e Belém: 650 condomínios, 70 mil clientes e cadeira no G20 da Superlógica.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página A Semog.",
+    "secoes": [
+      {
+        "id": "a-semog",
+        "arquivo": "semog/01-manifesto"
+      },
+      {
+        "id": "historia",
+        "arquivo": "semog/02-historia"
+      },
+      {
+        "id": "principios",
+        "arquivo": "semog/03-principios"
+      },
+      {
+        "id": "pessoas",
+        "arquivo": "semog/04-pessoas"
+      },
+      {
+        "id": "depoimentos",
+        "arquivo": "semog/06-depoimentos"
+      },
+      {
+        "id": "assembleia",
+        "arquivo": "semog/05-assembleia"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "incorporadoras",
+    "saida": "incorporadoras.html",
+    "titulo": "Para incorporadoras · Semog implanta o condomínio da planta às chaves",
+    "descricao": "A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente final e a sua marca. Unidades em Recife, João Pessoa, Campina Grande e Belém.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Incorporadoras.",
+    "secoes": [
+      {
+        "id": "incorporadoras",
+        "arquivo": "incorporadoras/01-abertura"
+      },
+      {
+        "id": "convivencia",
+        "arquivo": "incorporadoras/02-convivencia"
+      },
+      {
+        "id": "percurso",
+        "arquivo": "incorporadoras/03-percurso"
+      },
+      {
+        "id": "ganhos",
+        "arquivo": "incorporadoras/04-ganhos"
+      },
+      {
+        "id": "instalacao",
+        "arquivo": "incorporadoras/05-instalacao"
+      },
+      {
+        "id": "lancamento",
+        "arquivo": "incorporadoras/06-lancamento"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "tecnologia",
+    "saida": "tecnologia.html",
+    "titulo": "Tecnologia · Semog One, a plataforma própria da Semog",
+    "descricao": "Semog One, a plataforma própria da Semog, construída sobre o ERP. Um mês de condomínio: 2ª via pelo site e pelo WhatsApp, cobrança com equipe própria, assembleias digitais e prestação de contas conferida.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Tecnologia.",
+    "secoes": [
+      {
+        "id": "semog-one",
+        "arquivo": "tecnologia/01-abertura"
+      },
+      {
+        "id": "mes",
+        "arquivo": "tecnologia/02-mes"
+      },
+      {
+        "id": "evolucao",
+        "arquivo": "tecnologia/03-evolucao"
+      },
+      {
+        "id": "conferencia",
+        "arquivo": "tecnologia/04-conferencia"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "garante",
+    "saida": "garante.html",
+    "titulo": "Semog Garante · O condomínio recebe 100% da arrecadação prevista",
+    "descricao": "Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista todos os meses, e a Semog cobra quem atrasou com equipe própria. O custo é de 1% da arrecadação mensal total.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Semog Garante.",
+    "secoes": [
+      {
+        "id": "semog-garante",
+        "arquivo": "garante/01-abertura"
+      },
+      {
+        "id": "caixa-do-condominio",
+        "arquivo": "garante/02-caixa"
+      },
+      {
+        "id": "papeis",
+        "arquivo": "garante/03-papeis"
+      },
+      {
+        "id": "duvidas-garante",
+        "arquivo": "garante/04-duvidas"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "gestao",
+    "saida": "administracao-de-condominios.html",
+    "titulo": "Administração de condomínios · Semog, administradora desde 1991",
+    "descricao": "Administração de condomínios por inteiro: financeiro, cobrança com equipe própria, contabilidade, pessoal e assembleias. Proposta em até 24 horas úteis.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Gestão.",
+    "secoes": [
+      {
+        "id": "administracao-de-condominios",
+        "arquivo": "gestao/01-abertura"
+      },
+      {
+        "id": "mesa-do-sindico",
+        "arquivo": "gestao/02-mesa"
+      },
+      {
+        "id": "quem-atende",
+        "arquivo": "gestao/03-atende"
+      },
+      {
+        "id": "troca-de-administradora",
+        "arquivo": "gestao/04-troca"
+      },
+      {
+        "id": "perguntas-gestao",
+        "arquivo": "gestao/05-perguntas"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "cidade-recife",
+    "saida": "administradora-de-condominios-recife.html",
+    "titulo": "Administradora de Condomínios em Recife há 35 anos | Semog",
+    "descricao": "Equipe própria na Madalena para Boa Viagem, Casa Forte, Graças e toda a Região Metropolitana. Contas 100% digitais e proposta em até 24h.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova landing de cidade.",
+    "landing": true,
+    "dados": "cidades.recife",
+    "secoes": [
+      {
+        "id": "cidade-abertura",
+        "arquivo": "cidade/01-abertura"
+      },
+      {
+        "id": "cidade-prova",
+        "arquivo": "cidade/02-prova"
+      },
+      {
+        "id": "cidade-gestao",
+        "arquivo": "cidade/03-gestao"
+      },
+      {
+        "id": "cidade-unidade",
+        "arquivo": "cidade/04-unidade"
+      },
+      {
+        "id": "cidade-avaliacoes",
+        "arquivo": "cidade/05-avaliacoes"
+      },
+      {
+        "id": "cidade-troca",
+        "arquivo": "cidade/06-troca"
+      },
+      {
+        "id": "cidade-perguntas",
+        "arquivo": "cidade/07-perguntas"
+      },
+      {
+        "id": "cidade-fechamento",
+        "arquivo": "cidade/08-fechamento"
+      }
+    ]
+  },
+  {
+    "id": "cidade-joao-pessoa",
+    "saida": "administradora-de-condominios-joao-pessoa.html",
+    "titulo": "Administradora de Condomínios em João Pessoa | Semog",
+    "descricao": "Na orla — Tambaú, Cabo Branco, Bessa — muito proprietário mora fora: assembleia digital e app resolvem. Unidade em Manaíra: (83) 3224-1228.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova landing de cidade.",
+    "landing": true,
+    "dados": "cidades.joao-pessoa",
+    "secoes": [
+      {
+        "id": "cidade-abertura",
+        "arquivo": "cidade/01-abertura"
+      },
+      {
+        "id": "cidade-prova",
+        "arquivo": "cidade/02-prova"
+      },
+      {
+        "id": "cidade-gestao",
+        "arquivo": "cidade/03-gestao"
+      },
+      {
+        "id": "cidade-unidade",
+        "arquivo": "cidade/04-unidade"
+      },
+      {
+        "id": "cidade-avaliacoes",
+        "arquivo": "cidade/05-avaliacoes"
+      },
+      {
+        "id": "cidade-troca",
+        "arquivo": "cidade/06-troca"
+      },
+      {
+        "id": "cidade-perguntas",
+        "arquivo": "cidade/07-perguntas"
+      },
+      {
+        "id": "cidade-fechamento",
+        "arquivo": "cidade/08-fechamento"
+      }
+    ]
+  },
+  {
+    "id": "cidade-campina-grande",
+    "saida": "administradora-de-condominios-campina-grande.html",
+    "titulo": "Administradora de Condomínios em Campina Grande | Semog",
+    "descricao": "Do Catolé ao Alto Branco e ao Mirante, com equipe campinense, tecnologia própria e prestação de contas 100% digital. (83) 3201-9039.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova landing de cidade.",
+    "landing": true,
+    "dados": "cidades.campina-grande",
+    "secoes": [
+      {
+        "id": "cidade-abertura",
+        "arquivo": "cidade/01-abertura"
+      },
+      {
+        "id": "cidade-prova",
+        "arquivo": "cidade/02-prova"
+      },
+      {
+        "id": "cidade-gestao",
+        "arquivo": "cidade/03-gestao"
+      },
+      {
+        "id": "cidade-unidade",
+        "arquivo": "cidade/04-unidade"
+      },
+      {
+        "id": "cidade-troca",
+        "arquivo": "cidade/06-troca"
+      },
+      {
+        "id": "cidade-perguntas",
+        "arquivo": "cidade/07-perguntas"
+      },
+      {
+        "id": "cidade-fechamento",
+        "arquivo": "cidade/08-fechamento"
+      }
+    ]
+  },
+  {
+    "id": "cidade-belem",
+    "saida": "administradora-de-condominios-belem.html",
+    "titulo": "Administradora de Condomínios em Belém | Semog, 35 anos",
+    "descricao": "Unidade na Cremação e equipe paraense para condomínios de Umarizal, Nazaré e Batista Campos, com contas 100% digitais. (91) 3115-4700.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova landing de cidade.",
+    "landing": true,
+    "dados": "cidades.belem",
+    "secoes": [
+      {
+        "id": "cidade-abertura",
+        "arquivo": "cidade/01-abertura"
+      },
+      {
+        "id": "cidade-prova",
+        "arquivo": "cidade/02-prova"
+      },
+      {
+        "id": "cidade-gestao",
+        "arquivo": "cidade/03-gestao"
+      },
+      {
+        "id": "cidade-unidade",
+        "arquivo": "cidade/04-unidade"
+      },
+      {
+        "id": "cidade-avaliacoes",
+        "arquivo": "cidade/05-avaliacoes"
+      },
+      {
+        "id": "cidade-troca",
+        "arquivo": "cidade/06-troca"
+      },
+      {
+        "id": "cidade-perguntas",
+        "arquivo": "cidade/07-perguntas"
+      },
+      {
+        "id": "cidade-fechamento",
+        "arquivo": "cidade/08-fechamento"
+      }
+    ]
+  },
+  {
+    "id": "blog",
+    "saida": "blog.html",
+    "titulo": "Blog Semog · Conteúdo para síndicos",
+    "descricao": "{{comunidade.blog.texto}}",
+    "inicio": "index.html",
+    "rodape": "Protótipo do novo índice do blog.",
+    "pacote": "leitura",
+    "secoes": [
+      {
+        "id": "blog-indice",
+        "arquivo": "leitura/01-blog"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "post-assembleia-instalacao-checklist-condominios-novos",
+    "saida": "blog-assembleia-instalacao-checklist-condominios-novos.html",
+    "titulo": "{{dados.titulo}} · Blog Semog",
+    "descricao": "{{dados.resumo}}",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página de post do blog.",
+    "pacote": "leitura",
+    "dados": "leitura.posts.assembleia-instalacao-checklist-condominios-novos",
+    "secoes": [
+      {
+        "id": "artigo",
+        "arquivo": "leitura/02-artigo"
+      },
+      {
+        "id": "leia-tambem",
+        "arquivo": "leitura/03-leia-tambem"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "post-g20-superlogica-next-2026",
+    "saida": "blog-g20-superlogica-next-2026.html",
+    "titulo": "{{dados.titulo}} · Blog Semog",
+    "descricao": "{{dados.resumo}}",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página de post do blog.",
+    "pacote": "leitura",
+    "dados": "leitura.posts.g20-superlogica-next-2026",
+    "secoes": [
+      {
+        "id": "artigo",
+        "arquivo": "leitura/02-artigo"
+      },
+      {
+        "id": "leia-tambem",
+        "arquivo": "leitura/03-leia-tambem"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "privacidade",
+    "saida": "privacidade.html",
+    "titulo": "Política de Privacidade · Semog",
+    "descricao": "Como a Semog coleta, usa e protege dados pessoais, em conformidade com a LGPD.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Política de Privacidade.",
+    "pacote": "leitura",
+    "dados": "leitura.legal.privacidade",
+    "secoes": [
+      {
+        "id": "artigo",
+        "arquivo": "leitura/02-artigo"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "termos",
+    "saida": "termos.html",
+    "titulo": "Termos de Uso · Semog",
+    "descricao": "As condições de uso do site da Semog Administradora de Condomínios.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Termos de Uso.",
+    "pacote": "leitura",
+    "dados": "leitura.legal.termos",
+    "secoes": [
+      {
+        "id": "artigo",
+        "arquivo": "leitura/02-artigo"
+      },
+      {
+        "id": "proposta",
+        "arquivo": "08-proposta"
+      }
+    ]
+  },
+  {
+    "id": "proposta",
+    "saida": "proposta.html",
+    "titulo": "Peça sua proposta · Semog, administradora de condomínios",
+    "descricao": "Proposta personalizada e sem compromisso para o seu condomínio, em até 24 horas úteis. Semog, 35 anos, com Unidades em Recife, João Pessoa, Campina Grande e Belém.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página de proposta.",
+    "leve": true,
+    "secoes": [
+      {
+        "id": "proposta",
+        "arquivo": "proposta/01-pedido"
+      },
+      {
+        "id": "proposta-depois",
+        "arquivo": "proposta/02-depois"
+      }
+    ]
+  },
+  {
+    "id": "contato",
+    "saida": "contato.html",
+    "titulo": "Fale com a Semog · Telefones e endereços das quatro Unidades",
+    "descricao": "Recife {{cidades.recife.telefone}}, João Pessoa {{cidades.joao-pessoa.telefone}}, Campina Grande {{cidades.campina-grande.telefone}} e Belém {{cidades.belem.telefone}}, de segunda a sexta, das 8h às 18h.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página Fale com a gente.",
+    "leve": true,
+    "secoes": [
+      {
+        "id": "contato-abertura",
+        "arquivo": "contato/01-abertura"
+      },
+      {
+        "id": "contato-unidades",
+        "arquivo": "contato/02-unidades"
+      },
+      {
+        "id": "contato-mensagem",
+        "arquivo": "contato/03-mensagem"
+      }
+    ]
+  },
+  {
+    "id": "nao-encontrada",
+    "saida": "404.html",
+    "titulo": "Página não encontrada · Semog",
+    "descricao": "Esta página não existe mais. Siga para a página inicial, as Unidades Semog, o pedido de proposta ou o blog.",
+    "inicio": "index.html",
+    "rodape": "Protótipo da nova página 404.",
+    "leve": true,
+    "secoes": [
+      {
+        "id": "nao-encontrada",
+        "arquivo": "nao-encontrada/01-pagina"
+      }
+    ]
+  }
+]

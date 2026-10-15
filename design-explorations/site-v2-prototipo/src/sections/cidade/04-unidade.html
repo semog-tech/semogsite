@@ -1,0 +1,44 @@
+<!-- Landing de cidade · Unidade: o contexto local (SEO e confiança), os bairros e o
+     endereço. O telefone vai como texto, sem link de discagem nem WhatsApp: o canal que se
+     mede é o formulário (decisão do Leandro). -->
+<section
+  id="cidade-unidade"
+  class="cena cu"
+  data-tema="gelo"
+  aria-labelledby="cidade-unidade-titulo"
+>
+  <div class="container cu-quadro">
+    <div class="cu-texto revelar">
+      <h2 id="cidade-unidade-titulo" class="cu-titulo">
+        <span class="linha"><span class="linha-interna">{{dados.unidadeTitulo}}</span></span>
+      </h2>
+      <p class="cu-contexto">{{dados.contexto}}</p>
+      <h3 class="cu-rotulo rotulo">{{landing.unidade.bairros}}</h3>
+      <ul class="cu-bairros">
+        {{#cada dados.bairros}}
+        <li>{{item}}</li>
+        {{/cada}}
+      </ul>
+    </div>
+    <dl class="cu-contato revelar">
+      <div>
+        <dt class="rotulo">{{landing.unidade.endereco}}</dt>
+        <dd>{{dados.endereco}}</dd>
+      </div>
+      <div>
+        <dt class="rotulo">{{landing.unidade.telefone}}</dt>
+        <dd>{{dados.telefone}}</dd>
+      </div>
+      <div>
+        <dt class="rotulo">{{landing.unidade.horario}}</dt>
+        <dd>{{landing.unidade.horarioTexto}}</dd>
+      </div>
+    </dl>
+    <p class="cu-mapa revelar revelar--bloco">
+      <a class="link-seta" href="{{dados.mapa}}" target="_blank" rel="noopener"
+        ><span>{{landing.unidade.mapa}}</span>
+        <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+      ></a>
+    </p>
+  </div>
+</section>

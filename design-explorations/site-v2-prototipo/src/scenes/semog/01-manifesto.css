@@ -1,0 +1,143 @@
+/* A Semog · manifesto, no mundo Transparência: a frase em branco no marinho chapado da
+   metade de cima; a luz entra (marinho → gelo, luminosidade em ease-in-out uniforme) e
+   os números assentam no trecho claro, em marinho. O pé é branco: a história começa nele
+   sem emenda. Cores do texto explícitas, porque o tema da seção só serve ao header (ele
+   passa a claro quando a parte clara chega sob o header). */
+#a-semog {
+  display: grid;
+  min-height: 100svh;
+  padding-block: calc(var(--cab) + var(--e6)) var(--e6);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho) 0%,
+    var(--marinho) 46%,
+    color-mix(in oklab, var(--marinho) 97.3%, var(--azul-forte)) 47.9%,
+    color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 49.8%,
+    color-mix(in oklab, var(--marinho) 77.1%, var(--azul-forte)) 51.8%,
+    color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 53.7%,
+    color-mix(in oklab, var(--marinho) 40.1%, var(--azul-forte)) 55.6%,
+    color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 57.5%,
+    color-mix(in oklab, var(--azul-forte) 88.1%, var(--azul-medio)) 59.4%,
+    color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 61.3%,
+    color-mix(in oklab, var(--azul-forte) 16%, var(--azul-medio)) 63.2%,
+    color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 65.2%,
+    color-mix(in oklab, var(--azul-medio) 79%, var(--ceu)) 67.1%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 69%,
+    color-mix(in oklab, var(--azul-medio) 51.9%, var(--ceu)) 70.9%,
+    color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 72.8%,
+    color-mix(in oklab, var(--azul-medio) 25.6%, var(--ceu)) 74.8%,
+    color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 76.7%,
+    color-mix(in oklab, var(--azul-medio) 1.6%, var(--ceu)) 78.6%,
+    color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 80.5%,
+    color-mix(in oklab, var(--ceu) 42.2%, var(--ceu-claro)) 82.4%,
+    color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 84.3%,
+    color-mix(in oklab, var(--ceu-claro) 87.6%, var(--gelo)) 86.2%,
+    color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 88.2%,
+    color-mix(in oklab, var(--ceu-claro) 10.3%, var(--gelo)) 90.1%,
+    var(--gelo) 92%,
+    var(--branco) 100%
+  );
+}
+#a-semog .mf-quadro {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--e7);
+}
+#a-semog .mf-titulo {
+  max-width: 21ch;
+  font-size: clamp(2.125rem, 0.9rem + 3.4vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: var(--tracking-display);
+  color: var(--branco);
+  text-wrap: pretty;
+}
+
+/* ---- Números ------------------------------------------------------------------ */
+#a-semog .mf-numeros {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--e4);
+  align-items: start;
+}
+/* O valor vem antes do rótulo na leitura visual; o dl mantém dt → dd. Alinhados pelo topo,
+   todos os números ficam na mesma linha de base; o rótulo cresce livre para baixo. */
+#a-semog .mf-numero {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--e1);
+}
+#a-semog .mf-numero dt {
+  color: var(--texto-suave);
+}
+#a-semog .mf-numero dd {
+  font-size: clamp(2.5rem, 1.4rem + 2.6vw, 4.25rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--marinho);
+}
+#a-semog .mf-numero dt {
+  max-width: 18ch;
+}
+#a-semog .mf-mascara {
+  display: block;
+  overflow: clip;
+  padding-block-end: 0.08em;
+  margin-block-end: -0.08em;
+}
+#a-semog .mf-in {
+  display: inline-block;
+}
+
+@media (max-width: 1080px) {
+  #a-semog .mf-numeros {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--e5);
+  }
+}
+@media (max-width: 760px) {
+  /* No celular a frase ocupa ~45% da seção e os números o resto: a luz entra mais cedo,
+     para os números ficarem no claro. */
+  #a-semog {
+    background: linear-gradient(
+      in oklab to bottom,
+      var(--marinho) 0%,
+      var(--marinho) 30%,
+      color-mix(in oklab, var(--marinho) 97.3%, var(--azul-forte)) 31.5%,
+      color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 33%,
+      color-mix(in oklab, var(--marinho) 77.1%, var(--azul-forte)) 34.5%,
+      color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 36%,
+      color-mix(in oklab, var(--marinho) 40.1%, var(--azul-forte)) 37.5%,
+      color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 39%,
+      color-mix(in oklab, var(--azul-forte) 88.1%, var(--azul-medio)) 40.5%,
+      color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 42%,
+      color-mix(in oklab, var(--azul-forte) 16%, var(--azul-medio)) 43.5%,
+      color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 45%,
+      color-mix(in oklab, var(--azul-medio) 79%, var(--ceu)) 46.5%,
+      color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 48%,
+      color-mix(in oklab, var(--azul-medio) 51.9%, var(--ceu)) 49.5%,
+      color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 51%,
+      color-mix(in oklab, var(--azul-medio) 25.6%, var(--ceu)) 52.5%,
+      color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 54%,
+      color-mix(in oklab, var(--azul-medio) 1.6%, var(--ceu)) 55.5%,
+      color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 57%,
+      color-mix(in oklab, var(--ceu) 42.2%, var(--ceu-claro)) 58.5%,
+      color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 60%,
+      color-mix(in oklab, var(--ceu-claro) 87.6%, var(--gelo)) 61.5%,
+      color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 63%,
+      color-mix(in oklab, var(--ceu-claro) 10.3%, var(--gelo)) 64.5%,
+      var(--gelo) 66%,
+      var(--branco) 100%
+    );
+    min-height: 0;
+    padding-block: calc(var(--cab) + var(--e5)) var(--e6);
+  }
+  #a-semog .mf-quadro {
+    gap: var(--e6);
+  }
+  #a-semog .mf-numeros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e4) var(--e3);
+  }
+}

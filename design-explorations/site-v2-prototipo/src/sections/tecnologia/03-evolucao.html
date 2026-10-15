@@ -1,0 +1,35 @@
+<!-- Evolução · o mês seguinte. Nasce no marinho em que as casas do mês seguinte se abriram:
+     a frase da casa em Saira leve, com "com a plataforma melhor." em peso, e quem faz a Semog
+     One. Embaixo, a linha das semanas atravessa a tela de ponta a ponta: um traço céu por
+     semana até esta semana, e daí em diante um tracejado do que está em desenvolvimento, sem
+     data. A superfície desce do marinho ao branco da cena seguinte. -->
+<section id="evolucao" class="cena" data-tema="marinho" aria-labelledby="evolucao-titulo">
+  <div class="container ev-topo" data-tema="marinho">
+    <h2 id="evolucao-titulo" class="ev-titulo">
+      {{tecnologia.pagina.evolucao.tituloA}}
+      <em class="peso">{{tecnologia.pagina.evolucao.tituloB}}</em>
+    </h2>
+    <p class="ev-texto">{{tecnologia.pagina.evolucao.texto}}</p>
+  </div>
+
+  <figure class="ev-semanas" data-tema="marinho">
+    <div class="ev-linha" aria-hidden="true">
+      <span class="ev-feito"></span>
+      <span class="ev-proxima"></span>
+      <span class="ev-agora"></span>
+      <span class="ev-rotulo-agora rotulo"
+        ><span class="ev-in">{{tecnologia.pagina.evolucao.agora}}</span></span
+      >
+    </div>
+    <figcaption class="ev-legendas">
+      <span class="ev-esquema rotulo"
+        ><span class="ev-in">{{tecnologia.pagina.evolucao.esquema}}</span></span
+      >
+      <span class="ev-rotulo-proxima rotulo"
+        ><span class="ev-in">{{tecnologia.pagina.evolucao.proxima}}</span></span
+      >
+    </figcaption>
+  </figure>
+
+  <div class="ev-descida" aria-hidden="true"></div>
+</section>

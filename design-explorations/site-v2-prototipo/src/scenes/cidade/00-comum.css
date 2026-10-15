@@ -1,0 +1,104 @@
+/* Landings de cidade (Google Ads): o que vale para todas as seções. Vai só para
+   landing.css. Movimento mínimo: entradas curtas por máscara, uma vez, nada preso à
+   rolagem, e rolagem nativa (sem Lenis). */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---- Header enxuto: marca e pedido de proposta. Fundo sempre branco (não há troca de
+   tema nas landings); a linha de baixo aparece depois do primeiro respiro de rolagem. */
+.cabecalho--enxuto::before {
+  opacity: 1;
+  border-bottom: 1px solid transparent;
+  transition: border-color 320ms var(--ease-expo);
+}
+.cabecalho--enxuto[data-rolou]::before {
+  border-bottom-color: var(--lavanda);
+}
+.cabecalho--enxuto .cab-proposta {
+  margin-inline-start: auto;
+}
+
+/* ---- Respiro: a landing é mais curta que as páginas do site. */
+main[data-pagina^="cidade-"] .cena {
+  padding-block: clamp(var(--e5), 7vw, var(--e7));
+}
+
+/* ---- Entradas abaixo da dobra --------------------------------------------------
+   Só com o landing.js vivo (html.landing-viva) o estado inicial esconde; ao chegar à
+   tela, o bloco ganha .visivel. Título: a linha sobe dentro da máscara. Demais filhos:
+   a borda de baixo abre enquanto o bloco sobe 21px. Uma vez, sem volta. */
+.revelar .linha-interna {
+  transition: transform 0.9s var(--ease-expo);
+}
+html.landing-viva .revelar:not(.visivel) .linha-interna {
+  transform: translateY(110%);
+}
+
+/* ---- Ênfase por peso sem deslocar nada ------------------------------------------
+   Engordar o texto muda a largura, a linha quebra de outro jeito e empurra o que vem
+   depois (CLS; "no Recife." no fechamento chegou a 0,06). Aqui o texto real fica no peso
+   final, invisível, e reserva a caixa; a cópia visível (::after, do data-texto) é que
+   anima de 250 a 650 dentro dela. O leitor de tela e o buscador leem o texto real. */
+.peso-fixo {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+}
+.peso-fixo::after {
+  content: attr(data-texto);
+  position: absolute;
+  inset: 0;
+  color: var(--tema-titulo, var(--marinho));
+  font-variation-settings: "wght" var(--peso-enfase);
+  pointer-events: none;
+}
+.revelar .peso-fixo::after {
+  transition: font-variation-settings 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.35s;
+}
+html.landing-viva .revelar:not(.visivel) .peso-fixo::after {
+  font-variation-settings: "wght" var(--peso-enfase-de);
+}
+@media (forced-colors: active) {
+  .peso-fixo {
+    color: CanvasText;
+  }
+  .peso-fixo::after {
+    content: none;
+  }
+}
+/* .revelar: cada filho (menos o título) abre sozinho; .revelar--bloco: o próprio bloco abre.
+   A máscara final passa 21px de cada lado para não cortar foco nem sublinhado; as duas
+   pontas são inset(), então a transição interpola. */
+html.landing-viva .revelar:not(.revelar--bloco) > :not(h2, .linha),
+html.landing-viva .revelar--bloco {
+  clip-path: inset(-21px -21px -21px -21px);
+  transition:
+    clip-path 1s var(--ease-expo) calc(var(--i, 0) * 90ms + 120ms),
+    transform 1s var(--ease-expo) calc(var(--i, 0) * 90ms + 120ms);
+}
+html.landing-viva .revelar:not(.revelar--bloco, .visivel) > :not(h2, .linha),
+html.landing-viva .revelar--bloco:not(.visivel) {
+  clip-path: inset(-21px -21px 100% -21px);
+  transform: translateY(21px);
+}
+.revelar > :nth-child(2) {
+  --i: 1;
+}
+.revelar > :nth-child(3) {
+  --i: 2;
+}
+.revelar > :nth-child(4) {
+  --i: 3;
+}
+
+/* Título de seção das landings: Saira leve, ênfase por peso. */
+main[data-pagina^="cidade-"] h2 {
+  font-size: clamp(2rem, 1.2rem + 2.6vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.02;
+  letter-spacing: var(--tracking-titulo);
+}
+main[data-pagina^="cidade-"] h2 .linha-interna {
+  display: block;
+}

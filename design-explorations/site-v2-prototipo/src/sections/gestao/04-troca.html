@@ -1,0 +1,51 @@
+<!-- Troca de administradora · branco. O título, com "sem interromper nada." ganhando peso; abaixo,
+     dois trilhos paralelos que a rolagem percorre juntos. Em cima, o da troca: um traço marinho
+     de ponta reta passa pelos três passos (proposta, assembleia, transição), e cada passo sobe
+     quando o traço chega ao seu nó. Embaixo, o do condomínio: a fileira de marcas dos boletos e
+     pagamentos, que fica marinho junto com o traço e não tem nenhum vão. No celular os trilhos
+     ficam em pé, à esquerda dos passos. -->
+<section
+  id="troca-de-administradora"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="troca-de-administradora-titulo"
+>
+  <div class="container gtr-cabeca">
+    <h2 id="troca-de-administradora-titulo" class="gtr-titulo">
+      {{gestaoPagina.troca.tituloA}}
+      <em class="peso">{{gestaoPagina.troca.tituloB}}</em>
+    </h2>
+  </div>
+
+  <div class="container gtr-faixa">
+    <span class="gtr-trilho" aria-hidden="true"><span class="gtr-traco"></span></span>
+    <ol class="gtr-passos">
+      <li class="gtr-passo">
+        <i class="gtr-no" aria-hidden="true"></i>
+        <h3 class="gtr-passo-titulo">{{gestaoPagina.troca.passos.0.titulo}}</h3>
+        <p class="gtr-passo-texto">{{gestaoPagina.troca.passos.0.texto}}</p>
+      </li>
+      <li class="gtr-passo">
+        <i class="gtr-no" aria-hidden="true"></i>
+        <h3 class="gtr-passo-titulo">{{gestaoPagina.troca.passos.1.titulo}}</h3>
+        <p class="gtr-passo-texto">{{gestaoPagina.troca.passos.1.texto}}</p>
+      </li>
+      <li class="gtr-passo">
+        <i class="gtr-no" aria-hidden="true"></i>
+        <h3 class="gtr-passo-titulo">{{gestaoPagina.troca.passos.2.titulo}}</h3>
+        <p class="gtr-passo-texto">{{gestaoPagina.troca.passos.2.texto}}</p>
+      </li>
+    </ol>
+    <div class="gtr-condominio">
+      <span class="gtr-marcas" aria-hidden="true"
+        ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+        ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+      ></span>
+      <span class="gtr-marcas gtr-marcas--feitas" aria-hidden="true"
+        ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+        ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+      ></span>
+      <p class="gtr-linha-rotulo rotulo">{{gestaoPagina.troca.linha}}</p>
+    </div>
+  </div>
+</section>

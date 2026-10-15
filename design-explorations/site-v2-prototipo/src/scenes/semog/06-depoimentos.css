@@ -1,0 +1,63 @@
+/* Depoimentos: branco, a fala maior em Saira leve e larga; as duas outras em 61,8/38,2.
+   Sem aspas decorativas nem cartões: a autoria e a origem ficam embaixo, em texto. */
+#depoimentos {
+  padding-block: 0 var(--respiro-cena);
+}
+#depoimentos .dp-quadro {
+  display: grid;
+  gap: var(--e6);
+}
+#depoimentos .dp-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#depoimentos .dp-citacao {
+  display: grid;
+  gap: var(--e3);
+  align-content: start;
+}
+#depoimentos .dp-texto {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.25rem, 1.05rem + 0.5vw, 1.625rem);
+  font-weight: 300;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--tema-titulo);
+  text-wrap: pretty;
+}
+#depoimentos .dp-citacao--maior .dp-texto {
+  max-width: 24ch;
+  font-size: var(--t-h2);
+  line-height: 1.02;
+  letter-spacing: var(--tracking-titulo);
+}
+#depoimentos .dp-autoria {
+  display: grid;
+  gap: 2px;
+}
+#depoimentos .dp-nome {
+  font-weight: 500;
+  color: var(--tema-titulo);
+}
+#depoimentos .dp-par {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e6);
+}
+#depoimentos .dp-par > * {
+  min-width: 0;
+}
+#depoimentos .dp-par .dp-texto {
+  max-width: 40ch;
+}
+
+@media (max-width: 760px) {
+  #depoimentos .dp-quadro {
+    gap: var(--e5);
+  }
+  #depoimentos .dp-par {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+}

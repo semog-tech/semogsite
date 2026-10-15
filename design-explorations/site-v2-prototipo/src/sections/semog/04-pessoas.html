@@ -1,0 +1,104 @@
+<!-- Pessoas · "Tecnologia na operação. Gente na relação." Em zigue-zague áureo: a moldura dos
+     sócios (61,8) com o canal direto (38,2); as equipes locais (38,2) com as quatro cidades
+     (61,8); e os relacionamentos de década em toda a largura. Não há foto real dos sócios
+     nem das equipes ainda: a moldura é neutra e diz isso. As fotos das cidades são reais. -->
+<section id="pessoas" class="cena" data-tema="claro" aria-labelledby="pessoas-titulo">
+  <div class="container ps-quadro">
+    <div class="ps-topo">
+      <h2 id="pessoas-titulo" class="ps-titulo">
+        {{aSemog.pessoas.tituloA}} <em class="peso">{{aSemog.pessoas.tituloB}}</em>
+      </h2>
+      <p class="ps-lead lead">{{aSemog.pessoas.texto}}</p>
+    </div>
+
+    <div class="ps-par">
+      <figure class="ps-socios">
+        <div class="moldura ps-aenviar">
+          <p class="ps-aenviar-rotulo">
+            <span>{{aSemog.pessoas.fotoAEnviar}}</span>
+            <span class="ps-aenviar-tema">{{aSemog.pessoas.fotoSocios}}</span>
+          </p>
+        </div>
+        <figcaption class="rotulo">{{aSemog.pessoas.legenda}}</figcaption>
+      </figure>
+      <div class="ps-item">
+        <h3 class="ps-item-titulo">{{aSemog.pessoas.itens.0.titulo}}</h3>
+        <p class="ps-item-texto">{{aSemog.pessoas.itens.0.texto}}</p>
+      </div>
+    </div>
+
+    <div class="ps-par ps-par--inverso">
+      <div class="ps-item">
+        <h3 class="ps-item-titulo">{{aSemog.pessoas.itens.1.titulo}}</h3>
+        <p class="ps-item-texto">{{aSemog.pessoas.itens.1.texto}}</p>
+      </div>
+      <ul class="ps-cidades">
+        <li>
+          <figure class="ps-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.0.foto}}"
+                alt="{{unidades.0.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.0.cidade}}/{{unidades.0.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="ps-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.1.foto}}"
+                alt="{{unidades.1.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.1.cidade}}/{{unidades.1.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="ps-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.2.foto}}"
+                alt="{{unidades.2.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.2.cidade}}/{{unidades.2.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="ps-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.3.foto}}"
+                alt="{{unidades.3.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.3.cidade}}/{{unidades.3.uf}}</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+
+    <div class="ps-item ps-item--largo">
+      <h3 class="ps-item-titulo">{{aSemog.pessoas.itens.2.titulo}}</h3>
+      <p class="ps-item-texto">{{aSemog.pessoas.itens.2.texto}}</p>
+    </div>
+  </div>
+</section>

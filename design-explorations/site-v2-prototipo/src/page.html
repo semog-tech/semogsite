@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR" class="sem-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{pagina.titulo}}</title>
+    <meta name="description" content="{{pagina.descricao}}" />
+    <script>
+      /* Antes de pintar: troca sem-js por js, que esconde só os elementos .entrada até o
+         movimento estar pronto. Se o app.js não chegar, a rede de segurança libera em 6 s. */
+      (function () {
+        var d = document.documentElement;
+        // remove + add, não replace: embrulhado pelo host do Artifact, o <html> pode não
+        // ter a sem-js (o atributo class do nosso <html> se perde se o dele já tiver um).
+        d.classList.remove("sem-js");
+        d.classList.add("js");
+        setTimeout(function () {
+          d.classList.add("motion");
+        }, 6000);
+      })();
+    </script>
+    {{#se pagina.landing}}
+    <!-- Landing de Ads: a foto da cidade e as fontes da primeira dobra chegam antes do CSS
+         pedir, para o título e o formulário pintarem já na foto e na fonte certas. -->
+    <link
+      rel="preload"
+      as="image"
+      href="{{dados.foto}}"
+      imagesrcset="{{dados.fotoMovel}} 800w, {{dados.foto}} 1376w"
+      imagesizes="(max-width: 760px) 100vw, 1376px"
+      fetchpriority="high"
+    />
+    <script>
+      /* As fontes da dobra vêm por pré-carga em HTTP. Por file:// o Chromium recusa a
+         pré-carga de fonte (crossorigin sem origem) e acusa erro: lá só o CSS as pede. */
+      (function () {
+        if (location.protocol === "file:") return;
+        ["Saira-VariableFont_wght-latin", "Barlow-400-latin", "Barlow-500-latin"].forEach(
+          function (nome) {
+            var link = document.createElement("link");
+            link.rel = "preload";
+            link.as = "font";
+            link.type = "font/woff2";
+            link.href = "assets/fonts/" + nome + ".woff2";
+            link.crossOrigin = "anonymous";
+            document.head.appendChild(link);
+          },
+        );
+      })();
+    </script>
+    {{/se}}
+    <link rel="stylesheet" href="{{pagina.pacote}}.css" />
+    <script src="{{pagina.pacote}}.js" defer></script>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <!-- Logo Semog: geometria original de _reference/semog-logo.svg (igual à de
+           public/semog-logo-light.svg). Cor pela classe do <svg> que usa o símbolo. -->
+      <symbol id="logo-semog" viewBox="0 0 601.59 94.93">
+        <rect width="36.41" height="94.93"></rect>
+        <rect x="52.4" width="36.41" height="94.93"></rect>
+        <rect x="104.79" width="36.41" height="94.93"></rect>
+        <path
+          d="M177.03,90.45v-5.45c8.42.95,16.71,1.66,25.6,1.66,19.67,0,25.01-4.39,25.01-15.17,0-5.22-1.66-8.18-5.21-10.55-3.56-2.49-9.13-4.03-17.54-6.4-8.53-2.49-15.41-4.98-19.91-8.77-4.62-3.91-7.11-9.13-7.11-16.95,0-19.79,16.24-24.89,35.44-24.89,6.64,0,16.24.71,24.42,2.25v5.45c-6.99-.95-14.82-1.54-21.33-1.54-17.07,0-22.28,3.44-22.28,13.87,0,4.98,1.54,7.94,4.86,10.07,3.44,2.25,9.01,4.03,16.71,6.16,9.01,2.49,15.76,4.86,20.5,8.53,5.1,4.03,7.59,9.24,7.59,17.42,0,20.15-18.73,26.67-37.93,26.67-9.13,0-19.56-.83-28.8-2.37Z"
+        ></path>
+        <path
+          d="M255.97,4.64h60.8v5.93h-43.26v33.66h38.87v5.93h-38.87v36.03h43.85v5.93h-61.39V4.64Z"
+        ></path>
+        <path
+          d="M336.33,22.53v69.57h-6.52V4.64h17.9l28.44,71.47,28.09-71.47h17.3v87.47h-17.3V22.06l-27.62,70.05h-12.45l-27.85-69.57Z"
+        ></path>
+        <path
+          d="M434.82,48.37c0-28.33,14.58-44.8,40.89-44.8s41.01,16.47,41.01,44.8-14.58,44.8-41.01,44.8-40.89-16.47-40.89-44.8ZM498.35,48.25c0-29.16-6.4-38.76-22.64-38.76s-22.64,9.84-22.64,38.76,6.52,38.87,22.64,38.87,22.64-9.84,22.64-38.87Z"
+        ></path>
+        <path
+          d="M527.04,48.37c0-31.64,17.54-44.45,46.11-44.45,8.18,0,17.54.83,25.72,2.25v5.33c-7.23-.83-14.7-1.42-21.33-1.42-25.84,0-32.24,9.01-32.24,38.16s7.23,38.28,29.87,38.28c3.2,0,6.52-.12,9.6-.36v-36.03h-17.07v-5.93h33.9v46.82c-8.77,1.42-18.73,1.9-28.33,1.9-28.8,0-46.22-11.5-46.22-44.56Z"
+        ></path>
+      </symbol>
+      <symbol id="seta" viewBox="0 0 21 13"><path d="M0 6.5h19M13 1l6 5.5-6 5.5"></path></symbol>
+    </svg>
+
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+    {{#se pagina.landing}}
+    <!-- Landing de Ads: só a marca e o pedido de proposta. O rodapé mantém a navegação. -->
+    <header class="cabecalho cabecalho--enxuto" data-cabecalho data-tema="claro">
+      <div class="cabecalho-faixa">
+        <a class="marca" href="index.html" aria-label="Semog, página inicial">
+          <svg class="marca-escura logo-escuro" viewBox="0 0 601.59 94.93" aria-hidden="true">
+            <use href="#logo-semog"></use>
+          </svg>
+        </a>
+        <a class="botao botao--pequeno cab-proposta" href="#proposta" data-ir-ao-formulario
+          >{{landing.cabecalho.botao}}</a
+        >
+      </div>
+    </header>
+    {{/se}} {{#sem pagina.landing}}
+    <header class="cabecalho" data-cabecalho data-tema="claro">
+      <div class="cabecalho-faixa">
+        <a class="marca" href="index.html" aria-label="Semog, página inicial">
+          <svg class="marca-escura logo-escuro" viewBox="0 0 601.59 94.93" aria-hidden="true">
+            <use href="#logo-semog"></use>
+          </svg>
+          <svg class="marca-clara logo-claro" viewBox="0 0 601.59 94.93" aria-hidden="true">
+            <use href="#logo-semog"></use>
+          </svg>
+        </a>
+        <nav class="nav" aria-label="Principal">
+          <a href="semog.html" data-pagina-link="semog">A Semog</a>
+          <a href="incorporadoras.html" data-pagina-link="incorporadoras">Incorporadoras</a>
+          <a href="administracao-de-condominios.html" data-pagina-link="gestao">Gestão</a>
+          <a href="garante.html" data-pagina-link="garante">Garante</a>
+          <a href="tecnologia.html" data-pagina-link="tecnologia">Tecnologia</a>
+          <a href="{{pagina.inicio}}#unidades" data-secao-link="unidades">Unidades</a>
+          <a href="blog.html" data-pagina-link="blog">Blog</a>
+          <a href="contato.html" data-pagina-link="contato">Fale com a gente</a>
+        </nav>
+        <div class="cab-acoes">
+          <span class="cab-separador" aria-hidden="true"></span>
+          <a class="cab-login" href="{{marca.loginUrl}}">Login</a>
+          <a class="botao botao--pequeno" href="{{pagina.proposta}}">Seja Semog</a>
+          <button
+            class="cab-menu"
+            type="button"
+            aria-expanded="false"
+            aria-controls="painel-menu"
+            data-menu
+          >
+            <span class="cab-menu-icone" aria-hidden="true"><i></i><i></i></span>
+            <span>Menu</span>
+          </button>
+        </div>
+      </div>
+      <nav class="painel-menu" id="painel-menu" aria-label="Menu">
+        <a href="semog.html" data-pagina-link="semog">A Semog</a>
+        <a href="incorporadoras.html" data-pagina-link="incorporadoras">Incorporadoras</a>
+        <a href="administracao-de-condominios.html" data-pagina-link="gestao">Gestão</a>
+        <a href="garante.html" data-pagina-link="garante">Garante</a>
+        <a href="tecnologia.html" data-pagina-link="tecnologia">Tecnologia</a>
+        <a href="{{pagina.inicio}}#unidades">Unidades</a>
+        <a href="blog.html" data-pagina-link="blog">Blog</a>
+        <a href="contato.html" data-pagina-link="contato">Fale com a gente</a>
+        <a class="painel-login" href="{{marca.loginUrl}}">Login · Área do cliente</a>
+      </nav>
+    </header>
+    {{/sem}}
+
+    <main id="conteudo" data-pagina="{{pagina.id}}">{{secoes}}</main>
+
+    <footer class="rodape grao" data-tema="marinho">
+      <div class="container rodape-grade">
+        <div>
+          <a class="marca" href="index.html" aria-label="Semog, página inicial">
+            <svg class="logo-claro" viewBox="0 0 601.59 94.93" aria-hidden="true">
+              <use href="#logo-semog"></use>
+            </svg>
+          </a>
+          <p class="rodape-slogan">{{marca.slogan}}</p>
+        </div>
+        <div class="rodape-colunas">
+          <div>
+            <h2>Unidades Semog</h2>
+            <ul>
+              <li><a href="{{unidades.0.url}}">{{unidades.0.cidade}}/{{unidades.0.uf}}</a></li>
+              <li><a href="{{unidades.1.url}}">{{unidades.1.cidade}}/{{unidades.1.uf}}</a></li>
+              <li><a href="{{unidades.2.url}}">{{unidades.2.cidade}}/{{unidades.2.uf}}</a></li>
+              <li><a href="{{unidades.3.url}}">{{unidades.3.cidade}}/{{unidades.3.uf}}</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Semog</h2>
+            <ul>
+              <li><a href="semog.html">A Semog</a></li>
+              <li><a href="incorporadoras.html">Incorporadoras</a></li>
+              <li><a href="administracao-de-condominios.html">Gestão completa</a></li>
+              <li><a href="garante.html">Semog Garante</a></li>
+              <li><a href="tecnologia.html">Tecnologia</a></li>
+              <li><a href="blog.html">Blog</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Fale com a gente</h2>
+            <ul>
+              <li><a href="{{pagina.proposta}}">Pedir proposta</a></li>
+              <li><a href="contato.html">Telefones e endereços</a></li>
+              <li><a href="{{marca.loginUrl}}">Login · Área do cliente</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="container rodape-base">
+        <p>Semog · administradora de condomínios {{numeros.anos.detalhe}}. {{pagina.rodape}}</p>
+        <nav class="rodape-legal" aria-label="Documentos">
+          <a href="privacidade.html" data-pagina-link="privacidade">Privacidade</a>
+          <a href="termos.html" data-pagina-link="termos">Termos de uso</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

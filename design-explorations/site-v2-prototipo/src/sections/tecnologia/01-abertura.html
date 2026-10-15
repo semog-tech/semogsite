@@ -1,0 +1,90 @@
+<!-- Tecnologia · abertura. O nome da plataforma em Saira leve, com "One." ganhando peso; ao
+     lado, os três números que a sustentam (dois contam ao entrar; o terceiro é o ritmo). No
+     pé da dobra, a régua de um mês: trinta dias em lavanda, e um traço marinho que percorre o
+     mês inteiro, de ponta reta, antecipando a cena seguinte. -->
+<section id="semog-one" class="cena" data-tema="claro" aria-labelledby="semog-one-titulo">
+  <div class="container so-quadro">
+    <div class="so-texto">
+      <h1 id="semog-one-titulo" class="so-titulo entrada">
+        {{tecnologia.pagina.abertura.antes}}
+        <em class="peso">{{tecnologia.pagina.abertura.enfase}}</em>
+      </h1>
+      <p class="so-lead lead entrada">{{tecnologia.pagina.abertura.lead}}</p>
+      <div class="so-acoes entrada">
+        <a class="botao" href="#proposta"
+          >{{tecnologia.pagina.abertura.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+        <a class="link-seta" href="#mes"
+          ><span>{{tecnologia.pagina.abertura.mes}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+    </div>
+
+    <dl class="so-numeros">
+      <div class="so-numero entrada">
+        <dt class="rotulo">
+          <span class="so-mascara"
+            ><span class="so-in"
+              >{{tecnologia.pagina.abertura.numeros.prestacoes.rotulo}}</span
+            ></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="so-mascara"
+            ><span
+              class="so-in"
+              data-conta="{{tecnologia.pagina.abertura.numeros.prestacoes.valor}}"
+              data-prefixo="{{tecnologia.pagina.abertura.numeros.prestacoes.prefixo}}"
+              >{{tecnologia.pagina.abertura.numeros.prestacoes.prefixo}}{{tecnologia.pagina.abertura.numeros.prestacoes.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="so-numero entrada">
+        <dt class="rotulo">
+          <span class="so-mascara"
+            ><span class="so-in"
+              >{{tecnologia.pagina.abertura.numeros.condominios.rotulo}}</span
+            ></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="so-mascara"
+            ><span
+              class="so-in"
+              data-conta="{{tecnologia.pagina.abertura.numeros.condominios.valor}}"
+              >{{tecnologia.pagina.abertura.numeros.condominios.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="so-numero so-numero--ritmo entrada">
+        <dt class="rotulo">
+          <span class="so-mascara"
+            ><span class="so-in">{{tecnologia.pagina.abertura.numeros.semana.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="so-mascara"
+            ><span class="so-in">{{tecnologia.pagina.abertura.numeros.semana.valor}}</span></span
+          >
+        </dd>
+      </div>
+    </dl>
+
+    <div class="so-mes" aria-hidden="true">
+      <p class="so-mes-rotulo rotulo">
+        <span class="so-mascara"
+          ><span class="so-in">{{tecnologia.pagina.abertura.linha}}</span></span
+        >
+      </p>
+      <div class="so-regua">
+        <span class="so-regua-trilho"></span>
+        <span class="so-regua-feito"></span>
+      </div>
+      <p class="so-regua-pontas rotulo"><span>1</span><span>30</span></p>
+    </div>
+  </div>
+</section>

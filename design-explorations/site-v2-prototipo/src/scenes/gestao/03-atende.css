@@ -1,0 +1,166 @@
+/* Quem atende: uma superfície que começa no céu claro exato da cobertura da mesa e desce, no
+   pé, até o branco da troca de administradora. Título e lead (38,2) e os quatro itens em grade
+   2×2 (61,8); embaixo, os três caminhos em blocos brancos de ponta reta, sem sombra. */
+#quem-atende {
+  padding-block: var(--e7) 0;
+  background: var(--ceu-claro);
+}
+/* Com a mesa fixada, esta cena sobe por cima dos últimos 45svh dela, quando o céu já cobre o
+   palco (SOBREPOSICAO_TELAS, em 02-mesa.js). Sem JS e na impressão, cada cena no seu lugar. */
+#mesa-do-sindico.gme-pin + #quem-atende {
+  z-index: 4;
+  margin-top: -45svh;
+}
+@media print {
+  #mesa-do-sindico.gme-pin + #quem-atende {
+    margin-top: 0;
+  }
+}
+#quem-atende .gat-quadro {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e6);
+  align-items: start;
+}
+#quem-atende .gat-quadro > * {
+  min-width: 0;
+}
+#quem-atende .gat-cabeca {
+  display: grid;
+  gap: var(--e4);
+}
+#quem-atende .gat-titulo {
+  max-width: 11ch;
+  font-size: clamp(2.5rem, 1.1rem + 3.4vw, 4.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+
+/* ---- Os quatro itens --------------------------------------------------------------- */
+#quem-atende .gat-itens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e6) var(--e5);
+  padding-top: var(--e2);
+}
+#quem-atende .gat-item {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--e2);
+}
+#quem-atende .gat-item i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-bottom: var(--e1);
+  background: var(--marinho);
+}
+#quem-atende .gat-item-titulo {
+  font-size: clamp(1.5rem, 1.15rem + 0.8vw, 1.9375rem);
+  font-weight: 300;
+  line-height: 1.1;
+}
+#quem-atende .gat-item-texto {
+  max-width: 34ch;
+  color: var(--tema-texto);
+}
+#quem-atende .gat-item .link-seta {
+  margin-top: var(--e1);
+}
+
+/* ---- Vá além: três blocos brancos ---------------------------------------------------- */
+#quem-atende .gat-alem {
+  display: grid;
+  gap: var(--e3);
+  margin-top: var(--e7);
+}
+#quem-atende .gat-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e2);
+}
+#quem-atende .gat-link {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--e2);
+  height: 100%;
+  min-height: 44px;
+  padding: var(--e4);
+  background: var(--branco);
+  color: var(--marinho);
+  text-decoration: none;
+}
+#quem-atende .gat-link-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.5rem, 1.2rem + 0.7vw, 1.875rem);
+  font-weight: 300;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.1;
+  transition: font-variation-settings 600ms var(--ease-expo);
+  font-variation-settings: "wght" 300;
+}
+#quem-atende .gat-link-texto {
+  max-width: 32ch;
+  color: var(--tema-texto);
+}
+#quem-atende .gat-link .seta {
+  transition: transform 600ms var(--ease-expo);
+}
+/* Ênfase por peso, como no resto do site: o nome ganha peso e a seta anda. */
+#quem-atende .gat-link:hover .gat-link-titulo,
+#quem-atende .gat-link:focus-visible .gat-link-titulo {
+  font-variation-settings: "wght" 550;
+}
+#quem-atende .gat-link:hover .seta,
+#quem-atende .gat-link:focus-visible .seta {
+  transform: translateX(8px);
+}
+
+/* ---- Descida: céu claro → gelo → branco ---------------------------------------------- */
+#quem-atende .gat-descida {
+  height: 21svh;
+  margin-top: var(--e6);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--ceu-claro) 0%,
+    color-mix(in oklab, var(--ceu-claro) 70%, var(--gelo)) 25%,
+    color-mix(in oklab, var(--ceu-claro) 30%, var(--gelo)) 50%,
+    var(--gelo) 72%,
+    color-mix(in oklab, var(--gelo) 50%, var(--branco)) 86%,
+    var(--branco) 100%
+  );
+}
+
+@media (max-width: 1080px) {
+  #quem-atende .gat-links {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  #quem-atende {
+    padding-top: var(--e6);
+  }
+  #quem-atende .gat-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+  #quem-atende .gat-titulo {
+    font-size: 2.875rem;
+  }
+  #quem-atende .gat-itens {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+  #quem-atende .gat-alem {
+    margin-top: var(--e6);
+  }
+  #quem-atende .gat-link {
+    padding: var(--e3);
+  }
+  #quem-atende .gat-descida {
+    height: 16svh;
+    margin-top: var(--e5);
+  }
+}

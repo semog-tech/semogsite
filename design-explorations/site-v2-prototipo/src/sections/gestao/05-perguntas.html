@@ -1,0 +1,78 @@
+<!-- Perguntas · o que o síndico pergunta a uma administradora de condomínios (o bloco que
+     responde às buscas da página). Divisão 38,2/61,8: à esquerda o título e o caminho para
+     outra dúvida (pedido de proposta); à direita as perguntas, uma por bloco gelo, abertas e
+     fechadas pelo próprio <details> (sem JS, tudo funciona). A primeira vem aberta. Na saída,
+     a coluna lavanda sobe e vira o véu do convite da proposta. -->
+<section
+  id="perguntas-gestao"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="perguntas-gestao-titulo"
+>
+  <div class="container gpf-quadro">
+    <div class="gpf-cabeca">
+      <h2 id="perguntas-gestao-titulo" class="gpf-titulo">{{gestaoPagina.perguntas.titulo}}</h2>
+      <div class="gpf-outra">
+        <p class="rotulo">{{gestaoPagina.perguntas.outra}}</p>
+        <!-- Sem WhatsApp (decisão do Leandro): a dúvida segue pelo pedido de proposta. -->
+        <a class="link-seta" href="#proposta"
+          ><span>{{gestaoPagina.perguntas.link}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+    </div>
+
+    <div class="gpf-lista">
+      <details class="gpf-item" open>
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.0.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.0.resposta}}</p>
+        </div>
+      </details>
+      <details class="gpf-item">
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.1.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.1.resposta}}</p>
+        </div>
+      </details>
+      <details class="gpf-item">
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.2.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.2.resposta}}</p>
+        </div>
+      </details>
+      <details class="gpf-item">
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.3.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.3.resposta}}</p>
+        </div>
+      </details>
+      <details class="gpf-item">
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.4.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.4.resposta}}</p>
+        </div>
+      </details>
+      <details class="gpf-item">
+        <summary class="gpf-pergunta">
+          <span>{{gestaoPagina.perguntas.itens.5.pergunta}}</span><i aria-hidden="true"></i>
+        </summary>
+        <div class="gpf-resposta">
+          <p>{{gestaoPagina.perguntas.itens.5.resposta}}</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="gpf-saida" aria-hidden="true"><span class="gpf-veu"></span></div>
+</section>

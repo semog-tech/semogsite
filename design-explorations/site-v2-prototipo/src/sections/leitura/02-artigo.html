@@ -1,0 +1,79 @@
+<!-- Leitura · o modelo de artigo, o mesmo para os posts e para Privacidade e Termos. Os
+     dados vêm de "dados" da página (leitura.mjs): post tem categoria, data, resumo, foto e "Em
+     resumo"; documento legal tem a data de atualização. Coluna de texto com 60–70
+     caracteres por linha, índice lateral fixo no desktop (no celular, no topo do texto) e
+     uma barra de progresso de 2px sob o header. O único movimento é a entrada do título,
+     em CSS. -->
+<section id="artigo" class="cena artigo" data-tema="claro" aria-labelledby="artigo-titulo">
+  <div class="artigo-progresso" aria-hidden="true"><span data-progresso></span></div>
+  <div class="container artigo-grade">
+    <header class="artigo-topo">
+      {{#se dados.categoria}}
+      <!-- TEXTO-NOVO: "Blog" (voltar), "min de leitura" -->
+      <a class="artigo-voltar" href="blog.html">
+        <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        <span>Blog</span>
+      </a>
+      <p class="post-meta artigo-meta">
+        <span class="post-categoria">{{dados.categoria.titulo}}</span>
+        <span>{{dados.dataTexto}}</span>
+        <span>{{dados.minutos}} min de leitura</span>
+      </p>
+      {{/se}} {{#se dados.atualizacao}}
+      <p class="post-meta artigo-meta">{{dados.atualizacao}}</p>
+      {{/se}}
+      <h1 id="artigo-titulo" class="artigo-titulo">{{dados.titulo}}</h1>
+      {{#se dados.resumo}}
+      <p class="artigo-lead">{{dados.resumo}}</p>
+      {{/se}}
+    </header>
+
+    {{#se dados.imagem}}
+    <figure class="artigo-capa">
+      <img
+        src="{{dados.imagem.src}}"
+        alt="{{dados.imagem.alt}}"
+        width="{{dados.imagem.largura}}"
+        height="{{dados.imagem.altura}}"
+        fetchpriority="high"
+      />
+    </figure>
+    {{/se}} {{#se dados.temIndice}}
+    <!-- TEXTO-NOVO: "Neste texto" -->
+    <nav class="artigo-indice" data-indice aria-labelledby="artigo-indice-titulo">
+      <p id="artigo-indice-titulo" class="artigo-indice-titulo">Neste texto</p>
+      <ol>
+        {{#cada dados.indice}}
+        <li><a href="#{{item.id}}">{{item.texto}}</a></li>
+        {{/cada}}
+      </ol>
+    </nav>
+    {{/se}}
+
+    <div class="artigo-coluna">
+      {{#se dados.emResumo}}
+      <!-- TEXTO-NOVO: "Em resumo" -->
+      <aside class="artigo-resumo" aria-labelledby="artigo-resumo-titulo">
+        <p id="artigo-resumo-titulo" class="artigo-resumo-titulo">Em resumo</p>
+        <ul>
+          {{#cada dados.emResumo}}
+          <li>{{item}}</li>
+          {{/cada}}
+        </ul>
+      </aside>
+      {{/se}}
+      <div class="artigo-corpo" data-corpo-leitura>{{dados.corpoHtml|html}}</div>
+      {{#se dados.citaCookies}}
+      <!-- TEXTO-NOVO: o texto legal cita "Suas preferências de cookies" ao final da página.
+           No site atual é um controle; neste protótipo ele não existe, e a página diz isso. -->
+      <section id="cookies" class="artigo-cookies" aria-labelledby="artigo-cookies-titulo">
+        <h2 id="artigo-cookies-titulo">Suas preferências de cookies</h2>
+        <p>
+          No site em produção, o controle dos cookies de análise e de marketing fica aqui. Neste
+          protótipo ele ainda não está ligado: nenhuma escolha feita nesta página é guardada.
+        </p>
+      </section>
+      {{/se}}
+    </div>
+  </div>
+</section>

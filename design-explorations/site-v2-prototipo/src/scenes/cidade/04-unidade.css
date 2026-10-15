@@ -1,0 +1,85 @@
+/* Landing de cidade · Unidade, no gelo: o texto local à esquerda (61,8%), o endereço à
+   direita (38,2%). Os bairros correm como texto, separados por um quadrado pequeno. */
+#cidade-unidade .cu-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  grid-template-areas:
+    "texto contato"
+    "texto mapa";
+  grid-template-rows: auto 1fr;
+  gap: var(--e3) var(--e6);
+}
+#cidade-unidade .cu-quadro > * {
+  min-width: 0;
+}
+#cidade-unidade .cu-texto {
+  grid-area: texto;
+  display: grid;
+  gap: var(--e3);
+  align-content: start;
+}
+#cidade-unidade .cu-titulo {
+  max-width: 18ch;
+}
+#cidade-unidade .cu-contexto {
+  max-width: var(--largura-texto);
+  margin-top: var(--e1);
+  color: var(--tema-texto);
+}
+#cidade-unidade .cu-rotulo {
+  margin-top: var(--e2);
+  font-family: var(--fonte-corpo);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+#cidade-unidade .cu-bairros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1) var(--e3);
+  max-width: var(--largura-texto);
+  color: var(--tema-titulo);
+  font-weight: 500;
+}
+#cidade-unidade .cu-bairros li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+}
+#cidade-unidade .cu-bairros li::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: var(--azul-medio);
+}
+#cidade-unidade .cu-contato {
+  grid-area: contato;
+  display: grid;
+  gap: var(--e3);
+  align-content: start;
+  padding: var(--e4);
+  background: var(--branco);
+}
+#cidade-unidade .cu-contato dd {
+  margin: 4px 0 0;
+  color: var(--tema-titulo);
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+#cidade-unidade .cu-mapa {
+  grid-area: mapa;
+  align-self: start;
+}
+
+@media (max-width: 860px) {
+  #cidade-unidade .cu-quadro {
+    grid-template-columns: 1fr;
+    grid-template-areas: "texto" "contato" "mapa";
+    grid-template-rows: none;
+    gap: var(--e4);
+  }
+  #cidade-unidade .cu-contato {
+    padding: var(--e3);
+  }
+}

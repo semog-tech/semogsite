@@ -1,0 +1,62 @@
+<!-- Contato · mensagem: um formulário simples (nome, e-mail, assunto, mensagem) para quem
+     não quer proposta. Demonstrativo: form[data-demo] (core/formularios.js) não envia nada e
+     a tela diz isso. Validação nativa do navegador (campos obrigatórios e e-mail). Mesmo
+     desenho de campo do formulário de proposta (classes fp-*), sem as etapas. -->
+<section id="contato-mensagem" class="cena cm" data-tema="claro" aria-labelledby="cm-titulo">
+  <div class="container cm-quadro">
+    <div class="cm-texto revelar">
+      <h2 id="cm-titulo" class="cm-titulo">
+        <span class="linha"
+          ><span class="linha-interna"
+            >{{contatoPagina.mensagem.titulo}}
+            <em class="peso peso-fixo" data-texto="{{contatoPagina.mensagem.enfase}}"
+              >{{contatoPagina.mensagem.enfase}}</em
+            ></span
+          ></span
+        >
+      </h2>
+      <p class="cm-apoio">{{contatoPagina.mensagem.texto}}</p>
+    </div>
+
+    <form class="formulario-proposta cm-form revelar revelar--bloco" method="post" data-demo>
+      <div class="fp-par fp-par--invertido">
+        <div class="fp-campo">
+          <label for="cm-nome">Nome</label>
+          <div class="fp-controle">
+            <input id="cm-nome" name="nome" type="text" autocomplete="name" required />
+          </div>
+        </div>
+        <div class="fp-campo">
+          <label for="cm-email">E-mail</label>
+          <div class="fp-controle">
+            <input id="cm-email" name="email" type="email" autocomplete="email" required />
+          </div>
+        </div>
+      </div>
+      <div class="fp-campo">
+        <label for="cm-assunto">Assunto</label>
+        <div class="fp-controle fp-controle--select">
+          <select id="cm-assunto" name="assunto" required>
+            <option value="" selected disabled>Selecione</option>
+            {{#cada contatoPagina.mensagem.assuntos}}
+            <option>{{item}}</option>
+            {{/cada}}
+          </select>
+        </div>
+      </div>
+      <div class="fp-campo">
+        <label for="cm-mensagem">Mensagem</label>
+        <div class="fp-controle">
+          <textarea id="cm-mensagem" name="mensagem" rows="5" required></textarea>
+        </div>
+      </div>
+      <div class="fp-acoes">
+        <button class="botao" type="submit">
+          {{contatoPagina.mensagem.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </button>
+        <p class="fp-status" role="status" aria-live="polite" data-status></p>
+      </div>
+    </form>
+  </div>
+</section>

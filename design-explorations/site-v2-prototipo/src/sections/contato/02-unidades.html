@@ -1,0 +1,164 @@
+<!-- Contato · Unidades, no gelo: as quatro Unidades Semog, cada uma com a foto da cidade,
+     endereço, telefone, horário e "Como chegar" (o Google Maps da Unidade). O telefone vai
+     como TEXTO, sem link de discagem nem WhatsApp (decisão do Leandro), como nas landings.
+     Dados de cidades.* no conteúdo, os mesmos das landings. Fotos de 800px, sob demanda. -->
+<section id="contato-unidades" class="cena cn" data-tema="gelo" aria-labelledby="cn-titulo">
+  <div class="container">
+    <h2 id="cn-titulo" class="cn-titulo revelar">
+      <span class="linha"
+        ><span class="linha-interna"
+          >{{contatoPagina.unidades.titulo}}
+          <em class="peso peso-fixo" data-texto="{{contatoPagina.unidades.enfase}}"
+            >{{contatoPagina.unidades.enfase}}</em
+          ></span
+        ></span
+      >
+    </h2>
+    <div class="cn-grade">
+      <article class="cn-unidade revelar revelar--bloco" aria-labelledby="cn-recife">
+        <figure class="cn-foto">
+          <img
+            src="{{cidades.recife.fotoMovel}}"
+            alt="{{cidades.recife.alt}}"
+            width="800"
+            height="447"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="cn-corpo">
+          <h3 id="cn-recife" class="cn-cidade">
+            {{unidades.0.cidade}}<span class="cn-uf">/{{unidades.0.uf}}</span>
+          </h3>
+          <dl class="cn-dados">
+            <div>
+              <dt class="rotulo">{{landing.unidade.endereco}}</dt>
+              <dd>{{cidades.recife.endereco}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.telefone}}</dt>
+              <dd class="cn-telefone">{{cidades.recife.telefone}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.horario}}</dt>
+              <dd>{{landing.unidade.horarioTexto}}</dd>
+            </div>
+          </dl>
+          <a class="link-seta" href="{{cidades.recife.mapa}}" target="_blank" rel="noopener"
+            ><span>{{landing.unidade.mapa}}</span
+            ><span class="sr-only"> até a Unidade {{unidades.0.cidade}}</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+          ></a>
+        </div>
+      </article>
+      <article class="cn-unidade revelar revelar--bloco" aria-labelledby="cn-joao-pessoa">
+        <figure class="cn-foto">
+          <img
+            src="{{cidades.joao-pessoa.fotoMovel}}"
+            alt="{{cidades.joao-pessoa.alt}}"
+            width="800"
+            height="447"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="cn-corpo">
+          <h3 id="cn-joao-pessoa" class="cn-cidade">
+            {{unidades.1.cidade}}<span class="cn-uf">/{{unidades.1.uf}}</span>
+          </h3>
+          <dl class="cn-dados">
+            <div>
+              <dt class="rotulo">{{landing.unidade.endereco}}</dt>
+              <dd>{{cidades.joao-pessoa.endereco}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.telefone}}</dt>
+              <dd class="cn-telefone">{{cidades.joao-pessoa.telefone}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.horario}}</dt>
+              <dd>{{landing.unidade.horarioTexto}}</dd>
+            </div>
+          </dl>
+          <a class="link-seta" href="{{cidades.joao-pessoa.mapa}}" target="_blank" rel="noopener"
+            ><span>{{landing.unidade.mapa}}</span
+            ><span class="sr-only"> até a Unidade {{unidades.1.cidade}}</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+          ></a>
+        </div>
+      </article>
+      <article class="cn-unidade revelar revelar--bloco" aria-labelledby="cn-campina-grande">
+        <figure class="cn-foto">
+          <img
+            src="{{cidades.campina-grande.fotoMovel}}"
+            alt="{{cidades.campina-grande.alt}}"
+            width="800"
+            height="447"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="cn-corpo">
+          <h3 id="cn-campina-grande" class="cn-cidade">
+            {{unidades.2.cidade}}<span class="cn-uf">/{{unidades.2.uf}}</span>
+          </h3>
+          <dl class="cn-dados">
+            <div>
+              <dt class="rotulo">{{landing.unidade.endereco}}</dt>
+              <dd>{{cidades.campina-grande.endereco}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.telefone}}</dt>
+              <dd class="cn-telefone">{{cidades.campina-grande.telefone}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.horario}}</dt>
+              <dd>{{landing.unidade.horarioTexto}}</dd>
+            </div>
+          </dl>
+          <a class="link-seta" href="{{cidades.campina-grande.mapa}}" target="_blank" rel="noopener"
+            ><span>{{landing.unidade.mapa}}</span
+            ><span class="sr-only"> até a Unidade {{unidades.2.cidade}}</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+          ></a>
+        </div>
+      </article>
+      <article class="cn-unidade revelar revelar--bloco" aria-labelledby="cn-belem">
+        <figure class="cn-foto">
+          <img
+            src="{{cidades.belem.fotoMovel}}"
+            alt="{{cidades.belem.alt}}"
+            width="800"
+            height="447"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="cn-corpo">
+          <h3 id="cn-belem" class="cn-cidade">
+            {{unidades.3.cidade}}<span class="cn-uf">/{{unidades.3.uf}}</span>
+          </h3>
+          <dl class="cn-dados">
+            <div>
+              <dt class="rotulo">{{landing.unidade.endereco}}</dt>
+              <dd>{{cidades.belem.endereco}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.telefone}}</dt>
+              <dd class="cn-telefone">{{cidades.belem.telefone}}</dd>
+            </div>
+            <div>
+              <dt class="rotulo">{{landing.unidade.horario}}</dt>
+              <dd>{{landing.unidade.horarioTexto}}</dd>
+            </div>
+          </dl>
+          <a class="link-seta" href="{{cidades.belem.mapa}}" target="_blank" rel="noopener"
+            ><span>{{landing.unidade.mapa}}</span
+            ><span class="sr-only"> até a Unidade {{unidades.3.cidade}}</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+          ></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

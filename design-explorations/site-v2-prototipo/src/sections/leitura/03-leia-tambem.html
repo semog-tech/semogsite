@@ -1,0 +1,45 @@
+<!-- Leitura · "Leia também": dois posts (leitura.mjs escolhe: mesma categoria, depois os
+     que têm página aqui, depois os mais recentes), no mesmo cartão do índice do blog. -->
+<section id="leia-tambem" class="cena" data-tema="gelo" aria-labelledby="leia-tambem-titulo">
+  <div class="container">
+    <div class="lt-topo">
+      <!-- TEXTO-NOVO: "Leia também", "Todos os textos" -->
+      <h2 id="leia-tambem-titulo" class="lt-titulo">Leia também</h2>
+      <a class="link-seta" href="blog.html"
+        ><span>Todos os textos</span>
+        <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+      ></a>
+    </div>
+    <ul class="lt-lista">
+      {{#cada dados.leiaTambem}}
+      <li>
+        <article class="post-cartao">
+          <p class="post-meta">
+            <span class="post-categoria">{{item.categoria.titulo}}</span>
+            <span>{{item.dataTexto}}</span>
+            <span>{{item.minutos}} min de leitura</span>
+          </p>
+          <h3 class="post-cartao-titulo">
+            <a href="{{item.href}}"
+              >{{item.titulo}}{{#sem item.local}}<span class="sr-only"> (no site atual)</span
+              >{{/sem}}</a
+            >
+          </h3>
+          <p class="post-resumo">{{item.resumo}}</p>
+          {{#se item.local}}
+          <p class="post-acao" aria-hidden="true">
+            <span>Ler o texto</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/se}} {{#sem item.local}}
+          <p class="post-acao post-acao--externo" aria-hidden="true">
+            <span>Ler no site atual</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/sem}}
+        </article>
+      </li>
+      {{/cada}}
+    </ul>
+  </div>
+</section>

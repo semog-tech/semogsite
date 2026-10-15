@@ -1,0 +1,25 @@
+{
+  "_nota": "Configuração das páginas de leitura (leitura.mjs). As categorias são as de semogsite/content/blog/categories.ts, na mesma ordem. 'completos' são os posts que viram página aqui; os outros apontam para o post no site atual. 'links' traduz os links internos do MDX para as páginas deste protótipo; link interno fora da lista vai para o site atual.",
+  "siteAtual": "https://www.semog.com.br",
+  "categorias": [
+    { "titulo": "Finanças", "slug": "financas" },
+    { "titulo": "Inadimplência", "slug": "inadimplencia" },
+    { "titulo": "Gestão", "slug": "gestao" },
+    { "titulo": "Convivência", "slug": "convivencia" },
+    { "titulo": "Tecnologia", "slug": "tecnologia" },
+    { "titulo": "Incorporadoras", "slug": "incorporadoras" },
+    { "titulo": "A Semog", "slug": "a-semog" }
+  ],
+  "completos": ["assembleia-instalacao-checklist-condominios-novos", "g20-superlogica-next-2026"],
+  "links": {
+    "/administracao-de-condominios": "administracao-de-condominios.html",
+    "/garante": "garante.html",
+    "/proposta": "#proposta",
+    "/administradora-de-condominios-recife": "administradora-de-condominios-recife.html",
+    "/administradora-de-condominios-joao-pessoa": "administradora-de-condominios-joao-pessoa.html",
+    "/administradora-de-condominios-campina-grande": "administradora-de-condominios-campina-grande.html",
+    "/administradora-de-condominios-belem": "administradora-de-condominios-belem.html",
+    "/privacidade": "privacidade.html",
+    "/termos": "termos.html"
+  }
+}

@@ -1,0 +1,167 @@
+/* Princípios: uma superfície contínua que desce do marinho ao branco. Cada zona termina na
+   cor exata em que a seguinte começa (marinho → marinho, gelo → gelo): nenhuma borda.
+   As zonas declaram o próprio data-tema para o texto; o header segue o da seção, que a
+   cena troca conforme a zona sob ele. */
+/* Acima do palco fixo da história: sobe por cima dele na última tela do pin. */
+#principios {
+  --pr-recuo: var(--e6);
+  z-index: 2;
+  padding-block: 0;
+  background: var(--marinho);
+}
+#principios .pr-zona {
+  position: relative;
+  display: grid;
+  align-items: center;
+  color: var(--tema-texto);
+}
+/* A zona sobe por cima do palco da história já coberto de marinho; o nome fica alto e
+   entra logo. Sem altura mínima: a descida para a luz começa logo depois do texto, e
+   nenhum quadro fica só de cor. */
+#principios .pr-zona--retidao {
+  align-items: start;
+  padding-block: var(--e6);
+  background: var(--marinho);
+}
+/* Transparência: a luz entra. Marinho → azuis → céu → gelo nos primeiros 80% da zona; o
+   texto mora no gelo. Paradas calculadas para a luminosidade (L do oklab) subir em
+   ease-in-out uniforme: os tokens não são equidistantes em L (azul-médio → céu é o maior
+   salto), e paradas por token formavam uma faixa clara visível. */
+#principios .pr-zona--transparencia {
+  min-height: 85svh;
+  align-items: end;
+  padding-block: var(--e7) var(--respiro-cena);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho) 0%,
+    color-mix(in oklab, var(--marinho) 97.3%, var(--azul-forte)) 3.4%,
+    color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 6.6%,
+    color-mix(in oklab, var(--marinho) 77.1%, var(--azul-forte)) 10%,
+    color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 13.4%,
+    color-mix(in oklab, var(--marinho) 40.1%, var(--azul-forte)) 16.6%,
+    color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 20%,
+    color-mix(in oklab, var(--azul-forte) 88.1%, var(--azul-medio)) 23.4%,
+    color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 26.6%,
+    color-mix(in oklab, var(--azul-forte) 16%, var(--azul-medio)) 30%,
+    color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 33.4%,
+    color-mix(in oklab, var(--azul-medio) 79%, var(--ceu)) 36.6%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 40%,
+    color-mix(in oklab, var(--azul-medio) 51.9%, var(--ceu)) 43.4%,
+    color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 46.6%,
+    color-mix(in oklab, var(--azul-medio) 25.6%, var(--ceu)) 50%,
+    color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 53.4%,
+    color-mix(in oklab, var(--azul-medio) 1.6%, var(--ceu)) 56.6%,
+    color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 60%,
+    color-mix(in oklab, var(--ceu) 42.2%, var(--ceu-claro)) 63.4%,
+    color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 66.6%,
+    color-mix(in oklab, var(--ceu-claro) 87.6%, var(--gelo)) 70%,
+    color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 73.4%,
+    color-mix(in oklab, var(--ceu-claro) 10.3%, var(--gelo)) 76.6%,
+    var(--gelo) 80%,
+    var(--gelo) 100%
+  );
+}
+/* Dinâmica: do gelo ao mesh do rebrand e de volta ao branco da cena seguinte. O canvas vivo
+   fica sob uma máscara nas duas pontas, para as emendas continuarem lisas; sem WebGL fica
+   o mesh em CSS. */
+#principios .pr-zona--dinamica {
+  min-height: 100svh;
+  padding-block: var(--e6) var(--respiro-cena);
+  overflow: clip;
+  background:
+    linear-gradient(in oklab to bottom, var(--gelo) 0%, transparent 38%),
+    linear-gradient(in oklab to bottom, transparent 66%, var(--branco) 100%), var(--grad-dinamica);
+}
+#principios .pr-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  /* Some nas duas pontas: em cima encontra o gelo, embaixo o branco das pessoas. */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 42%, black 64%, transparent 100%);
+}
+#principios .pr-conteudo {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  column-gap: var(--e5);
+  align-items: end;
+  padding-inline-start: var(--pr-recuo);
+}
+#principios .pr-nome {
+  font-size: clamp(3rem, 0.9rem + 5.6vw, 7.5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#principios .pr-texto {
+  max-width: 34ch;
+  padding-bottom: 0.4em;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+
+/* ---- Fio: desce pela margem e liga os três nomes ---------------------------------- */
+#principios .pr-fio {
+  position: absolute;
+  top: 0;
+  left: calc((100% - min(var(--largura), 100% - 2 * var(--margem))) / 2);
+  z-index: 1;
+  width: 2px;
+  height: var(--pr-fio, 100%);
+  pointer-events: none;
+}
+#principios .pr-fio-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--ceu) 0%,
+    var(--ceu) 48%,
+    color-mix(in oklab, var(--ceu) 50%, var(--marinho)) 58%,
+    var(--marinho) 68%,
+    var(--marinho) 100%
+  );
+}
+#principios .pr-no {
+  position: absolute;
+  left: -4px;
+  bottom: calc(0.475em - 5px);
+  width: 10px;
+  height: 10px;
+  background: var(--tema-destaque);
+  font-size: clamp(3rem, 0.9rem + 5.6vw, 7.5rem);
+}
+#principios .pr-zona--retidao .pr-no {
+  background: var(--ceu);
+}
+
+@media (max-width: 760px) {
+  #principios {
+    --pr-recuo: var(--e4);
+  }
+  #principios .pr-zona--transparencia {
+    min-height: 80svh;
+  }
+  #principios .pr-zona--dinamica {
+    min-height: 88svh;
+  }
+  #principios .pr-conteudo {
+    grid-template-columns: 1fr;
+    row-gap: var(--e3);
+  }
+  #principios .pr-nome,
+  #principios .pr-no {
+    font-size: 3rem;
+  }
+  #principios .pr-no {
+    bottom: auto;
+    top: calc(0.475em - 5px);
+  }
+}

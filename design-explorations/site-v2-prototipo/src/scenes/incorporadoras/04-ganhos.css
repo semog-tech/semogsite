@@ -1,0 +1,224 @@
+/* Ganhos: uma superfície contínua que desce do marinho ao branco, como os princípios de A
+   Semog. Cada zona termina na cor exata em que a seguinte começa (marinho → marinho, gelo →
+   gelo): nenhuma borda. As zonas declaram o próprio data-tema para o texto; o header segue
+   o da seção, que a cena troca conforme a zona sob ele. */
+#ganhos {
+  --gn-recuo: var(--e6);
+  padding-block: 0;
+  background: var(--marinho);
+}
+/* Com o percurso fixado, os ganhos sobem por cima dos últimos 30svh dele, quando o pé do
+   palco já está coberto de marinho (SOBREPOSICAO_TELAS, em 03-percurso.js): o título chega
+   antes de a cobertura fechar. Sem essa sobreposição, a tela ficava só de marinho enquanto o
+   palco do percurso saía. Sem JS e na impressão, cada cena no seu lugar. */
+#percurso.pc-pin + #ganhos {
+  z-index: 4;
+  margin-top: -30svh;
+}
+@media print {
+  #percurso.pc-pin + #ganhos {
+    margin-top: 0;
+  }
+}
+#ganhos .gn-topo {
+  padding-block: var(--e4) 0;
+  padding-inline-start: var(--gn-recuo);
+  background: var(--marinho);
+}
+#ganhos .gn-titulo {
+  font-family: var(--fonte-corpo);
+  font-size: var(--t-lead);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--tema-suave);
+}
+#ganhos .gn-zona {
+  position: relative;
+  display: grid;
+  align-content: center;
+  color: var(--tema-texto);
+}
+/* A entrega fica logo abaixo do título, e a luz do cliente já começa a subir na mesma tela:
+   nenhuma tela só de marinho. */
+#ganhos .gn-zona--entrega {
+  align-content: start;
+  padding-block: var(--e4) var(--e5);
+  background: var(--marinho);
+}
+/* O cliente: a luz entra. Marinho → azuis → céu → gelo nos primeiros 80% da zona, com as
+   mesmas paradas dos princípios (luminosidade subindo em ease-in-out uniforme); o texto
+   mora no gelo. Mais curta que nos princípios (70svh, não 115): a descida sem texto não
+   chega a ocupar uma tela. */
+#ganhos .gn-zona--cliente {
+  min-height: 70svh;
+  align-content: end;
+  padding-block: var(--e5) var(--respiro-cena);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho) 0%,
+    color-mix(in oklab, var(--marinho) 97.3%, var(--azul-forte)) 3.4%,
+    color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 6.6%,
+    color-mix(in oklab, var(--marinho) 77.1%, var(--azul-forte)) 10%,
+    color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 13.4%,
+    color-mix(in oklab, var(--marinho) 40.1%, var(--azul-forte)) 16.6%,
+    color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 20%,
+    color-mix(in oklab, var(--azul-forte) 88.1%, var(--azul-medio)) 23.4%,
+    color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 26.6%,
+    color-mix(in oklab, var(--azul-forte) 16%, var(--azul-medio)) 30%,
+    color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 33.4%,
+    color-mix(in oklab, var(--azul-medio) 79%, var(--ceu)) 36.6%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 40%,
+    color-mix(in oklab, var(--azul-medio) 51.9%, var(--ceu)) 43.4%,
+    color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 46.6%,
+    color-mix(in oklab, var(--azul-medio) 25.6%, var(--ceu)) 50%,
+    color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 53.4%,
+    color-mix(in oklab, var(--azul-medio) 1.6%, var(--ceu)) 56.6%,
+    color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 60%,
+    color-mix(in oklab, var(--ceu) 42.2%, var(--ceu-claro)) 63.4%,
+    color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 66.6%,
+    color-mix(in oklab, var(--ceu-claro) 87.6%, var(--gelo)) 70%,
+    color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 73.4%,
+    color-mix(in oklab, var(--ceu-claro) 10.3%, var(--gelo)) 76.6%,
+    var(--gelo) 80%,
+    var(--gelo) 100%
+  );
+}
+/* Na entrega, o nome fica no alto, logo abaixo do título: é o que chega primeiro depois da
+   cobertura do percurso (o nó acompanha, preso à primeira linha). */
+#ganhos .gn-zona--entrega .gn-conteudo {
+  align-items: start;
+}
+/* A marca: do gelo ao branco da cena seguinte, com as quatro praças. */
+#ganhos .gn-zona--marca {
+  gap: var(--e6);
+  padding-block: var(--e6) var(--respiro-cena);
+  background: linear-gradient(in oklab to bottom, var(--gelo) 0%, var(--branco) 38%);
+}
+#ganhos .gn-conteudo {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  column-gap: var(--e5);
+  align-items: end;
+  padding-inline-start: var(--gn-recuo);
+}
+#ganhos .gn-nome {
+  font-size: clamp(3rem, 0.9rem + 5.6vw, 7.5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#ganhos .gn-textos {
+  display: grid;
+  gap: var(--e3);
+  padding-bottom: 0.4em;
+}
+#ganhos .gn-texto {
+  max-width: 34ch;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#ganhos .gn-apoio {
+  max-width: 36ch;
+  color: var(--tema-suave);
+}
+
+/* ---- Praças ------------------------------------------------------------------------ */
+#ganhos .gn-pracas {
+  position: relative;
+  z-index: 2;
+  padding-inline-start: var(--gn-recuo);
+}
+#ganhos .gn-cidades {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e3);
+}
+#ganhos .gn-cidade {
+  display: grid;
+  gap: var(--e2);
+}
+#ganhos .gn-cidade .moldura {
+  position: relative;
+  overflow: clip;
+  aspect-ratio: 3 / 4;
+}
+#ganhos .gn-cidade img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Fio: desce pela margem e liga as três zonas ------------------------------------ */
+#ganhos .gn-fio {
+  position: absolute;
+  top: 0;
+  left: calc((100% - min(var(--largura), 100% - 2 * var(--margem))) / 2);
+  z-index: 1;
+  width: 2px;
+  height: var(--gn-fio, 100%);
+  pointer-events: none;
+}
+#ganhos .gn-fio-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--ceu) 0%,
+    var(--ceu) 48%,
+    color-mix(in oklab, var(--ceu) 50%, var(--marinho)) 58%,
+    var(--marinho) 68%,
+    var(--marinho) 100%
+  );
+}
+#ganhos .gn-no {
+  position: absolute;
+  left: -4px;
+  bottom: calc(0.475em - 5px);
+  width: 10px;
+  height: 10px;
+  background: var(--tema-destaque);
+  font-size: clamp(3rem, 0.9rem + 5.6vw, 7.5rem);
+}
+#ganhos .gn-zona--entrega .gn-no {
+  bottom: auto;
+  top: calc(0.475em - 5px);
+  background: var(--ceu);
+}
+
+@media (max-width: 760px) {
+  #ganhos {
+    --gn-recuo: var(--e4);
+  }
+  #ganhos .gn-topo {
+    padding-top: var(--e3);
+  }
+  #ganhos .gn-zona--entrega {
+    padding-block: var(--e5) var(--e6);
+  }
+  #ganhos .gn-zona--cliente {
+    min-height: 80svh;
+  }
+  #ganhos .gn-conteudo {
+    grid-template-columns: 1fr;
+    row-gap: var(--e3);
+  }
+  #ganhos .gn-nome,
+  #ganhos .gn-no {
+    font-size: 3rem;
+  }
+  #ganhos .gn-no {
+    bottom: auto;
+    top: calc(0.475em - 5px);
+  }
+  #ganhos .gn-cidades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e2);
+  }
+}

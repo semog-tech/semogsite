@@ -1,0 +1,133 @@
+/* Pessoas: branco, título leve com a ênfase em peso, pares em 61,8/38,2 alternados. A
+   moldura dos sócios é neutra (gelo com véu lavanda) e diz que a foto real ainda vem. */
+#pessoas {
+  padding-block: var(--respiro-cena);
+}
+#pessoas .ps-quadro {
+  display: grid;
+  gap: var(--e7);
+}
+#pessoas .ps-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+}
+#pessoas .ps-titulo {
+  font-size: var(--t-h2);
+  font-weight: 300;
+}
+#pessoas .ps-lead {
+  padding-bottom: 0.3em;
+}
+
+/* ---- Pares ---------------------------------------------------------------------- */
+#pessoas .ps-par {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e6);
+  align-items: end;
+}
+#pessoas .ps-par--inverso {
+  grid-template-columns: var(--menor) var(--maior);
+  align-items: start;
+}
+#pessoas .ps-par > * {
+  min-width: 0;
+}
+#pessoas .ps-item {
+  display: grid;
+  gap: var(--e2);
+  max-width: 36ch;
+}
+#pessoas .ps-item-titulo {
+  font-size: clamp(1.625rem, 1.2rem + 1vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+#pessoas .ps-item-texto {
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+}
+#pessoas .ps-item--largo {
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+  max-width: none;
+}
+#pessoas .ps-item--largo .ps-item-titulo {
+  font-size: var(--t-h2);
+  font-weight: 300;
+  line-height: 1;
+}
+#pessoas .ps-item--largo .ps-item-texto {
+  max-width: 34ch;
+  padding-bottom: 0.3em;
+}
+
+/* ---- Molduras -------------------------------------------------------------------- */
+#pessoas .moldura {
+  position: relative;
+  overflow: clip;
+}
+#pessoas .moldura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#pessoas figure {
+  display: grid;
+  gap: var(--e2);
+}
+/* Moldura neutra: nenhuma imagem de banco, nenhum rosto inventado. */
+#pessoas .ps-aenviar {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--gelo),
+    color-mix(in oklab, var(--lavanda) 70%, var(--gelo))
+  );
+}
+#pessoas .ps-aenviar-rotulo {
+  display: grid;
+  justify-items: center;
+  gap: var(--e1);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  color: var(--texto-suave);
+  text-align: center;
+}
+#pessoas .ps-aenviar-tema {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  color: var(--marinho);
+}
+#pessoas .ps-cidades {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e3);
+}
+#pessoas .ps-cidade .moldura {
+  aspect-ratio: 3 / 4;
+}
+
+@media (max-width: 760px) {
+  #pessoas .ps-quadro {
+    gap: var(--e6);
+  }
+  #pessoas .ps-topo,
+  #pessoas .ps-par,
+  #pessoas .ps-par--inverso,
+  #pessoas .ps-item--largo {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+  #pessoas .ps-cidades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e2);
+  }
+}

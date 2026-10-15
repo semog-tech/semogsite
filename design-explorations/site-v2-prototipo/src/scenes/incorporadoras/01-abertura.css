@@ -1,0 +1,120 @@
+/* Incorporadoras · abertura: a promessa (61,8) e a obra (38,2) na dobra; os números no pé.
+   Branco puro; a foto é a única massa escura da tela, e o marinho fica no texto. */
+#incorporadoras {
+  display: grid;
+  min-height: 100svh;
+  padding-block: calc(var(--cab) + var(--e6)) var(--e6);
+}
+#incorporadoras .ab-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  grid-template-rows: 1fr auto;
+  gap: var(--e6);
+}
+#incorporadoras .ab-quadro > * {
+  min-width: 0;
+}
+#incorporadoras .ab-texto {
+  display: grid;
+  align-content: center;
+  gap: var(--e4);
+}
+#incorporadoras .ab-titulo {
+  max-width: 13ch;
+  font-size: clamp(2.75rem, 0.9rem + 4.6vw, 6rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+#incorporadoras .ab-lead {
+  max-width: 36ch;
+}
+#incorporadoras .ab-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e3) var(--e4);
+}
+
+/* ---- Obra ------------------------------------------------------------------------ */
+#incorporadoras .ab-foto {
+  display: grid;
+  align-content: center;
+  gap: var(--e2);
+}
+#incorporadoras .ab-foto .moldura {
+  position: relative;
+  overflow: clip;
+  aspect-ratio: 1 / 1;
+  background: var(--marinho);
+}
+#incorporadoras .ab-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A torre e as gruas ficam no meio do recorte quadrado. */
+  object-position: 54% 50%;
+}
+
+/* ---- Números ------------------------------------------------------------------- */
+#incorporadoras .ab-numeros {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e4);
+  align-items: start;
+}
+/* O valor vem antes do rótulo na leitura visual; o dl mantém dt → dd. */
+#incorporadoras .ab-numero {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--e1);
+}
+#incorporadoras .ab-numero dd {
+  font-size: clamp(2.5rem, 1.4rem + 2.6vw, 4.25rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#incorporadoras .ab-numero dt {
+  max-width: 20ch;
+}
+#incorporadoras .ab-mascara {
+  display: block;
+  overflow: clip;
+  padding-block-end: 0.08em;
+  margin-block-end: -0.08em;
+}
+#incorporadoras .ab-in {
+  display: inline-block;
+}
+
+@media (max-width: 1080px) {
+  #incorporadoras .ab-numeros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--e5);
+  }
+}
+@media (max-width: 760px) {
+  #incorporadoras {
+    min-height: 0;
+    padding-block: calc(var(--cab) + var(--e5)) var(--e6);
+  }
+  #incorporadoras .ab-quadro {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: var(--e5);
+  }
+  #incorporadoras .ab-titulo {
+    font-size: 2.875rem;
+  }
+  /* No celular a obra vira faixa larga, abaixo das ações. */
+  #incorporadoras .ab-foto .moldura {
+    aspect-ratio: 4 / 3;
+  }
+  #incorporadoras .ab-numeros {
+    gap: var(--e4) var(--e3);
+  }
+}

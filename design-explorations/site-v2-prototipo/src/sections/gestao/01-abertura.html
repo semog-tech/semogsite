@@ -1,0 +1,131 @@
+<!-- Gestão · abertura. À esquerda (61,8), o H1 da página, com "por inteiro." ganhando peso, o
+     lead, o pedido de proposta e, no pé, três números da Semog sob um traço marinho. À direita
+     (38,2), uma coluna gelo que vai do topo ao pé da dobra com o que entra "num contrato só":
+     as sete frentes, cada uma com o seu nó marinho. A coluna se apaga em branco antes do pé,
+     para a junção com a mesa do síndico ser branco sobre branco. -->
+<section
+  id="administracao-de-condominios"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="administracao-de-condominios-titulo"
+>
+  <div class="gab-esquerda">
+    <div class="gab-texto">
+      <h1 id="administracao-de-condominios-titulo" class="gab-titulo entrada">
+        {{gestaoPagina.abertura.antes}}
+        <em class="peso">{{gestaoPagina.abertura.enfase}}</em>
+      </h1>
+      <p class="gab-lead lead entrada">{{gestaoPagina.abertura.lead}}</p>
+      <div class="gab-acoes entrada">
+        <a class="botao" href="#proposta"
+          >{{gestaoPagina.abertura.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+        <a class="link-seta" href="#mesa-do-sindico"
+          ><span>{{gestaoPagina.abertura.mesa}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+      <p class="gab-prazo rotulo entrada">{{gestaoPagina.abertura.prazo}}</p>
+    </div>
+
+    <dl class="gab-numeros entrada">
+      <span class="gab-traco" aria-hidden="true"></span>
+      <div class="gab-numero">
+        <dt class="rotulo">
+          <span class="gab-mascara"
+            ><span class="gab-in">{{numeros.anos.rotulo}}, {{numeros.anos.detalhe}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="gab-mascara"
+            ><span class="gab-in" data-contar="{{numeros.anos.valor}}"
+              >{{numeros.anos.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="gab-numero">
+        <dt class="rotulo">
+          <span class="gab-mascara"
+            ><span class="gab-in">{{numeros.condominios.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="gab-mascara"
+            ><span
+              class="gab-in"
+              data-contar="{{numeros.condominios.valor}}"
+              data-prefixo="{{numeros.condominios.prefixo}}"
+              >{{numeros.condominios.prefixo}}{{numeros.condominios.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="gab-numero">
+        <dt class="rotulo">
+          <span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.ranking}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="gab-mascara"><span class="gab-in">{{ranking.posicao}}º</span></span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="gab-direita entrada">
+    <div class="gab-contrato">
+      <h2 class="gab-contrato-titulo">
+        <span class="gab-mascara"
+          ><span class="gab-in">{{gestaoPagina.abertura.contrato}}</span></span
+        >
+      </h2>
+      <ul class="gab-frentes">
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.0}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.1}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.2}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.3}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.4}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.5}}</span></span
+          >
+        </li>
+        <li class="gab-frente">
+          <i aria-hidden="true"></i
+          ><span class="gab-mascara"
+            ><span class="gab-in">{{gestaoPagina.abertura.frentes.6}}</span></span
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

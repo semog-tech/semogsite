@@ -1,0 +1,745 @@
+<!-- Mês · a cena-assinatura de Tecnologia. Sem JS é a lista dos seis momentos e o calendário
+     inteiro, com o mês já percorrido. Com JS, o palco fica fixo e a rolagem atravessa um mês
+     de condomínio: um traço só, de ponta reta, sai da convenção (lida pela IA e conferida por
+     uma pessoa, nas casas antes do dia 1) e corre os dias semana a semana; nas viradas de
+     semana ele desce pela margem, mais fino. Cada momento tem um patamar de leitura, o dia da
+     vez abre a partir do traço e o texto troca por máscara. A regra da convenção que age no
+     momento ganha peso. No fim, o traço sai pelas casas do mês seguinte, que abrem em
+     marinho e crescem até virar a cena seguinte. -->
+<section id="mes" class="cena" data-tema="claro" aria-labelledby="mes-titulo">
+  <div class="ms-palco">
+    <div class="container ms-grade">
+      <h2 id="mes-titulo" class="ms-titulo">{{tecnologia.pagina.mes.titulo}}</h2>
+
+      <ol class="ms-momentos">
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.0.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.0.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.0.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 4">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.0.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.0.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.0.fluxo.2}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.0.fluxo.3}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </li>
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.1.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.1.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.1.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 3">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.1.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.1.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.1.fluxo.2}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <p class="ms-apoio rotulo">
+            <span class="ms-in"
+              >{{tecnologia.pagina.mes.momentos.1.apoio}}
+              <span class="a-confirmar">{{tecnologia.pagina.mes.momentos.1.confirmar}}</span></span
+            >
+          </p>
+        </li>
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.2.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.2.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.2.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 4">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.2.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.2.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.2.fluxo.2}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.2.fluxo.3}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <p class="ms-apoio rotulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.2.apoio}}</span>
+          </p>
+        </li>
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.3.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.3.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.3.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 4">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.3.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.3.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.3.fluxo.2}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.3.fluxo.3}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </li>
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.4.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.4.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.4.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 5">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.4.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.4.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.4.fluxo.2}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.4.fluxo.3}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.4.fluxo.4}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <p class="ms-apoio rotulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.4.apoio}}</span>
+          </p>
+        </li>
+        <li class="ms-momento">
+          <p class="ms-quando">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.5.quando}}</span>
+          </p>
+          <h3 class="ms-momento-titulo">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.5.titulo}}</span>
+          </h3>
+          <p class="ms-texto">
+            <span class="ms-in">{{tecnologia.pagina.mes.momentos.5.texto}}</span>
+          </p>
+          <div class="ms-fluxo-mascara">
+            <div class="ms-fluxo ms-in" style="--n: 5">
+              <span class="ms-fluxo-linha" aria-hidden="true"></span>
+              <ol class="ms-fluxo-passos">
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.5.fluxo.0}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.5.fluxo.1}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.5.fluxo.2}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.5.fluxo.3}}</span>
+                </li>
+                <li>
+                  <i aria-hidden="true"></i
+                  ><span>{{tecnologia.pagina.mes.momentos.5.fluxo.4}}</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <p class="ms-apoio rotulo"><span class="ms-in">{{tecnologia.contexto}}</span></p>
+        </li>
+      </ol>
+
+      <figure class="ms-folha">
+        <div class="ms-janela">
+          <svg class="ms-calendario" viewBox="-24 0 760 556" aria-hidden="true" focusable="false">
+            <g class="ms-semana">
+              <text x="12" y="24">{{tecnologia.pagina.mes.semana.0}}</text>
+              <text x="112" y="24">{{tecnologia.pagina.mes.semana.1}}</text>
+              <text x="212" y="24">{{tecnologia.pagina.mes.semana.2}}</text>
+              <text x="312" y="24">{{tecnologia.pagina.mes.semana.3}}</text>
+              <text x="412" y="24">{{tecnologia.pagina.mes.semana.4}}</text>
+              <text x="512" y="24">{{tecnologia.pagina.mes.semana.5}}</text>
+              <text x="612" y="24">{{tecnologia.pagina.mes.semana.6}}</text>
+            </g>
+            <rect class="ms-conv-fundo" x="0" y="40" width="300" height="88"></rect>
+            <g class="ms-quadricula">
+              <rect x="0" y="40" width="700" height="88"></rect>
+              <path d="M300 40V128"></path>
+              <path d="M400 40V128"></path>
+              <path d="M500 40V128"></path>
+              <path d="M600 40V128"></path>
+              <rect x="0" y="146" width="700" height="88"></rect>
+              <path d="M100 146V234"></path>
+              <path d="M200 146V234"></path>
+              <path d="M300 146V234"></path>
+              <path d="M400 146V234"></path>
+              <path d="M500 146V234"></path>
+              <path d="M600 146V234"></path>
+              <rect x="0" y="252" width="700" height="88"></rect>
+              <path d="M100 252V340"></path>
+              <path d="M200 252V340"></path>
+              <path d="M300 252V340"></path>
+              <path d="M400 252V340"></path>
+              <path d="M500 252V340"></path>
+              <path d="M600 252V340"></path>
+              <rect x="0" y="358" width="700" height="88"></rect>
+              <path d="M100 358V446"></path>
+              <path d="M200 358V446"></path>
+              <path d="M300 358V446"></path>
+              <path d="M400 358V446"></path>
+              <path d="M500 358V446"></path>
+              <path d="M600 358V446"></path>
+              <rect x="0" y="464" width="700" height="88"></rect>
+              <path d="M100 464V552"></path>
+              <path d="M200 464V552"></path>
+              <path d="M300 464V552"></path>
+              <path d="M400 464V552"></path>
+              <path d="M500 464V552"></path>
+            </g>
+            <g class="ms-dias">
+              <text x="312" y="68">1</text>
+              <text x="412" y="68">2</text>
+              <text x="512" y="68">3</text>
+              <text x="612" y="68">4</text>
+              <text x="12" y="174">5</text>
+              <text x="112" y="174">6</text>
+              <text x="212" y="174">7</text>
+              <text x="312" y="174">8</text>
+              <text x="412" y="174">9</text>
+              <text x="512" y="174">10</text>
+              <text x="612" y="174">11</text>
+              <text x="12" y="280">12</text>
+              <text x="112" y="280">13</text>
+              <text x="212" y="280">14</text>
+              <text x="312" y="280">15</text>
+              <text x="412" y="280">16</text>
+              <text x="512" y="280">17</text>
+              <text x="612" y="280">18</text>
+              <text x="12" y="386">19</text>
+              <text x="112" y="386">20</text>
+              <text x="212" y="386">21</text>
+              <text x="312" y="386">22</text>
+              <text x="412" y="386">23</text>
+              <text x="512" y="386">24</text>
+              <text x="612" y="386">25</text>
+              <text x="12" y="492">26</text>
+              <text x="112" y="492">27</text>
+              <text x="212" y="492">28</text>
+              <text x="312" y="492">29</text>
+              <text x="412" y="492">30</text>
+            </g>
+            <g class="ms-celula ms-celula--leve" data-dia="13" data-c="13.5">
+              <rect class="ms-celula-fundo" x="100" y="252" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="112" y="280">13</text>
+              <text class="ms-celula-rotulo" x="112" y="300">
+                {{tecnologia.pagina.mes.calendario.lembrete}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--leve" data-dia="17" data-c="17.5">
+              <rect class="ms-celula-fundo" x="500" y="252" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="512" y="280">17</text>
+              <text class="ms-celula-rotulo" x="512" y="300">
+                {{tecnologia.pagina.mes.calendario.lembrete}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--leve" data-dia="21" data-c="22">
+              <rect class="ms-celula-fundo" x="200" y="358" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="212" y="386">21</text>
+              <text class="ms-celula-rotulo" x="212" y="406">
+                {{tecnologia.pagina.mes.calendario.lembrete}}
+              </text>
+            </g>
+            <path
+              class="ms-traco ms-traco--semana percurso"
+              pathLength="1"
+              data-c0="0"
+              data-c1="4"
+              d="M300 102H700"
+            ></path>
+            <path
+              class="ms-traco ms-traco--virada percurso"
+              pathLength="1"
+              data-c0="4"
+              data-c1="4.5"
+              d="M700 102H712V137H-12V208H0"
+            ></path>
+            <path
+              class="ms-traco ms-traco--semana percurso"
+              pathLength="1"
+              data-c0="4.5"
+              data-c1="11.5"
+              d="M0 208H700"
+            ></path>
+            <path
+              class="ms-traco ms-traco--virada percurso"
+              pathLength="1"
+              data-c0="11.5"
+              data-c1="12"
+              d="M700 208H712V243H-12V314H0"
+            ></path>
+            <path
+              class="ms-traco ms-traco--semana percurso"
+              pathLength="1"
+              data-c0="12"
+              data-c1="19"
+              d="M0 314H700"
+            ></path>
+            <path
+              class="ms-traco ms-traco--virada percurso"
+              pathLength="1"
+              data-c0="19"
+              data-c1="19.5"
+              d="M700 314H712V349H-12V420H0"
+            ></path>
+            <path
+              class="ms-traco ms-traco--semana percurso"
+              pathLength="1"
+              data-c0="19.5"
+              data-c1="26.5"
+              d="M0 420H700"
+            ></path>
+            <path
+              class="ms-traco ms-traco--virada percurso"
+              pathLength="1"
+              data-c0="26.5"
+              data-c1="27"
+              d="M700 420H712V455H-12V526H0"
+            ></path>
+            <path
+              class="ms-traco ms-traco--semana percurso"
+              pathLength="1"
+              data-c0="27"
+              data-c1="34.24"
+              d="M0 526H724"
+            ></path>
+            <g class="ms-nos">
+              <rect
+                class="ms-no"
+                data-dia="1"
+                data-c="0.5"
+                x="346"
+                y="98"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="2"
+                data-c="1.5"
+                x="446"
+                y="98"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="3"
+                data-c="2.5"
+                x="546"
+                y="98"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="4"
+                data-c="3.5"
+                x="646"
+                y="98"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="5"
+                data-c="5"
+                x="46"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="6"
+                data-c="6"
+                x="146"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="7"
+                data-c="7"
+                x="246"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="8"
+                data-c="8"
+                x="346"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="9"
+                data-c="9"
+                x="446"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="10"
+                data-c="10"
+                x="546"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="11"
+                data-c="11"
+                x="646"
+                y="204"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="12"
+                data-c="12.5"
+                x="46"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="13"
+                data-c="13.5"
+                x="146"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="14"
+                data-c="14.5"
+                x="246"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="15"
+                data-c="15.5"
+                x="346"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="16"
+                data-c="16.5"
+                x="446"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="17"
+                data-c="17.5"
+                x="546"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="18"
+                data-c="18.5"
+                x="646"
+                y="310"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="19"
+                data-c="20"
+                x="46"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="20"
+                data-c="21"
+                x="146"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="21"
+                data-c="22"
+                x="246"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="22"
+                data-c="23"
+                x="346"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="23"
+                data-c="24"
+                x="446"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="24"
+                data-c="25"
+                x="546"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="25"
+                data-c="26"
+                x="646"
+                y="416"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="26"
+                data-c="27.5"
+                x="46"
+                y="522"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="27"
+                data-c="28.5"
+                x="146"
+                y="522"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="28"
+                data-c="29.5"
+                x="246"
+                y="522"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="29"
+                data-c="30.5"
+                x="346"
+                y="522"
+                width="8"
+                height="8"
+              ></rect>
+              <rect
+                class="ms-no"
+                data-dia="30"
+                data-c="31.5"
+                x="446"
+                y="522"
+                width="8"
+                height="8"
+              ></rect>
+            </g>
+            <g class="ms-celula ms-celula--forte" data-dia="1" data-c="0.5">
+              <rect class="ms-celula-fundo" x="300" y="40" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="312" y="68">1</text>
+              <text class="ms-celula-rotulo" x="312" y="88">
+                {{tecnologia.pagina.mes.calendario.boleto}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--forte" data-dia="10" data-c="10">
+              <rect class="ms-celula-fundo" x="500" y="146" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="512" y="174">10</text>
+              <text class="ms-celula-rotulo" x="512" y="194">
+                {{tecnologia.pagina.mes.calendario.vencimento}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--forte" data-dia="23" data-c="24">
+              <rect class="ms-celula-fundo" x="400" y="358" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="412" y="386">23</text>
+              <text class="ms-celula-rotulo" x="412" y="406">
+                {{tecnologia.pagina.mes.calendario.acordo}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--forte" data-dia="26" data-c="27.5">
+              <rect class="ms-celula-fundo" x="0" y="464" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="12" y="492">26</text>
+              <text class="ms-celula-rotulo" x="12" y="512">
+                {{tecnologia.pagina.mes.calendario.assembleia}}
+              </text>
+            </g>
+            <g class="ms-celula ms-celula--forte" data-dia="30" data-c="31.5">
+              <rect class="ms-celula-fundo" x="400" y="464" width="100" height="88"></rect>
+              <text class="ms-celula-dia" x="412" y="492">30</text>
+              <text class="ms-celula-rotulo" x="412" y="512">
+                {{tecnologia.pagina.mes.calendario.prestacao}}
+              </text>
+            </g>
+            <g class="ms-conv">
+              <text class="ms-conv-titulo" x="12" y="68">
+                {{tecnologia.pagina.mes.calendario.convencao}}
+              </text>
+              <g class="ms-regra" data-regra="0">
+                <path class="ms-visto percurso" pathLength="1" d="M12 89l3.5 3.5l6.5 -7.5"></path>
+                <text x="28" y="94">{{tecnologia.pagina.mes.calendario.regras.0}}</text>
+              </g>
+              <g class="ms-regra" data-regra="1">
+                <path class="ms-visto percurso" pathLength="1" d="M156 89l3.5 3.5l6.5 -7.5"></path>
+                <text x="172" y="94">{{tecnologia.pagina.mes.calendario.regras.1}}</text>
+              </g>
+              <g class="ms-regra" data-regra="2">
+                <path class="ms-visto percurso" pathLength="1" d="M12 111l3.5 3.5l6.5 -7.5"></path>
+                <text x="28" y="116">{{tecnologia.pagina.mes.calendario.regras.2}}</text>
+              </g>
+              <g class="ms-regra" data-regra="3">
+                <path class="ms-visto percurso" pathLength="1" d="M156 111l3.5 3.5l6.5 -7.5"></path>
+                <text x="172" y="116">{{tecnologia.pagina.mes.calendario.regras.3}}</text>
+              </g>
+              <rect class="ms-conv-leitura" x="0" y="40" width="3" height="88"></rect>
+            </g>
+            <g class="ms-seguinte" data-c="34.24">
+              <rect class="ms-seguinte-fundo" x="500" y="464" width="200" height="88"></rect>
+              <text class="ms-seguinte-rotulo" x="512" y="492">
+                {{tecnologia.pagina.mes.calendario.seguinte}}
+              </text>
+            </g>
+          </svg>
+        </div>
+        <figcaption class="ms-legenda rotulo">
+          <span>{{tecnologia.pagina.mes.legenda}}</span>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="ms-cobertura" aria-hidden="true"></div>
+  </div>
+</section>

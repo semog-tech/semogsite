@@ -1,0 +1,91 @@
+<section id="pilares" class="cena grao" data-tema="marinho" aria-labelledby="pilares-titulo">
+  <div class="container pilares-cabeca">
+    <h2 id="pilares-titulo" class="pilares-titulo">{{pilares.titulo}}</h2>
+  </div>
+
+  <!-- Os três pilares são o símbolo III do logo: mesma proporção e mesmo intervalo
+       (36,41 de largura, 15,99 de vão). No desktop cada face frontal é uma coluna de
+       leitura; no celular o texto vem empilhado e o III fecha a cena. -->
+  <div class="pilares-palco">
+    <ul class="container pilares-fila">
+      <li id="gestao" class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo" aria-hidden="true"></span>
+          <span class="pilar-lado" aria-hidden="true"></span>
+          <div class="pilar-frente">
+            <span class="pilar-brilho" aria-hidden="true"></span>
+            <div class="pilar-leitura">
+              <h3 class="pilar-titulo">{{pilares.itens.0.titulo}}</h3>
+              <p class="pilar-texto">{{pilares.itens.0.texto}}</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li id="garante" class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo" aria-hidden="true"></span>
+          <span class="pilar-lado" aria-hidden="true"></span>
+          <div class="pilar-frente">
+            <span class="pilar-brilho" aria-hidden="true"></span>
+            <div class="pilar-leitura">
+              <h3 class="pilar-titulo">{{pilares.itens.1.titulo}}</h3>
+              <p class="pilar-texto" data-destaque="percentual">{{pilares.itens.1.texto}}</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li id="cobranca" class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo" aria-hidden="true"></span>
+          <span class="pilar-lado" aria-hidden="true"></span>
+          <div class="pilar-frente">
+            <span class="pilar-brilho" aria-hidden="true"></span>
+            <div class="pilar-leitura">
+              <h3 class="pilar-titulo">{{pilares.itens.2.titulo}}</h3>
+              <p class="pilar-texto" data-destaque="frase">{{pilares.itens.2.texto}}</p>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Celular: o III sozinho, de onde a luz desce. -->
+    <div class="container pilares-iii" aria-hidden="true">
+      <div class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo"></span><span class="pilar-lado"></span>
+          <div class="pilar-frente"></div>
+        </div>
+      </div>
+      <div class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo"></span><span class="pilar-lado"></span>
+          <div class="pilar-frente"></div>
+        </div>
+      </div>
+      <div class="pilar">
+        <div class="pilar-corpo">
+          <span class="pilar-topo"></span><span class="pilar-lado"></span>
+          <div class="pilar-frente"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pilares-grao grao" aria-hidden="true"></div>
+  </div>
+
+  <!-- Saída: a luz dos pilares desce e o marinho vira gelo (--grad-transparencia). -->
+  <div class="pilares-descida" aria-hidden="true">
+    <div class="container pilares-feixes">
+      <span class="feixe"
+        ><span class="feixe-trilho"><span class="feixe-luz"></span></span
+      ></span>
+      <span class="feixe"
+        ><span class="feixe-trilho"><span class="feixe-luz"></span></span
+      ></span>
+      <span class="feixe"
+        ><span class="feixe-trilho"><span class="feixe-luz"></span></span
+      ></span>
+    </div>
+    <div class="pilares-grao grao"></div>
+  </div>
+</section>
