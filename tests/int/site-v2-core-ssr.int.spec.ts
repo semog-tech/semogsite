@@ -17,6 +17,9 @@ const MODULOS: ReadonlyArray<readonly [string, () => Promise<unknown>]> = [
   ['tema', () => import('@/site/core/tema')],
   ['impressao', () => import('@/site/core/impressao')],
   ['cabecalho', () => import('@/site/core/cabecalho')],
+  ['montagem', () => import('@/site/core/montagem')],
+  ['registro', () => import('@/site/cenas/registro')],
+  ['runner', () => import('@/site/runner/RunnerDeCenas')],
 ]
 
 describe('site v2: módulos do cliente carregam no servidor', () => {
