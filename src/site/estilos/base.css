@@ -1,0 +1,759 @@
+/* Base: temas por seção, documento, tipografia, ações, cabeçalho, rodapé e campos.
+   Cor só por token (styles/tokens.css). Ponta sempre reta: nenhum border-radius. */
+
+/* ---- Temas ------------------------------------------------------------------
+   Toda <section> declara data-tema; o header copia o da seção que está sob ele.
+   As cenas usam as variáveis --tema-*, nunca a cor direta. */
+[data-tema="claro"] {
+  --tema-fundo: var(--branco);
+  --tema-titulo: var(--marinho);
+  --tema-texto: var(--texto);
+  --tema-suave: var(--texto-suave);
+  --tema-destaque: var(--marinho);
+  --tema-trilho: var(--lavanda);
+  --tema-foco: var(--marinho);
+}
+[data-tema="gelo"] {
+  --tema-fundo: var(--gelo);
+  --tema-titulo: var(--marinho);
+  --tema-texto: var(--texto);
+  --tema-suave: var(--texto-suave);
+  --tema-destaque: var(--marinho);
+  --tema-trilho: var(--lavanda);
+  --tema-foco: var(--marinho);
+}
+[data-tema="marinho"] {
+  --tema-fundo: var(--marinho);
+  --tema-titulo: var(--branco);
+  --tema-texto: var(--texto-sobre-marinho);
+  --tema-suave: var(--texto-suave-sobre-marinho);
+  --tema-destaque: var(--ceu);
+  --tema-trilho: color-mix(in oklab, var(--branco) 20%, transparent);
+  --tema-foco: var(--ceu);
+}
+
+/* ---- Documento --------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+html {
+  scroll-padding-top: var(--cab);
+  -webkit-text-size-adjust: 100%;
+  background: var(--branco);
+}
+body {
+  margin: 0;
+  background: var(--branco);
+  color: var(--texto);
+  font-family: var(--fonte-corpo);
+  font-size: var(--t-corpo);
+  font-weight: 400;
+  line-height: var(--lh-corpo);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+::selection {
+  background: var(--ceu);
+  color: var(--marinho);
+}
+:focus-visible {
+  outline: 2px solid var(--tema-foco, var(--marinho));
+  outline-offset: 3px;
+}
+
+/* ---- Tipografia -------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fonte-titulo);
+  font-weight: var(--peso-titulo);
+  letter-spacing: var(--tracking-titulo);
+  line-height: var(--lh-titulo);
+  color: var(--tema-titulo, var(--marinho));
+  text-wrap: balance;
+}
+h2 {
+  font-size: var(--t-h2);
+}
+h3 {
+  font-size: var(--t-h3);
+  line-height: 1.05;
+}
+.titulo-display {
+  font-size: var(--t-display);
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+}
+p,
+li {
+  text-wrap: pretty;
+}
+.lead {
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto, var(--texto));
+  max-width: 40ch;
+}
+.texto {
+  max-width: var(--largura-texto);
+}
+.rotulo {
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  color: var(--tema-suave, var(--texto-suave));
+}
+.num {
+  font-family: var(--fonte-titulo);
+  font-variant-numeric: tabular-nums;
+}
+/* Ênfase por peso. O valor final mora aqui (leitura sem JS); o JS anima até ele. */
+.peso {
+  font-style: normal;
+  font-variation-settings: "wght" var(--peso-enfase);
+}
+/* Texto ainda não confirmado: visível de propósito, discreto. */
+.a-confirmar {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  background: var(--gelo);
+  color: var(--texto-suave);
+  font-family: var(--fonte-corpo);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.6;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ---- Layout ------------------------------------------------------------------ */
+.container {
+  width: min(var(--largura), 100% - 2 * var(--margem));
+  margin-inline: auto;
+}
+.cena {
+  position: relative;
+  padding-block: var(--respiro-cena);
+  background: var(--tema-fundo);
+  color: var(--tema-texto);
+}
+.cena[data-esqueleto] {
+  min-height: 61.8svh;
+}
+.dividir {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+}
+.dividir > * {
+  min-width: 0;
+}
+.pilha > * + * {
+  margin-block-start: var(--pilha, var(--e3));
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .dividir {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+}
+
+/* ---- Superfícies do rebrand -------------------------------------------------- */
+.fundo-transparencia {
+  background: var(--grad-transparencia);
+}
+.fundo-retidao {
+  background: var(--grad-retidao);
+}
+.fundo-dinamica {
+  background: var(--grad-dinamica);
+}
+/* Grão sutil por cima de gradiente longo: quebra o banding sem aparecer como textura. */
+.grao {
+  isolation: isolate;
+}
+.grao::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.07;
+  mix-blend-mode: soft-light;
+}
+.grao > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Revelação ---------------------------------------------------------------
+   Até o movimento estar pronto, só os elementos de entrada ficam ocultos. Sem JS
+   (html.sem-js) nada some; com JS, uma rede de segurança libera em 6 s. */
+html.js:not(.motion) .entrada {
+  visibility: hidden;
+}
+.revela-linha,
+.linha {
+  padding-block-end: 0.08em;
+  margin-block-end: -0.08em;
+}
+.linha {
+  display: block;
+  overflow: clip;
+}
+.linha-interna {
+  display: inline-block;
+}
+
+/* ---- Ações ------------------------------------------------------------------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  min-height: 52px;
+  padding: 0 var(--e4);
+  border: 0;
+  background: var(--marinho);
+  color: var(--branco);
+  font-family: var(--fonte-corpo);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 240ms var(--ease-expo),
+    background-color 240ms var(--ease-expo);
+}
+.botao:hover {
+  transform: translateY(-1px);
+  background: color-mix(in oklab, var(--marinho) 88%, var(--azul-forte));
+}
+.botao--pequeno {
+  min-height: 40px;
+  padding: 0 var(--e3);
+  font-size: 0.9375rem;
+}
+[data-tema="marinho"] .botao {
+  background: var(--branco);
+  color: var(--marinho);
+}
+/* O traço é declarado no <svg>: o path mora no shadow do <use> e só herda. */
+.seta {
+  width: 21px;
+  height: 13px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+.link-seta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  min-height: 44px;
+  font-weight: 500;
+  color: var(--tema-titulo, var(--marinho));
+  text-decoration: none;
+}
+.link-seta .seta {
+  transition: transform 320ms var(--ease-expo);
+}
+.link-seta:hover .seta {
+  transform: translateX(5px);
+}
+.link-seta:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+/* Percursos: a curva mora no meio, a ponta é reta. */
+.percurso {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---- Campos ------------------------------------------------------------------ */
+.campo {
+  display: grid;
+  gap: var(--e1);
+}
+.campo label,
+.grupo legend {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tema-suave, var(--texto-suave));
+}
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--e1) 0 var(--e2);
+  border: 0;
+  border-bottom: 1px solid var(--nevoa);
+  background: transparent;
+  font-size: 1.125rem;
+  color: var(--tema-titulo, var(--marinho));
+  transition:
+    border-color 240ms var(--ease-expo),
+    box-shadow 240ms var(--ease-expo);
+}
+.campo select {
+  appearance: none;
+}
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-bottom-color: var(--tema-titulo, var(--marinho));
+  box-shadow: inset 0 -1px 0 var(--tema-titulo, var(--marinho));
+}
+.grupo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.grupo-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1) var(--e3);
+  margin-top: var(--e1);
+}
+.grupo-opcoes label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  min-height: 44px;
+  cursor: pointer;
+}
+.grupo-opcoes input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--marinho);
+}
+.status-demo {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--tema-titulo, var(--marinho));
+}
+.status-demo:empty {
+  display: none;
+}
+.status-demo::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 10px;
+  margin-right: var(--e1);
+  background: var(--ceu);
+}
+
+/* ---- Cabeçalho --------------------------------------------------------------- */
+.pular {
+  position: fixed;
+  left: var(--e2);
+  top: -80px;
+  z-index: 80;
+  padding: var(--e2) var(--e3);
+  background: var(--marinho);
+  color: var(--branco);
+}
+.pular:focus {
+  top: var(--e2);
+}
+.cabecalho {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: var(--cab);
+  color: var(--marinho);
+  transition: color 320ms var(--ease-expo);
+}
+.cabecalho::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Fundo sólido: translúcido, os títulos grandes passavam por baixo e se misturavam
+     com os links (pior no mundo marinho). Some só no topo da página. */
+  background: var(--branco);
+  opacity: 0;
+  transition:
+    opacity 320ms var(--ease-expo),
+    background-color 320ms var(--ease-expo);
+}
+.cabecalho[data-rolou]::before,
+.cabecalho[data-menu-aberto]::before {
+  opacity: 1;
+}
+.cabecalho[data-tema="marinho"] {
+  color: var(--branco);
+}
+.cabecalho[data-tema="marinho"]::before {
+  background: var(--marinho);
+}
+.cabecalho[data-tema="gelo"]::before {
+  background: var(--gelo);
+}
+.cabecalho[data-tema="marinho"] .botao {
+  background: var(--branco);
+  color: var(--marinho);
+}
+.cabecalho-faixa {
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+  height: 100%;
+  width: min(var(--largura), 100% - 2 * var(--margem));
+  margin-inline: auto;
+}
+/* Logo: as duas versões originais, inline; o tema do header escolhe qual aparece. */
+.marca {
+  display: block;
+  width: 132px;
+  flex: none;
+}
+.marca svg {
+  width: 100%;
+  height: auto;
+}
+.logo-escuro {
+  fill: var(--marinho);
+}
+.logo-claro {
+  fill: var(--logo-claro);
+}
+.marca .marca-clara,
+[data-tema="marinho"] .marca .marca-escura {
+  display: none;
+}
+[data-tema="marinho"] .marca .marca-clara {
+  display: block;
+}
+.nav {
+  display: flex;
+  gap: var(--e4);
+  margin-inline-start: auto;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.nav a,
+.cab-login {
+  text-decoration: none;
+  padding-block: var(--e1);
+  white-space: nowrap;
+}
+/* Oito itens com "A Semog" e "Incorporadoras": entre 1081 e 1240px o vão encolhe para caber
+   numa linha, e abaixo de 1160px encolhe mais um passo. */
+@media (max-width: 1240px) {
+  .nav {
+    gap: var(--e3);
+  }
+}
+@media (max-width: 1160px) {
+  .nav {
+    gap: var(--e2);
+  }
+}
+.nav a:hover,
+.cab-login:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+/* Página atual (A Semog): o mesmo sublinhado do hover, fixo. */
+.nav a[aria-current="page"],
+.painel-menu a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+.cab-acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.cab-separador {
+  width: 1px;
+  height: 21px;
+  background: currentColor;
+  opacity: 0.25;
+}
+.cab-menu {
+  display: none;
+  align-items: center;
+  gap: var(--e1);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cab-menu-icone {
+  display: grid;
+  gap: 5px;
+  width: 21px;
+}
+.cab-menu-icone i {
+  display: block;
+  height: 1.5px;
+  background: currentColor;
+}
+.painel-menu {
+  display: none;
+}
+@media (max-width: 1080px) {
+  .nav,
+  .cab-separador,
+  .cab-login {
+    display: none;
+  }
+  .cab-acoes {
+    margin-inline-start: auto;
+  }
+  .cab-menu {
+    display: inline-flex;
+  }
+  .cabecalho[data-menu-aberto] .painel-menu {
+    display: grid;
+  }
+  .painel-menu {
+    position: fixed;
+    inset: var(--cab) 0 auto;
+    max-height: calc(100svh - var(--cab));
+    overflow: auto;
+    gap: var(--e1);
+    padding: var(--e3) var(--margem) var(--e5);
+    background: var(--branco);
+    color: var(--marinho);
+    font-family: var(--fonte-titulo);
+    font-size: 1.75rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+  .painel-menu a {
+    text-decoration: none;
+    padding-block: var(--e1);
+  }
+  .painel-menu .painel-login {
+    margin-top: var(--e3);
+    font-family: var(--fonte-corpo);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+}
+@media (max-width: 420px) {
+  .marca {
+    width: 112px;
+  }
+  .cab-acoes {
+    gap: var(--e2);
+  }
+  .cab-acoes .botao {
+    padding: 0 var(--e2);
+  }
+}
+
+/* ---- Rodapé ------------------------------------------------------------------ */
+.rodape {
+  position: relative;
+  padding-block: var(--e6) var(--e5);
+  background: var(--grad-retidao);
+  color: var(--tema-texto);
+}
+.rodape-grade {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e5);
+}
+.rodape-grade > * {
+  min-width: 0;
+}
+.rodape .marca {
+  width: 160px;
+}
+.rodape-slogan {
+  margin-top: var(--e3);
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h3);
+  font-weight: 300;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.05;
+  color: var(--tema-titulo);
+}
+.rodape-colunas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--e4);
+}
+.rodape-colunas h2 {
+  font-family: var(--fonte-corpo);
+  font-size: var(--t-pequeno);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--tema-suave);
+}
+.rodape-colunas ul {
+  display: grid;
+  gap: var(--e1);
+  margin-top: var(--e2);
+}
+.rodape-colunas a {
+  text-decoration: none;
+}
+.rodape-colunas a:hover {
+  text-decoration: underline;
+}
+.rodape-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--e2) var(--e4);
+  margin-top: var(--e6);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--tema-trilho);
+  font-size: var(--t-pequeno);
+  color: var(--tema-suave);
+}
+.rodape-legal {
+  display: flex;
+  gap: var(--e4);
+}
+.rodape-legal a {
+  text-decoration: none;
+}
+.rodape-legal a:hover,
+.rodape-legal a[aria-current="page"] {
+  text-decoration: underline;
+}
+@media (max-width: 760px) {
+  .rodape-grade {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Esqueleto ----------------------------------------------------------------
+   Leitura mínima das seções que ainda não têm cena própria. Vale só enquanto a seção
+   tiver data-esqueleto: a cena retira o atributo e assume o próprio layout. */
+.cena[data-esqueleto] ul,
+.cena[data-esqueleto] ol,
+.cena[data-esqueleto] dl {
+  display: grid;
+  gap: var(--e3);
+  max-width: var(--largura-texto);
+}
+.cena[data-esqueleto] dd.num {
+  font-size: var(--t-h2);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+.cena[data-esqueleto] blockquote {
+  font-size: var(--t-lead);
+  font-weight: 300;
+  color: var(--tema-titulo);
+}
+.cena[data-esqueleto] figure {
+  display: grid;
+  gap: var(--e1);
+  align-content: start;
+}
+.cena[data-esqueleto] .moldura {
+  overflow: clip;
+}
+.cena[data-esqueleto] .moldura img {
+  width: 100%;
+  height: auto;
+}
+.cena[data-esqueleto] .comunidade-fotos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e2);
+}
+.cena[data-esqueleto] > .container > * + * {
+  margin-block-start: var(--e5);
+}
+
+/* ---- Impressão ------------------------------------------------------------------- */
+/* O header é fixo e o "Pular para o conteúdo" também: impressos, repetiam no topo e no pé
+   de toda folha. O rodapé já leva a marca e os contatos. */
+/* Linhas e palavras reveladas por máscara (SplitText) ficam no lugar. A folha tem outra
+   largura: o gsap.matchMedia das cenas troca de layout ao imprimir e monta entradas novas,
+   ainda no estado inicial, depois que o core já levou as antigas ao fim. */
+@media print {
+  .cabecalho,
+  .pular {
+    display: none;
+  }
+  .revela-linha,
+  .revela-palavra,
+  .linha-interna {
+    transform: none !important;
+  }
+}
