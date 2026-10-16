@@ -1,0 +1,26 @@
+/* Seção do pedido de proposta (fase 2: só na /previa-v2). Título à esquerda, formulário à direita,
+   na razão áurea; empilha em tela estreita. */
+#proposta {
+  padding-block: var(--respiro-cena);
+  background: var(--branco);
+}
+#proposta .proposta-grade {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e5);
+  align-items: start;
+}
+#proposta .proposta-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h2);
+  font-weight: var(--peso-titulo);
+  letter-spacing: var(--tracking-titulo);
+  line-height: var(--lh-titulo);
+  color: var(--marinho);
+}
+@media (max-width: 900px) {
+  #proposta .proposta-grade {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+}

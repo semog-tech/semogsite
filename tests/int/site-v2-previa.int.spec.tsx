@@ -8,6 +8,12 @@ import { procurarTermosVedados } from './helpers/identidade'
 
 vi.mock('@/site/runner/RunnerDeCenas', () => ({ RunnerDeCenas: () => null }))
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
+vi.mock('@/app/(site)/_actions/proposta-duas-etapas', () => ({
+  enviarEtapa1: vi.fn(),
+  enviarEtapa2: vi.fn(),
+  enviarPropostaCompleta: vi.fn(),
+}))
+vi.mock('@/components/forms/Turnstile', () => ({ Turnstile: () => null }))
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -40,6 +46,15 @@ describe('rota de prévia do site v2', () => {
     expect(document.querySelector('main#conteudo')?.getAttribute('data-pagina')).toBe('previa')
     expect(document.querySelector('section#ranking[data-tema="claro"]')).not.toBeNull()
     expect(document.querySelector('footer[data-tema="marinho"]')).not.toBeNull()
+  })
+
+  it('a prévia mostra o pedido de proposta em duas etapas, sem WhatsApp de proposta', () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    const { container } = render(<PaginaPrevia />)
+    const secao = container.querySelector('#proposta')
+    expect(secao?.querySelector('form[data-etapa-ativa="1"]')).toBeTruthy()
+    expect(secao?.innerHTML).not.toContain('wa.me')
+    expect(secao?.innerHTML).not.toContain('3003-4506')
   })
 
   it('toda cena registrada para a prévia tem a sua seção na página', () => {
