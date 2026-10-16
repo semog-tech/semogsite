@@ -81,6 +81,25 @@ export async function atualizarEtapa1(
   return (rowCount ?? 0) > 0
 }
 
+/**
+ * "Voltar" com o token vencido mas Turnstile novo (R5/R6): corrige a etapa 1 da linha do cookie
+ * enquanto o cron não a reivindicou, sem o limite dos 30 min (o Turnstile restabelece a confiança).
+ * `created_at` NÃO muda: o cron mede os 45 min a partir dele, e renová-lo adiaria o envio a cada
+ * volta. Linha já reivindicada não é tocada; a action grava uma nova.
+ */
+export async function reaproveitarEtapa1(
+  token: string,
+  dados: Record<string, string>,
+): Promise<boolean> {
+  const { rowCount } = await query(
+    `/* proposta:reaproveitar-etapa1 */
+     update cms.leads set data = (data - 'email') || $2::jsonb, email = $3, notificado_para = $4
+      where token_envio = $1 and etapa = 1 and envio_em is null`,
+    [token, dados, dados.email ?? null, destinoDe(dados)],
+  )
+  return (rowCount ?? 0) > 0
+}
+
 /** Etapa 2 pelo token: válido 30 min, uso único (etapa = 1), e já reivindica a linha. */
 export async function concluirEtapa2(
   token: string,

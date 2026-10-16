@@ -27,6 +27,7 @@ import {
   contextoDoEnvio,
   inserirCompleta,
   inserirEtapa1,
+  reaproveitarEtapa1,
 } from '@/lib/propostaDuasEtapas/gravacao'
 import type { ResultadoEtapa, ResultadoFalha } from '@/lib/propostaDuasEtapas/resultado'
 import {
@@ -87,6 +88,8 @@ export async function enviarEtapa1(
     if (token && (await atualizarEtapa1(token, dados))) return { ok: true, etapa: 1 }
     if (!turnstileToken) return PRECISA_VERIFICAR
     if (!(await verifyTurnstile(turnstileToken, ip))) return ANTI_ROBO
+    // Token vencido, Turnstile novo: a linha do cookie, se o cron ainda não a enviou (sem duplicata).
+    if (token && (await reaproveitarEtapa1(token, dados))) return { ok: true, etapa: 1 }
     const novo = randomUUID()
     await inserirEtapa1(dados, await contextoDoEnvio(), novo)
     await gravarTokenDaEtapa(novo)

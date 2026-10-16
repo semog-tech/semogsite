@@ -119,8 +119,8 @@ async function banco(sql: string, p: unknown[] = []) {
     return { rows: [{ id: nova(p, 1, texto(p[5])).id }], rowCount: 1 }
   if (sql.includes('proposta:inserir-completa'))
     return { rows: [visivel(nova(p, 2, null))], rowCount: 1 }
-  if (sql.includes('proposta:atualizar-etapa1')) {
-    const l = pendente(p[0], true)
+  if (sql.includes('proposta:atualizar-etapa1') || sql.includes('proposta:reaproveitar-etapa1')) {
+    const l = pendente(p[0], sql.includes('atualizar-etapa1'))
     if (!l) return { rows: [], rowCount: 0 }
     l.data = { ...semEmail(l.data), ...objeto(p[1]) }
     l.notificado_para = texto(p[3])
@@ -271,6 +271,45 @@ describe('etapa 1', () => {
     if (linha) linha.criadaEm = new Date(Date.now() - 31 * 60_000)
     expect(await enviarEtapa1(ETAPA1, null)).toEqual({ ok: false, motivo: 'precisa_verificar' })
     expect(inserts()).toBe(1)
+  })
+
+  it('voltar depois dos 30 min com Turnstile novo: UPDATE da MESMA linha, nenhum INSERT', async () => {
+    const token = await etapa1Gravada()
+    const linha = tabela[0]
+    const criadaEm = new Date(Date.now() - 31 * 60_000)
+    if (linha) linha.criadaEm = criadaEm
+    expect(await enviarEtapa1({ ...ETAPA1, uf: 'PE' }, 'turnstile-novo')).toEqual({
+      ok: true,
+      etapa: 1,
+    })
+    expect(inserts()).toBe(1)
+    expect(tabela).toHaveLength(1)
+    const [sql, p] = sqlCom('proposta:reaproveitar-etapa1')[0] ?? ['', []]
+    expect(p[0]).toBe(token)
+    expect(sql).toMatch(/token_envio = \$1 and etapa = 1 and envio_em is null/)
+    expect(sql).not.toContain('30 minutes')
+    // `created_at` fica: o cron mede os 45 min a partir dele.
+    expect(sql).not.toContain('created_at')
+    expect(tabela[0]?.criadaEm).toBe(criadaEm)
+    expect(tabela[0]?.notificado_para).toBe('ivan@semog.com.br')
+    expect(jar.get('proposta_etapa')).toBe(token)
+  })
+
+  it('linha já reivindicada pelo cron: com Turnstile novo grava UMA linha nova e troca o cookie', async () => {
+    const token = await etapa1Gravada()
+    const linha = tabela[0]
+    if (linha) {
+      linha.criadaEm = new Date(Date.now() - 46 * 60_000)
+      linha.envioEm = new Date()
+    }
+    expect(await enviarEtapa1(ETAPA1, 'turnstile-novo')).toEqual({ ok: true, etapa: 1 })
+    expect(sqlCom('proposta:reaproveitar-etapa1')).toHaveLength(1)
+    expect(inserts()).toBe(2)
+    expect(tabela).toHaveLength(2)
+    const novo = jar.get('proposta_etapa')
+    expect(novo).toMatch(UUID)
+    expect(novo).not.toBe(token)
+    expect(tabela[1]?.token).toBe(novo)
   })
 })
 
