@@ -1,11 +1,28 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { pages } from '@/../content/pages'
 import { CITY_LANDINGS } from '@/data/cityLandings'
 import { getAllPosts } from '@/lib/blog'
 import { conteudo } from '@/site/conteudo/conteudo'
-import { entradaDe, INVENTARIO } from '@/site/inventario'
+import { entradaDe, INVENTARIO, servidaComoPagina, VIRADA_1_FEITA } from '@/site/inventario'
 import { REDIRECIONAMENTOS } from '@/site/redirecionamentos'
 import { textosDe } from './helpers/identidade'
+
+/**
+ * Rotas técnicas e o arquivo do App Router que serve cada uma (um OG dinâmico de cada tipo,
+ * como amostra). Se o arquivo mudar de lugar, este mapa muda junto: é o que prova que a rota
+ * continua existindo.
+ */
+const ARQUIVOS_TECNICOS: Readonly<Record<string, string>> = {
+  '/sitemap.xml': 'src/app/(frontend)/sitemap.ts',
+  '/robots.txt': 'src/app/robots.ts',
+  '/icon.svg': 'src/app/icon.svg',
+  '/apple-icon.png': 'src/app/apple-icon.png',
+  '/opengraph-image': 'src/app/opengraph-image.tsx',
+  '/semog/opengraph-image': 'src/app/[slug]/opengraph-image.tsx',
+  '/blog/g20-superlogica-next-2026/opengraph-image': 'src/app/blog/[slug]/opengraph-image.tsx',
+}
 
 /** As URLs que o site no ar serve hoje (fora dos grupos intocados). */
 const ATUAIS = [
@@ -14,6 +31,7 @@ const ATUAIS = [
   ...getAllPosts().map((post) => `/blog/${post.slug}`),
   '/experience',
   '/styleguide',
+  ...Object.keys(ARQUIVOS_TECNICOS),
 ]
 const SLUGS_DE_POST = new Set(getAllPosts().map((post) => post.slug))
 /** Redirects de caminho fixo: sem condição de host e sem parâmetro (`:slug`). */
@@ -96,4 +114,62 @@ describe('redirects do site (movidos do next.config.ts)', () => {
 
   // Com /solucoes mantida como página, `/solucoes.html` e `/domestica` (que apontam para ela)
   // não formam cadeia com nenhum redirect planejado: o teste acima já cobre.
+})
+
+describe('rotas técnicas e o que está no ar (fase 3)', () => {
+  it('toda rota técnica do inventário tem o arquivo que a serve e fica fora das páginas', () => {
+    const tecnicas = Object.entries(INVENTARIO)
+      .filter(([, entrada]) => entrada.tipo === 'tecnica')
+      .map(([caminho]) => caminho)
+    expect(tecnicas.sort()).toEqual([
+      '/apple-icon.png',
+      '/icon.svg',
+      '/opengraph-image',
+      '/robots.txt',
+      '/sitemap.xml',
+    ])
+    for (const [url, arquivo] of Object.entries(ARQUIVOS_TECNICOS)) {
+      expect(entradaDe(url), url).toEqual({ tipo: 'tecnica' })
+      expect(existsSync(path.join(process.cwd(), arquivo)), arquivo).toBe(true)
+    }
+  })
+
+  it('o OG dinâmico vale só para um segmento ou um post', () => {
+    expect(entradaDe('/a/b/opengraph-image')).toBeUndefined()
+    expect(entradaDe('/blog/x/y/opengraph-image')).toBeUndefined()
+  })
+
+  it('as páginas de leitura da prévia são prévia, não página', () => {
+    expect(entradaDe('/previa-v2/blog')).toEqual({ tipo: 'previa' })
+    expect(entradaDe('/previa-v2/blog/g20-superlogica-next-2026')).toEqual({ tipo: 'previa' })
+    expect(entradaDe('/previa-v2/privacidade')).toEqual({ tipo: 'previa' })
+    expect(entradaDe('/previa-v2-outra')).toBeUndefined()
+  })
+
+  it('antes da virada 1, o que responde como página é o site atual', () => {
+    expect(VIRADA_1_FEITA).toBe(false)
+    expect(servidaComoPagina(entradaDe('/semog'))).toBe(true)
+    expect(servidaComoPagina(entradaDe('/blog/g20-superlogica-next-2026'))).toBe(true)
+    expect(servidaComoPagina(entradaDe('/tecnologia'))).toBe(false)
+    expect(servidaComoPagina(entradaDe('/prestacao-de-contas-condominio'))).toBe(true)
+    expect(servidaComoPagina(entradaDe('/software-de-gestao-condominial'))).toBe(true)
+    for (const url of ['/styleguide', '/previa-v2', '/sitemap.xml', '/experience', '/nao-existe']) {
+      expect(servidaComoPagina(entradaDe(url)), url).toBe(false)
+    }
+  })
+
+  it('depois da virada 1, /tecnologia nasce e as duas URLs da fase 4 passam a redirecionar', () => {
+    expect(servidaComoPagina(entradaDe('/tecnologia'), true)).toBe(true)
+    expect(servidaComoPagina(entradaDe('/prestacao-de-contas-condominio'), true)).toBe(false)
+    expect(servidaComoPagina(entradaDe('/software-de-gestao-condominial'), true)).toBe(false)
+    expect(servidaComoPagina(entradaDe('/semog'), true)).toBe(true)
+  })
+
+  it('todo redirect do inventário é da fase 4, que entra com a virada 1 (premissa de servidaComoPagina)', () => {
+    const fases = Object.values(INVENTARIO).flatMap((entrada) =>
+      entrada.tipo === 'redireciona' ? [entrada.fase] : [],
+    )
+    expect(fases.length).toBeGreaterThan(0)
+    expect(fases.every((fase) => fase === 4)).toBe(true)
+  })
 })
