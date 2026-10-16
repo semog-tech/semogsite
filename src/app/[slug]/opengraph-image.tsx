@@ -1,45 +1,35 @@
+import * as Sentry from '@sentry/nextjs'
 import { ImageResponse } from 'next/og'
-import { getPageBySlug } from '@/lib/content'
 import { OG_CONTENT_TYPE, OG_SITE_NAME, OG_SIZE, OgCard } from '@/lib/og'
+import { tituloDoOg } from '@/site/seo/og'
 
 export const alt = OG_SITE_NAME
 export const size = OG_SIZE
 export const contentType = OG_CONTENT_TYPE
 
 /**
- * OG por-página, uma única rota que cobre qualquer `page` de slug único
- * (`solucoes`, `semog`, etc. — hoje nenhuma `page` usa slug com mais de um
- * segmento). Título via `getPageBySlug` (`@/lib/content`, índice estático de
- * `content/pages`): `meta.title` > `title` bruto, espelhando a prioridade de
- * `buildMetadata` em `src/lib/seo.ts`. Nunca lança — se a page não existir,
- * cai no nome do site (o try/catch não tem mais I/O real por trás, mas
- * mantém a mesma garantia defensiva de antes).
+ * OG por página: uma rota cobre qualquer página de um segmento (`/semog`, `/solucoes`...). O
+ * título sai de `tituloDoOg` (src/site/seo/og.ts), travado pelo teste site-v2-og: tirar uma
+ * página de `content/pages` sem registrar o título não cai mais em silêncio no nome do site.
+ * Nunca lança: erro inesperado vai ao Sentry e o card sai com o nome do site.
  *
- * Fica em `src/app/[slug]/opengraph-image.tsx` (raiz do App Router), não em
- * `src/app/(frontend)/[[...slug]]/opengraph-image.tsx` — por dois motivos:
- * (1) mesmo caveat de registro de `robots.ts`/`opengraph-image.tsx` default
- * dentro do route group `(frontend)` no Next 16.2.6 + Turbopack (dev); (2)
- * mesmo colocado direto na raiz, um arquivo especial dentro de uma pasta de
- * catch-all (`[[...slug]]`) é rejeitado pelo Turbopack com erro fatal
- * ("Invalid segment Static("opengraph-image"), catch all segment must be
- * the last segment") — catch-all precisa ser o último segmento da rota, e
- * `opengraph-image` adiciona um segmento literal depois dele. Como as pages
- * atuais só usam slug de um segmento, um dynamic segment simples (`[slug]`,
- * não catch-all) resolve `/solucoes/opengraph-image` sem esse problema; a
- * home (slug vazio) já é coberta pelo OG default em `src/app/opengraph-image.tsx`.
+ * Fica em `src/app/[slug]/` (raiz do App Router), e não em `(frontend)`, por dois motivos do
+ * Next 16.2.6 + Turbopack (dev): arquivo especial dentro do route group nunca é registrado (cai
+ * no catch-all e dá 404), e dentro da pasta do catch-all `[[...slug]]` o Turbopack recusa o
+ * segmento literal depois dele. A home usa o card padrão (`src/app/opengraph-image.tsx`).
  */
-async function resolveTitle(slug: string): Promise<string> {
+function resolverTitulo(slug: string): string {
   try {
-    const page = await getPageBySlug(slug)
-    return page?.meta?.title || page?.title || OG_SITE_NAME
-  } catch {
+    return tituloDoOg(`/${slug}`)
+  } catch (erro) {
+    Sentry.captureException(erro, { tags: { origem: 'og' } })
     return OG_SITE_NAME
   }
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const title = await resolveTitle(slug)
-
-  return new ImageResponse(<OgCard eyebrow="SEMOG" title={title} />, { ...OG_SIZE })
+  return new ImageResponse(<OgCard eyebrow="SEMOG" title={resolverTitulo(slug)} />, {
+    ...OG_SIZE,
+  })
 }

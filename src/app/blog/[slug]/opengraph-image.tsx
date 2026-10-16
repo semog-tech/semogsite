@@ -1,35 +1,33 @@
+import * as Sentry from '@sentry/nextjs'
 import { ImageResponse } from 'next/og'
-import { getPostBySlug } from '@/lib/content'
 import { OG_CONTENT_TYPE, OG_SITE_NAME, OG_SIZE, OgCard } from '@/lib/og'
+import { tituloDoOg } from '@/site/seo/og'
 
 export const alt = OG_SITE_NAME
 export const size = OG_SIZE
 export const contentType = OG_CONTENT_TYPE
 
 /**
- * Título do post lido de `content/blog/*.mdx` (Task 3 — sem Payload). Nunca
- * lança: se o post não existir, cai no nome do site.
+ * OG dos posts: o título vem de `content/blog/*.mdx`, por `tituloDoOg` (src/site/seo/og.ts).
+ * Nunca lança: erro inesperado vai ao Sentry e o card sai com o nome do site.
  *
- * Fica em `src/app/blog/[slug]/opengraph-image.tsx` (raiz do App Router),
- * não em `src/app/(frontend)/blog/[slug]/opengraph-image.tsx` — mesmo
- * caveat de registro de `robots.ts`/os outros `opengraph-image.tsx` dentro
- * do route group `(frontend)` no Next 16.2.6 + Turbopack (dev): a rota
- * nunca é registrada e cai no catch-all `[[...slug]]` (404). Route groups
- * não afetam a URL, então `/blog/:slug/opengraph-image` continua sendo
- * servido do jeito certo a partir da raiz.
+ * Fica em `src/app/blog/[slug]/` (raiz do App Router), e não em `(frontend)/blog/[slug]/`: no
+ * Next 16.2.6 + Turbopack (dev), arquivo especial dentro do route group nunca é registrado e cai
+ * no catch-all (404). Route groups não afetam a URL: `/blog/<slug>/opengraph-image` é servido
+ * daqui.
  */
-async function resolveTitle(slug: string): Promise<string> {
+function resolverTitulo(slug: string): string {
   try {
-    const post = await getPostBySlug(slug)
-    return post?.title || OG_SITE_NAME
-  } catch {
+    return tituloDoOg(`/blog/${slug}`)
+  } catch (erro) {
+    Sentry.captureException(erro, { tags: { origem: 'og' } })
     return OG_SITE_NAME
   }
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const title = await resolveTitle(slug)
-
-  return new ImageResponse(<OgCard eyebrow="BLOG" title={title} />, { ...OG_SIZE })
+  return new ImageResponse(<OgCard eyebrow="BLOG" title={resolverTitulo(slug)} />, {
+    ...OG_SIZE,
+  })
 }
