@@ -85,11 +85,40 @@ async function chamar(tentativa: Tentativa, turnstile: string | null): Promise<R
 
 const temErro = (erros: Record<string, string>) => Object.keys(erros).length > 0
 
+/** Dos erros na tela, só os que o campo ainda tem (com a mensagem atual); nunca acrescenta erro. */
+function errosQueContinuam(
+  naTela: Record<string, string>,
+  atuais: Record<string, string>,
+): Record<string, string> {
+  const restantes: Record<string, string> = {}
+  for (const campo of Object.keys(naTela)) {
+    const mensagem = atuais[campo]
+    if (mensagem) restantes[campo] = mensagem
+  }
+  return restantes
+}
+
+/** O token do primeiro widget já foi gasto e ele não emite outro: pede uma verificação nova. */
+function pedirVerificacaoNova(e: EstadoDoEnvio): EstadoDoEnvio {
+  const status = TEXTOS.precisaVerificar
+  if (e.verificar) return { ...e, erros: {}, falha: false, status }
+  return {
+    ...e,
+    erros: {},
+    falha: false,
+    verificar: true,
+    chaveVerificacao: e.chaveVerificacao + 1,
+    status,
+  }
+}
+
 export function useEnvioDaProposta() {
   const [estado, setEstado] = useState<EstadoDoEnvio>(ESTADO_INICIAL)
   const tokenInicial = useRef<string | null>(null)
   const pendente = useRef<Tentativa | null>(null)
   const leadGerado = useRef(false)
+  // O widget inicial emite um token só: depois de gasto (envio com falha ou recusa), não há outro.
+  const tokenGasto = useRef(false)
 
   // Trava síncrona contra o duplo clique: o `enviando` do estado só chega na próxima renderização.
   const emVoo = useRef(false)
@@ -115,6 +144,7 @@ export function useEnvioDaProposta() {
   // Estáveis: o widget do Turnstile guarda o callback da primeira renderização.
   const guardarToken = useCallback((token: string) => {
     tokenInicial.current = token
+    setEstado((e) => (e.status === TEXTOS.aguardeVerificacao ? { ...e, status: '' } : e))
   }, [])
   const continuarComToken = useCallback(
     (token: string) => {
@@ -139,14 +169,22 @@ export function useEnvioDaProposta() {
       recusarCampos(form, ORDEM_ETAPA_1, erros)
       return
     }
+    const campos = lerEtapa1(form)
+    const tentativa: Tentativa = { enviar: (t) => enviarEtapa1(campos, t), medir: medirLeadGerado }
     const token = tokenInicial.current
     if (!token && !estado.etapa1Gravada) {
-      setEstado((e) => ({ ...e, erros: {}, status: TEXTOS.aguardeVerificacao }))
+      if (!tokenGasto.current) {
+        setEstado((e) => ({ ...e, erros: {}, status: TEXTOS.aguardeVerificacao }))
+        return
+      }
+      // O widget novo chama `continuarComToken`, que envia esta tentativa (com os campos de agora).
+      pendente.current = tentativa
+      setEstado(pedirVerificacaoNova)
       return
     }
     tokenInicial.current = null
-    const campos = lerEtapa1(form)
-    void executar({ enviar: (t) => enviarEtapa1(campos, t), medir: medirLeadGerado }, token)
+    if (token) tokenGasto.current = true
+    void executar(tentativa, token)
   }
 
   function enviarDaEtapa2(form: HTMLFormElement) {
@@ -173,6 +211,13 @@ export function useEnvioDaProposta() {
     )
   }
 
+  /** Erro de um campo some quando ele fica válido (o envio continua sendo quem mostra erro novo). */
+  function revisarErros(form: HTMLFormElement) {
+    if (!temErro(estado.erros)) return
+    const atuais = estado.etapa === 1 ? errosDaEtapa1(form) : errosDaEtapa2(form)
+    setEstado((e) => ({ ...e, erros: errosQueContinuam(e.erros, atuais) }))
+  }
+
   function tentarDeNovo() {
     if (pendente.current) void executar(pendente.current, null)
   }
@@ -189,5 +234,6 @@ export function useEnvioDaProposta() {
     continuarComToken,
     tentarDeNovo,
     voltar,
+    revisarErros,
   }
 }

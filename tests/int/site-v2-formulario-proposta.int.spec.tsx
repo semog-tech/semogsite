@@ -239,6 +239,90 @@ describe('formulário de proposta em duas etapas (site v2)', () => {
     expect(captureExceptionMock).toHaveBeenCalledTimes(1)
   })
 
+  it('depois de falha, "Continuar" pede verificação nova em vez de travar em "aguarde" (verificação final)', async () => {
+    etapa1Mock.mockResolvedValueOnce({ ok: false, motivo: 'falha', mensagem: 'x' })
+    montar()
+    fireEvent.click(screen.getByText('verificação'))
+    preencherEtapa1()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    await screen.findByRole('alert')
+    etapa1Mock.mockResolvedValue({ ok: true, etapa: 1 })
+    fireEvent.change(screen.getByLabelText('Nome do condomínio'), {
+      target: { value: 'Aurora II' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    expect(screen.queryByText(TEXTOS.aguardeVerificacao)).toBeNull()
+    expect(screen.getByText(TEXTOS.precisaVerificar)).toBeTruthy()
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(etapa1Mock).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByText('verificação'))
+    await waitFor(() => expect(etapa1Mock).toHaveBeenCalledTimes(2))
+    expect(etapa1Mock.mock.calls[1]).toEqual([
+      expect.objectContaining({ nomeCondominio: 'Aurora II' }),
+      'token-teste',
+    ])
+  })
+
+  it('depois de recusa do Turnstile, idem: "Continuar" mostra um widget novo', async () => {
+    etapa1Mock.mockResolvedValueOnce({ ok: false, motivo: 'recusado', mensagem: 'Recusado.' })
+    montar()
+    fireEvent.click(screen.getByText('verificação'))
+    preencherEtapa1()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    await screen.findByText('Recusado.')
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    expect(screen.queryByText(TEXTOS.aguardeVerificacao)).toBeNull()
+    expect(screen.getByText(TEXTOS.precisaVerificar)).toBeTruthy()
+    expect(screen.getAllByText('verificação')).toHaveLength(1)
+  })
+
+  it('"aguarde a verificação" some assim que o token chega', () => {
+    montar()
+    preencherEtapa1()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    expect(screen.getByText(TEXTOS.aguardeVerificacao)).toBeTruthy()
+    fireEvent.click(screen.getByText('verificação'))
+    expect(screen.queryByText(TEXTOS.aguardeVerificacao)).toBeNull()
+  })
+
+  it('a falha leva o foco ao título do bloco de falha, não ao documento', async () => {
+    etapa1Mock.mockResolvedValue({ ok: false, motivo: 'falha', mensagem: 'x' })
+    montar()
+    fireEvent.click(screen.getByText('verificação'))
+    preencherEtapa1()
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    await screen.findByRole('alert')
+    expect(document.activeElement?.textContent).toBe(TEXTOS.falhaTitulo)
+    expect(document.activeElement?.closest('[role="alert"]')).toBeTruthy()
+  })
+
+  it('o erro de um campo some quando ele fica válido; o dos outros fica', async () => {
+    const { form } = montar()
+    await chegarNaEtapa2(form)
+    fireEvent.click(screen.getByRole('button', { name: /Pedir proposta/ }))
+    expect(screen.getByText(MENSAGENS.cidade)).toBeTruthy()
+    expect(screen.getByText(MENSAGENS.nome)).toBeTruthy()
+    fireEvent.click(screen.getByLabelText('João Pessoa'))
+    expect(screen.queryByText(MENSAGENS.cidade)).toBeNull()
+    expect(screen.getByText(MENSAGENS.nome)).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Seu nome'), { target: { value: 'Maria' } })
+    expect(screen.queryByText(MENSAGENS.nome)).toBeNull()
+    expect(screen.getByText(MENSAGENS.perfil)).toBeTruthy()
+  })
+
+  it('na etapa 1, corrigir o telefone apaga o erro dele sem criar erro nos campos intocados', () => {
+    montar()
+    fireEvent.click(screen.getByText('verificação'))
+    fireEvent.change(screen.getByLabelText('Telefone com DDD'), { target: { value: '8399' } })
+    fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
+    expect(screen.getByText(MENSAGENS.telefoneIncompleto)).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Telefone com DDD'), {
+      target: { value: '83999501388' },
+    })
+    expect(screen.queryByText(MENSAGENS.telefoneIncompleto)).toBeNull()
+    expect(screen.getByText(MENSAGENS.condominio)).toBeTruthy()
+  })
+
   it('?perfil=construtora pré-marca a etapa 2 (spec 4.1)', () => {
     window.history.replaceState({}, '', '/previa-v2?perfil=construtora')
     montar()

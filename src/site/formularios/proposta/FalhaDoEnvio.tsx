@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { site } from '@/../content/site'
 import { TEXTOS } from './textos'
 
@@ -35,10 +36,17 @@ export function TelefonesDasUnidades({ uf }: { uf: string }) {
 
 type PropsFalha = { uf: string; enviando: boolean; aoTentarDeNovo: () => void }
 
+/** O foco vai ao título: o botão que enviou ficou desativado durante o envio e o teclado o perderia. */
 export function FalhaDoEnvio({ uf, enviando, aoTentarDeNovo }: PropsFalha) {
+  const titulo = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    titulo.current?.focus()
+  }, [])
   return (
     <div className="fp-falha" role="alert">
-      <p className="fp-falha-titulo">{TEXTOS.falhaTitulo}</p>
+      <p ref={titulo} className="fp-falha-titulo" tabIndex={-1}>
+        {TEXTOS.falhaTitulo}
+      </p>
       <p>{TEXTOS.falhaTexto}</p>
       <TelefonesDasUnidades uf={uf} />
       <div className="fp-acoes">

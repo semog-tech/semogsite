@@ -127,6 +127,7 @@ export function FormularioProposta({ id, ufInicial = '' }: PropsFormulario) {
         className="formulario-proposta"
         noValidate
         onSubmit={aoEnviar}
+        onChange={(evento) => envio.revisarErros(evento.currentTarget)}
         data-etapa-ativa={estado.etapa}
         aria-labelledby={`${id}-titulo`}
         aria-busy={estado.enviando || undefined}
