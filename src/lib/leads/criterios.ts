@@ -23,9 +23,17 @@ export const SQL_NAO_E_CLIENTE = "coalesce(data->>'cliente', '') <> 'sim'"
 const SQL_JA_PROCESSADA = "envio_em is not null and envio_em < now() - interval '10 minutes'"
 
 /**
- * (A) Etapa 1 sem etapa 2 há 45 min: reivindica (trava) e devolve a linha para a pós-gravação. O
- * token vale 30 min, então a etapa 2 nunca disputa esta linha com o cron (R4); `skip locked` evita
- * que duas execuções do cron peguem a mesma.
+ * (A) Etapa 1 sem etapa 2 há 45 min: reivindica (trava) **uma** linha e a devolve para a
+ * pós-gravação; o cron chama em laço, com orçamento de tempo, para nenhuma linha ficar reivindicada
+ * sem ser processada se a execução estourar. Sem teto de idade: etapa 1 de um cron parado por dias
+ * ainda sai (o cron avisa o Sentry quando ela passa de 2 h).
+ *
+ * Disputa com a action: com Turnstile novo, a action ainda pode mexer nesta linha depois dos 45 min
+ * (`absorver`, `reaproveitar-etapa1`, sem o limite dos 30 min do token). Todos os UPDATEs exigem
+ * `envio_em is null` e o Postgres trava a linha: quem grava primeiro vence, e o outro reavalia o
+ * WHERE depois da trava e não muda nada (a action então grava linha nova). Com `skip locked`, o cron
+ * pula a linha que a action ou outra execução estiver segurando, e a pega na rodada seguinte se ela
+ * ainda estiver pendente.
  */
 export const SQL_REIVINDICAR_ETAPA1 = `/* cron:reivindicar-etapa1 */
 update cms.leads set envio_em = now()
@@ -35,10 +43,9 @@ update cms.leads set envio_em = now()
       and etapa = 1
       and form = 'proposta'
       and created_at < now() - interval '45 minutes'
-      and created_at > $1
       and ${SQL_AMBIENTE_LIBERADO}
     order by created_at asc
-    limit $2
+    limit 1
     for update skip locked)
 returning ${COLUNAS_DA_LINHA}`
 

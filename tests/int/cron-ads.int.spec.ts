@@ -333,7 +333,9 @@ describe('cron upload-ads-conversions', () => {
     // mas o ponto chave é que não existe uma 2ª/3ª chamada de UPDATE que
     // pudesse ter marcado só parte do lote antes da falha.
     expect(res.status).toBe(500)
-    expect(json.error).toContain('conexão caiu no meio do UPDATE')
+    // Só a classe do erro na resposta (o texto do Postgres pode ecoar dado pessoal).
+    expect(json.error).toBe('Error')
+    expect(JSON.stringify(json)).not.toContain('conexão caiu no meio do UPDATE')
     expect(queryMock).toHaveBeenCalledTimes(3) // 2 SELECTs + 1 UPDATE (que falhou)
   })
 

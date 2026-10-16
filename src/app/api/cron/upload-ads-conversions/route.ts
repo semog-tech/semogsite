@@ -8,7 +8,7 @@ import {
 } from '@/lib/ads/conversoes'
 import { query } from '@/lib/db'
 import { SQL_LEADS_PARA_O_ADS } from '@/lib/leads/criterios'
-import { reportarFalhaDoLead } from '@/lib/leads/reportar'
+import { descreverErro, reportarFalhaDoLead } from '@/lib/leads/reportar'
 import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
 
 /**
@@ -174,6 +174,7 @@ export async function GET(req: Request): Promise<Response> {
     })
   } catch (err) {
     reportarFalhaDoLead('cron', err, { origem: 'cron-ads' })
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    // Só a classe do erro: o texto do Postgres pode ecoar dado pessoal.
+    return NextResponse.json({ error: descreverErro(err) }, { status: 500 })
   }
 }
