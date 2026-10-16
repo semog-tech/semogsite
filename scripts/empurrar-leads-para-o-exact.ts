@@ -12,6 +12,7 @@
 // Só age em lead com `exact_lead_id` nulo, então rodar duas vezes não duplica.
 
 import { Pool } from 'pg'
+import { conexaoComTls } from '../src/lib/db-tls.js'
 import { pushLeadToExact } from '../src/lib/exact/push-lead.js'
 
 const ids = process.argv.slice(2).filter((a) => /^\d+$/.test(a))
@@ -22,11 +23,7 @@ if (ids.length === 0) {
 }
 
 async function main() {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URI,
-    ssl: { rejectUnauthorized: false },
-    max: 1,
-  })
+  const pool = new Pool({ ...conexaoComTls(process.env.DATABASE_URI), max: 1 })
   try {
     const { rows } = await pool.query<{
       id: string

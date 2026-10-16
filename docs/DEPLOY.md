@@ -38,6 +38,15 @@ variantes de teste/staging nos Previews quando existirem.
 **O Transaction pooler (porta `6543`) é proibido** em ambas — não suporta prepared statements e
 quebra o adapter Postgres do Payload.
 
+**TLS do banco:** a URI **não deve** ter `sslmode` (nem `sslrootcert`/`sslcert`/`sslkey`/`ssl`) — com
+eles o `pg` descartaria a configuração de TLS do código; `src/lib/db-tls.ts` os remove por
+garantia. O certificado é verificado (cadeia e nome) contra as raízes da CA da Supabase embutidas
+nesse arquivo; quando a URI aponta para o IP do proxy da VPS, o nome conferido é o do pooler
+(`SUPABASE_POOLER_HOST`). Se a Supabase trocar a raiz (a 2021 vence em 26/04/2031) ou o proxy
+passar a apontar para fora de `*.pooler.supabase.com`, a conexão falha com erro de certificado: baixar a CA nova em Database Settings →
+SSL Configuration, conferir o SHA-256, acrescentar em `SUPABASE_ROOT_CAS` (ou ajustar o nome do
+pooler) e fazer deploy.
+
 ### Payload (obrigatório)
 
 | Variável | Obrigatório | Client-exposed | Descrição |

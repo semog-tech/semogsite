@@ -30,6 +30,7 @@
 //   conversões tratando os dois como iguais.
 
 import { Pool } from 'pg'
+import { conexaoComTls } from '../src/lib/db-tls.js'
 
 const BASE = (process.env.EXACT_SPOTTER_BASE_URL || 'https://api.exactspotter.com/v3').replace(
   /\/$/,
@@ -53,11 +54,7 @@ async function main() {
     process.exit(1)
   }
 
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URI,
-    ssl: { rejectUnauthorized: false },
-    max: 1,
-  })
+  const pool = new Pool({ ...conexaoComTls(process.env.DATABASE_URI), max: 1 })
 
   let cliquesPorSemana: Record<string, { cliques: number; comGclid: number }> = {}
   try {

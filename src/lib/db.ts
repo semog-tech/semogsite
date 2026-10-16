@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { Pool, type QueryResultRow } from 'pg'
+import { conexaoComTls } from './db-tls'
 
 /**
  * Pool `pg` sobre o `DATABASE_URI` (mesmo Postgres do Supabase que o Payload
@@ -19,14 +20,13 @@ const globalForPool = globalThis as unknown as { __cmsLeadsPool?: Pool }
 
 function createPool(): Pool {
   const newPool = new Pool({
-    connectionString: process.env.DATABASE_URI,
+    // TLS verificado (cadeia e nome) contra as raízes da Supabase embutidas em
+    // `db-tls.ts`, que também tira da URI qualquer `sslmode` — com ele o `pg`
+    // descartaria o objeto `ssl` em silêncio.
+    ...conexaoComTls(process.env.DATABASE_URI),
     // Pool pequeno: mesma instância Supabase compartilhada com o Payload
     // (`max: 5` lá) — não competir por conexões do plano free/pequeno.
     max: 5,
-    // Supabase (pooler e direct) exige TLS mas apresenta um cert fora da
-    // trust store padrão do Node; sem isso o pg 8.x falha com
-    // SELF_SIGNED_CERT_IN_CHAIN (mesma config de `src/payload.config.ts`).
-    ssl: { rejectUnauthorized: false },
   })
 
   // A conexão passa pelo proxy HAProxy da VPS, que derruba conexões ociosas
