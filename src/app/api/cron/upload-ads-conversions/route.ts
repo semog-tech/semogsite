@@ -1,7 +1,14 @@
-import { JWT } from 'google-auth-library'
 import { NextResponse } from 'next/server'
-import { paraDataManager } from '@/lib/adsConsent'
+import {
+  type ConfigAds,
+  ingerirConversoes,
+  lerConfigAds,
+  obterTokenAds,
+  tipoDeClique,
+} from '@/lib/ads/conversoes'
 import { query } from '@/lib/db'
+import { SQL_LEADS_PARA_O_ADS } from '@/lib/leads/criterios'
+import { reportarFalhaDoLead } from '@/lib/leads/reportar'
 import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
 
 /**
@@ -32,7 +39,10 @@ import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
  * Auth: service account + domain-wide delegation com o escopo
  * `https://www.googleapis.com/auth/datamanager` (precisa estar autorizado no
  * Admin do Workspace pro client-id da SA). `CRON_SECRET` (Bearer). Roda
- * 1×/dia (vercel.json).
+ * 1×/dia (vercel.json) e, desde a fase 2 do site v2, é a **rede de recuperação**
+ * do formulário: a conversão sobe na hora junto com o Exact
+ * (`@/lib/leads/posGravacao`); aqui sobe o que falhou lá, com o mesmo critério e
+ * o mesmo `transactionId`.
  *
  * Idempotência: o backstop de verdade contra conversão duplicada é o
  * `transactionId` (estável entre retries — `lead-<id>` / `wa-<id>`, prefixados
@@ -58,21 +68,15 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 30
 
-const INGEST_URL = 'https://datamanager.googleapis.com/v1/events:ingest'
-const SCOPE = 'https://www.googleapis.com/auth/datamanager'
 const WINDOW_DAYS = 3
 
-/** Bigint (`id`) volta do `pg` como string — sem type parser custom. */
+/** Bigint (`id`) volta do `pg` como string. `tipo_de_clique` só existe no SELECT de leads. */
 type PendingRow = {
   id: string
   created_at: string | Date
   gclid: string
-  /**
-   * Consentimento de publicidade gravado na captura ('granted' | 'denied').
-   * `null` nas linhas anteriores à coluna existir — ver `paraDataManager`,
-   * que documenta como elas são tratadas e até quando isso importa.
-   */
   ads_consent: string | null
+  tipo_de_clique?: string | null
 }
 
 type BatchResult = {
@@ -83,25 +87,50 @@ type BatchResult = {
   skipped?: string
 }
 
+async function subirLote(
+  linhas: PendingRow[],
+  destinoId: string,
+  tabela: 'cms.leads' | 'cms.whatsapp_clicks',
+  prefixo: 'lead' | 'wa',
+  acesso: { token: string | null; config: ConfigAds },
+): Promise<BatchResult> {
+  if (linhas.length === 0) return { considered: 0, ok: true }
+  if (!acesso.token) return { considered: linhas.length, ok: false, skipped: 'sem token' }
+  const resultado = await ingerirConversoes(
+    acesso.token,
+    acesso.config,
+    destinoId,
+    linhas.map((linha) => ({
+      transactionId: `${prefixo}-${linha.id}`,
+      tipoDeClique: tipoDeClique(linha.tipo_de_clique),
+      clique: linha.gclid,
+      criadoEm: linha.created_at,
+      adsConsent: linha.ads_consent,
+    })),
+  )
+  // Só marca depois do OK do Google: tudo ou nada, retry natural no dia seguinte.
+  if (resultado.ok) {
+    await query(`update ${tabela} set uploaded_to_ads = true where id = any($1::bigint[])`, [
+      linhas.map((linha) => linha.id),
+    ])
+  }
+  return {
+    considered: linhas.length,
+    ok: resultado.ok,
+    status: resultado.status,
+    response: resultado.resposta,
+  }
+}
+
 export async function GET(req: Request): Promise<Response> {
   const secret = process.env.CRON_SECRET
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  const {
-    GOOGLE_ADS_LOGIN_CUSTOMER_ID: LOGIN,
-    GOOGLE_ADS_CUSTOMER_ID: CUSTOMER,
-    GOOGLE_ADS_CONVERSION_ACTION_ID: CONV_ACTION,
-    GOOGLE_ADS_WHATSAPP_CONVERSION_ACTION_ID: WA_ACTION,
-    GOOGLE_ADS_IMPERSONATED_EMAIL: SUBJECT,
-    GOOGLE_SA_JSON,
-  } = process.env
-
-  // `WA_ACTION` é opcional de propósito: o código do WhatsApp pode subir antes
-  // da ação de conversão existir no Ads. Sem ela, essa metade é pulada (e dita
-  // na resposta) em vez de derrubar o upload dos leads, que é o crítico.
-  if (!LOGIN || !CUSTOMER || !CONV_ACTION || !SUBJECT || !GOOGLE_SA_JSON) {
+  // A ação do WhatsApp é opcional: sem ela, essa metade é pulada (e dita na resposta).
+  const config = lerConfigAds()
+  if (!config) {
     return NextResponse.json(
       { error: 'faltam variáveis de ambiente do Google Ads' },
       { status: 500 },
@@ -109,122 +138,29 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   try {
-    const cutoff = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
+    const corte = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
 
-    // Leads com gclid que são de fato CAPTAÇÃO, ainda não enviados
-    // (`uploaded_to_ads = false`) e dentro da janela de retenção.
-    //
-    // O form "proposta" é captação por definição. O form "contato" **não**:
-    // 7 dos 9 `ASSUNTO_OPTIONS` (`src/lib/form-schemas.ts`) são atendimento a
-    // condômino que já é cliente — segunda via de boleto, CND, acordo de
-    // pagamento, alteração de titularidade, declaração de quitação, reserva de
-    // área comum, dúvida geral. Subir isso como conversão ensinaria o Smart
-    // Bidding a comprar clique de quem já é cliente — exatamente o erro que a
-    // conta tinha antes (otimizar por pageview/rota no mapa). Só
-    // `assunto = 'proposta-comercial'` é pedido de proposta, e aí sim conta,
-    // na mesma ação `Proposta (servidor) - gclid` (mesma intenção de compra).
-    const { rows: leads } = await query<PendingRow>(
-      `select id, created_at, gclid, ads_consent from cms.leads
-       where gclid is not null
-         and (form = 'proposta' or (form = 'contato' and data->>'assunto' = 'proposta-comercial'))
-         and created_at > $1 and uploaded_to_ads = false
-       order by created_at desc`,
-      [cutoff],
-    )
+    // Leads de captação ainda não enviados, com o MESMO critério do envio na hora (D1):
+    // pronto para envio, de produção, não cliente e já processado por quem gravou. O
+    // comentário sobre o form "contato" (só proposta comercial conta) vale aqui igual.
+    const { rows: leads } = await query<PendingRow>(SQL_LEADS_PARA_O_ADS, [corte])
 
-    // Nenhum clique saído da triagem do botão flutuante conta como conversão:
-    // cliente é atendimento, outro assunto é indefinido, e a proposta já conta
-    // pela ação do formulário — ver `SECOES_FORA_DO_ADS`. O `coalesce` é necessário:
-    // `section` é nula em clique antigo ou com seção recusada pelo beacon, e
-    // `null not in (...)` dá nulo, o que descartaria esses cliques em silêncio.
+    // Nenhum clique saído da triagem conta como conversão (ver `SECOES_FORA_DO_ADS`). O
+    // `coalesce` evita descartar em silêncio o clique antigo sem seção.
     const { rows: whatsapp } = await query<PendingRow>(
       `select id, created_at, gclid, ads_consent from cms.whatsapp_clicks
        where gclid is not null and created_at > $1 and uploaded_to_ads = false
          and coalesce(section, '') <> all($2::text[])
        order by created_at desc`,
-      [cutoff, SECOES_FORA_DO_ADS],
+      [corte, SECOES_FORA_DO_ADS],
     )
 
-    // Token uma vez só, reaproveitado pelos dois lotes.
-    let accessToken: string | null = null
-    if (leads.length || (whatsapp.length && WA_ACTION)) {
-      const sa = JSON.parse(GOOGLE_SA_JSON) as { client_email: string; private_key: string }
-      const jwt = new JWT({
-        email: sa.client_email,
-        key: sa.private_key,
-        scopes: [SCOPE],
-        subject: SUBJECT,
-      })
-      accessToken = (await jwt.authorize()).access_token ?? null
-    }
+    const precisaToken = leads.length > 0 || (whatsapp.length > 0 && Boolean(config.acaoWhatsapp))
+    const acesso = { token: precisaToken ? await obterTokenAds(config) : null, config }
 
-    async function uploadBatch(
-      rows: PendingRow[],
-      destinationId: string,
-      table: 'cms.leads' | 'cms.whatsapp_clicks',
-      prefix: 'lead' | 'wa',
-    ): Promise<BatchResult> {
-      if (rows.length === 0) return { considered: 0, ok: true }
-      if (!accessToken) return { considered: rows.length, ok: false, skipped: 'sem token' }
-
-      const body = {
-        destinations: [
-          {
-            operatingAccount: { accountType: 'GOOGLE_ADS', accountId: CUSTOMER },
-            loginAccount: { accountType: 'GOOGLE_ADS', accountId: LOGIN },
-            productDestinationId: destinationId,
-          },
-        ],
-        events: rows.map((row) => ({
-          adIdentifiers: { gclid: row.gclid },
-          conversionValue: 1,
-          currency: 'BRL',
-          eventTimestamp: new Date(row.created_at).toISOString(),
-          transactionId: `${prefix}-${row.id}`,
-          eventSource: 'WEB',
-          // Consentimento POR EVENTO: a Data Manager API aceita `consent`
-          // dentro de cada `Event` e ele vence o do lote ("user-level consent
-          // overrides request-level consent"), então não é preciso partir o
-          // lote por valor. Antes havia aqui um `CONSENT_GRANTED` fixo no
-          // nível do lote — uma afirmação igual para todos, que o site não
-          // tinha como sustentar. Agora vem da coluna gravada na captura;
-          // o tratamento de linha legada (`null`) e a data em que ele expira
-          // estão em `paraDataManager` (`@/lib/adsConsent`).
-          consent: {
-            adUserData: paraDataManager(row.ads_consent),
-            adPersonalization: paraDataManager(row.ads_consent),
-          },
-        })),
-      }
-
-      const res = await fetch(INGEST_URL, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      const json = (await res.json()) as Record<string, unknown>
-
-      // Só marca como enviado depois de confirmar `res.ok` — a API não devolve
-      // status por evento individual (é uma chamada "tudo ou nada"), então uma
-      // resposta OK cobre todo o lote; uma falha não marca nada, e as linhas
-      // voltam a aparecer no SELECT de amanhã (retry natural).
-      if (res.ok) {
-        await query(`update ${table} set uploaded_to_ads = true where id = any($1::bigint[])`, [
-          rows.map((row) => row.id),
-        ])
-      }
-
-      return {
-        considered: rows.length,
-        ok: res.ok,
-        status: res.status,
-        response: JSON.stringify(json).slice(0, 300),
-      }
-    }
-
-    const leadResult = await uploadBatch(leads, CONV_ACTION, 'cms.leads', 'lead')
-    const waResult: BatchResult = WA_ACTION
-      ? await uploadBatch(whatsapp, WA_ACTION, 'cms.whatsapp_clicks', 'wa')
+    const leadResult = await subirLote(leads, config.acaoProposta, 'cms.leads', 'lead', acesso)
+    const waResult: BatchResult = config.acaoWhatsapp
+      ? await subirLote(whatsapp, config.acaoWhatsapp, 'cms.whatsapp_clicks', 'wa', acesso)
       : {
           considered: whatsapp.length,
           ok: true,
@@ -237,7 +173,7 @@ export async function GET(req: Request): Promise<Response> {
       whatsapp: waResult,
     })
   } catch (err) {
-    console.error('[cron/upload-ads-conversions] erro:', err)
+    reportarFalhaDoLead('cron', err, { origem: 'cron-ads' })
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
