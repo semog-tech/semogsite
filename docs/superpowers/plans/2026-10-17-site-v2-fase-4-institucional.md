@@ -15,11 +15,11 @@ Neste plano, **WT** = `C:\Users\lekoc\semogapp\semogsite-site-v2` e **PROTOTIPO*
 ## Global Constraints
 
 - **Onde trabalhar:** na WT, branch `feat/site-v2`. Conferir `git branch --show-current` na mesma chamada de cada commit. Ninguém troca de branch enquanto houver implementador vivo.
-- **Dois PRs para `feat/site-v2`** (DP1): **4a** = Tarefas 4.1 a 4.9; **4b** = Tarefas 4.10 a 4.20. O 4b começa da ponta do 4a já aprovado.
+- **Dois PRs para `feat/site-v2`** (DP1): **4a** = Tarefas 4.1 a 4.9 (com a 4.5a); **4b** = Tarefas 4.10 a 4.20. O 4b começa da ponta do 4a já aprovado.
 - **Commits locais por tarefa, sem push.** Cada tarefa termina com `git branch --show-current && git add <arquivos exatos> && git commit -m "..."`, nunca `git add -A`; mensagem convencional em pt-BR terminando com as linhas `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` e `Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn`. Push, PR e Vercel só com o "ok" do Leandro.
-- **Produção intocada até a virada.** Nenhuma URL do site no ar muda de status, `<title>`, description, canonical ou JSON-LD por efeito desta fase. O site atual (`src/app/(frontend)`, `[[...slug]]`, `content/pages`) continua servindo as URLs reais; as páginas novas só existem em `/previa-v2/...`, que responde 404 com `VERCEL_ENV=production`. Os dois redirects novos ficam fora do `next.config.ts` até `VIRADA_1_FEITA = true` (DP7). Exceção registrada: a mudança de destino do formulário de contato (Tarefa 4.16) vale para o formulário antigo também, mas só chega ao ar na virada, porque a branch não vai à `main` antes.
+- **Produção intocada até a virada.** Nenhuma URL do site no ar muda de status, `<title>`, description, canonical ou JSON-LD por efeito desta fase. O site atual (`src/app/(frontend)`, `[[...slug]]`, `content/pages`) continua servindo as URLs reais; as páginas novas só existem em `/previa-v2/...`, que responde 404 com `VERCEL_ENV=production`. Os dois redirects novos ficam fora do `next.config.ts` até `VIRADA_1_FEITA = true` (DP7). Exceções registradas, as duas autorizadas pelo Leandro em 16/10/2026 e as duas só chegam ao ar na virada, porque a branch não vai à `main` antes: a mudança de destino do formulário de contato (Tarefa 4.16) vale para o formulário antigo também; e o vídeo do Semog Experience 26 substitui o de 2025 na landing `/experience` (Tarefa 4.5a), desvio da spec 6, que deixava a rota intocada.
 - **Sem banco, sem integração, sem efeito externo.** O único acesso à rede fora do `localhost` é GET de leitura em `https://www.semog.com.br` (comparação de metadados, Tarefas 4.9 e 4.20). Nenhuma tarefa conecta no banco, chama Exact, SendGrid, Google Ads ou a API da Superlógica (2ª via), nem envia formulário. Testes mockam as Server Actions. O verificador abre o "Sou cliente" e o formulário de contato no navegador, mas não envia nada (o Turnstile barra navegador automatizado, e o CPF seria de pessoa real).
-- **Segredos:** nunca imprimir valor de variável de ambiente. A build local roda sem `NEXT_PUBLIC_SITE_URL` (conferir com `[string]::IsNullOrEmpty($env:NEXT_PUBLIC_SITE_URL)` = `True`). `SEGUNDA_VIA_ATIVA` e `CONTACT_TO` não são lidos nem impressos por ninguém neste plano.
+- **Segredos:** nunca imprimir valor de variável de ambiente. A build local roda sem `NEXT_PUBLIC_SITE_URL` (conferir com `[string]::IsNullOrEmpty($env:NEXT_PUBLIC_SITE_URL)` = `True`). Nenhum humano nem agente lê ou imprime o valor de `SEGUNDA_VIA_ATIVA` (o código do esqueleto o lê em runtime, como o `WhatsAppFloat` já faz) nem o de `CONTACT_TO` (que o código deixa de ler na Tarefa 4.16).
 - **Portões da CI** (rodar da WT, nesta ordem): `pnpm exec biome ci ./src ./tests ./scripts`, `pnpm exec tsc --noEmit`, `pnpm run check:server-actions`, `pnpm run test:int`, `pnpm build`. Antes do `biome ci`, `pnpm exec biome check --write <arquivos tocados>` e conferir `git diff --cached --stat` depois do `git add` (CRLF no disco, LF no Git). O CSS de `src/site/**` fica fora do Biome (`biome.json`) e é guardado pelo teste de identidade.
 - **Texto público:** pt-BR com acentuação. Proibidos "tempo real", "validade jurídica", "menor inadimplência do mercado", "melhor do Brasil", "5ª melhor", "a única do Norte e Nordeste" e os demais de `tests/int/helpers/identidade.ts` (`TERMOS_VEDADOS`), e as regras de redação novas da Tarefa 4.1 (`REDACAO_VEDADA`): nada de "conduz"/"condução" (a Semog **assessora**; a cobrança, a Semog **faz**), nada de a Semog "assumir", jurídico sempre "com escritório parceiro" (nunca "com parceiro"), o Garante não "zera a inadimplência", a base do 1% é "o valor total da arrecadação", a Semog não faz gestão de garantias nem do pós-obra, nenhum `wa.me` no conteúdo. Ranking só como "5º entre mais de 3.500 administradoras" e "a mais bem posicionada do Norte e Nordeste". Vale também para comentário dentro de `src/site/**` e `src/app/(site)/**` (o guarda acusa).
 - **Nada editorial** (sem eyebrow em caixa-alta com tracking, sem numerais decorativos "01/02", sem layout de revista); **nenhum dado inventado**: texto que não está no conteúdo tipado, no site atual, no protótipo (marcado `TEXTO-NOVO`) ou nas respostas do Leandro não entra; texto de interface novo deste plano leva `{/* TEXTO-NOVO */}` ao lado. Dado que depende do Leandro entra como `pendente(...)` (Tarefa 4.1) e trava a virada.
@@ -34,17 +34,17 @@ Neste plano, **WT** = `C:\Users\lekoc\semogapp\semogsite-site-v2` e **PROTOTIPO*
 - **DP1 · Dois PRs.** 4a: o que é comum a todas as páginas (regras de texto, pendências, core, seção de proposta, prévia e metadados) e as três páginas mais longas (home, A Semog, Gestão), com uma verificação completa. 4b: Garante, Incorporadoras, Tecnologia, `/solucoes`, pacote landing (proposta, contato, 404), NAP, "Sou cliente", menu e redirects, com a segunda verificação completa. Motivo: são ~8.700 linhas de cena e ~5.400 de marcação a portar; um PR só passaria de 15.000 linhas de diff e uma rodada de verificador sobre tudo seria rasa. Custo: duas rodadas completas (regra de 28/09: uma por PR).
 - **DP2 · Porta por receita, com prova de paridade.** O código das cenas e a marcação das seções não são colados neste plano: a fonte é o arquivo do protótipo, versionado, e a transformação é mecânica (seção "Receita da porta", com o ranking da fase 1 como exemplo resolvido). Cada tarefa lista arquivo de origem, arquivo de destino e os desvios de conteúdo daquela página; o teste de paridade (Tarefa 4.4) falha se uma classe, um id ou um `data-*` da parcial sumir ou sobrar sem estar declarado. O código novo (o que não existe no protótipo) está inteiro no plano.
 - **DP3 · Prévia por prefixo, links que ficam na prévia.** A home passa a ser `/previa-v2` (a bancada do ranking da fase 1 sai: a home contém o ranking). `caminhoNoSite` (`src/site/rotas.ts`) leva cabeçalho, rodapé e links das seções à página na prévia enquanto `VIRADA_1_FEITA` for `false`, só para as páginas que já existem lá (`PAGINAS_NA_PREVIA`, que cresce a cada tarefa); o resto vai à URL real. Supera a DP10 da fase 3 para o cabeçalho e o rodapé: o verificador precisa navegar entre páginas novas para provar o desmonte em ida e volta. `PREFIXO_DA_LEITURA` passa a ser o mesmo `PREFIXO_DA_PREVIA`.
-- **DP4 · Uma lista de cenas por página, num módulo client próprio.** `RunnerDeCenas` recebe `cenas` por prop; cada página tem `src/site/cenas/paginas/<pagina>.tsx` (`'use client'`) com a lista e o componente que monta o runner. `registro.ts` continua a agregar as listas, só para os testes. Motivo: com o registro único, o bundle de toda página carregaria as cenas de todas.
-- **DP5 · Pendências de conteúdo travam a virada, não a CI.** Valor que depende do Leandro (números da nova prestação, foto dos sócios, vídeo do Experience 26) entra como `pendente('o que falta')`, num lugar só do conteúdo tipado; na prévia, aparece o selo "A CONFIRMAR"; o teste `site-v2-pendencias` lista as pendências conhecidas (pendência nova é decisão escrita) e **falha se `VIRADA_1_FEITA` for `true` com qualquer pendência**. Ver "Conflitos": o briefing pedia teste que falhe enquanto houver valor provisório; falhar já deixaria a CI da branch vermelha até o Leandro mandar os arquivos.
-- **DP6 · "Sou cliente" é um painel, não um botão flutuante.** Gatilhos no cabeçalho (ao lado do Login, e no menu do celular), no rodapé e no Contato abrem um `<dialog>` único por página com: 2ª via (o fluxo atual, `SegundaVia`, com os três desfechos que terminam no WhatsApp), atendimento ao condômino pelo WhatsApp e Área do cliente. Sem JavaScript (e antes da hidratação), o gatilho é o link do WhatsApp com `data-wa-caminho="cliente"`, como o botão da triagem. As telas da 2ª via são reaproveitadas sem mudança de lógica; o visual v2 vem de `sou-cliente.css`, escopado no painel.
+- **DP4 · Uma lista de cenas por página, num módulo client próprio.** `RunnerDeCenas` recebe `cenas` por prop; cada página tem `src/site/cenas/paginas/<pagina>.tsx` (`'use client'`) com a lista e o componente que monta o runner. `registro.ts` continua a agregar as listas, só para os testes. Motivo: com o registro único, o bundle de toda página carregaria as cenas de todas. **O módulo client é obrigatório desde a primeira página com runner, não só por bundle:** a lista de cenas é um array de funções, e função não atravessa a fronteira Server → Client Component. Conferido no Next instalado (16.2.6): `node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md` ("Props passed to Client Components need to be serializable by React") e a mensagem "Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server"" no runtime `node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js`. Uma `page.tsx` (Server Component) que escrevesse `<RunnerDeCenas cenas={[['ranking', cenaRanking]]} />` faria o prerender lançar no `pnpm build`, e o Vitest em jsdom não acusaria (não há fronteira RSC no teste). Passar o elemento `<CenasDaHome />` como prop é permitido: as props dele são vazias, e a lista nasce do lado do cliente. Por isso o `src/site/cenas/paginas/home.tsx` nasce na Tarefa 4.2, e um teste da 4.2 proíbe Server Component de importar `RunnerDeCenas` ou uma cena diretamente.
+- **DP5 · Pendências de conteúdo travam a virada, não a CI.** Valor que depende do Leandro (números da nova prestação; foto dos sócios até o arquivo chegar; vídeo do Experience 26 só até a Tarefa 4.5a, que já tem o arquivo) entra como `pendente('o que falta')`, num lugar só do conteúdo tipado; na prévia, aparece o selo "A CONFIRMAR"; o teste `site-v2-pendencias` lista as pendências conhecidas (pendência nova é decisão escrita) e **falha se `VIRADA_1_FEITA` for `true` com qualquer pendência**. Ver "Conflitos": o briefing pedia teste que falhe enquanto houver valor provisório; falhar já deixaria a CI da branch vermelha até o Leandro mandar os arquivos.
+- **DP6 · "Sou cliente" é um painel, não um botão flutuante.** Gatilhos só nos três lugares da resposta do Leandro ("só no cabeçalho, no rodapé e no Contato"): no cabeçalho (ao lado do Login, e no menu do celular), no rodapé e no atalho do Contato. A 404 não tem gatilho no corpo: tem o do cabeçalho e o do rodapé, e o cartão do Contato. O gatilho abre um `<dialog>` único por página com: 2ª via (o fluxo atual, `SegundaVia`, com os três desfechos que terminam no WhatsApp), atendimento ao condômino pelo WhatsApp e Área do cliente. Sem JavaScript (e antes da hidratação), o gatilho é o link do WhatsApp com `data-wa-caminho="cliente"`, como o botão da triagem, com a mensagem de atendimento (`MENSAGEM_DE_ATENDIMENTO`); só o atalho do Contato, que abre direto a 2ª via (`tela="segunda-via"`), leva a mensagem da 2ª via (`MENSAGEM_DO_CLIENTE`). As telas da 2ª via são reaproveitadas sem mudança de lógica; o visual v2 vem de `sou-cliente.css`, escopado no painel.
 - **DP7 · Redirects da virada como função.** `redirecionamentosDoSite(viradaFeita)` devolve os 54 de hoje e, com a virada, os dois 308 para `/tecnologia`. O `next.config.ts` chama com `VIRADA_1_FEITA`. A prova por `curl` roda numa cópia descartável da WT com a constante trocada (Tarefa 4.20), nunca na WT.
 - **DP8 · NAP: fonte única `UNITS`, demais textos conferidos.** `UNITS` (`src/lib/seo.ts`) passa a ser exportada; `site.company.addresses`, `conteudo.cidades.*` e o texto renderizado do Contato continuam com a grafia própria, e o teste `site-v2-nap` exige o mesmo telefone, o mesmo logradouro com número, bairro, cidade/UF e o mesmo CID do mapa. Derivar os textos da `UNITS` mudaria a grafia de páginas no ar.
 - **DP9 · Contato: os cinco assuntos do protótipo, todos para `ola@semog.com.br`.** O schema do contato ganha os valores novos (sem tirar os de hoje, que o formulário antigo usa até a fase 7); a notificação do contato passa a ir para `CONTATO_TO = 'ola@semog.com.br'` (onde o Chatwoot distribui), fixo no código, no lugar de `CONTACT_TO`. O e-mail não aparece na página. O v2 não oferece "proposta comercial" no contato: proposta só pelo formulário de proposta.
 - **DP10 · 404 em duas camadas.** Nesta fase, a 404 nova é `PaginaNaoEncontrada` (pacote landing), servida por `src/app/(site)/not-found.tsx` para todo `notFound()` do `(site)` (inclusive `/previa-v2/*` em produção) e visível na prévia em `/previa-v2/nao-encontrada`. A 404 de URL desconhecida do site inteiro continua sendo a do `(frontend)` até a virada; lá, com o `[[...slug]]` sem páginas, a fase 5 decide entre `global-not-found.tsx` (experimental no Next 16.2.6) e manter o catch-all chamando `PaginaNaoEncontrada`. Registrado para o plano da fase 5.
-- **DP11 · `/solucoes` sem protótipo.** A página é portada do conteúdo atual, reescrita pelas regras (DP-C10), com seções estáticas no visual v2 (sem cena própria além da proposta) e sem as imagens antigas de CGI do Supabase. Como não há protótipo aprovado, o verificador da 4b manda os quadros ao Leandro, e a 4b só fecha com o "ok" dele sobre `/solucoes` e a 404 [A CONFIRMAR: visual da /solucoes e da 404].
-- **DP12 · Experience 26 no lugar do primeiro retrato da Comunidade.** O vídeo do Experience 26 (pendente) entra no primeiro quadro retrato da seção Comunidade da home, que tem a proporção de reel (406 × 720); o segundo retrato fica com a foto de 2025, e a legenda passa a "Semog Experience 2026 e 2025." quando o arquivo chegar. [A CONFIRMAR: se o Leandro se referia ao vídeo de `/experience`, rota que a spec 6 deixa intocada, a troca sai deste plano.]
+- **DP11 · `/solucoes` sem protótipo.** A página é portada do conteúdo atual, reescrita pelas regras (DP-C10), com seções estáticas no visual v2 (sem cena própria além da proposta) e sem as imagens antigas de CGI do Supabase. Como não há protótipo aprovado, o verificador da 4b manda os quadros ao Leandro, e a 4b só fecha com o "ok" dele sobre `/solucoes`, a 404 e o painel "Sou cliente" [A CONFIRMAR: visual da /solucoes, da 404 e do painel, na prévia]. Lugar: `/solucoes` ganha link no rodapé (decisão do Leandro de 16/10/2026: a página é mantida pelo tráfego do Search Console e não pode ficar sem link interno); fora do menu, como o protótipo.
+- **DP12 · Experience 26 na Comunidade da home e na `/experience`.** Decisão do Leandro de 16/10/2026: o reel do Semog Experience 26 (post `Dd4jHaQCso5`, arquivo `C:\Users\lekoc\Downloads\semog-experience-26-reel.mp4`, 720 × 1280, 68 s, 19,9 MB) entra nos dois lugares. Na home, no primeiro quadro retrato da seção Comunidade, que tem a proporção de reel (406 × 720); o segundo retrato fica com a foto de 2025, e a legenda passa a "Semog Experience 2026 e 2025.". Na landing `/experience`, substitui o vídeo de 2025 (desvio da spec 6 autorizado por ele). Um arquivo só, otimizado e servido de `public/site-v2/videos/` (não do bucket: subir arquivo no Supabase seria efeito externo), com capa gerada do próprio vídeo. Tarefa 4.5a.
 - **DP13 · Menu do celular.** Ao alargar a tela além de 1080 px com o menu aberto, o menu fecha (`aria-expanded="false"`); com o menu aberto, Tab e Shift+Tab ficam presos entre o botão do menu e os links do painel.
-- **DP14 · `(site)` ganha `error.tsx`.** Erro de renderização numa página v2 mostra uma tela v2 (cabeçalho fica, porque é do layout raiz) com "Tentar de novo" (`unstable_retry`) e o link para o início, e vai ao Sentry; antes caía no `global-error`.
+- **DP14 · `(site)` ganha `error.tsx`.** Erro de renderização numa página v2 mostra uma tela v2 com "Tentar de novo" (`unstable_retry`) e o link para o início, e vai ao Sentry; antes caía no `global-error`. A tela sai **sem** cabeçalho: `Cabecalho` e `SimbolosSvg` são da página (dos esqueletos), não do `src/app/(site)/layout.tsx`, e o `error.tsx` substitui a página inteira. Por isso o próprio `error.tsx` renderiza `<SimbolosSvg />`, senão a seta do link (`<use href="#seta" />`) fica vazia.
 
 ### Decisões de conteúdo (DP-C): as respostas do Leandro, como entram
 
@@ -53,8 +53,8 @@ Neste plano, **WT** = `C:\Users\lekoc\semogapp\semogsite-site-v2` e **PROTOTIPO*
 | home-titulos-condominios-tecnologia, home-textos-ranking, home-textos-comunidade, semog-pauta-assembleia | publicados como no protótipo |
 | home-legenda-ana-claudia | "Ana Cláudia, sobre a 4ª edição, em comentário no Instagram do evento."; depoimento autorizado: sai `depoimentos.aviso` |
 | home-proximas-edicoes | o marco "5ª edição · Anunciada" vira "Próximos encontros · Aguarde novas informações."; `cafe.edicao` termina com "Aguarde novas informações sobre os próximos encontros." Nenhuma edição nem data nova |
-| semog-foto-socios | moldura dos sócios = `FOTO_DOS_SOCIOS`, pendente (arquivo do Leandro, da 1ª foto do post do Instagram que ele indicou); legenda "Acesso fácil aos sócios. Regra da casa desde 1991." |
-| (vídeo do Experience) | `VIDEO_DO_EXPERIENCE_26`, pendente (DP12) |
+| semog-foto-socios | a resposta em texto livre vence a opção marcada (a foto do palco do Superlógica Next): moldura dos sócios = `FOTO_DOS_SOCIOS`, a 1ª foto do post do Instagram `DeR7uo5EbRX`, que tem todos os sócios. Arquivo `C:\Users\lekoc\Downloads\semog-experience-26-grupo.jpg` (o Leandro salva); destino `public/site-v2/fotos/socios-semog.webp`; alt neutro "Os sócios da Semog, reunidos." (sem nomes: nenhum nome foi informado). Pendente só até o arquivo entrar (Tarefa 4.7, Step 4a); legenda "Acesso fácil aos sócios. Regra da casa desde 1991." |
+| (vídeo do Experience) | `VIDEO_DO_EXPERIENCE_26`: pendente na 4.1, valor real na 4.5a (o arquivo já existe), na Comunidade da home e na `/experience` (DP12) |
 | semog-marco-garante-zera | "Com a G5 Partners, criamos o produto que garante ao condomínio 100% da arrecadação prevista, por 1% do valor total da arrecadação." |
 | gestao-orcamentos-comparados | "A manutenção tem rotina, cotação e orçamento." / "Manutenção preventiva, com cotações e orçamentos de fornecedores feitos pela Semog." |
 | gestao-canal-socios | "Acesso fácil aos sócios" (na Gestão e no item de A Semog) |
@@ -67,13 +67,13 @@ Neste plano, **WT** = `C:\Users\lekoc\semogapp\semogsite-site-v2` e **PROTOTIPO*
 | tecnologia-boleto-inteligente | sai o rótulo e o selo |
 | tecnologia-inicio-prestacao-digital | "Prestação de contas digital desde 2023. Em maio de 2026, lançamos a nova." |
 | tecnologia-numeros-prestacao | `NUMEROS_DA_PRESTACAO`, pendente (números e data de corte do Leandro) |
-| incorporadoras-foto-obra | foto mantida, sem legenda e sem selo |
+| incorporadoras-foto-obra | foto mantida, sem legenda e sem selo. Conflito na resposta (a opção marcada era "com a legenda Imagem ilustrativa", o texto livre diz "tira a legenda imagem ilustrativa"): o texto livre vence, por decisão registrada em 16/10/2026 (ver "Conflitos") |
 | incorporadoras-logos-construtoras | sai a faixa "Construtoras parceiras" |
-| solucoes-formato-e-menu | `/solucoes` atual inteira, no visual novo, reescrita (DP11); fora do menu e do rodapé, como o protótipo |
+| solucoes-formato-e-menu | `/solucoes` atual inteira, no visual novo, reescrita (DP11); fora do menu, como o protótipo, e **com link no rodapé** (decisão de 16/10/2026: sem ele, a página perde todo link interno na virada) |
 | solucoes-clube-beneficios | "O clube de benefícios da Semog está sendo atualizado. Estamos criando novas soluções e novos parceiros para condomínios e moradores." |
-| contato-rota-segunda-via | o atalho do Contato abre o "Sou cliente" |
+| contato-rota-segunda-via | a 2ª via continua dentro do "Sou cliente", e o atalho do Contato ("2ª via de boleto") abre **direto** o fluxo da 2ª via (`tela="segunda-via"`); com a 2ª via desligada no ambiente, abre o menu, que a oferece pelo WhatsApp |
 | contato-email, contato-assuntos-destino | DP9 |
-| nao-encontrada-texto | 404 nova (DP10), título "Não achamos esta página." |
+| nao-encontrada-texto | 404 nova (DP10), título "Não achamos esta página."; cinco cartões, sem "Sou cliente" no corpo (DP6), e o cliente chega pelo cartão do Contato |
 | todas-botao-sou-cliente | DP6 |
 | todas-juridico-escritorio-parceiro | "Suporte jurídico com escritório parceiro" |
 | todas-conduz-para-assessora | migração e assembleia: "assessora"; cobrança: "faz" / "é feita pela" |
@@ -115,10 +115,13 @@ Neste plano, **WT** = `C:\Users\lekoc\semogapp\semogsite-site-v2` e **PROTOTIPO*
 | `src/lib/{form-schemas,triagem,seo}.ts`, `src/lib/leads/destinatarios.ts`, `src/app/(frontend)/_actions/submit-form.ts`, `src/components/triagem/segunda-via/LinksDeWhatsApp.tsx` | assuntos e destino do contato, mensagem de atendimento, `UNITS` exportada |
 | `src/site/redirecionamentos.ts`, `next.config.ts` | redirects da virada |
 | `public/site-v2/fotos/incorporadoras-obra.webp` | foto da obra (cópia do protótipo) |
+| `public/site-v2/fotos/socios-semog.webp` | foto dos sócios (1ª foto do post `DeR7uo5EbRX`), quando o arquivo chegar (4.7) |
+| `public/site-v2/videos/semog-experience-26.mp4`, `…-poster.webp`, `scripts/gen-poster-experience-26.mjs` | reel do Experience 26 e a capa, para a home do v2 e a `/experience` (4.5a) |
+| `content/media.ts`, `src/data/experienceEvent.ts`, `src/components/experience/ExperienceVideo.tsx` | (modificados) a `/experience` passa a mostrar o vídeo do 26 (4.5a) |
 | `scripts/site-v2-institucional.mjs` | varredura lado a lado, site no Next e protótipo |
 | `tests/int/helpers/{identidade,prototipo,paginas}.ts` | guarda de redação, paridade com o protótipo, conferência de página |
 
-Testes novos: `site-v2-redacao`, `site-v2-pendencias`, `site-v2-core-fase4`, `site-v2-proposta-secao`, `site-v2-rotas`, `site-v2-pagina-home`, `-semog`, `-gestao`, `-garante`, `-incorporadoras`, `-tecnologia`, `-solucoes`, `-proposta`, `-contato`, `-nao-encontrada`, `site-v2-sou-cliente`, `site-v2-nap`, `site-v2-menu`. Modificados: `site-v2-conteudo`, `site-v2-identidade`, `site-v2-previa`, `site-v2-layout`, `site-v2-montagem`, `site-v2-core-ssr`, `site-v2-inventario`, `site-v2-og`, `site-v2-formulario-proposta`.
+Testes novos: `site-v2-redacao`, `site-v2-pendencias`, `site-v2-core-fase4`, `site-v2-proposta-secao`, `site-v2-rotas`, `site-v2-pagina-home`, `-semog`, `-gestao`, `-garante`, `-incorporadoras`, `-tecnologia`, `-solucoes`, `-proposta`, `-contato`, `-nao-encontrada`, `site-v2-sou-cliente`, `site-v2-nap`, `site-v2-menu`. Modificados: `site-v2-conteudo`, `site-v2-identidade`, `site-v2-previa`, `site-v2-layout`, `site-v2-montagem`, `site-v2-core-ssr`, `site-v2-inventario`, `site-v2-og`, `site-v2-formulario-proposta`, `submit-form` (destino do Contato, 4.16), `experience-media` e `experience-sections` (vídeo do 26, 4.5a).
 
 ---
 
@@ -168,7 +171,7 @@ O exemplo resolvido é o ranking da fase 1: `PROTOTIPO\src\sections\05-ranking.h
 - Produces:
   - `src/site/conteudo/pendencias.ts`: `type Pendente = { readonly pendente: string }`; `type OuPendente<T> = T | Pendente`; `pendente(oQueFalta: string): Pendente`; `estaPendente(valor: unknown): valor is Pendente`; `pendenciasDe(valor: unknown, caminho?: string): string[]` (cada item: `"<caminho.no.conteudo>: <o que falta>"`).
   - Tipos exportados de `conteudo.ts`: `NumerosDaPrestacao = { prestacoes: number; condominios: number; corte: string }`, `FotoDosSocios = { src: string; alt: string; largura: number; altura: number }`, `VideoDoExperience = { src: string; poster: string; legenda: string; largura: number; altura: number }`.
-  - Chaves novas: `conteudo.tecnologia.numerosDaPrestacao: OuPendente<NumerosDaPrestacao>`, `conteudo.aSemog.pessoas.fotoDosSocios: OuPendente<FotoDosSocios>`, `conteudo.comunidade.experience.video26: OuPendente<VideoDoExperience>`, `conteudo.comunidade.cafe.proximos: { rotulo: string; texto: string }`, `conteudo.contatoPagina.atalhos.cliente: { titulo: string; texto: string }` (substitui `segundaVia`), `conteudo.naoEncontrada.links.<chave>: { titulo: string; texto: string }`, `conteudo.souCliente`, `conteudo.solucoesPagina` (formas no Step 6).
+  - Chaves novas: `conteudo.tecnologia.numerosDaPrestacao: OuPendente<NumerosDaPrestacao>`, `conteudo.aSemog.pessoas.fotoDosSocios: OuPendente<FotoDosSocios>`, `conteudo.comunidade.experience.video26: OuPendente<VideoDoExperience>`, `conteudo.comunidade.cafe.proximos: { rotulo: string; texto: string }`, `conteudo.contatoPagina.atalhos.segundaVia: { titulo: string; texto: string }` (perde só o `confirmar`), `conteudo.naoEncontrada.links.<chave>: { titulo: string; texto: string }` (chaves `inicio`, `unidades`, `proposta`, `blog`, `contato`), `conteudo.souCliente`, `conteudo.solucoesPagina` (formas no Step 6).
   - `<Pendencia item={Pendente} />`: `<span class="a-confirmar">A CONFIRMAR: …</span>`.
   - `tests/int/helpers/identidade.ts`: `REDACAO_VEDADA`, `procurarRedacaoVedada(texto: string): string[]` (devolve os motivos).
 
@@ -283,7 +286,11 @@ describe('regras de redação do site v2 (respostas do Leandro, 16/10/2026)', ()
       'Prestação de contas digital desde 2023. Em maio de 2026, lançamos a nova.',
     )
     expect(tecnologia.pagina.mes.momentos[1]).not.toHaveProperty('apoio')
-    expect(conteudo.naoEncontrada.titulo).not.toMatch(/não existe mais/)
+    // Título e ênfase juntos: hoje a frase "não existe mais" mora na ênfase, não no título.
+    expect(`${conteudo.naoEncontrada.titulo} ${conteudo.naoEncontrada.enfase}`).toBe(
+      'Não achamos esta página.',
+    )
+    expect(Object.keys(conteudo.naoEncontrada.links)).not.toContain('cliente')
   })
 
   it('não sobra selo, WhatsApp, aviso nem moldura vazia: nenhuma dessas chaves no conteúdo', () => {
@@ -292,8 +299,11 @@ describe('regras de redação do site v2 (respostas do Leandro, 16/10/2026)', ()
         c,
       ),
     )
-    // `souCliente.segundaVia` é o item do painel, não o atalho antigo do Contato.
-    expect(proibidas.filter((c) => c !== '.souCliente.segundaVia')).toEqual([])
+    // `souCliente.segundaVia` é o item do painel; `contatoPagina.atalhos.segundaVia` é o atalho do
+    // Contato, que fica (sem o `confirmar`) e abre direto a 2ª via.
+    const permitidas = ['.souCliente.segundaVia', '.contatoPagina.atalhos.segundaVia']
+    expect(proibidas.filter((c) => !permitidas.includes(c))).toEqual([])
+    expect(conteudo.contatoPagina.atalhos.segundaVia).not.toHaveProperty('confirmar')
   })
 })
 ```
@@ -411,9 +421,12 @@ export type VideoDoExperience = {
 const NUMEROS_DA_PRESTACAO: OuPendente<NumerosDaPrestacao> = pendente(
   'números da nova prestação de contas digital e a data de corte (o Leandro informa)',
 )
-/** A 1ª foto do post do Instagram que o Leandro indicou em 16/10/2026, com todos os sócios. */
+/**
+ * A 1ª foto do post do Instagram que o Leandro indicou em 16/10/2026 (DeR7uo5EbRX), com todos os
+ * sócios. Pendente até o arquivo chegar (Tarefa 4.7, Step 4a).
+ */
 const FOTO_DOS_SOCIOS: OuPendente<FotoDosSocios> = pendente('foto dos sócios (arquivo do Leandro)')
-/** O reel do Semog Experience 26, no primeiro retrato da Comunidade (DP12). */
+/** O reel do Semog Experience 26 (DP12). Pendente só até a Tarefa 4.5a, que traz o arquivo. */
 const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = pendente(
   'vídeo do Semog Experience 26 (arquivo do Leandro)',
 )
@@ -433,7 +446,7 @@ const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = pendente(
 | `depoimentos` | `aviso: 'Autorização de uso a confirmar.',` | (removida) |
 | `comunidade.cafe.edicao` | `A 5ª edição já está anunciada.` | `Aguarde novas informações sobre os próximos encontros.`; depois da chave `edicao`, acrescentar `proximos: { rotulo: 'Próximos encontros', texto: 'Aguarde novas informações.' },` |
 | `comunidade.experience` | `legenda: 'Semog Experience 2025.',` | `legenda: 'Semog Experience 2025.',` e, na linha seguinte, `video26: VIDEO_DO_EXPERIENCE_26,` |
-| `proposta` | o bloco `whatsapp: { url: 'https://wa.me/551130034506', texto: '(11) 3003-4506' },` | (removido) |
+| `proposta` | o bloco `whatsapp` (quatro linhas, com `url: 'https://wa.me/551130034506'` e `texto: '(11) 3003-4506'`) | (removido) |
 | `aSemog.historia.marcos[7].texto` | `'Com a G5 Partners, criamos o produto que zera a inadimplência por 1% da arrecadação.'` | `'Com a G5 Partners, criamos o produto que garante ao condomínio 100% da arrecadação prevista, por 1% do valor total da arrecadação.'` |
 | `aSemog.pessoas.itens[0].titulo` e `gestaoPagina.atende.itens[2].titulo` (todas) | `'Canal direto com os sócios'` | `'Acesso fácil aos sócios'` |
 | `aSemog.pessoas` | as linhas `fotoAEnviar: …`, `fotoSocios: …`, `fotoEquipe: …` | `fotoDosSocios: FOTO_DOS_SOCIOS,` |
@@ -457,9 +470,12 @@ const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = pendente(
 | `gestaoPagina.mesa.momentos[5].texto` | `'Manutenção preventiva e orçamentos de fornecedores comparados, para o síndico escolher com tudo à vista.'` | `'Manutenção preventiva, com cotações e orçamentos de fornecedores feitos pela Semog.'` |
 | todas | `equipe da Semog conduz a migração` | `equipe da Semog assessora a migração` |
 | todas | `equipe local conduz a migração` | `equipe local assessora a migração` |
-| `contatoPagina.atalhos.segundaVia` | o objeto `segundaVia: { titulo: '2ª via de boleto', texto: …, confirmar: … },` | `cliente: { titulo: 'Sou cliente', texto: '2ª via do boleto pelo CPF e atendimento ao condômino.' },` |
+| `contatoPagina.atalhos.segundaVia` | a linha `confirmar: 'A CONFIRMAR: rota da 2ª via no site novo',` | (removida; o atalho fica `segundaVia: { titulo: '2ª via de boleto', texto: 'Pelo CPF: um código chega no e-mail e os boletos em aberto aparecem.' }` e abre direto a 2ª via, Tarefa 4.16) |
+| `garantePagina.abertura.fatos.custo.rotulo` | `'da arrecadação mensal total: é o custo do Garante'` | `'do valor total da arrecadação: é o custo do Garante'` |
 
-Depois das trocas, `rg -n -i "conduz|condução|com parceiro|mensal total|zera|wa\.me|confirmar" src/site/conteudo/conteudo.ts` só pode achar o comentário de abertura do arquivo (que fala em "A CONFIRMAR"); se achar mais, a tabela não foi aplicada inteira.
+(A troca de `proposta.whatsapp` são quatro linhas no arquivo, `whatsapp: {`, `url: …`, `texto: …` e `},`; sai o bloco inteiro.)
+
+Depois das trocas, `rg -n -i "conduz|condução|com parceiro|mensal total|zera|wa\.me|confirmar" src/site/conteudo/conteudo.ts` só pode achar o comentário de abertura do arquivo (que fala em "A CONFIRMAR"). Se achar mais, ou a tabela não foi aplicada inteira, ou ela está incompleta: confira a linha achada contra a tabela e, se ela não estiver lá, pare e reporte ao controlador (não invente a troca).
 
 3. `naoEncontrada` inteiro passa a ser:
 
@@ -475,25 +491,25 @@ Depois das trocas, `rg -n -i "conduz|condução|com parceiro|mensal total|zera|w
         titulo: 'Página inicial',
         texto: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
       },
+      unidades: { titulo: 'Unidades Semog', texto: 'Recife, João Pessoa, Campina Grande e Belém.' },
       proposta: {
         titulo: 'Pedir proposta',
         texto: 'Para o seu condomínio, personalizada e em até 24 horas úteis.',
       },
-      cliente: {
-        titulo: 'Sou cliente',
-        texto: '2ª via do boleto pelo CPF e atendimento ao condômino.',
-      },
-      unidades: { titulo: 'Unidades Semog', texto: 'Recife, João Pessoa, Campina Grande e Belém.' },
       blog: {
         titulo: 'Blog',
         texto: 'Conteúdo para síndicos, escrito por quem administra condomínios há 35 anos.',
       },
-      contato: { titulo: 'Fale com a gente', texto: 'Telefones e endereços das quatro Unidades.' },
+      // TEXTO-NOVO: o cliente chega à 2ª via pelo Contato (a 404 não tem "Sou cliente" no corpo, DP6)
+      contato: {
+        titulo: 'Fale com a gente',
+        texto: 'Telefones e endereços das quatro Unidades, e a 2ª via do boleto para clientes.',
+      },
     },
   },
 ```
 
-(Os textos dos cartões já existem no site: o subtítulo da marca, os atalhos do Contato, a seção Unidades, o blog da Comunidade e o título do Contato. O título "Não achamos esta página." é a resposta do Leandro: não afirma que a página existiu.)
+(Os cinco caminhos e a ordem são os da 404 do protótipo: início, Unidades, proposta, blog, contato. Os textos dos cartões já existem no site: o subtítulo da marca, os atalhos do Contato, a seção Unidades e o blog da Comunidade; só o do Contato ganha a menção à 2ª via. Nenhum cartão "Sou cliente": a resposta do Leandro põe o gatilho só no cabeçalho, no rodapé e no Contato, e a 404 já tem os dois primeiros. O título "Não achamos esta página." é a resposta do Leandro: não afirma que a página existiu.)
 
 4. Depois de `naoEncontrada`, antes do `} as const`:
 
@@ -751,7 +767,7 @@ Cinco pendências do ledger da fase 1 com prazo nesta fase: tween só de callbac
 
 **Files:**
 - Modify: `src/site/core/patamares.ts`, `src/site/core/motion.ts`, `src/site/core/montagem.ts`, `src/site/core/util.ts`
-- Create: `src/site/core/dinamica.ts`
+- Create: `src/site/core/dinamica.ts`, `src/site/cenas/paginas/home.tsx` (só o ranking por enquanto; a 4.5 e a 4.6 estendem)
 - Modify: `src/site/runner/RunnerDeCenas.tsx`, `src/site/cenas/registro.ts`, `src/site/layout/EsqueletoApp.tsx`, `src/app/(site)/(app)/previa-v2/page.tsx`
 - Create: `src/app/(site)/error.tsx`, `src/site/secoes/comum/erro.css`
 - Modify: `tests/int/site-v2-montagem.int.spec.tsx`, `tests/int/site-v2-core-ssr.int.spec.ts`, `tests/int/site-v2-previa.int.spec.tsx`
@@ -767,6 +783,7 @@ Cinco pendências do ledger da fase 1 com prazo nesta fase: tween só de callbac
   - `RunnerDeCenas({ pagina, cenas }: { pagina: string; cenas: ListaCenas })`.
   - `type IdPaginaApp = 'home' | 'semog' | 'gestao' | 'garante' | 'incorporadoras' | 'tecnologia' | 'solucoes'` e `CENAS_POR_PAGINA: Partial<Record<IdPaginaApp, ListaCenas>>` (`src/site/cenas/registro.ts`, só para testes).
   - `EsqueletoApp({ pagina, atual?, temProposta, cenas, children })`, com `pagina: IdPaginaApp` e `cenas: React.ReactNode`.
+  - `CENAS_HOME: ListaCenas` (só `['ranking', cenaRanking]` nesta tarefa) e `CenasDaHome()` (`src/site/cenas/paginas/home.tsx`, `'use client'`; DP4).
   - `src/app/(site)/error.tsx`: `export default function ErroDoSite({ error, unstable_retry })`.
 
 - [ ] **Step 1: Escrever os testes**
@@ -784,7 +801,7 @@ import ErroDoSite from '@/app/(site)/error'
 import { montarPagina, type Reportar } from '@/site/core/montagem'
 import { DesmontadoAntesDoPronto, marcarMotionQuandoPronto } from '@/site/core/motion'
 import { pausasDaTimeline } from '@/site/core/patamares'
-import { listarArquivos } from './helpers/identidade'
+import { listarArquivos, listarSeExiste } from './helpers/identidade'
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
 
@@ -905,6 +922,33 @@ describe('error.tsx do (site) (Task 1.7 da fase 1)', () => {
     expect(
       screen.getByRole('link', { name: 'Ir para a página inicial' }).getAttribute('href'),
     ).toBe('/')
+    // A tela substitui a página inteira (sem esqueleto): a seta só desenha com o símbolo aqui.
+    expect(document.querySelector('symbol#seta')).not.toBeNull()
+  })
+})
+
+describe('fronteira servidor → cliente das cenas (DP4)', () => {
+  it('nenhum Server Component importa o RunnerDeCenas ou uma cena: só o módulo client da página', () => {
+    // Função não atravessa a fronteira RSC: a lista de cenas escrita numa page.tsx derruba o
+    // prerender no `pnpm build`, e o jsdom deste teste não acusaria. `import type` não conta.
+    const raizes = [
+      path.join(process.cwd(), 'src', 'app', '(site)'),
+      path.join(process.cwd(), 'src', 'site', 'paginas'),
+      path.join(process.cwd(), 'src', 'site', 'layout'),
+    ]
+    const acusados = raizes
+      .flatMap((raiz) => listarSeExiste(raiz, ['.ts', '.tsx']))
+      .filter((arquivo) => {
+        const fonte = readFileSync(arquivo, 'utf8').replace(/\r\n?/g, '\n')
+        if (/^'use client'/.test(fonte.trimStart())) return false
+        return Array.from(fonte.matchAll(/^import ([^']*?) from '([^']+)'/gm)).some(
+          ([, nomes, origem]) =>
+            !nomes.startsWith('type ') &&
+            /^@\/site\/(?:runner\/RunnerDeCenas$|cenas\/(?!paginas\/|registro$))/.test(origem),
+        )
+      })
+      .map((arquivo) => path.relative(process.cwd(), arquivo))
+    expect(acusados).toEqual([])
   })
 })
 ```
@@ -912,7 +956,7 @@ describe('error.tsx do (site) (Task 1.7 da fase 1)', () => {
 - [ ] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-core-fase4.int.spec.tsx`
-Expected: FAIL com "Failed to resolve import '@/app/(site)/error'" (e, criado o arquivo, "DesmontadoAntesDoPronto is not exported", a pausa falsa `[0, 0.5, 1]` no lugar de `[0, 1]` e o `removeEventListener('scroll')` que não acontece).
+Expected: FAIL com "Failed to resolve import '@/app/(site)/error'" (e, criado o arquivo, "DesmontadoAntesDoPronto is not exported", a pausa falsa `[0, 0.5, 1]` no lugar de `[0, 1]`, o `removeEventListener('scroll')` que não acontece e a fronteira acusando `src/site/layout/EsqueletoApp.tsx`, que hoje importa o `RunnerDeCenas`).
 
 - [ ] **Step 3: Patamares, motion e montagem**
 
@@ -1128,20 +1172,34 @@ export function EsqueletoApp({ pagina, atual, temProposta, cenas, children }: Pr
 }
 ```
 
+`src/site/cenas/paginas/home.tsx` (nasce aqui, e não na 4.5: a lista de cenas é um array de funções e não pode ser escrita na `page.tsx`, que é Server Component; ver DP4):
+
+```tsx
+'use client'
+
+import type { ListaCenas } from '@/site/core/tipos'
+import { RunnerDeCenas } from '@/site/runner/RunnerDeCenas'
+import { cenaRanking } from '../home/ranking'
+
+/** Cenas da home, na ordem das seções (paginas/home.js do protótipo). A 4.5 e a 4.6 completam a lista. */
+export const CENAS_HOME: ListaCenas = [['ranking', cenaRanking]]
+
+/** O runner da home: a lista nasce aqui, do lado do cliente, e a página só passa o elemento. */
+export function CenasDaHome() {
+  return <RunnerDeCenas pagina="home" cenas={CENAS_HOME} />
+}
+```
+
 `src/app/(site)/(app)/previa-v2/page.tsx` (provisório até a Tarefa 4.5, que a transforma na home): trocar o retorno por
 
 ```tsx
-    <EsqueletoApp
-      pagina="home"
-      temProposta
-      cenas={<RunnerDeCenas pagina="home" cenas={[['ranking', cenaRanking]]} />}
-    >
+    <EsqueletoApp pagina="home" temProposta cenas={<CenasDaHome />}>
       <Ranking />
       <SecaoProposta />
     </EsqueletoApp>
 ```
 
-com `import { cenaRanking } from '@/site/cenas/home/ranking'` e `import { RunnerDeCenas } from '@/site/runner/RunnerDeCenas'`. Em `tests/int/site-v2-previa.int.spec.tsx`: `toBe('previa')` → `toBe('home')`; o teste "toda cena registrada para a prévia tem a sua seção na página" passa a iterar `for (const id of ['ranking'])`; o import de `CENAS_POR_PAGINA` sai.
+com `import { CenasDaHome } from '@/site/cenas/paginas/home'` (nenhum import de cena nem do `RunnerDeCenas` na página: o teste da fronteira acusa). Em `tests/int/site-v2-core-ssr.int.spec.ts`, acrescentar a `MODULOS`: `['cenas da home', () => import('@/site/cenas/paginas/home')],`. Em `tests/int/site-v2-previa.int.spec.tsx`: `toBe('previa')` → `toBe('home')`; o teste "toda cena registrada para a prévia tem a sua seção na página" passa a iterar `for (const id of ['ranking'])`; o import de `CENAS_POR_PAGINA` sai.
 
 Em `tests/int/site-v2-montagem.int.spec.tsx`: apagar o bloco `vi.mock('@/site/cenas/registro', …)` e trocar `<RunnerDeCenas pagina="previa" />` por:
 
@@ -1173,11 +1231,13 @@ Em `tests/int/site-v2-montagem.int.spec.tsx`: apagar o bloco `vi.mock('@/site/ce
 import '@/site/secoes/comum/erro.css'
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
+import { SimbolosSvg } from '@/site/layout/SimbolosSvg'
 
 /**
  * Erro de renderização numa página do site v2 (DP14 do plano da fase 4). Fica dentro do layout
- * raiz (site): fontes e tokens valem. Vai ao Sentry e oferece tentar de novo (unstable_retry,
- * Next 16.2) ou voltar ao início.
+ * raiz (site): fontes e tokens valem. Substitui a página inteira, então não há cabeçalho e os
+ * símbolos SVG vêm daqui (a seta do link). Vai ao Sentry e oferece tentar de novo
+ * (unstable_retry, Next 16.2) ou voltar ao início.
  */
 export default function ErroDoSite({
   error,
@@ -1191,6 +1251,7 @@ export default function ErroDoSite({
   }, [error])
   return (
     <main id="conteudo" className="erro-do-site" data-tema="claro">
+      <SimbolosSvg />
       <div className="container">
         {/* TEXTO-NOVO */}
         <h1 className="erro-titulo">Algo não carregou.</h1>
@@ -1259,7 +1320,7 @@ Expected: PASS. A varredura C8 passa com zero arquivo acusado (o ranking não te
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/core/patamares.ts src/site/core/motion.ts src/site/core/montagem.ts src/site/core/util.ts src/site/core/dinamica.ts src/site/runner/RunnerDeCenas.tsx src/site/cenas/registro.ts src/site/layout/EsqueletoApp.tsx "src/app/(site)/error.tsx" src/site/secoes/comum/erro.css "src/app/(site)/(app)/previa-v2/page.tsx" tests/int/site-v2-core-fase4.int.spec.tsx tests/int/site-v2-montagem.int.spec.tsx tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-previa.int.spec.tsx && git commit -m "feat(site-v2): core com as pendências de prazo da fase 1, Dinâmica e erro do (site)
+git branch --show-current && git add src/site/core/patamares.ts src/site/core/motion.ts src/site/core/montagem.ts src/site/core/util.ts src/site/core/dinamica.ts src/site/runner/RunnerDeCenas.tsx src/site/cenas/registro.ts src/site/cenas/paginas/home.tsx src/site/layout/EsqueletoApp.tsx "src/app/(site)/error.tsx" src/site/secoes/comum/erro.css "src/app/(site)/(app)/previa-v2/page.tsx" tests/int/site-v2-core-fase4.int.spec.tsx tests/int/site-v2-montagem.int.spec.tsx tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-previa.int.spec.tsx && git commit -m "feat(site-v2): core com as pendências de prazo da fase 1, Dinâmica e erro do (site)
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
@@ -1532,7 +1593,7 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 - Produces:
   - `src/site/rotas.ts`: `PREFIXO_DA_PREVIA: string` (`'/previa-v2'` antes da virada, `''` depois); `PAGINAS_NA_PREVIA: ReadonlySet<string>` (hoje `/blog`, `/privacidade`, `/termos`; cada tarefa de página acrescenta a sua); `caminhoNoSite(href: string): string`; `semPrefixoDaPrevia(href: string): string`.
   - `src/site/estilo.ts`: `comIndice(i: number): CSSProperties`.
-  - `src/site/seo/institucional.ts`: `type PaginaInstitucional = 'home' | 'semog' | 'administracao-de-condominios' | 'garante' | 'incorporadoras' | 'tecnologia' | 'solucoes' | 'proposta' | 'contato'`; `META_DA_TECNOLOGIA: { title: string; description: string }`; `metadadosInstitucionais(pagina: PaginaInstitucional): Metadata`; `jsonLdInstitucional(pagina: PaginaInstitucional): Record<string, unknown> | null`.
+  - `src/site/seo/institucional.ts`: `type PaginaInstitucional = 'home' | 'semog' | 'administracao-de-condominios' | 'garante' | 'incorporadoras' | 'tecnologia' | 'solucoes' | 'proposta' | 'contato'`; `META_DA_TECNOLOGIA: { title: string; description: string }`; `TITULO_DO_CONTATO: string` (o Contato do v2 sem a promessa de WhatsApp no título); `metadadosInstitucionais(pagina: PaginaInstitucional): Metadata`; `jsonLdInstitucional(pagina: PaginaInstitucional): Record<string, unknown> | null`.
   - `<JsonLd dados={Record<string, unknown> | null} />`.
   - `tests/int/helpers/prototipo.ts`: `secaoDoPrototipo(arquivo: string): Element`, `assinatura(raiz: Element): Assinatura`, `diferencasNaoDeclaradas(renderizada: Element, prototipo: Element, declaradas?: Diferencas): Resultado`, `SEM_DIFERENCA`, `type Diferencas`.
   - `tests/int/helpers/paginas.ts`: `type SecaoEsperada = { id: string; arquivo: string | null; diferencas?: Diferencas }`; `conferirPagina(pagina: ReactElement, conferencia: { dataPagina: string; secoes: readonly SecaoEsperada[]; cenas?: ListaCenas }): HTMLElement`.
@@ -1547,9 +1608,10 @@ import path from 'node:path'
 
 /**
  * Paridade com o protótipo (DP2 do plano da fase 4): a seção que o Next renderiza precisa ter as
- * mesmas classes, ids e atributos `data-*` da parcial HTML do protótipo. Texto e atributos de
- * valor não entram (o texto mudou de propósito com as respostas do Leandro); quem confere o
- * visual são os quadros no navegador.
+ * mesmas classes, ids e atributos `data-*` da parcial HTML do protótipo, cada classe (e cada
+ * etiqueta de bloco: parágrafo, item de lista, título, imagem) na mesma quantidade e na mesma
+ * ordem de documento. Texto e atributos de valor não entram (o texto mudou de propósito com as
+ * respostas do Leandro); quem confere o visual são os quadros no navegador.
  */
 const SECOES = path.join(
   process.cwd(),
@@ -1560,7 +1622,14 @@ const SECOES = path.join(
 )
 
 export type Assinatura = { classes: string[]; ids: string[]; dados: string[] }
-export type Resultado = { faltam: Assinatura; sobram: Assinatura }
+export type Resultado = {
+  faltam: Assinatura
+  sobram: Assinatura
+  /** Classe ou etiqueta comum aos dois lados com quantidade diferente: `"x: N no protótipo, M aqui"`. */
+  contagem: string[]
+  /** Onde a sequência das classes e etiquetas comuns diverge pela primeira vez; `null` = mesma ordem. */
+  ordem: string | null
+}
 export type Diferencas = {
   /** Seletores cujas subárvores saem dos dois lados (ex.: o formulário, componente da fase 2). */
   ignorar?: readonly string[]
@@ -1570,10 +1639,68 @@ export type Diferencas = {
   comIds?: readonly string[]
   semDados?: readonly string[]
   comDados?: readonly string[]
+  /**
+   * Classes (`'x'`) ou etiquetas (`'<p>'`) cuja quantidade muda de propósito (uma lista do
+   * conteúdo que ficou de outro tamanho por resposta do Leandro). Cada uma leva o motivo num
+   * comentário na tarefa; sem motivo, a diferença é perda na porta e se corrige a porta.
+   */
+  contagemLivre?: readonly string[]
 }
 
 const VAZIA: Assinatura = { classes: [], ids: [], dados: [] }
-export const SEM_DIFERENCA: Resultado = { faltam: VAZIA, sobram: VAZIA }
+export const SEM_DIFERENCA: Resultado = { faltam: VAZIA, sobram: VAZIA, contagem: [], ordem: null }
+
+/** Etiquetas de bloco que contam e ordenam junto com as classes (um parágrafo ou item perdido). */
+const ETIQUETAS_CONTADAS = new Set(['p', 'li', 'h1', 'h2', 'h3', 'h4', 'dt', 'dd', 'figure', 'img'])
+
+/** As classes de cada elemento (em ordem alfabética dentro dele) e a etiqueta, se contada, em ordem de documento. */
+function marcasEmOrdem(raiz: Element): string[] {
+  return [raiz, ...Array.from(raiz.querySelectorAll('*'))].flatMap((el) => {
+    const etiqueta = el.tagName.toLowerCase()
+    const classes = Array.from(el.classList).sort()
+    return ETIQUETAS_CONTADAS.has(etiqueta) ? [`<${etiqueta}>`, ...classes] : classes
+  })
+}
+
+function contar(marcas: readonly string[]): Map<string, number> {
+  const contagem = new Map<string, number>()
+  for (const marca of marcas) contagem.set(marca, (contagem.get(marca) ?? 0) + 1)
+  return contagem
+}
+
+/**
+ * Quantidade e ordem (R2: mesmos elementos, na mesma ordem). O conjunto de classes não vê um item
+ * perdido de lista nem dois blocos trocados de lugar; a contagem de cada marca comum e a sequência
+ * delas veem. Marca declarada em `semClasses`, `comClasses` ou `contagemLivre` fica de fora.
+ */
+function contagemEOrdem(
+  nossa: Element,
+  dele: Element,
+  declaradas: Diferencas,
+): Pick<Resultado, 'contagem' | 'ordem'> {
+  const fora = new Set([
+    ...(declaradas.semClasses ?? []),
+    ...(declaradas.comClasses ?? []),
+    ...(declaradas.contagemLivre ?? []),
+  ])
+  const marcasNossas = marcasEmOrdem(nossa)
+  const marcasDele = marcasEmOrdem(dele)
+  const quantasNossas = contar(marcasNossas)
+  const quantasDele = contar(marcasDele)
+  const comuns = [...quantasDele.keys()].filter((m) => quantasNossas.has(m) && !fora.has(m)).sort()
+  const contagem = comuns
+    .filter((m) => quantasNossas.get(m) !== quantasDele.get(m))
+    .map((m) => `${m}: ${quantasDele.get(m)} no protótipo, ${quantasNossas.get(m)} aqui`)
+  const ordenaveis = new Set(comuns.filter((m) => quantasNossas.get(m) === quantasDele.get(m)))
+  const sequenciaDele = marcasDele.filter((m) => ordenaveis.has(m))
+  const sequenciaNossa = marcasNossas.filter((m) => ordenaveis.has(m))
+  const i = sequenciaDele.findIndex((m, k) => m !== sequenciaNossa[k])
+  const ordem =
+    i === -1
+      ? null
+      : `posição ${i}: "${sequenciaDele[i]}" no protótipo, "${sequenciaNossa[i]}" aqui, depois de "${sequenciaDele.slice(Math.max(0, i - 3), i).join(' ')}"`
+  return { contagem, ordem }
+}
 
 /** A `<section>` de uma parcial do protótipo, sem comentários e sem as marcas de laço. */
 export function secaoDoPrototipo(arquivo: string): Element {
@@ -1621,11 +1748,14 @@ export function diferencasNaoDeclaradas(
   declaradas: Diferencas = {},
 ): Resultado {
   const ignorar = declaradas.ignorar ?? []
-  const nossa = assinatura(semIgnorados(renderizada, ignorar))
-  const dele = assinatura(semIgnorados(prototipo, ignorar))
+  const renderizadaSemIgnorados = semIgnorados(renderizada, ignorar)
+  const prototipoSemIgnorados = semIgnorados(prototipo, ignorar)
+  const nossa = assinatura(renderizadaSemIgnorados)
+  const dele = assinatura(prototipoSemIgnorados)
   const menos = (de: string[], tirar: string[], aceitos: readonly string[] = []) =>
     de.filter((valor) => !tirar.includes(valor) && !aceitos.includes(valor))
   return {
+    ...contagemEOrdem(renderizadaSemIgnorados, prototipoSemIgnorados, declaradas),
     faltam: {
       classes: menos(dele.classes, nossa.classes, declaradas.semClasses),
       ids: menos(dele.ids, nossa.ids, declaradas.semIds),
@@ -1735,6 +1865,7 @@ import {
   META_DA_TECNOLOGIA,
   metadadosInstitucionais,
   type PaginaInstitucional,
+  TITULO_DO_CONTATO,
 } from '@/site/seo/institucional'
 import { rotasDoApp } from './helpers/rotas-app'
 
@@ -1786,13 +1917,22 @@ describe('metadados das páginas institucionais', () => {
     'incorporadoras',
     'solucoes',
     'proposta',
-    'contato',
   ]
 
   it.each(EXISTENTES)('%s: o mesmo <head> que o site no ar monta hoje (spec 6)', async (pagina) => {
     const slug = pagina === 'home' ? undefined : [pagina]
     const noAr = await generateMetadata({ params: Promise.resolve({ slug }) })
     expect(metadadosInstitucionais(pagina)).toEqual(noAr)
+  })
+
+  it('contato: o <head> de hoje, menos o título, que não promete WhatsApp (decisão de 16/10/2026)', async () => {
+    const noAr = await generateMetadata({ params: Promise.resolve({ slug: ['contato'] }) })
+    const meta = metadadosInstitucionais('contato')
+    expect(meta.title).toBe(TITULO_DO_CONTATO)
+    expect(String(meta.title)).not.toMatch(/whatsapp/i)
+    expect(meta.description).toBe(noAr.description)
+    expect(meta.alternates).toEqual(noAr.alternates)
+    expect(meta.robots).toEqual(noAr.robots)
   })
 
   it('tecnologia, URL nova: título e descrição do protótipo, canonical próprio, card OG com título', () => {
@@ -1915,6 +2055,14 @@ export const META_DA_TECNOLOGIA = {
 } as const
 
 /**
+ * O título do Contato no ar ("telefone e WhatsApp das quatro unidades") promete um WhatsApp que o
+ * Contato do v2 não oferece a quem não é cliente (spec 5). Decisão de 16/10/2026: o v2 usa este
+ * título, e o resto do `meta` é o de hoje. O site no ar, inclusive o card OG de /contato (rota
+ * `src/app/[slug]/opengraph-image.tsx`), só muda na virada, quando o `meta` vem para cá.
+ */
+export const TITULO_DO_CONTATO = 'Contato Semog: telefones e endereços das quatro Unidades'
+
+/**
  * A página em `content/pages` que guarda o `meta` de hoje. Até a virada 1 o site atual serve
  * essas URLs com esse `meta`, e as páginas novas usam o mesmo (spec 6: metadata mantida). Na
  * virada, o `meta` vem para cá junto com a rota, como na fase 3.
@@ -1925,6 +2073,7 @@ function documento(pagina: PaginaInstitucional): PageData {
   }
   const doc = pages[pagina]
   if (!doc) throw new Error(`[institucional] content/pages sem a página "${pagina}".`)
+  if (pagina === 'contato') return { ...doc, meta: { ...doc.meta, title: TITULO_DO_CONTATO } }
   return doc
 }
 
@@ -1996,8 +2145,8 @@ A rota `/previa-v2` deixa de ser a bancada da fundação e passa a ser a home. E
 **Files:**
 - Create (seções, pela receita R): `src/site/secoes/home/Abertura.tsx` + `abertura.css` (de `PROTOTIPO\src\sections\01-abertura.html` e `scenes\01-abertura.css`), `Condominios.tsx` + `condominios.css` (`02-condominios`), `Pilares.tsx` + `pilares.css` (`03-pilares`), `Unidades.tsx` + `unidades.css` (`06-unidades`). `Ranking.tsx` já existe (fase 1).
 - Create (cenas, pela receita C): `src/site/cenas/home/abertura.ts` (`cenaAbertura`, de `scenes\01-abertura.js`), `condominios.ts` (`cenaCondominios`, `02-condominios.js`), `pilares.ts` (`cenaPilares`, `03-pilares.js`), `unidades.ts` (`cenaUnidades`, `06-unidades.js`).
-- Create: `src/site/cenas/paginas/home.tsx`, `src/site/paginas/home.tsx`
-- Modify: `src/app/(site)/(app)/previa-v2/page.tsx`, `src/site/cenas/registro.ts`, `src/site/rotas.ts`, `tests/int/site-v2-core-ssr.int.spec.ts`, `tests/int/site-v2-previa.int.spec.tsx`
+- Create: `src/site/paginas/home.tsx`
+- Modify: `src/site/cenas/paginas/home.tsx` (criado na 4.2 só com o ranking), `src/app/(site)/(app)/previa-v2/page.tsx`, `src/site/cenas/registro.ts`, `src/site/rotas.ts`, `tests/int/site-v2-core-ssr.int.spec.ts`, `tests/int/site-v2-previa.int.spec.tsx`
 - Test: `tests/int/site-v2-pagina-home.int.spec.tsx`
 
 **Interfaces:**
@@ -2076,7 +2225,7 @@ describe('home do site v2 na prévia', () => {
 - [ ] **Step 2: Rodar e ver falhar**
 
 Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-pagina-home.int.spec.tsx`
-Expected: FAIL com "Failed to resolve import '@/site/cenas/paginas/home'".
+Expected: FAIL: a página só tem `ranking` e `proposta` (as seções `abertura`, `condominios`, `pilares` e `unidades` faltam na ordem esperada), e `CENAS_HOME` só tem o ranking.
 
 - [ ] **Step 3: Copiar o CSS das cenas**
 
@@ -2095,7 +2244,7 @@ Pela receita (R1 a R7, C1 a C9), com os desvios listados acima. Cada TSX importa
 
 - [ ] **Step 5: Lista de cenas, corpo da página, rota e registro**
 
-`src/site/cenas/paginas/home.tsx`:
+`src/site/cenas/paginas/home.tsx` inteiro (estende o da 4.2):
 
 ```tsx
 'use client'
@@ -2183,8 +2332,9 @@ export default function Pagina() {
   ['cena condomínios', () => import('@/site/cenas/home/condominios')],
   ['cena pilares', () => import('@/site/cenas/home/pilares')],
   ['cena unidades', () => import('@/site/cenas/home/unidades')],
-  ['cenas da home', () => import('@/site/cenas/paginas/home')],
 ```
+
+(`['cenas da home', …]` já entrou na 4.2.)
 
 `tests/int/site-v2-previa.int.spec.tsx`: o título do teste `'nunca é indexada'` continua valendo; os demais já rodam sobre a home desde a 4.2. Trocar o nome do describe `'rota de prévia do site v2'` por `'rota de prévia do site v2 (home)'`.
 
@@ -2212,7 +2362,198 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 
 ---
 
-## Tarefa 4.6: Home, parte 2 — tecnologia (seis módulos) e comunidade, com os números e o vídeo pendentes
+## Tarefa 4.5a: Vídeo do Semog Experience 26 (arquivo, capa, conteúdo do v2 e a troca na `/experience`)
+
+Roda entre a 4.5 e a 4.6, no PR 4a. Decisão do Leandro de 16/10/2026 (DP12): o reel do Experience 26 entra na Comunidade da home (4.6) e substitui o vídeo de 2025 na landing `/experience`. O arquivo já existe, então `VIDEO_DO_EXPERIENCE_26` deixa de ser pendência aqui. Nada sobe para o bucket do Supabase (efeito externo): o vídeo e a capa são servidos de `public/`, como `garante.mp4` e as fotos das atividades (`LOCAL_BY_FILENAME`, `content/media.ts`).
+
+**Files:**
+- Create: `public/site-v2/videos/semog-experience-26.mp4`, `public/site-v2/videos/semog-experience-26-poster.webp`, `scripts/gen-poster-experience-26.mjs`
+- Modify: `src/site/conteudo/conteudo.ts`, `tests/int/site-v2-pendencias.int.spec.ts`
+- Modify (site no ar, só chega ao ar na virada): `content/media.ts`, `src/data/experienceEvent.ts`, `src/components/experience/ExperienceVideo.tsx`, `tests/int/experience-media.int.spec.ts`, `tests/int/experience-sections.int.spec.tsx`
+
+**Interfaces:**
+- Consumes: `VideoDoExperience` (4.1), `img()` e `LOCAL_BY_FILENAME` (`content/media.ts`), `EXPERIENCE_EVENT.video` (`src/data/experienceEvent.ts`).
+- Produces: `conteudo.comunidade.experience.video26: VideoDoExperience` (não mais pendente); `EXPERIENCE_EVENT.video` com `previousYear: 2026`, `previousEdition: '26'`, `file: 'semog-experience-26.mp4'`, `poster: 'semog-experience-26-poster.webp'`, sem `previousFormat`.
+
+- [ ] **Step 1: Conferir o arquivo e o estado da `/experience`**
+
+```powershell
+Get-Item -LiteralPath 'C:\Users\lekoc\Downloads\semog-experience-26-reel.mp4' | Select-Object Length
+```
+
+Expected: cerca de 20.800.000 bytes (19,9 MB; 720 × 1280, 68 s, conferido em 16/10/2026). Se não existir, pare e reporte: a tarefa depende do arquivo. O arquivo veio da internet: ele só é copiado e lido pelo Chromium do Playwright; nada é executado de dentro dele.
+
+Abrir `http://localhost:3000/experience` (`pnpm dev`) e ler a seção do vídeo e o topo. A seção diz "Edição anterior" e "Assista como foi o Semog Experience 25". Se a página ainda anunciar o Experience 26 como evento futuro (inscrição aberta para 26/09/2026), pare e reporte: o vídeo do 26 como "edição anterior" ficaria errado, e o texto da seção precisaria de outra decisão.
+
+- [ ] **Step 2: Copiar o vídeo**
+
+```powershell
+New-Item -ItemType Directory -Force 'C:\Users\lekoc\semogapp\semogsite-site-v2\public\site-v2\videos' | Out-Null
+Copy-Item -LiteralPath 'C:\Users\lekoc\Downloads\semog-experience-26-reel.mp4' -Destination 'C:\Users\lekoc\semogapp\semogsite-site-v2\public\site-v2\videos\semog-experience-26.mp4'
+```
+
+Sem recompressão: nem o plano nem o repositório têm padrão de otimização de vídeo, e esta máquina não tem `ffmpeg` (conferido em 16/10/2026; o `gen-hero-poster.mjs` usa o Chromium justamente por isso). Instalar uma ferramenta nova está fora do escopo da tarefa. O peso fica registrado em "Conflitos" para a decisão do Leandro antes da virada.
+
+- [ ] **Step 3: Gerar a capa**
+
+`scripts/gen-poster-experience-26.mjs` (mesmo método de `scripts/gen-hero-poster.mjs`):
+
+```js
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { chromium } from '@playwright/test'
+import sharp from 'sharp'
+
+/**
+ * Capa do reel do Semog Experience 26 (Comunidade da home do site v2 e landing /experience). Mesmo
+ * método do `gen-hero-poster.mjs`: o Chromium do Playwright tira o quadro e o sharp grava em webp,
+ * sem depender de ffmpeg. O quadro é o de `INSTANTE` segundos; conferir a imagem gerada e ajustar
+ * se cair num quadro escuro ou borrado. Rodar de novo só se o vídeo mudar.
+ */
+const SRC = 'public/site-v2/videos/semog-experience-26.mp4'
+const OUT = 'public/site-v2/videos/semog-experience-26-poster.webp'
+const INSTANTE = 1
+const LARGURA = 720
+const ALTURA = 1280
+
+const tmp = mkdtempSync(join(tmpdir(), 'poster-'))
+const browser = await chromium.launch()
+try {
+  const page = await browser.newPage({ viewport: { width: LARGURA, height: ALTURA } })
+  const dataUrl = `data:video/mp4;base64,${readFileSync(SRC).toString('base64')}`
+  await page.setContent(
+    `<style>body{margin:0}video{width:${LARGURA}px;height:${ALTURA}px;object-fit:cover}</style><video id="v" muted src="${dataUrl}"></video>`,
+  )
+  await page.evaluate(
+    (instante) =>
+      new Promise((resolve, reject) => {
+        const v = document.getElementById('v')
+        v.onerror = () => reject(new Error('o Chromium não decodificou o vídeo'))
+        v.onseeked = resolve
+        v.currentTime = instante
+      }),
+    INSTANTE,
+  )
+  const frame = join(tmp, 'frame.png')
+  writeFileSync(frame, await page.locator('#v').screenshot())
+  const info = await sharp(frame).webp({ quality: 60 }).toFile(OUT)
+  console.log(`${OUT} gerado (${Math.round(info.size / 1024)} KB)`)
+} finally {
+  await browser.close()
+  rmSync(tmp, { recursive: true, force: true })
+}
+```
+
+Run (da WT): `node scripts/gen-poster-experience-26.mjs`
+Expected: `public/site-v2/videos/semog-experience-26-poster.webp gerado (N KB)`. Abrir o webp e olhar: quadro nítido, sem tela preta. Se o Chromium não decodificar (erro do `onerror`), trocar `chromium.launch()` por `chromium.launch({ channel: 'chrome' })` (o Chrome instalado tem os codecs) e rodar de novo.
+
+- [ ] **Step 4: O vídeo no conteúdo do v2**
+
+`src/site/conteudo/conteudo.ts`, a constante `VIDEO_DO_EXPERIENCE_26` (Tarefa 4.1) passa a:
+
+```ts
+/** O reel do Semog Experience 26 (DP12; post Dd4jHaQCso5, arquivo do Leandro de 16/10/2026). */
+const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = {
+  src: '/site-v2/videos/semog-experience-26.mp4',
+  poster: '/site-v2/videos/semog-experience-26-poster.webp',
+  legenda: 'Vídeo com momentos do Semog Experience 2026, na orla de João Pessoa.',
+  largura: 720,
+  altura: 1280,
+}
+```
+
+`tests/int/site-v2-pendencias.int.spec.ts`, a lista das pendências conhecidas passa a `['tecnologia.numerosDaPrestacao', 'aSemog.pessoas.fotoDosSocios']`.
+
+- [ ] **Step 5: A troca na `/experience`**
+
+`content/media.ts`: em `ALT_BY_FILENAME`, depois de `'experience-2025.mp4'`:
+
+```ts
+  // O reel do Semog Experience 26 substituiu o de 2025 na seção de vídeo (Leandro, 16/10/2026).
+  'semog-experience-26.mp4':
+    'Vídeo com momentos do Semog Experience 2026 na orla de João Pessoa, com a queima de fogos',
+  'semog-experience-26-poster.webp': 'Quadro do vídeo do Semog Experience 2026',
+```
+
+e, em `LOCAL_BY_FILENAME`, depois das fotos das atividades:
+
+```ts
+  // O reel do 26 nasce no repositório, como as fotos das atividades (servido também pela home do v2).
+  'semog-experience-26.mp4': '/site-v2/videos/semog-experience-26.mp4',
+  'semog-experience-26-poster.webp': '/site-v2/videos/semog-experience-26-poster.webp',
+```
+
+(As entradas de 2025 ficam: o arquivo continua no bucket e o teste `experience-media` as confere.)
+
+`src/data/experienceEvent.ts`, o bloco `video` inteiro passa a:
+
+```ts
+  /**
+   * Prova social: o vídeo da edição 26, que trocou o de 2025 em 16/10/2026 (decisão do Leandro).
+   * Os campos guardam os **filenames**, resolvidos por `img()` de `content/media.ts`, que sabe
+   * onde o arquivo mora (este, no repositório) e guarda o alt.
+   */
+  video: {
+    previousYear: 2026,
+    /** Mesma convenção do `name`: a edição é "Semog Experience 26". */
+    previousEdition: '26',
+    /** Post original, mantido só como crédito/origem — o site não embute o Instagram. */
+    reelUrl: 'https://www.instagram.com/reel/Dd4jHaQCso5/',
+    file: 'semog-experience-26.mp4',
+    poster: 'semog-experience-26-poster.webp',
+    /** O material é um Reel vertical: em moldura 16:9 sobram tarjas pretas. */
+    aspectRatio: '9 / 16',
+  },
+```
+
+`src/components/experience/ExperienceVideo.tsx`: apagar o `<p className="note">…</p>` inteiro (a nota explicava que 2025 teve outro formato; o vídeo agora é da própria edição 26). No JSDoc, trocar "Prova social da edição anterior" por "Prova social da edição 26 (o vídeo trocou o de 2025 em 16/10/2026)", trocar "5,1 MB" por "19,9 MB" e apagar o último parágrafo ("O texto diz com todas as letras…"). O resto da marcação (título, legenda `Semog Experience {E.video.previousEdition} · {E.city}`, `preload="none"`, `poster`) fica: com os dados novos, o título passa a "Assista como foi o Semog Experience 26".
+
+`tests/int/experience-sections.int.spec.tsx`, o teste `'diz que a edição anterior teve outro formato'` passa a:
+
+```tsx
+  it('mostra o vídeo do Semog Experience 26, sem a nota do formato de 2025', () => {
+    render(<ExperienceVideo />)
+    expect(EXPERIENCE_EVENT.video.previousEdition).toBe('26')
+    expect(screen.getAllByText(/Experience 26/).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/beach tennis/i)).toBeNull()
+  })
+```
+
+`tests/int/experience-media.int.spec.ts`, no fim do `describe`:
+
+```ts
+  it('o vídeo do 26 e a capa saem do repositório (/site-v2/videos), não do bucket', () => {
+    expect(img(EXPERIENCE_EVENT.video.file).url).toBe('/site-v2/videos/semog-experience-26.mp4')
+    expect(img(EXPERIENCE_EVENT.video.poster).url).toBe(
+      '/site-v2/videos/semog-experience-26-poster.webp',
+    )
+  })
+```
+
+- [ ] **Step 6: Rodar e ver passar**
+
+Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/experience-media.int.spec.ts tests/int/experience-sections.int.spec.tsx tests/int/site-v2-pendencias.int.spec.ts tests/int/site-v2-redacao.int.spec.ts tests/int/site-v2-conteudo.int.spec.ts`
+Expected: PASS.
+
+- [ ] **Step 7: Olhar no navegador antes de commitar**
+
+`pnpm dev`, `http://localhost:3000/experience` em 1440 e 390, em Chromium e Firefox: a seção do vídeo mostra a capa nova, o título "Assista como foi o Semog Experience 26", e o play toca o reel com som (controles nativos). No Network, o `.mp4` vem de `localhost:3000/site-v2/videos/`, não do Supabase, e só depois do play (`preload="none"`).
+
+- [ ] **Step 8: Portões e commit**
+
+Run: os cinco portões. Expected: verdes.
+
+```bash
+git branch --show-current && git add public/site-v2/videos/semog-experience-26.mp4 public/site-v2/videos/semog-experience-26-poster.webp scripts/gen-poster-experience-26.mjs src/site/conteudo/conteudo.ts tests/int/site-v2-pendencias.int.spec.ts content/media.ts src/data/experienceEvent.ts src/components/experience/ExperienceVideo.tsx tests/int/experience-media.int.spec.ts tests/int/experience-sections.int.spec.tsx && git commit -m "feat(site-v2): vídeo do Semog Experience 26 na home do v2 e no lugar do de 2025 na /experience
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
+```
+
+---
+
+## Tarefa 4.6: Home, parte 2 — tecnologia (seis módulos) e comunidade, com os números pendentes e o vídeo do 26
 
 **Files:**
 - Create (seções): `src/site/secoes/home/Tecnologia.tsx` + `tecnologia.css` (`04-tecnologia`), `src/site/secoes/home/Comunidade.tsx` + `comunidade.css` (`07-comunidade`)
@@ -2228,6 +2569,7 @@ Desvios desta tarefa:
 - **Tecnologia (home), `.tec-contexto`:** `{conteudo.tecnologia.contexto}` seguido de um espaço e, se `numerosDaPrestacao` estiver pendente, `<Pendencia item={…} />`; senão, `fraseDosNumerosDaPrestacao(numeros)`.
 - **Comunidade, marco do Café:** o segundo marco (`5ª edição` / `Anunciada`, TEXTO-NOVO no protótipo) vira `conteudo.comunidade.cafe.proximos.rotulo` / `.texto`, na mesma marcação (`dt.rotulo > .linha > .linha-interna`, `dd.comunidade-data > .linha > .linha-interna`).
 - **Comunidade, citação:** a legenda da citação passa a `Ana Cláudia, sobre a 4ª edição, em comentário no Instagram do evento.` (sem "síndica"), com o comentário `{/* TEXTO-NOVO: comentário autorizado pelo Leandro (16/10/2026) */}`.
+- **Comunidade, link do blog:** o `href` é `caminhoNoSite('/blog')`, e não `conteudo.comunidade.blog.url` (a URL absoluta `https://www.semog.com.br/blog`, que tiraria da prévia quem clica e quebraria a navegação entre páginas novas que o verificador testa; DP3). O texto do link continua vindo do conteúdo.
 - **Comunidade, primeiro retrato (DP12):** com `video26` pendente, o `<img>` da foto de 2025 fica e a legenda ganha o selo (`{experience.legenda} <Pendencia item={experience.video26} />`); com o arquivo, o primeiro quadro tem `<video src poster width height muted loop playsInline autoPlay preload="metadata" aria-label={video.legenda} />` no lugar do `<img>` e a legenda é `experience.legendaCom26`. Na cena, `abrirFoto` exige `img, video` (e não só `img`) dentro da moldura.
 
 - [ ] **Step 1: Estender o teste da home**
@@ -2252,7 +2594,8 @@ const SECOES: SecaoEsperada[] = [
   {
     id: 'comunidade',
     arquivo: '07-comunidade',
-    diferencas: VIDEO_PENDENTE ? { comClasses: ['a-confirmar'] } : {},
+    // Com o vídeo do 26 (Tarefa 4.5a), o primeiro retrato troca o <img> por <video> (DP12).
+    diferencas: VIDEO_PENDENTE ? { comClasses: ['a-confirmar'] } : { contagemLivre: ['<img>'] },
   },
   {
     id: 'proposta',
@@ -2265,7 +2608,7 @@ const SECOES: SecaoEsperada[] = [
 e acrescentar ao `describe`:
 
 ```tsx
-  it('comunidade: sem edição nem data inventada, citação sem "síndica", vídeo do 26 pendente na prévia', () => {
+  it('comunidade: sem edição nem data inventada, citação sem "síndica", e o vídeo do 26 no primeiro retrato', () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
     const container = conferirPagina(<Pagina />, { dataPagina: 'home', secoes: SECOES })
     const comunidade = container.querySelector('#comunidade')?.textContent ?? ''
@@ -2368,14 +2711,14 @@ Expected: PASS.
 
 - [ ] **Step 7: Olhar no navegador antes de commitar**
 
-`pnpm dev`, `http://localhost:3000/previa-v2` em 1440 e 390: a tecnologia (pin com o percurso ERP → PDF → assinatura → QR → Semog One) e a comunidade (a linha que liga Café, Experience e blog) animam; o selo A CONFIRMAR aparece no contexto da tecnologia e na legenda do Experience; console sem erro.
+`pnpm dev`, `http://localhost:3000/previa-v2` em 1440 e 390: a tecnologia (pin com o percurso ERP → PDF → assinatura → QR → Semog One) e a comunidade (a linha que liga Café, Experience e blog) animam; o selo A CONFIRMAR aparece no contexto da tecnologia; o primeiro retrato da Comunidade toca o reel do 26 (mudo, em laço), com a capa antes de carregar, e a legenda é "Semog Experience 2026 e 2025."; console sem erro.
 
 - [ ] **Step 8: Portões e commit**
 
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/secoes/home/Tecnologia.tsx src/site/secoes/home/tecnologia.css src/site/secoes/home/Comunidade.tsx src/site/secoes/home/comunidade.css src/site/cenas/home src/site/secoes/tecnologia/numeros.ts src/site/conteudo/conteudo.ts src/site/cenas/paginas/home.tsx src/site/paginas/home.tsx tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-pagina-home.int.spec.tsx && git commit -m "feat(site-v2): tecnologia e comunidade na home, com números e vídeo do 26 pendentes
+git branch --show-current && git add src/site/secoes/home/Tecnologia.tsx src/site/secoes/home/tecnologia.css src/site/secoes/home/Comunidade.tsx src/site/secoes/home/comunidade.css src/site/cenas/home src/site/secoes/tecnologia/numeros.ts src/site/conteudo/conteudo.ts src/site/cenas/paginas/home.tsx src/site/paginas/home.tsx tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-pagina-home.int.spec.tsx && git commit -m "feat(site-v2): tecnologia e comunidade na home, com os números pendentes e o vídeo do 26
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
@@ -2390,6 +2733,7 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 - Create (cenas, `src/site/cenas/semog/`): `manifesto.ts` (`cenaManifesto`), `historia.ts` (`cenaHistoria`), `principios.ts` (`cenaPrincipios`), `pessoas.ts` (`cenaPessoas`), `depoimentos.ts` (`cenaDepoimentos`), `assembleia.ts` (`cenaAssembleia`), dos `.js` de mesmo número em `scenes\semog\`
 - Create: `src/site/cenas/paginas/semog.tsx`, `src/site/paginas/semog.tsx`, `src/app/(site)/(app)/previa-v2/semog/page.tsx`
 - Modify: `src/site/cenas/registro.ts`, `src/site/rotas.ts`, `tests/int/site-v2-core-ssr.int.spec.ts`
+- Só se a foto dos sócios já chegou (Step 4a): Create `public/site-v2/fotos/socios-semog.webp`; Modify `src/site/conteudo/conteudo.ts`, `tests/int/site-v2-pendencias.int.spec.ts`
 - Test: `tests/int/site-v2-pagina-semog.int.spec.tsx`
 
 **Interfaces:**
@@ -2440,7 +2784,11 @@ const SECOES: SecaoEsperada[] = [
     arquivo: 'semog/04-pessoas',
     diferencas: FOTO_PENDENTE
       ? { semClasses: ['ps-aenviar-tema'], comClasses: ['a-confirmar'] }
-      : { semClasses: ['ps-aenviar', 'ps-aenviar-rotulo', 'ps-aenviar-tema'] },
+      : {
+          semClasses: ['ps-aenviar', 'ps-aenviar-rotulo', 'ps-aenviar-tema'],
+          // Com a foto, o rótulo "Foto real a enviar" (<p>) sai e a moldura ganha o <img>.
+          contagemLivre: ['<p>', '<img>'],
+        },
   },
   { id: 'depoimentos', arquivo: 'semog/06-depoimentos' },
   { id: 'assembleia', arquivo: 'semog/05-assembleia' },
@@ -2501,6 +2849,22 @@ Copy-Item -LiteralPath "$p\06-depoimentos.css" -Destination "$d\depoimentos.css"
 - [ ] **Step 4: Portar as seis seções e as seis cenas**
 
 Pela receita, com os desvios acima. A história tem pin com patamares por pausas (`patamares: "pausas"`): se houver `.to({}, { … onUpdate … })`, ganha `data: 'movimento'` (C8; o teste da 4.2 acusa).
+
+- [ ] **Step 4a: A foto dos sócios, se o arquivo já chegou**
+
+Decisão de 16/10/2026: a moldura dos sócios usa a 1ª foto do post do Instagram `DeR7uo5EbRX` (todos os sócios), que o Leandro salva em `C:\Users\lekoc\Downloads\semog-experience-26-grupo.jpg`.
+
+```powershell
+Test-Path -LiteralPath 'C:\Users\lekoc\Downloads\semog-experience-26-grupo.jpg'
+```
+
+Se `False`: a foto fica pendente (o selo aparece na prévia e a virada trava), e este passo é refeito, sozinho e com o próprio commit, quando o arquivo chegar (registrar no ledger). Se `True`, converter para webp no lugar definido (o arquivo veio da internet: só o `sharp` o lê; rodar da WT, onde o `sharp` está instalado):
+
+```powershell
+node --input-type=module -e "import sharp from 'sharp'; const info = await sharp(process.argv[1]).rotate().resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 72 }).toFile(process.argv[2]); console.log(info.width, info.height, Math.round(info.size / 1024) + ' KB')" 'C:\Users\lekoc\Downloads\semog-experience-26-grupo.jpg' 'C:\Users\lekoc\semogapp\semogsite-site-v2\public\site-v2\fotos\socios-semog.webp'
+```
+
+Expected: largura, altura e peso impressos (o `.rotate()` aplica a orientação EXIF). Em `src/site/conteudo/conteudo.ts`, `FOTO_DOS_SOCIOS` passa a `{ src: '/site-v2/fotos/socios-semog.webp', alt: 'Os sócios da Semog, reunidos.', largura: <largura impressa>, altura: <altura impressa> }` e o comentário perde "Pendente até o arquivo chegar". O alt é neutro de propósito: nenhum nome foi informado, e nome inventado é dado inventado. Em `tests/int/site-v2-pendencias.int.spec.ts`, a lista das pendências conhecidas perde `'aSemog.pessoas.fotoDosSocios'`. O commit desta tarefa passa a incluir `public/site-v2/fotos/socios-semog.webp`, `src/site/conteudo/conteudo.ts` e `tests/int/site-v2-pendencias.int.spec.ts`. No navegador (Step 7), conferir o enquadramento da foto na moldura (rostos não cortados) em 1440 e 390; se cortar, reportar ao controlador em vez de editar o CSS da cena.
 
 - [ ] **Step 5: Lista de cenas, página, rota, registro e prévia**
 
@@ -2601,11 +2965,13 @@ Expected: PASS.
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/secoes/semog src/site/cenas/semog src/site/cenas/paginas/semog.tsx src/site/paginas/semog.tsx "src/app/(site)/(app)/previa-v2/semog/page.tsx" src/site/cenas/registro.ts src/site/rotas.ts tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-pagina-semog.int.spec.tsx && git commit -m "feat(site-v2): A Semog na prévia, com a foto dos sócios pendente
+git branch --show-current && git add src/site/secoes/semog src/site/cenas/semog src/site/cenas/paginas/semog.tsx src/site/paginas/semog.tsx "src/app/(site)/(app)/previa-v2/semog/page.tsx" src/site/cenas/registro.ts src/site/rotas.ts tests/int/site-v2-core-ssr.int.spec.ts tests/int/site-v2-pagina-semog.int.spec.tsx && git commit -m "feat(site-v2): A Semog na prévia, com a moldura dos sócios
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 ```
+
+(Se o Step 4a converteu a foto, acrescentar ao `git add` os três arquivos que ele lista.)
 
 ---
 
@@ -3129,6 +3495,7 @@ Expected: `404` nas três da prévia e `200` em `/semog` (o site atual continua 
 
 - `node scripts/site-v2-comparar-metadados.mjs --depois http://localhost:3100` (fase 3; GET de leitura no site público, o único acesso fora do `localhost`), contra o build normal: as diferenças são só as já explicadas na fase 3 (nenhuma URL institucional muda de `<head>`).
 - Nos logs do `pnpm start` dos Steps 5 a 10, nenhuma invocação de Server Action (nenhum POST com `Next-Action`): ninguém enviou formulário.
+- A única mudança fora do v2 é a da Tarefa 4.5a: em `http://localhost:3100/experience`, Chromium e Firefox, 1440 e 390, a seção do vídeo mostra a capa e o título do Experience 26, o play toca o reel, o `.mp4` vem de `/site-v2/videos/` e só baixa depois do play; nada mais na página mudou em relação a `https://www.semog.com.br/experience` (comparar os quadros das demais seções).
 - `git status --short` limpo (nenhum print nem script dentro da WT).
 
 - [ ] **Step 13: Veredito**
@@ -3815,7 +4182,7 @@ A página não tem protótipo (DP11). O texto é o de `conteudo.solucoesPagina` 
 **Files:**
 - Create (`src/site/secoes/solucoes/`): `AberturaDeSolucoes.tsx` + `abertura.css`, `TiposDeCondominio.tsx` + `tipos.css`, `PorqueSemog.tsx` + `porque.css`, `BlocoDeSolucao.tsx` + `bloco.css`, `PerguntasDeSolucoes.tsx` + `perguntas.css`
 - Create: `src/site/cenas/paginas/solucoes.tsx`, `src/site/paginas/solucoes.tsx`, `src/app/(site)/(app)/previa-v2/solucoes/page.tsx`
-- Modify: `src/site/cenas/registro.ts`, `src/site/rotas.ts`
+- Modify: `src/site/cenas/registro.ts`, `src/site/rotas.ts`, `src/site/layout/Rodape.tsx` (link para `/solucoes`)
 - Test: `tests/int/site-v2-pagina-solucoes.int.spec.tsx`
 
 **Interfaces:**
@@ -3902,6 +4269,13 @@ describe('/solucoes na prévia', () => {
     expect(container.querySelectorAll('#perguntas-solucoes details')).toHaveLength(
       conteudo.solucoesPagina.perguntas.itens.length,
     )
+  })
+
+  it('tem link interno no rodapé (decisão de 16/10/2026) e fica fora do menu, como o protótipo', () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    const container = conferirPagina(<Pagina />, { dataPagina: 'solucoes', secoes: SECOES })
+    expect(container.querySelector('footer a[href="/previa-v2/solucoes"]')?.textContent).toBe('Soluções')
+    expect(container.querySelector('header a[href="/previa-v2/solucoes"]')).toBeNull()
   })
 })
 ```
@@ -4467,10 +4841,12 @@ export default function Pagina() {
 
 `src/site/cenas/registro.ts`: `import { CENAS_SOLUCOES } from './paginas/solucoes'` e `solucoes: CENAS_SOLUCOES`. `src/site/rotas.ts`: `'/solucoes'` em `PAGINAS_NA_PREVIA`.
 
+`src/site/layout/Rodape.tsx`: em `LINKS_SEMOG`, depois de `{ href: '/tecnologia', rotulo: 'Tecnologia' },`, acrescentar `{ href: '/solucoes', rotulo: 'Soluções' },` (decisão do Leandro de 16/10/2026: a `/solucoes` é mantida pelo tráfego do Search Console e precisa de link interno depois da virada; o menu do cabeçalho não muda). O rótulo é o título da página no ar.
+
 - [ ] **Step 5: Rodar e ver passar**
 
-Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-pagina-solucoes.int.spec.tsx tests/int/site-v2-rotas.int.spec.ts tests/int/site-v2-identidade.int.spec.ts tests/int/site-v2-redacao.int.spec.ts`
-Expected: PASS.
+Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-pagina-solucoes.int.spec.tsx tests/int/site-v2-rotas.int.spec.ts tests/int/site-v2-identidade.int.spec.ts tests/int/site-v2-redacao.int.spec.ts tests/int/site-v2-layout.int.spec.tsx`
+Expected: PASS. Se o `site-v2-layout` contar os links do rodapé, a contagem sobe um, com o comentário da decisão (é a mudança desta tarefa, não regressão), e o arquivo entra no `git add` do Step 7.
 
 - [ ] **Step 6: Olhar no navegador antes de commitar**
 
@@ -4481,7 +4857,7 @@ Expected: PASS.
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/secoes/solucoes src/site/cenas/paginas/solucoes.tsx src/site/paginas/solucoes.tsx "src/app/(site)/(app)/previa-v2/solucoes/page.tsx" src/site/cenas/registro.ts src/site/rotas.ts tests/int/site-v2-pagina-solucoes.int.spec.tsx && git commit -m "feat(site-v2): /solucoes portada para o visual novo, reescrita pelas regras
+git branch --show-current && git add src/site/secoes/solucoes src/site/cenas/paginas/solucoes.tsx src/site/paginas/solucoes.tsx "src/app/(site)/(app)/previa-v2/solucoes/page.tsx" src/site/cenas/registro.ts src/site/rotas.ts src/site/layout/Rodape.tsx tests/int/site-v2-pagina-solucoes.int.spec.tsx && git commit -m "feat(site-v2): /solucoes portada para o visual novo, reescrita pelas regras, com link no rodapé
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
@@ -4825,7 +5201,7 @@ Fecha a pendência Final I1 da fase 1 (o `LeadClickTracker` mede todo WhatsApp c
 **Interfaces:**
 - Consumes: `ATRIBUTO_CAMINHO`, `linkWhatsApp`, `MENSAGEM_DO_CLIENTE`, `SECOES_FORA_DO_ADS` (`src/lib/triagem.ts`); `LinkDoCliente` (`LinksDeWhatsApp.tsx`); `Cabecalho` e `type TituloDoPainel` (`src/components/triagem/Cabecalho.tsx`); `SegundaVia` (`src/components/triagem/segunda-via/SegundaVia.tsx`), `encerrarSegundaVia` (`…/respostas.ts`); ícones de `src/components/triagem/icones.tsx`; `conteudo.souCliente` (4.1).
 - Produces:
-  - `src/site/cliente/eventos.ts`: `EVENTO_SOU_CLIENTE = 'semog:sou-cliente'`; `type OrigemSouCliente = 'cabecalho' | 'menu' | 'rodape' | 'contato' | 'nao-encontrada'`; `type TelaInicial = 'menu' | 'segunda-via'`; `type PedidoSouCliente = { origem: OrigemSouCliente; tela: TelaInicial; gatilho: HTMLElement | null }`; `pedirSouCliente(pedido: PedidoSouCliente): void`; `lerPedido(evento: Event): PedidoSouCliente | null`.
+  - `src/site/cliente/eventos.ts`: `EVENTO_SOU_CLIENTE = 'semog:sou-cliente'`; `type OrigemSouCliente = 'cabecalho' | 'menu' | 'rodape' | 'contato'` (os três lugares da resposta do Leandro; o menu é o cabeçalho no celular); `type TelaInicial = 'menu' | 'segunda-via'`; `type PedidoSouCliente = { origem: OrigemSouCliente; tela: TelaInicial; gatilho: HTMLElement | null }`; `pedirSouCliente(pedido: PedidoSouCliente): void`; `lerPedido(evento: Event): PedidoSouCliente | null`.
   - `registrarSouClienteAberto(origem: OrigemSouCliente): void` (GA4 `sou_cliente_aberto`, não é evento-chave).
   - `GatilhoSouCliente({ origem, tela?, className?, children })`.
   - `PainelSouCliente({ segundaViaAtiva }: { segundaViaAtiva: boolean })`, montado uma vez em cada esqueleto.
@@ -4895,7 +5271,14 @@ describe('"Sou cliente" (spec 5, DP6)', () => {
       <GatilhoSouCliente origem="cabecalho">Sou cliente</GatilhoSouCliente>,
     )
     expect(html).toContain('data-wa-caminho="cliente"')
-    expect(html).toContain(linkWhatsApp(MENSAGEM_DO_CLIENTE).split('?')[0])
+    // Quem não escolheu nada recebe a mensagem de atendimento, não a da 2ª via.
+    expect(html).toContain(`href="${linkWhatsApp(MENSAGEM_DE_ATENDIMENTO)}"`)
+    const daSegundaVia = renderToStaticMarkup(
+      <GatilhoSouCliente origem="contato" tela="segunda-via">
+        2ª via
+      </GatilhoSouCliente>,
+    )
+    expect(daSegundaVia).toContain(`href="${linkWhatsApp(MENSAGEM_DO_CLIENTE)}"`)
   })
 
   it('hidratado, é um botão que abre o painel; o painel não tem proposta e mede a abertura', () => {
@@ -5005,13 +5388,14 @@ export function LinkDeAtendimento(props: Props) {
 
 ```ts
 /**
- * Os gatilhos do "Sou cliente" (cabeçalho, menu, rodapé, Contato, 404) pedem o painel por um
+ * Os gatilhos do "Sou cliente" (cabeçalho, menu, rodapé e Contato) pedem o painel por um
  * evento de janela; o painel, um por página, ouve. Assim cada gatilho é pequeno e o painel não
  * se repete.
  */
 export const EVENTO_SOU_CLIENTE = 'semog:sou-cliente'
 
-export type OrigemSouCliente = 'cabecalho' | 'menu' | 'rodape' | 'contato' | 'nao-encontrada'
+/** Só os três lugares da resposta do Leandro (cabeçalho, com o menu do celular, rodapé e Contato). */
+export type OrigemSouCliente = 'cabecalho' | 'menu' | 'rodape' | 'contato'
 export type TelaInicial = 'menu' | 'segunda-via'
 export type PedidoSouCliente = {
   origem: OrigemSouCliente
@@ -5056,7 +5440,12 @@ export function registrarSouClienteAberto(origem: OrigemSouCliente): void {
 
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { ATRIBUTO_CAMINHO, linkWhatsApp, MENSAGEM_DO_CLIENTE } from '@/lib/triagem'
+import {
+  ATRIBUTO_CAMINHO,
+  linkWhatsApp,
+  MENSAGEM_DE_ATENDIMENTO,
+  MENSAGEM_DO_CLIENTE,
+} from '@/lib/triagem'
 import { type OrigemSouCliente, pedirSouCliente, type TelaInicial } from './eventos'
 
 type PropsGatilho = {
@@ -5071,16 +5460,18 @@ type PropsGatilho = {
  * Gatilho do "Sou cliente" (DP6 do plano da fase 4). No HTML do servidor, e até hidratar, é o link
  * do WhatsApp de cliente com `data-wa-caminho="cliente"`: sem JavaScript a pessoa chega ao
  * atendimento, e o LeadClickTracker mede o clique como atendimento (`triagem_whatsapp_click`),
- * nunca como lead. Hidratado, vira botão que abre o painel (sem href: não há clique de WhatsApp).
+ * nunca como lead. A mensagem é a de atendimento; só o gatilho que abre direto a 2ª via pede a
+ * 2ª via. Hidratado, vira botão que abre o painel (sem href: não há clique de WhatsApp).
  */
 export function GatilhoSouCliente({ origem, tela = 'menu', className, children }: PropsGatilho) {
   const [hidratado, setHidratado] = useState(false)
   useEffect(() => setHidratado(true), [])
   if (!hidratado) {
+    const mensagem = tela === 'segunda-via' ? MENSAGEM_DO_CLIENTE : MENSAGEM_DE_ATENDIMENTO
     return (
       <a
         className={className}
-        href={linkWhatsApp(MENSAGEM_DO_CLIENTE)}
+        href={linkWhatsApp(mensagem)}
         target="_blank"
         rel="noopener"
         {...{ [ATRIBUTO_CAMINHO]: 'cliente' }}
@@ -5677,13 +6068,14 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 
 ---
 
-## Tarefa 4.16: Contato — atalho do "Sou cliente", Unidades e o formulário de verdade, tudo para `ola@`
+## Tarefa 4.16: Contato — atalho direto da 2ª via, Unidades e o formulário de verdade, tudo para `ola@`
 
 **Files:**
 - Create (seções, `src/site/secoes/contato/`): `Abertura.tsx` (`AberturaDoContato`) + `abertura.css` (de `sections\contato\01-abertura.html`, `scenes\contato\01-abertura.css`), `Unidades.tsx` (`UnidadesDoContato`) + `unidades.css` (`02-unidades`), `Mensagem.tsx` (`MensagemDoContato`) + `mensagem.css` (`03-mensagem`)
 - Create: `src/site/formularios/mensagem/FormularioDeMensagem.tsx`
 - Create: `src/site/paginas/contato.tsx`, `src/app/(site)/(landing)/previa-v2/contato/page.tsx`
-- Modify: `src/site/conteudo/conteudo.ts`, `src/lib/form-schemas.ts`, `src/lib/leads/destinatarios.ts`, `src/app/(frontend)/_actions/submit-form.ts`, `.env.example`, `docs/DEPLOY.md`, `src/site/rotas.ts`
+- Modify: `src/site/conteudo/conteudo.ts`, `src/lib/form-schemas.ts`, `src/lib/leads/destinatarios.ts`, `src/app/(frontend)/_actions/submit-form.ts`, `.env.example`, `docs/DEPLOY.md`, `src/site/rotas.ts`, `playwright.config.ts`
+- Modify (testes do formulário que está em produção, que afirmam o destino antigo): `tests/int/submit-form.int.spec.ts`
 - Test: `tests/int/site-v2-pagina-contato.int.spec.tsx`
 
 **Interfaces:**
@@ -5691,7 +6083,7 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 - Produces: `AberturaDoContato()`, `UnidadesDoContato()`, `MensagemDoContato()`; `FormularioDeMensagem()`; `PaginaContato()`; `CONTATO_TO = 'ola@semog.com.br'` e `destinatariosDoContato(): readonly string[]` (`src/lib/leads/destinatarios.ts`); `conteudo.contatoPagina.mensagem.assuntos: ReadonlyArray<{ valor: string; rotulo: string }>`; os valores novos do enum do contato: `'condomino-duvida' | 'fornecedor' | 'imprensa' | 'trabalhe-conosco'`; `'/contato'` em `PAGINAS_NA_PREVIA`.
 
 Desvios desta página:
-- **Abertura, atalho:** o atalho pendente (`div.ct-atalho--pendente` com o selo) vira `<GatilhoSouCliente origem="contato" className="ct-atalho">` com o mesmo conteúdo (`strong`, `span`, seta) e o texto de `contatoPagina.atalhos.cliente`. Os outros atalhos: proposta → `caminhoNoSite('/proposta')`, login → `conteudo.marca.loginUrl`, mensagem → `#contato-mensagem`. No `abertura.css`, depois de `#contato-abertura a.ct-atalho:hover`, acrescentar `#contato-abertura button.ct-atalho { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }` e `#contato-abertura button.ct-atalho:hover { background: color-mix(in oklab, var(--gelo) 70%, var(--ceu-claro)); }` (o atalho é link antes de hidratar e botão depois).
+- **Abertura, atalho:** o atalho pendente (`div.ct-atalho--pendente` com o selo) vira `<GatilhoSouCliente origem="contato" tela="segunda-via" className="ct-atalho">` com o mesmo conteúdo (`strong`, `span`, seta) e o texto de `contatoPagina.atalhos.segundaVia` ("2ª via de boleto"). Resposta do Leandro: o atalho do Contato abre direto o fluxo da 2ª via (CPF, código no e-mail, boletos); com a 2ª via desligada no ambiente, o painel abre no menu, que a oferece pelo WhatsApp. Os outros atalhos: proposta → `caminhoNoSite('/proposta')`, login → `conteudo.marca.loginUrl`, mensagem → `#contato-mensagem`. No `abertura.css`, depois de `#contato-abertura a.ct-atalho:hover`, acrescentar `#contato-abertura button.ct-atalho { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }` e `#contato-abertura button.ct-atalho:hover { background: color-mix(in oklab, var(--gelo) 70%, var(--ceu-claro)); }` (o atalho é link antes de hidratar e botão depois).
 - **Unidades:** as quatro Unidades por `.map` sobre `conteudo.unidades` com `conteudo.cidades[unidade.id]`; o telefone segue como texto, sem link de discagem (decisão do Leandro registrada no protótipo).
 - **Mensagem:** o `<form data-demo>` vira `<FormularioDeMensagem />`, com a mesma marcação de campo (`fp-*`); nenhum e-mail na página.
 
@@ -5703,11 +6095,33 @@ Desvios desta página:
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const envio = vi.hoisted(() => ({ submitForm: vi.fn() }))
 vi.mock('@/app/(frontend)/_actions/submit-form', () => envio)
+vi.mock('@/app/(frontend)/_actions/segunda-via', () => ({
+  solicitarCodigo: vi.fn(),
+  reenviarCodigo: vi.fn(),
+  confirmarCodigo: vi.fn(),
+  listarCobrancas: vi.fn(),
+  abrirBoleto: vi.fn(),
+  encerrarConsulta: vi.fn().mockResolvedValue(undefined),
+}))
+vi.mock('@/providers/ConsentProvider', () => ({
+  useConsent: () => ({ consent: { analytics: true }, decided: true }),
+}))
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
+
+// O jsdom tem <dialog> mas não showModal/close (o mesmo dublê do site-v2-sou-cliente).
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+    this.setAttribute('open', '')
+  }
+  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+    this.removeAttribute('open')
+    this.dispatchEvent(new Event('close'))
+  }
+})
 vi.mock('@/components/forms/Turnstile', () => ({
   Turnstile: ({ onToken }: { onToken: (token: string) => void }) => (
     <button type="button" onClick={() => onToken('token-de-teste')}>
@@ -5768,12 +6182,22 @@ describe('Contato (pacote landing) na prévia', () => {
     expect(() => Pagina()).toThrow('NEXT_HTTP_ERROR_FALLBACK;404')
   })
 
-  it('reproduz as seções do protótipo; nenhum e-mail na página; o atalho abre o "Sou cliente"', () => {
+  it('reproduz as seções do protótipo; nenhum e-mail na página; o atalho abre direto a 2ª via', () => {
     const container = conferirPagina(<Pagina />, { dataPagina: 'contato', secoes: SECOES })
     expect(container.textContent).not.toMatch(/@semog\.com\.br/)
     const atalho = container.querySelector('#contato-abertura .ct-atalho[aria-haspopup="dialog"]')
-    expect(atalho?.textContent).toContain(conteudo.contatoPagina.atalhos.cliente.titulo)
+    expect(atalho?.textContent).toContain(conteudo.contatoPagina.atalhos.segundaVia.titulo)
     expect(container.querySelectorAll('#contato-unidades .cn-unidade')).toHaveLength(4)
+  })
+
+  it('com a 2ª via ligada, o atalho do Contato pula o menu e abre a consulta pelo CPF', async () => {
+    // O esqueleto lê SEGUNDA_VIA_ATIVA no servidor e passa o booleano ao painel (4.15).
+    vi.stubEnv('SEGUNDA_VIA_ATIVA', 'true')
+    const container = conferirPagina(<Pagina />, { dataPagina: 'contato', secoes: SECOES })
+    const atalho = container.querySelector('#contato-abertura .ct-atalho[aria-haspopup="dialog"]')
+    if (!(atalho instanceof HTMLElement)) throw new Error('atalho do Contato ausente')
+    fireEvent.click(atalho)
+    expect(await screen.findByText(/Informe o CPF cadastrado/)).toBeTruthy()
   })
 
   it('os cinco assuntos do protótipo, todos aceitos pelo servidor; nenhum é proposta', () => {
@@ -5880,7 +6304,54 @@ export function destinatariosDoContato(): readonly string[] {
 }
 ```
 
-`src/app/(frontend)/_actions/submit-form.ts`: no import de `@/lib/leads/destinatarios`, acrescentar `destinatariosDoContato`; em `destinatariosDaNotificacao`, a última linha `return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined` passa a `return destinatariosDoContato()`; o comentário da função troca "`undefined` só acontece no Contato sem `CONTACT_TO` configurado (comum em dev), e aí nenhuma notificação sai — comportamento original." por "O Contato vai sempre para `CONTATO_TO` (ola@, fase 4 do site v2)." Rodar `pnpm run check:server-actions` logo depois: o arquivo é `'use server'` e só exporta função async.
+`src/app/(frontend)/_actions/submit-form.ts`: no import de `@/lib/leads/destinatarios`, acrescentar `destinatariosDoContato`; em `destinatariosDaNotificacao`, a última linha `return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined` passa a `return destinatariosDoContato()`; o tipo de retorno da função passa de `readonly string[] | undefined` a `readonly string[]` (o `notifyTo?.join(', ') ?? null` do INSERT continua compilando e passa a gravar sempre o endereço); o comentário da função troca "`undefined` só acontece no Contato sem `CONTACT_TO` configurado (comum em dev), e aí nenhuma notificação sai — comportamento original." por "O Contato vai sempre para `CONTATO_TO` (ola@, fase 4 do site v2). Em dev e Preview nada sai mesmo assim: `ambienteLiberaEnvio` barra o e-mail e o CRM fora de produção." Os outros três comentários do arquivo que citam `CONTACT_TO` também mudam, para não descrever variável que não existe mais: no de `PROPOSTA_CIDADE_TO`, "Contato continua indo pro `CONTACT_TO`" → "Contato vai para `CONTATO_TO` (ola@)"; no de `EXPERIENCE_TO`, "`CONTACT_TO` ausente faz a notificação simplesmente não sair" → "variável ausente faria a notificação simplesmente não sair (era o caso do `CONTACT_TO`, que o Contato deixou de ler)"; no de `enviarEmails`, "(ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`)" → "(ou ausência de `SENDGRID_API_KEY`)". Rodar `pnpm run check:server-actions` logo depois: o arquivo é `'use server'` e só exporta função async.
+
+`tests/int/submit-form.int.spec.ts` (o formulário de contato **em produção** usa a mesma action; os três testes abaixo afirmam o destino antigo e ficam vermelhos com a troca, então mudam aqui, com a decisão do Leandro de mandar tudo para ola@):
+
+1. Acrescentar `import { CONTATO_TO } from '@/lib/leads/destinatarios'` junto dos imports do arquivo.
+2. No `describe('submitForm — destino da notificação interna')`, o teste `'contato continua indo pro CONTACT_TO'` passa a:
+
+```ts
+  it('contato vai para ola@ (CONTATO_TO), mesmo com CONTACT_TO no ambiente', async () => {
+    // Desde a fase 4 do site v2 (Leandro, 16/10/2026) o Contato não lê mais CONTACT_TO: a
+    // variável no ambiente (posta no beforeEach) não pode desviar a mensagem.
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.31'))
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(CONTATO_TO).toBe('ola@semog.com.br')
+    expect(destinoDaNotificacao()).toEqual(['ola@semog.com.br'])
+  })
+```
+
+3. No `describe('submitForm — grava a quem o lead foi endereçado')`, o teste `'contato grava o CONTACT_TO'` passa a:
+
+```ts
+  it('contato grava ola@ (CONTATO_TO)', async () => {
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(notificadoPara()).toBe('ola@semog.com.br')
+  })
+```
+
+4. No mesmo `describe`, o teste `'sem CONTACT_TO grava NULL, e não string vazia'` sai, e no lugar entra:
+
+```ts
+  // O teste "sem CONTACT_TO grava NULL" saiu na fase 4 do site v2: o Contato tem destino fixo
+  // (ola@), então não existe mais Contato sem destino, e o NULL ("não avisamos ninguém") deixou
+  // de acontecer no Contato. O que sobra provar é que a falta da variável não esvazia a coluna.
+  it('sem CONTACT_TO no ambiente o Contato grava ola@ mesmo assim, nunca string vazia', async () => {
+    delete process.env.CONTACT_TO
+
+    await submitForm('contato', contatoValido, 'test-token')
+
+    expect(notificadoPara()).toBe('ola@semog.com.br')
+  })
+```
+
+5. As três linhas `process.env.CONTACT_TO = 'caixa-do-contato@example.com'` dos `beforeEach` e o par `CONTACT_TO_ORIGINAL`/`afterEach` do primeiro `describe` **ficam**: são elas que provam que a variável, presente no ambiente, já não muda nada.
+
+`playwright.config.ts`, no `env` do `webServer`: apagar a linha `CONTACT_TO: '',` (o código não a lê mais; e-mail, banco e CRM continuam desligados no e2e por `SENDGRID_API_KEY: ''`, `DATABASE_URI: ''` e `EXACT_SPOTTER_TOKEN: ''`, que ficam). O comentário acima ("zerar aqui desliga banco, e-mail e CRM") continua certo.
 
 `.env.example`: apagar a linha do comentário de `CONTACT_TO` e a linha `CONTACT_TO=`. `docs/DEPLOY.md`: apagar a linha da tabela de `CONTACT_TO` e, logo abaixo da tabela, acrescentar: "`CONTACT_TO` deixou de ser lida em 10/2026: o Contato vai sempre para `ola@semog.com.br` (`CONTATO_TO`, `src/lib/leads/destinatarios.ts`)." (Documentação de variável que não existe mais leva a decisão errada.)
 
@@ -6139,22 +6610,22 @@ export default function Pagina() {
 
 - [ ] **Step 6: Rodar e ver passar**
 
-Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-pagina-contato.int.spec.tsx tests/int/contato-form.int.spec.tsx tests/int/site-v2-rotas.int.spec.ts tests/int/site-v2-redacao.int.spec.ts tests/int/site-v2-identidade.int.spec.ts tests/int/site-v2-sou-cliente.int.spec.tsx`
-Expected: PASS. Se `tests/int/contato-form.int.spec.tsx` não existir, rodar `rg -l "submitForm\('contato'|contatoSchema|CONTACT_TO" tests` e incluir no comando os testes achados: o formulário antigo usa o mesmo schema e a mesma action, e precisa continuar verde.
+Run: `pnpm exec vitest run --config ./vitest.config.mts tests/int/site-v2-pagina-contato.int.spec.tsx tests/int/submit-form.int.spec.ts tests/int/site-v2-rotas.int.spec.ts tests/int/site-v2-redacao.int.spec.ts tests/int/site-v2-identidade.int.spec.ts tests/int/site-v2-sou-cliente.int.spec.tsx`
+Expected: PASS, com os três testes do Contato de `submit-form.int.spec.ts` reescritos no Step 3 (destino e `notificado_para` em `ola@semog.com.br`). Depois, `rg -l "submitForm\('contato'|contatoSchema|CONTACT_TO" tests` e rodar também os testes achados que não estão no comando acima: o formulário antigo usa o mesmo schema e a mesma action. Se algum outro teste afirmar o destino antigo, ele muda pelo mesmo critério (destino `ola@`), entra no `git add` e vai no relatório; teste que falhe por outro motivo é parada, não reescrita.
 
 Run: `pnpm run check:server-actions`
 Expected: verde.
 
 - [ ] **Step 7: Olhar no navegador antes de commitar (sem enviar)**
 
-`pnpm dev`, `http://localhost:3000/previa-v2/contato` em 1440 e 390: os quatro atalhos (o "Sou cliente" abre o painel), as quatro Unidades com telefone em texto e "Como chegar", o formulário com os cinco assuntos. **Não enviar**: o build local grava no banco de produção (spec 7).
+`pnpm dev`, `http://localhost:3000/previa-v2/contato` em 1440 e 390: os quatro atalhos (o "2ª via de boleto" abre o painel direto na consulta pelo CPF, ou no menu se a 2ª via estiver desligada no ambiente local; parar na tela do CPF), as quatro Unidades com telefone em texto e "Como chegar", o formulário com os cinco assuntos. **Não enviar**: o build local grava no banco de produção (spec 7).
 
 - [ ] **Step 8: Portões e commit**
 
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/secoes/contato src/site/formularios/mensagem src/site/paginas/contato.tsx "src/app/(site)/(landing)/previa-v2/contato/page.tsx" src/site/conteudo/conteudo.ts src/lib/form-schemas.ts src/lib/leads/destinatarios.ts "src/app/(frontend)/_actions/submit-form.ts" .env.example docs/DEPLOY.md src/site/rotas.ts tests/int/site-v2-pagina-contato.int.spec.tsx && git commit -m "feat(site-v2): Contato com o Sou cliente, as Unidades e o formulário de verdade para o ola@
+git branch --show-current && git add src/site/secoes/contato src/site/formularios/mensagem src/site/paginas/contato.tsx "src/app/(site)/(landing)/previa-v2/contato/page.tsx" src/site/conteudo/conteudo.ts src/lib/form-schemas.ts src/lib/leads/destinatarios.ts "src/app/(frontend)/_actions/submit-form.ts" .env.example docs/DEPLOY.md src/site/rotas.ts playwright.config.ts tests/int/submit-form.int.spec.ts tests/int/site-v2-pagina-contato.int.spec.tsx && git commit -m "feat(site-v2): Contato com o atalho da 2ª via, as Unidades e o formulário de verdade para o ola@
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
@@ -6285,7 +6756,7 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 
 ## Tarefa 4.18: 404 nova
 
-Resposta do Leandro: "uma nova página 404 bem legal que já traga alguns links interessantes", com título que não afirma "não existe mais" (o endereço pode nunca ter existido). Base visual: a 404 do protótipo (o traço de ponta reta que se perde e volta), com os caminhos em cartões gelo, como os atalhos do Contato, e o "Sou cliente" entre eles.
+Resposta do Leandro: "uma nova página 404 bem legal que já traga alguns links interessantes", com título que não afirma "não existe mais" (o endereço pode nunca ter existido). Base visual: a 404 do protótipo (o traço de ponta reta que se perde e volta), com os cinco caminhos dela (início, Unidades, proposta, blog, contato, na mesma ordem) em cartões gelo, como os atalhos do Contato. Sem cartão "Sou cliente": a resposta do Leandro põe o gatilho só no cabeçalho, no rodapé e no Contato (DP6), e a 404 já tem cabeçalho e rodapé; o cliente que caiu aqui chega à 2ª via pelo cartão do Contato.
 
 **Files:**
 - Create: `src/site/secoes/nao-encontrada/NaoEncontrada.tsx` + `nao-encontrada.css` (de `sections\nao-encontrada\01-pagina.html`, `scenes\nao-encontrada\01-pagina.css`, com os cartões acrescentados)
@@ -6293,7 +6764,7 @@ Resposta do Leandro: "uma nova página 404 bem legal que já traga alguns links 
 - Test: `tests/int/site-v2-pagina-nao-encontrada.int.spec.tsx`
 
 **Interfaces:**
-- Consumes: `EsqueletoLanding` (4.14), `GatilhoSouCliente` (4.15), `conteudo.naoEncontrada` (4.1), `caminhoNoSite`, `comIndice` (4.4).
+- Consumes: `EsqueletoLanding` (4.14, que traz o cabeçalho e o rodapé com o gatilho do "Sou cliente"), `conteudo.naoEncontrada` (4.1), `caminhoNoSite`, `comIndice` (4.4).
 - Produces: `NaoEncontrada()`; `PaginaNaoEncontrada()` e `METADADOS_DA_404: Metadata` (`src/site/paginas/nao-encontrada.tsx`); `src/app/(site)/not-found.tsx` (atende todo `notFound()` do `(site)`); a rota `/previa-v2/nao-encontrada` (status 200, `noindex`, para ver a página na prévia).
 
 - [ ] **Step 1: Escrever o teste**
@@ -6323,7 +6794,7 @@ const SECOES: SecaoEsperada[] = [
 ]
 
 describe('404 nova do site v2', () => {
-  it('o título não afirma que a página existiu; traz os seis caminhos, com o "Sou cliente"', () => {
+  it('o título não afirma que a página existiu; traz os cinco caminhos do protótipo, sem "Sou cliente" no corpo', () => {
     const container = conferirPagina(<NaoEncontradaDoSite />, {
       dataPagina: 'nao-encontrada',
       secoes: SECOES,
@@ -6332,16 +6803,18 @@ describe('404 nova do site v2', () => {
     expect(titulo).toBe(`${conteudo.naoEncontrada.titulo} ${conteudo.naoEncontrada.enfase}`)
     expect(titulo).not.toMatch(/não existe mais/)
     const cartoes = Array.from(container.querySelectorAll('#nao-encontrada .ne-cartao'))
-    expect(cartoes).toHaveLength(6)
+    expect(cartoes).toHaveLength(5)
     expect(cartoes.map((c) => c.querySelector('strong')?.textContent)).toEqual([
       'Página inicial',
-      'Pedir proposta',
-      'Sou cliente',
       'Unidades Semog',
+      'Pedir proposta',
       'Blog',
       'Fale com a gente',
     ])
-    expect(container.querySelector('#nao-encontrada .ne-cartao[aria-haspopup="dialog"]')).not.toBeNull()
+    // O "Sou cliente" fica só no cabeçalho, no rodapé e no Contato (resposta do Leandro, DP6).
+    expect(container.querySelector('#nao-encontrada [aria-haspopup="dialog"]')).toBeNull()
+    expect(container.querySelector('#nao-encontrada [data-wa-caminho]')).toBeNull()
+    expect(cartoes.at(-1)?.getAttribute('href')).toBe('/previa-v2/contato')
   })
 
   it('o <head> da 404 é próprio e nunca é indexado', () => {
@@ -6374,8 +6847,8 @@ Copy-Item -LiteralPath 'C:\Users\lekoc\semogapp\semogsite-site-v2\design-explora
 (criar a pasta antes com `New-Item -ItemType Directory -Force`). Trocar o comentário de abertura por `/* 404 do site v2 (fase 4): rótulo, título em duas linhas com a ênfase por peso, o traço que se perde no meio e volta, e os caminhos em cartões. Entrada só de CSS, da primeira pintura. */` e acrescentar no fim:
 
 ```css
-/* ---- Cartões (fase 4): os caminhos úteis em blocos gelo de ponta reta, como os atalhos do
-   Contato; o "Sou cliente" abre o painel. Três por linha no computador, um no celular. */
+/* ---- Cartões (fase 4): os cinco caminhos úteis em blocos gelo de ponta reta, como os atalhos
+   do Contato. Três por linha no computador, dois no tablet, um no celular. */
 #nao-encontrada .ne-links {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -6446,19 +6919,20 @@ Copy-Item -LiteralPath 'C:\Users\lekoc\semogapp\semogsite-site-v2\design-explora
 ```tsx
 import './nao-encontrada.css'
 import type React from 'react'
-import { GatilhoSouCliente } from '@/site/cliente/GatilhoSouCliente'
 import { conteudo } from '@/site/conteudo/conteudo'
 import { comIndice } from '@/site/estilo'
 import { caminhoNoSite } from '@/site/rotas'
 
 type ChaveDoCartao = keyof typeof conteudo.naoEncontrada.links
 
-/** Os seis caminhos, na ordem da página. `null` = o "Sou cliente" (abre o painel). */
-const CARTOES: ReadonlyArray<readonly [ChaveDoCartao, string | null]> = [
+/**
+ * Os cinco caminhos, na ordem da 404 do protótipo. Sem "Sou cliente" no corpo (DP6): o cabeçalho
+ * e o rodapé já o têm, e o Contato leva à 2ª via.
+ */
+const CARTOES: ReadonlyArray<readonly [ChaveDoCartao, string]> = [
   ['inicio', '/'],
-  ['proposta', '/proposta'],
-  ['cliente', null],
   ['unidades', '/#unidades'],
+  ['proposta', '/proposta'],
   ['blog', '/blog'],
   ['contato', '/contato'],
 ]
@@ -6516,15 +6990,9 @@ export function NaoEncontrada() {
         <ul className="ne-links">
           {CARTOES.map(([chave, href], i) => (
             <li key={chave} style={comIndice(i)}>
-              {href === null ? (
-                <GatilhoSouCliente origem="nao-encontrada" className="ne-cartao">
-                  <CorpoDoCartao chave={chave} />
-                </GatilhoSouCliente>
-              ) : (
-                <a className="ne-cartao" href={caminhoNoSite(href)}>
-                  <CorpoDoCartao chave={chave} />
-                </a>
-              )}
+              <a className="ne-cartao" href={caminhoNoSite(href)}>
+                <CorpoDoCartao chave={chave} />
+              </a>
             </li>
           ))}
         </ul>
@@ -6546,7 +7014,7 @@ export const METADADOS_DA_404: Metadata = {
   title: 'Página não encontrada · Semog',
   // TEXTO-NOVO: a descrição do protótipo dizia "não existe mais".
   description:
-    'Não encontramos este endereço. Siga para a página inicial, o pedido de proposta, o atendimento a clientes, as Unidades Semog, o blog ou o contato.',
+    'Não encontramos este endereço. Siga para a página inicial, as Unidades Semog, o pedido de proposta, o blog ou o contato.',
   robots: { index: false, follow: false },
 }
 
@@ -6602,14 +7070,14 @@ Expected: PASS (o inventário já trata `/previa-v2/*` como prévia).
 
 - [ ] **Step 6: Olhar no navegador antes de commitar**
 
-`pnpm dev`: `http://localhost:3000/previa-v2/nao-encontrada` em 1440, 900, 520 e 390 (o traço desenha, os seis cartões, o "Sou cliente" abre o painel). Depois, `VERCEL_ENV=production` no `pnpm build` + `pnpm start` não é preciso aqui: fica para a verificação (4.20, Step 11).
+`pnpm dev`: `http://localhost:3000/previa-v2/nao-encontrada` em 1440, 900, 520 e 390 (o traço desenha, os cinco cartões sem corte e sem sobra estranha na última linha; o "Sou cliente" do cabeçalho e do rodapé abre o painel). Depois, `VERCEL_ENV=production` no `pnpm build` + `pnpm start` não é preciso aqui: fica para a verificação (4.20, Step 11).
 
 - [ ] **Step 7: Portões e commit**
 
 Run: os cinco portões. Expected: verdes.
 
 ```bash
-git branch --show-current && git add src/site/secoes/nao-encontrada src/site/paginas/nao-encontrada.tsx "src/app/(site)/not-found.tsx" "src/app/(site)/(landing)/previa-v2/nao-encontrada/page.tsx" tests/int/site-v2-pagina-nao-encontrada.int.spec.tsx && git commit -m "feat(site-v2): 404 nova, com os caminhos úteis e o Sou cliente
+git branch --show-current && git add src/site/secoes/nao-encontrada src/site/paginas/nao-encontrada.tsx "src/app/(site)/not-found.tsx" "src/app/(site)/(landing)/previa-v2/nao-encontrada/page.tsx" tests/int/site-v2-pagina-nao-encontrada.int.spec.tsx && git commit -m "feat(site-v2): 404 nova, com os cinco caminhos úteis
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
@@ -6880,7 +7348,7 @@ Claude-Session: https://claude.ai/code/session_013fZgqh8MzzrABNHa4SKBNn"
 
 ## Tarefa 4.20: Verificação COMPLETA do PR 4b (e da fase 4 inteira)
 
-Os Steps 1 e 2 são do implementador (a comparação de metadados passa a olhar as páginas institucionais da prévia); os Steps 3 a 16 são de um **verificador separado** (agente `verificador`, que não edita código). Pasta: `…\scratchpad\v4b\`; relatório em `…\scratchpad\v4b\verificacao.md`, com a saída real e os prints pelo caminho. Nenhum envio de formulário, nenhum CPF, nenhuma conexão ao banco.
+Os Steps 1 e 2 são do implementador (a comparação de metadados passa a olhar as páginas institucionais da prévia), e o Step 12 também (ele edita uma cópia descartável, e o verificador não edita); os demais Steps, de 3 a 16, são de um **verificador separado** (agente `verificador`, que não edita código). Pasta: `…\scratchpad\v4b\`; relatório em `…\scratchpad\v4b\verificacao.md`, com a saída real e os prints pelo caminho. Nenhum envio de formulário, nenhum CPF, nenhuma conexão ao banco.
 
 **Files:**
 - Modify: `scripts/site-v2-comparar-metadados.mjs`, `tests/int/site-v2-comparar-metadados.int.spec.ts`
@@ -6943,7 +7411,7 @@ Expected: `ok: 10 páginas × 2 navegadores × 2 larguras`. Abrir os pares de to
 
 - [ ] **Step 7: "Sou cliente" no navegador (sem CPF)**
 
-Em Chromium e Firefox, 1440 e 390, em `/previa-v2`, `/previa-v2/contato`, `/previa-v2/blog` e `/previa-v2/nao-encontrada`: abrir pelo cabeçalho (no 390, pelo menu), pelo rodapé, pelo atalho do Contato e pelo cartão da 404; conferir o painel (três opções, nenhuma de proposta), Esc e clique no fundo fechando, foco voltando ao gatilho, a página atrás sem rolar com o painel aberto. Com a 2ª via ligada no ambiente local (se `SEGUNDA_VIA_ATIVA` não estiver `true` no `.env` local, anotar que só o caminho desligado foi visto; não alterar `.env`), abrir a tela do CPF e parar ali. No Network, nenhum POST de Server Action. Com JavaScript desligado, o gatilho é o link `wa.me` com `data-wa-caminho="cliente"` (conferir no HTML).
+Em Chromium e Firefox, 1440 e 390, em `/previa-v2`, `/previa-v2/contato`, `/previa-v2/blog` e `/previa-v2/nao-encontrada`: abrir pelo cabeçalho (no 390, pelo menu), pelo rodapé e pelo atalho "2ª via de boleto" do Contato (que abre direto a consulta pelo CPF com a 2ª via ligada, e o menu com ela desligada); na 404, conferir que o corpo não tem gatilho e que o cartão "Fale com a gente" leva ao Contato; conferir o painel (três opções, nenhuma de proposta), Esc e clique no fundo fechando, foco voltando ao gatilho, a página atrás sem rolar com o painel aberto. Com a 2ª via ligada no ambiente local (se `SEGUNDA_VIA_ATIVA` não estiver `true` no `.env` local, anotar que só o caminho desligado foi visto; não alterar `.env`), abrir a tela do CPF e parar ali. No Network, nenhum POST de Server Action. Com JavaScript desligado, o gatilho é o link `wa.me` com `data-wa-caminho="cliente"` (conferir no HTML).
 
 - [ ] **Step 8: Medição do LeadClickTracker no navegador**
 
@@ -6972,11 +7440,16 @@ curl.exe -s -o NUL -w "%{http_code} /prestacao-de-contas-condominio`n" http://lo
 
 Expected: `404` em todas as da prévia, com o HTML da 404 nova (o `Select-String` acha "Não achamos"); `200` em `/semog` e em `/prestacao-de-contas-condominio` (produção intocada antes da virada). Remover as duas variáveis, encerrar o servidor e voltar ao build normal. Não abrir formulário neste servidor.
 
-- [ ] **Step 12: Os 308 da virada por `curl`, numa cópia descartável**
+- [ ] **Step 12: Os 308 da virada por `curl`, numa cópia descartável (implementador)**
+
+Feito pelo implementador, antes do verificador começar, com a saída inteira gravada em `…\v4b\redirects.txt`; o verificador lê esse arquivo, confere que a cópia foi apagada e que a WT ficou intacta (Step 14), e não edita nada. A cópia sai de `git archive` (arquivos do `HEAD`, sem `.git`), e não de `git worktree add`, que registraria estado no repositório que outras sessões usam.
 
 ```powershell
-$copia = 'C:\Users\lekoc\AppData\Local\Temp\claude\C--Users-lekoc-semogapp-semogsite\fce07e0d-ce5a-4a7f-a870-a8cface08e2b\scratchpad\v4b\copia-virada'
-git -C C:\Users\lekoc\semogapp\semogsite-site-v2 worktree add --detach $copia HEAD
+$v4b = 'C:\Users\lekoc\AppData\Local\Temp\claude\C--Users-lekoc-semogapp-semogsite\fce07e0d-ce5a-4a7f-a870-a8cface08e2b\scratchpad\v4b'
+$copia = "$v4b\copia-virada"
+New-Item -ItemType Directory -Force $copia | Out-Null
+git -C C:\Users\lekoc\semogapp\semogsite-site-v2 archive --format=tar -o "$v4b\copia-virada.tar" HEAD
+tar -xf "$v4b\copia-virada.tar" -C $copia
 cd $copia
 pnpm install --offline
 (Get-Content src\site\inventario.ts -Raw) -replace 'export const VIRADA_1_FEITA: boolean = false', 'export const VIRADA_1_FEITA: boolean = true' | Set-Content src\site\inventario.ts -NoNewline
@@ -6987,11 +7460,11 @@ curl.exe -s -o NUL -w "%{http_code} %{redirect_url}`n" http://localhost:3300/sof
 curl.exe -s -o NUL -w "%{http_code} %{redirect_url}`n" http://localhost:3300/solucoes.html
 ```
 
-Expected: `308 http://localhost:3300/tecnologia` nas duas primeiras (sem segundo salto: `curl -L -s -o NUL -w "%{num_redirects}"` = `1`); `308 http://localhost:3300/solucoes` na terceira. O build da cópia pode falhar em teste ou rota por a virada não estar feita de verdade (as rotas reais ainda são as da prévia): o que se mede aqui é só o redirect; se o `pnpm build` falhar, anotar o erro e provar os redirects pelo `loadConfig` do Next na cópia (`node -e` que importa `next/dist/server/config` e imprime `redirects()`), como na Task 1.3 da fase 1. Ao fim: encerrar o servidor e `git -C C:\Users\lekoc\semogapp\semogsite-site-v2 worktree remove --force $copia` (só esta cópia; conferir o caminho antes).
+Expected: `308 http://localhost:3300/tecnologia` nas duas primeiras (sem segundo salto: `curl -L -s -o NUL -w "%{num_redirects}"` = `1`); `308 http://localhost:3300/solucoes` na terceira. O build da cópia pode falhar em teste ou rota por a virada não estar feita de verdade (as rotas reais ainda são as da prévia): o que se mede aqui é só o redirect; se o `pnpm build` falhar, anotar o erro e provar os redirects pelo `loadConfig` do Next na cópia (`node -e` que importa `next/dist/server/config` e imprime `redirects()`), como na Task 1.3 da fase 1. Ao fim: encerrar o servidor e apagar a cópia e o `.tar` com `Remove-Item -LiteralPath $copia, "$v4b\copia-virada.tar" -Recurse -Force` (caminho absoluto conferido antes, só estes dois).
 
 - [ ] **Step 13: Metadados por URL, contra o site no ar**
 
-Run: `node scripts/site-v2-comparar-metadados.mjs --depois http://localhost:3100 --saida …\v4b\metadados.json` (contra o build normal do Step 4). Expected: código 0; as páginas institucionais da prévia com o mesmo `<head>` do site no ar (title, description, canonical, og, JSON-LD); diferenças só as já explicadas da fase 3. Este é o único acesso fora do `localhost` (GET de leitura no site público).
+Run: `node scripts/site-v2-comparar-metadados.mjs --depois http://localhost:3100 --saida …\v4b\metadados.json` (contra o build normal do Step 4). Expected: código 0; as páginas institucionais da prévia com o mesmo `<head>` do site no ar (title, description, canonical, og, JSON-LD); diferenças só as já explicadas da fase 3 e o título do Contato (`TITULO_DO_CONTATO`, sem a promessa de WhatsApp, decisão de 16/10/2026). Este é o único acesso fora do `localhost` (GET de leitura no site público).
 
 - [ ] **Step 14: Sem JavaScript e produção intocada**
 
@@ -7035,13 +7508,13 @@ Sem lacuna: a fase 4 não tem tarefa de sitemap (ele só muda na virada, por `se
 
 **2. Placeholders.** As portas de cena e de marcação são feitas pela receita (DP2), com arquivo de origem e de destino nomeados e os desvios listados por página; não há "TBD", "similar à tarefa N" nem passo sem código onde o código é novo. O que depende do Leandro está marcado `pendente(...)` no código e `[A CONFIRMAR]` no texto, e trava a virada.
 
-**3. Consistência de nomes.** Conferidos entre tarefas: `caminhoNoSite`/`semPrefixoDaPrevia`/`PAGINAS_NA_PREVIA`/`PREFIXO_DA_PREVIA` (4.4 → todas); `conferirPagina`/`SecaoEsperada`/`Diferencas` (4.4 → páginas); `EsqueletoApp({ pagina, atual, temProposta, cenas })` (4.2 → 4.5–4.13); `IdPaginaApp` (`gestao`, não `administracao-de-condominios`, como `data-pagina`); `CENAS_<PAGINA>`/`CenasDa…` por página; `FormularioProposta({ classe, comEntrada, perfilInicial })` (4.3 → 4.5, 4.11, 4.14); `NumerosDaPrestacao`/`fraseDosNumerosDaPrestacao` (4.1/4.6 → 4.12); `GatilhoSouCliente`/`PainelSouCliente`/`pedirSouCliente` (4.15 → 4.16, 4.18, 4.19); `CONTATO_TO`/`destinatariosDoContato` (4.16); `REDIRECIONAMENTOS_DA_VIRADA_1`/`redirecionamentosDoSite` (4.19).
+**3. Consistência de nomes.** Conferidos entre tarefas: `caminhoNoSite`/`semPrefixoDaPrevia`/`PAGINAS_NA_PREVIA`/`PREFIXO_DA_PREVIA` (4.4 → todas); `conferirPagina`/`SecaoEsperada`/`Diferencas` (4.4 → páginas); `EsqueletoApp({ pagina, atual, temProposta, cenas })` (4.2 → 4.5–4.13); `IdPaginaApp` (`gestao`, não `administracao-de-condominios`, como `data-pagina`); `CENAS_<PAGINA>`/`CenasDa…` por página; `FormularioProposta({ classe, comEntrada, perfilInicial })` (4.3 → 4.5, 4.11, 4.14); `NumerosDaPrestacao`/`fraseDosNumerosDaPrestacao` (4.1/4.6 → 4.12); `GatilhoSouCliente`/`PainelSouCliente`/`pedirSouCliente` (4.15 → 4.16, 4.19; a 404 não usa, DP6); `CENAS_HOME`/`CenasDaHome` (4.2 → 4.5, 4.6); `VIDEO_DO_EXPERIENCE_26` (4.1 → 4.5a → 4.6); `TITULO_DO_CONTATO` (4.4 → 4.16, 4.20); `CONTATO_TO`/`destinatariosDoContato` (4.16); `REDIRECIONAMENTOS_DA_VIRADA_1`/`redirecionamentosDoSite` (4.19).
 
 **4. Review Focus.** Cada linha tem teste na tarefa dona: WhatsApp do "Sou cliente" (4.15, testes 1 a 3; 4.20, Steps 7 e 8); ida e volta (4.2, cena assíncrona; 4.9 Step 9; 4.20 Step 10); virada com pendência (4.1, `site-v2-pendencias`); cabeçalho entre 1081 e 1240 (4.15 Step 8; 4.20 Step 9); contato com assunto fora da lista e action antiga (4.16, testes 3 e 6).
 
 ## Execução
 
-Dois PRs para `feat/site-v2`: **4a** (4.1 a 4.9) e **4b** (4.10 a 4.20), na ordem; cada um fecha com a sua verificação completa. Recomendação: subagent-driven (`implementador` por tarefa, `verificador` nas 4.9 e 4.20), porque as tarefas de página dependem das interfaces da 4.1 a 4.4 e uma cena morta ou um WhatsApp contado como lead custa caro; as tarefas 4.5 a 4.8 e 4.10 a 4.13 podem correr em paralelo depois da 4.4, cada uma na própria árvore (`isolation: "worktree"`, com `pnpm install --offline` antes), porque só tocam arquivos próprios mais uma linha em `registro.ts`, `rotas.ts` e `site-v2-core-ssr` (conflito trivial de merge, resolvido na integração).
+Dois PRs para `feat/site-v2`: **4a** (4.1 a 4.9, com a 4.5a entre a 4.5 e a 4.6) e **4b** (4.10 a 4.20), na ordem; cada um fecha com a sua verificação completa. Recomendação: subagent-driven (`implementador` por tarefa, `verificador` nas 4.9 e 4.20), porque as tarefas de página dependem das interfaces da 4.1 a 4.4 e uma cena morta ou um WhatsApp contado como lead custa caro; as tarefas 4.5 a 4.8 e 4.10 a 4.13 podem correr em paralelo depois da 4.4, cada uma na própria árvore (`isolation: "worktree"`, com `pnpm install --offline` antes), porque só tocam arquivos próprios mais uma linha em `registro.ts`, `rotas.ts` e `site-v2-core-ssr` (conflito trivial de merge, resolvido na integração).
 
 ## Conflitos com a spec e o que fica [A CONFIRMAR]
 
@@ -7052,15 +7525,17 @@ Conflitos (resolvidos aqui, para o Leandro ver):
 - **Jurídico:** a spec 2 diz "com parceiro"; a resposta do Leandro padroniza "com escritório parceiro", e o guarda passa a recusar "com parceiro".
 - **Pendência que trava:** o briefing pedia teste que falhe enquanto houver valor provisório; aqui ele falha no commit da virada (DP5), para não deixar a CI da branch vermelha até os arquivos chegarem.
 - **Links do cabeçalho e do rodapé na prévia** passam a abrir as páginas da prévia (DP3), o que supera a DP10 da fase 3.
-- **Destino do contato:** `CONTACT_TO` deixa de ser lida e o formulário antigo também passa a mandar para `ola@` (Tarefa 4.16); só chega ao ar com a virada.
+- **Destino do contato:** `CONTACT_TO` deixa de ser lida e o formulário antigo também passa a mandar para `ola@` (Tarefa 4.16); só chega ao ar com a virada. Decisão do Leandro de 16/10/2026: não se sabe se o `CONTACT_TO` de produção já é `ola@`, e o Contato passa a `ola@` de qualquer forma; o checklist da fase 5 avisa a equipe que recebia o Contato na caixa antiga. Os três testes de `submit-form.int.spec.ts` que afirmavam o destino antigo mudam na 4.16.
+- **Vídeo da `/experience`:** a spec 6 deixa a rota intocada; o Leandro decidiu trocar o vídeo de 2025 pelo do 26 lá e na home (DP12, Tarefa 4.5a). O arquivo entra como veio, com 19,9 MB, porque nem o plano nem o repositório têm padrão de recompressão de vídeo e a máquina não tem `ffmpeg`. Na `/experience` isso pesa pouco (`preload="none"`, só baixa no play); na home, o primeiro retrato toca em laço (`autoPlay`), e com `autoPlay` o navegador começa a baixar o vídeo já no carregamento da página, antes de a pessoa chegar à Comunidade. Decidir antes da virada se vale recomprimir (ferramenta nova, fora deste plano).
+- **Foto dos sócios:** a opção marcada era a foto do palco do Superlógica Next com legenda nova; o texto livre ("a primeira foto tem todos os sócios, pode usar") vence, por decisão de 16/10/2026. A foto entra quando o Leandro salvar o arquivo (Tarefa 4.7, Step 4a); até lá a moldura mostra o selo na prévia e a virada trava. A legenda segue "Acesso fácil aos sócios. Regra da casa desde 1991.".
+- **Foto da obra (Incorporadoras):** a resposta tem os dois lados (a opção marcada mantinha a legenda "Imagem ilustrativa."; o texto livre manda tirá-la). O texto livre vence, por decisão de 16/10/2026: a foto fica sem legenda e sem selo. Registrado porque a origem da foto é desconhecida e, sem a legenda, nada na página diz que ela é ilustrativa.
+- **"Inadimplência zero" no `<head>`:** fica na descrição da `/solucoes` e na descrição padrão do site (usada pela home), por decisão do Leandro de 16/10/2026, embora o corpo novo diga que o Garante não zera a inadimplência. O guarda de redação só lê o texto renderizado, não o `metadata`.
+- **Título do Contato:** o do site no ar promete WhatsApp; o v2 usa `TITULO_DO_CONTATO` ("telefones e endereços", sem WhatsApp), decisão de 16/10/2026. O resto do `<head>` do Contato fica igual (Tarefa 4.4).
+- **`/solucoes` no rodapé:** o protótipo não lista a página; ela ganha link no rodapé (não no menu), decisão de 16/10/2026, para não perder todo link interno na virada (Tarefa 4.13).
 
 [A CONFIRMAR]:
 
-1. Os números da nova prestação de contas digital e a data de corte (`NUMEROS_DA_PRESTACAO`).
-2. O arquivo da foto dos sócios (`FOTO_DOS_SOCIOS`), da 1ª foto do post do Instagram que o Leandro indicou, com o texto alternativo.
-3. O arquivo do vídeo do Semog Experience 26 (`VIDEO_DO_EXPERIENCE_26`) e onde ele entra: no primeiro retrato da Comunidade da home (DP12) ou no lugar do vídeo de 2025 da landing `/experience`, que a spec 6 deixa intocada.
-4. O visual da `/solucoes`, da 404 e do painel "Sou cliente", que não têm protótipo (Tarefa 4.20, Step 15).
-5. Se `CONTACT_TO` em produção já é `ola@semog.com.br` (se não for, a virada muda o destino do formulário antigo, como o Leandro pediu).
-6. As descrições que ainda dizem "inadimplência zero" (o `meta` da `/solucoes` e a descrição padrão do site, usada pela home): a spec 6 manda manter a metadata, e a resposta sobre o marco do Garante diz que o produto não zera a inadimplência.
-7. Commits locais por tarefa autorizados também na fase 4, como nas fases 1 a 3.
-8. Para o plano da fase 5: a 404 de URL desconhecida (`global-not-found.tsx` experimental ou o catch-all chamando `PaginaNaoEncontrada`).
+1. Os números da nova prestação de contas digital e a data de corte (`NUMEROS_DA_PRESTACAO`). Trava a virada (DP5).
+2. A aprovação visual, na prévia, da `/solucoes`, da 404 e do painel "Sou cliente", que não têm protótipo (Tarefa 4.20, Step 15). O PR 4b só fecha com o "ok" do Leandro.
+
+Já decidido em 16/10/2026 e fora desta lista: a foto dos sócios (só falta o Leandro salvar o arquivo), o vídeo do Experience 26 (arquivo em mãos; home e `/experience`), o destino do Contato (`ola@`, aviso no checklist da fase 5), "inadimplência zero" mantida no `<head>`, o título do Contato, `/solucoes` no rodapé, a foto da obra sem legenda, o atalho do Contato direto na 2ª via e os commits locais por tarefa. Fica para o plano da fase 5: a 404 de URL desconhecida (`global-not-found.tsx` experimental ou o catch-all chamando `PaginaNaoEncontrada`, DP10).
