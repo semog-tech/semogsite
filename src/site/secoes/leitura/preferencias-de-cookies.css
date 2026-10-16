@@ -1,5 +1,7 @@
 /* Privacidade · controle de cookies dentro do artigo (#cookies). O mesmo comportamento do
-   bloco do site atual (CookiePreferences), no visual do site v2: interruptor de ponta reta. */
+   bloco do site atual (CookiePreferences), no visual do site v2: interruptor de ponta reta.
+   Rótulo, descrição e estado usam três seletores (1,2,0) para vencer
+   `#artigo .artigo-cookies p` (1,1,1) do artigo.css, que dá margem e corpo menor à nota. */
 #cookies .cookies-lista {
   display: grid;
   gap: var(--e3);
@@ -11,12 +13,12 @@
   justify-content: space-between;
   gap: var(--e3);
 }
-#cookies .cookie-rotulo {
+#cookies .cookie-linha .cookie-rotulo {
   margin-top: 0;
   font-weight: 600;
   color: var(--marinho);
 }
-#cookies .cookie-descricao {
+#cookies .cookie-linha .cookie-descricao {
   margin-top: var(--e1);
   color: var(--texto-suave);
 }
@@ -52,10 +54,7 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
-#cookies .cookie-interruptor:focus-visible {
-  outline: 2px solid var(--ceu);
-  outline-offset: 2px;
-}
+/* O foco é o global (base.css, marinho): o céu sobre o gelo não chega a 3:1. */
 #cookies .cookies-acoes {
   display: flex;
   flex-wrap: wrap;
@@ -69,7 +68,7 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-#cookies .cookies-estado {
+#cookies .cookies-acoes .cookies-estado {
   margin-top: 0;
   color: var(--texto-suave);
 }
