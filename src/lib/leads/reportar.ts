@@ -1,6 +1,13 @@
 import * as Sentry from '@sentry/nextjs'
 
-export type PassoDoLead = 'gravacao' | 'exact' | 'email' | 'ads' | 'pos_gravacao' | 'cron'
+export type PassoDoLead =
+  | 'gravacao'
+  | 'exact'
+  | 'email'
+  | 'ads'
+  | 'pos_gravacao'
+  | 'cron'
+  | 'cookie'
 export type ContextoDaFalha = { origem: string; leadId?: string }
 
 /**

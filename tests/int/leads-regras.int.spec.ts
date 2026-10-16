@@ -24,6 +24,13 @@ describe('ambiente (R1)', () => {
     expect(ambienteAtual({})).toBe('local')
   })
 
+  it('na Vercel sem VERCEL_ENV vale produção: falha para o lado de enviar, não de calar', () => {
+    expect(ambienteAtual({ VERCEL: '1' })).toBe('production')
+    expect(ambienteAtual({ VERCEL: '' })).toBe('local')
+    expect(ambienteAtual({ VERCEL_ENV: 'preview', VERCEL: '1' })).toBe('preview')
+    expect(ambienteAtual({ VERCEL_ENV: 'development', VERCEL: '1' })).toBe('development')
+  })
+
   it('só produção ou linha antiga (sem a chave) libera envio', () => {
     expect(ambienteLiberaEnvio({})).toBe(true)
     expect(ambienteLiberaEnvio({ ambiente: 'production' })).toBe(true)

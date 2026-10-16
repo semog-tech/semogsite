@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LinhaDoLead } from '@/lib/leads/linha'
+import { rateLimit } from '@/lib/rate-limit'
 
 /**
  * Actions das duas etapas com o pipeline real (schema → rate limit → Turnstile → SQL → pós-gravação)
@@ -390,6 +391,10 @@ describe('token perdido ou vencido: proposta completa com Turnstile (R5)', () =>
     expect(sql).not.toContain('30 minutes')
     expect(sql).toMatch(/envio_em is null/)
     expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(deleteCookieMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'proposta_etapa' }),
+    )
+    expect(jar.has('proposta_etapa')).toBe(false)
   })
 
   it('sem cookie: grava UMA linha nova completa com etapa 2', async () => {
@@ -438,6 +443,7 @@ describe('ambiente e falhas', () => {
 
   it('local (sem VERCEL_ENV) também não envia', async () => {
     vi.stubEnv('VERCEL_ENV', '')
+    vi.stubEnv('VERCEL', '')
     await etapa1Gravada()
     expect(tabela[0]?.data.ambiente).toBe('local')
     await enviarEtapa2(ETAPA2)
@@ -479,5 +485,79 @@ describe('ambiente e falhas', () => {
     expect(ingerirMock).toHaveBeenCalledTimes(1)
     const eventos = ingerirMock.mock.calls[0]?.[3] as { transactionId: string }[]
     expect(eventos[0]?.transactionId).toBe(`lead-${tabela[0]?.id}`)
+  })
+})
+
+describe('rate limit por IP (DP11)', () => {
+  // A cota é o `rateLimit` real (em memória). Gastá-la por fora, com a chave exata, trava o nome da
+  // chave e o teto: chave ou teto trocados na action fazem estes testes falharem.
+  const gastar = (chave: string, vezes: number, max: number) => {
+    for (let i = 0; i < vezes; i++) rateLimit(chave, { max, windowMs: 60_000 })
+  }
+  const MUITAS = {
+    ok: false,
+    motivo: 'recusado',
+    mensagem: 'Muitas tentativas, tente em instantes.',
+  }
+
+  it('etapa 1 e envio completo dividem `proposta:<ip>` (a do formulário antigo), 5 por minuto', async () => {
+    gastar(`proposta:${ipAtual}`, 4, 5)
+    expect(await enviarEtapa1(ETAPA1, null)).toEqual({ ok: false, motivo: 'precisa_verificar' })
+    expect(await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-ok')).toEqual(MUITAS)
+    expect(await enviarEtapa1(ETAPA1, 'turnstile-ok')).toEqual(MUITAS)
+    expect(verifyTurnstileMock).not.toHaveBeenCalled()
+    expect(inserts()).toBe(0)
+  })
+
+  it('etapa 2 tem cota própria `proposta-etapa2:<ip>`, 10 por minuto', async () => {
+    gastar(`proposta:${ipAtual}`, 5, 5)
+    gastar(`proposta-etapa2:${ipAtual}`, 9, 10)
+    expect(await enviarEtapa2(ETAPA2)).toEqual({ ok: false, motivo: 'precisa_verificar' })
+    expect(await enviarEtapa2(ETAPA2)).toEqual(MUITAS)
+  })
+})
+
+describe('cookie que falha não desfaz a gravação', () => {
+  const tagsDoCookie = expect.objectContaining({
+    tags: expect.objectContaining({ passo: 'cookie' }),
+  })
+
+  it('apagar o cookie lança depois da reivindicação: pós-gravação roda uma vez e é sucesso', async () => {
+    await etapa1Gravada()
+    deleteCookieMock.mockImplementation(() => {
+      throw new Error('cookie')
+    })
+    expect(await enviarEtapa2(ETAPA2)).toEqual({ ok: true, etapa: 2 })
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(sendMailMock).toHaveBeenCalledTimes(2)
+    expect(captureExceptionMock).toHaveBeenCalledWith(expect.any(Error), tagsDoCookie)
+  })
+
+  it('no envio completo, idem: a linha absorvida é enviada uma vez', async () => {
+    await etapa1Gravada()
+    deleteCookieMock.mockImplementation(() => {
+      throw new Error('cookie')
+    })
+    expect(await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')).toEqual({
+      ok: true,
+      etapa: 2,
+    })
+    expect(tabela).toHaveLength(1)
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(captureExceptionMock).toHaveBeenCalledWith(expect.any(Error), tagsDoCookie)
+  })
+
+  it('gravar o cookie lança depois do INSERT da etapa 1: sucesso, uma linha, Sentry', async () => {
+    setCookieMock.mockImplementation(() => {
+      throw new Error('cookie')
+    })
+    expect(await enviarEtapa1(ETAPA1, 'turnstile-ok')).toEqual({ ok: true, etapa: 1 })
+    expect(inserts()).toBe(1)
+    expect(captureExceptionMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: expect.objectContaining({ passo: 'cookie', origem: 'etapa1' }),
+      }),
+    )
   })
 })

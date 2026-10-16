@@ -74,30 +74,53 @@ async function depoisDeGravar(linha: LinhaDoLead): Promise<void> {
   }
 }
 
+/**
+ * Cookie depois da gravação, fora do try dela: a linha já está salva (e, nas etapas que concluem,
+ * reivindicada), então uma falha aqui não pode virar "falha" na tela nem impedir o pós-gravação;
+ * a nova tentativa da pessoa duplicaria o lead. Vai ao Sentry, sem dado pessoal.
+ */
+async function mexerNoCookie(operacao: () => Promise<void>, origem: string): Promise<void> {
+  try {
+    await operacao()
+  } catch (erro) {
+    reportarFalhaDoLead('cookie', erro, { origem })
+  }
+}
+
+/** `token`: o da linha nova, para gravar no cookie; `null` quando a linha do cookie foi corrigida. */
+async function gravarEtapa1(
+  dados: Record<string, string>,
+  turnstileToken: string | null,
+): Promise<{ token: string | null } | ResultadoFalha> {
+  try {
+    const ip = await clienteIp()
+    if (!dentroDoLimite('proposta', ip)) return MUITAS
+    const token = await lerTokenDaEtapa()
+    if (token && (await atualizarEtapa1(token, dados))) return { token: null }
+    if (!turnstileToken) return PRECISA_VERIFICAR
+    if (!(await verifyTurnstile(turnstileToken, ip))) return ANTI_ROBO
+    // Token vencido, Turnstile novo: a linha do cookie, se o cron ainda não a enviou (sem duplicata).
+    if (token && (await reaproveitarEtapa1(token, dados))) return { token: null }
+    const novo = randomUUID()
+    await inserirEtapa1(dados, await contextoDoEnvio(), novo)
+    return { token: novo }
+  } catch (erro) {
+    reportarFalhaDoLead('gravacao', erro, { origem: 'etapa1' })
+    return FALHA
+  }
+}
+
 export async function enviarEtapa1(
   valores: unknown,
   turnstileToken: string | null,
 ): Promise<ResultadoEtapa> {
   const lido = etapa1Schema.safeParse(valores)
   if (!lido.success) return { ok: false, motivo: 'campos', erros: errosPorCampo(lido.error.issues) }
-  try {
-    const ip = await clienteIp()
-    if (!dentroDoLimite('proposta', ip)) return MUITAS
-    const dados = dadosDaEtapa1(lido.data)
-    const token = await lerTokenDaEtapa()
-    if (token && (await atualizarEtapa1(token, dados))) return { ok: true, etapa: 1 }
-    if (!turnstileToken) return PRECISA_VERIFICAR
-    if (!(await verifyTurnstile(turnstileToken, ip))) return ANTI_ROBO
-    // Token vencido, Turnstile novo: a linha do cookie, se o cron ainda não a enviou (sem duplicata).
-    if (token && (await reaproveitarEtapa1(token, dados))) return { ok: true, etapa: 1 }
-    const novo = randomUUID()
-    await inserirEtapa1(dados, await contextoDoEnvio(), novo)
-    await gravarTokenDaEtapa(novo)
-    return { ok: true, etapa: 1 }
-  } catch (erro) {
-    reportarFalhaDoLead('gravacao', erro, { origem: 'etapa1' })
-    return FALHA
-  }
+  const gravado = await gravarEtapa1(dadosDaEtapa1(lido.data), turnstileToken)
+  if ('ok' in gravado) return gravado
+  const { token } = gravado
+  if (token) await mexerNoCookie(() => gravarTokenDaEtapa(token), 'etapa1')
+  return { ok: true, etapa: 1 }
 }
 
 async function gravarEtapa2(dados: Etapa2Dados): Promise<LinhaDoLead | ResultadoFalha> {
@@ -106,9 +129,7 @@ async function gravarEtapa2(dados: Etapa2Dados): Promise<LinhaDoLead | Resultado
     const token = await lerTokenDaEtapa()
     if (!token) return PRECISA_VERIFICAR
     const linha = await concluirEtapa2(token, dadosDaEtapa2(dados))
-    if (!linha) return PRECISA_VERIFICAR
-    await apagarTokenDaEtapa()
-    return linha
+    return linha ?? PRECISA_VERIFICAR
   } catch (erro) {
     reportarFalhaDoLead('gravacao', erro, { origem: 'etapa2' })
     return FALHA
@@ -120,6 +141,7 @@ export async function enviarEtapa2(valores: unknown): Promise<ResultadoEtapa> {
   if (!lido.success) return { ok: false, motivo: 'campos', erros: errosPorCampo(lido.error.issues) }
   const gravado = await gravarEtapa2(lido.data)
   if ('ok' in gravado) return gravado
+  await mexerNoCookie(apagarTokenDaEtapa, 'etapa2')
   await depoisDeGravar(gravado)
   return { ok: true, etapa: 2 }
 }
@@ -135,9 +157,7 @@ async function gravarCompleta(
     if (!(await verifyTurnstile(turnstileToken, ip))) return ANTI_ROBO
     const token = await lerTokenDaEtapa()
     const absorvida = token ? await absorverComTurnstile(token, dados) : null
-    const linha = absorvida ?? (await inserirCompleta(dados, await contextoDoEnvio()))
-    await apagarTokenDaEtapa()
-    return linha
+    return absorvida ?? (await inserirCompleta(dados, await contextoDoEnvio()))
   } catch (erro) {
     reportarFalhaDoLead('gravacao', erro, { origem: 'completa' })
     return FALHA
@@ -155,6 +175,7 @@ export async function enviarPropostaCompleta(
     turnstileToken,
   )
   if ('ok' in gravado) return gravado
+  await mexerNoCookie(apagarTokenDaEtapa, 'completa')
   await depoisDeGravar(gravado)
   return { ok: true, etapa: 2 }
 }
