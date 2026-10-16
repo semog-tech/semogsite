@@ -95,6 +95,11 @@ conteúdo do blog, não só as páginas institucionais.
   DDD (DDD de 2 dígitos + 8 ou 9 dígitos); e-mail opcional.
 - **Etapa 2:** seu nome; você é (síndico, conselheiro, morador, construtora); cidade;
   nº de unidades (aprox.); já é cliente Semog.
+- **Cidade da etapa 2 é uma lista conforme a UF da etapa 1** (decisão do Leandro, 16/10/2026):
+  as cidades das Unidades daquele estado (PB: João Pessoa e Campina Grande; PE: Recife; PA:
+  Belém) mais "Outra cidade", que abre um campo de texto. UF sem Unidade mostra só o texto. A
+  região do Exact sai da cidade escolhida; "Outra cidade" cai na região da UF (PB sem cidade
+  conhecida → João Pessoa, decisão registrada no plano da fase 2). Visual do protótipo.
 - `?perfil=construtora` pré-marca a etapa 2. Landings pré-selecionam a UF da cidade.
 
 ### 4.2 Gravação: uma linha por lead
@@ -130,8 +135,16 @@ Regras que não mudam: o arquivo `'use server'` só exporta função async (port
   **Lead com `etapa` nula** (formulário antigo e assunto "proposta comercial" do contato) não
   tem segunda etapa: continua indo ao Exact na hora, como hoje, e o cron o trata como completo,
   sem esperar os 45 min.
+  O cron passa a rodar **a cada 15 minutos** (antes, de hora em hora), para a espera real
+  ficar entre 45 e 60 min; e a etapa 1 sem etapa 2 recebe dele, uma vez cada, Exact, e-mail
+  interno e conversão do Ads, com trava no banco contra corrida (o token da etapa vale 30 min,
+  menos que os 45 min do cron). Detalhes no plano da fase 2.
 - **E-mail interno: um só**, no mesmo momento do envio ao Exact, roteado pela UF
-  (PE → Recife, PB → comercial PB, PA → Belém, outros → os três).
+  (PE → Recife, PB → comercial PB, PA → Belém, outros → os três). O aviso automático ao lead
+  continua como hoje: sai uma vez, junto do e-mail interno, só se houver e-mail.
+- **Ambiente** (decisão de 16/10/2026): Preview e local gravam no mesmo banco de produção (ver
+  7), então toda linha nova grava `data.ambiente`, e Exact, e-mail e Ads (na hora, no cron e
+  no lote) só processam linhas de produção ou sem a chave (linhas antigas).
 - **"Já é cliente = sim":** não vai ao Exact como lead nem sobe ao Ads; o e-mail interno
   avisa que é cliente. Como o cliente só se identifica na etapa 2, o GA4 já terá disparado
   `generate_lead` na etapa 1: aceita-se esse pequeno ruído de clientes no GA4.
@@ -148,6 +161,11 @@ Regras que não mudam: o arquivo `'use server'` só exporta função async (port
   na hora, se a etapa 2 chegar; ou após ~45 min, só com a etapa 1. A linha de `cms.leads` sobe
   uma vez (`transactionId = lead-<id>`). Quem marcou "já sou cliente" não sobe. Corrigir o uso só do gclid de first-touch: usar first ou last, como
   o beacon do WhatsApp já faz.
+  **O lote diário atual (06:00 UTC) fica como rede de recuperação** (decisão do Leandro,
+  16/10/2026), idempotente pelo mesmo `transactionId` e com o mesmo critério de elegibilidade.
+  Falha do Ads nunca derruba o envio ao Exact nem a resposta ao usuário: vai ao Sentry e o
+  lote retenta. `gbraid` e `wbraid` passam a ir no campo próprio da Data Manager API (hoje
+  vão como `gclid`); a referência da API (`AdIdentifiers`) tem os três campos.
 - **Quebra de série esperada:** com o WhatsApp de proposta fora do site, cliques de
   WhatsApp caem e o formulário deve subir. Registrar a data da virada no diário do Ads.
 
@@ -202,6 +220,11 @@ Regras que não mudam: o arquivo `'use server'` só exporta função async (port
 - **CSP:** o protótipo não exige mudança (sem worker, blob, eval ou host externo). Mesmo
   assim, conferir o console de produção depois de cada virada — a CSP já derrubou a
   medição duas vezes.
+- **Banco em Preview e local:** os dois gravam no **mesmo** `cms.leads` de produção
+  (`docs/DEPLOY.md`, seção 4). Tirar `EXACT_*` do Preview não basta, porque o cron de produção
+  processaria a linha. Por isso o filtro por `data.ambiente` (ver 4.3), decidido em 16/10/2026.
+- **Cron do Exact a cada 15 min** (`vercel.json`); a conta é Pro (comentário do próprio cron),
+  que aceita essa frequência.
 - **Vercel:** branch `feat/site-v2` com Preview `noindex`, sem medição e sem `EXACT_*`.
   Conferir a **Skew Protection** antes da virada (o ID da Server Action muda a cada
   build; com duas etapas a janela de risco é maior).
