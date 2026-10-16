@@ -91,6 +91,24 @@ function pendente(token: unknown, com30min: boolean): LinhaFalsa | undefined {
   )
 }
 
+/** O `nomeNormalizado` do SQL: sem acentos, minúsculas, espaços colapsados e aparados. */
+function normalizar(nome: string | undefined): string {
+  return (nome ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/** O `mesmaPessoa` do SQL: telefone E.164 e nome do condomínio normalizado. */
+function mesmaPessoa(linha: Record<string, string>, novos: Record<string, string>): boolean {
+  return (
+    linha.telefone === novos.telefone &&
+    normalizar(linha.nomeCondominio) === normalizar(novos.nomeCondominio)
+  )
+}
+
 function semEmail(data: Record<string, string>): Record<string, string> {
   const { email: _e, ...resto } = data
   return resto
@@ -120,7 +138,7 @@ function inserirSubstituindo(p: unknown[]): LinhaFalsa {
     (l) =>
       l.etapa === 1 &&
       l.envioEm === null &&
-      l.data.telefone === objeto(p[0]).telefone &&
+      mesmaPessoa(l.data, objeto(p[0])) &&
       l.data.ambiente === objeto(p[0]).ambiente &&
       Date.now() - l.criadaEm.getTime() < 2 * 60 * 60_000,
   )
@@ -140,14 +158,17 @@ async function banco(sql: string, p: unknown[] = []) {
     return { rows: [visivel(inserirSubstituindo(p))], rowCount: 1 }
   if (sql.includes('proposta:atualizar-etapa1') || sql.includes('proposta:reaproveitar-etapa1')) {
     const l = pendente(p[0], sql.includes('atualizar-etapa1'))
-    if (!l) return { rows: [], rowCount: 0 }
+    const exigeMesmaPessoa = sql.includes('reaproveitar-etapa1')
+    if (!l || (exigeMesmaPessoa && !mesmaPessoa(l.data, objeto(p[1]))))
+      return { rows: [], rowCount: 0 }
     l.data = { ...semEmail(l.data), ...objeto(p[1]) }
     l.notificado_para = texto(p[3])
     return { rows: [], rowCount: 1 }
   }
   if (sql.includes('proposta:concluir-etapa2') || sql.includes('proposta:absorver')) {
     const l = pendente(p[0], sql.includes('concluir-etapa2'))
-    if (!l) return { rows: [], rowCount: 0 }
+    if (!l || (sql.includes('absorver') && !mesmaPessoa(l.data, objeto(p[1]))))
+      return { rows: [], rowCount: 0 }
     l.data = sql.includes('absorver')
       ? { ...semEmail(l.data), ...objeto(p[1]) }
       : { ...l.data, ...objeto(p[1]) }
@@ -622,5 +643,128 @@ describe('cookie perdido: a etapa 1 órfã é substituída pela proposta complet
     )
     expect(tabela[0]?.envioEm).toBeNull()
     expect(tabela[0]?.data.substituida_por).toBeUndefined()
+  })
+})
+
+describe('mesmo telefone não é o mesmo lead: condomínio também conta (verificação final)', () => {
+  const GAMA = {
+    nomeCondominio: 'Condomínio Gama',
+    uf: 'PE',
+    telefone: '(81) 99999-1111',
+    email: '',
+  }
+  const DELTA = {
+    nomeCondominio: 'Condomínio Delta',
+    uf: 'PA',
+    telefone: '(91) 98888-2222',
+    email: '',
+  }
+
+  async function gravarGama(): Promise<string> {
+    expect(await enviarEtapa1(GAMA, 'turnstile-1')).toEqual({ ok: true, etapa: 1 })
+    const token = jar.get('proposta_etapa')
+    if (!token) throw new Error('cookie da etapa não foi gravado')
+    return token
+  }
+
+  it('Alfa → Beta com o mesmo telefone: Alfa continua pendente e Beta é a linha nova', async () => {
+    await enviarEtapa1({ ...ETAPA1, nomeCondominio: 'Condominio Alfa' }, 'turnstile-1')
+    jar.clear()
+    expect(
+      await enviarPropostaCompleta(
+        { ...ETAPA1, ...ETAPA2, nomeCondominio: 'Condominio Beta' },
+        'turnstile-2',
+      ),
+    ).toEqual({ ok: true, etapa: 2 })
+    expect(tabela).toHaveLength(2)
+    expect(tabela[0]?.envioEm).toBeNull()
+    expect(tabela[0]?.data.substituida_por).toBeUndefined()
+    expect(tabela[0]?.data.nomeCondominio).toBe('Condominio Alfa')
+  })
+
+  it('mesmo condomínio escrito diferente (acento, caixa, espaços) ainda é substituído', async () => {
+    await enviarEtapa1({ ...ETAPA1, nomeCondominio: 'Condomínio  Alfa' }, 'turnstile-1')
+    jar.clear()
+    await enviarPropostaCompleta(
+      { ...ETAPA1, ...ETAPA2, nomeCondominio: ' condominio alfa ' },
+      'turnstile-2',
+    )
+    expect(tabela[0]?.data.substituida_por).toBe(tabela[1]?.id)
+  })
+
+  it('o SQL da substituição compara o nome normalizado das duas linhas, no mesmo comando', async () => {
+    await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')
+    const sql = String(sqlCom('proposta:inserir-completa')[0]?.[0] ?? '')
+    expect(sql).toContain("normalize(l.data->>'nomeCondominio', NFD)")
+    expect(sql).toContain("normalize(novo.data->>'nomeCondominio', NFD)")
+    expect(sql).toMatch(/'\[\\u0300-\\u036f\]'/)
+    expect(sql).toContain("'[[:space:]]+', ' ', 'g'")
+  })
+
+  it('Gama → recarrega → Delta (<30 min, Turnstile novo): linha nova e cookie novo; Gama intacta', async () => {
+    const tokenGama = await gravarGama()
+    expect(await enviarEtapa1(DELTA, 'turnstile-2')).toEqual({ ok: true, etapa: 1 })
+    expect(sqlCom('proposta:atualizar-etapa1')).toHaveLength(0)
+    expect(tabela).toHaveLength(2)
+    expect(tabela[0]?.data).toMatchObject({ nomeCondominio: 'Condomínio Gama', uf: 'PE' })
+    expect(tabela[0]?.envioEm).toBeNull()
+    const tokenDelta = jar.get('proposta_etapa')
+    expect(tokenDelta).toMatch(UUID)
+    expect(tokenDelta).not.toBe(tokenGama)
+    expect(tabela[1]?.token).toBe(tokenDelta)
+    // A etapa 2 de Delta conclui a linha de Delta, não a de Gama.
+    await enviarEtapa2(ETAPA2)
+    expect(tabela[1]?.etapa).toBe(2)
+    expect(tabela[0]?.etapa).toBe(1)
+  })
+
+  it('mesmo telefone, outro condomínio, Turnstile novo: linha nova (o síndico de dois condomínios)', async () => {
+    await gravarGama()
+    await enviarEtapa1({ ...GAMA, nomeCondominio: 'Condomínio Épsilon' }, 'turnstile-2')
+    expect(tabela).toHaveLength(2)
+    expect(tabela[0]?.data.nomeCondominio).toBe('Condomínio Gama')
+  })
+
+  it('Gama → recarrega → Gama depois de 30 min: reaproveita a MESMA linha', async () => {
+    const token = await gravarGama()
+    const linha = tabela[0]
+    if (linha) linha.criadaEm = new Date(Date.now() - 31 * 60_000)
+    expect(
+      await enviarEtapa1({ ...GAMA, nomeCondominio: 'condominio gama', email: 'a@b.com' }, 'ts-2'),
+    ).toEqual({ ok: true, etapa: 1 })
+    expect(tabela).toHaveLength(1)
+    expect(tabela[0]?.data.email).toBe('a@b.com')
+    expect(jar.get('proposta_etapa')).toBe(token)
+  })
+
+  it('Gama → recarrega → Gama em menos de 30 min: a mesma linha, sem INSERT', async () => {
+    await gravarGama()
+    expect(await enviarEtapa1(GAMA, 'turnstile-2')).toEqual({ ok: true, etapa: 1 })
+    expect(inserts()).toBe(1)
+    expect(sqlCom('proposta:atualizar-etapa1')).toHaveLength(0)
+    expect(sqlCom('proposta:reaproveitar-etapa1')).toHaveLength(1)
+  })
+
+  it('o SQL de reaproveitar e de absorver exige a mesma pessoa e o mesmo condomínio', async () => {
+    await gravarGama()
+    await enviarEtapa1(GAMA, 'turnstile-2')
+    await enviarPropostaCompleta({ ...GAMA, ...ETAPA2, uf: 'PE', cidade: '' }, 'turnstile-3')
+    for (const etiqueta of ['proposta:reaproveitar-etapa1', 'proposta:absorver']) {
+      const sql = String(sqlCom(etiqueta)[0]?.[0] ?? '')
+      expect(sql).toContain("data->>'telefone' = $2::jsonb->>'telefone'")
+      expect(sql).toContain("normalize($2::jsonb->>'nomeCondominio', NFD)")
+    }
+  })
+
+  it('envio completo de outro lead com o cookie de Gama não absorve Gama: linha nova', async () => {
+    await gravarGama()
+    expect(await enviarPropostaCompleta({ ...DELTA, ...ETAPA2, cidade: '' }, 'ts-2')).toEqual({
+      ok: true,
+      etapa: 2,
+    })
+    expect(tabela).toHaveLength(2)
+    expect(tabela[0]?.etapa).toBe(1)
+    expect(tabela[0]?.envioEm).toBeNull()
+    expect(tabela[1]?.data.nomeCondominio).toBe('Condomínio Delta')
   })
 })

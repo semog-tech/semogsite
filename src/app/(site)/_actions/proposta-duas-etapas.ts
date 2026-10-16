@@ -87,7 +87,14 @@ async function mexerNoCookie(operacao: () => Promise<void>, origem: string): Pro
   }
 }
 
-/** `token`: o da linha nova, para gravar no cookie; `null` quando a linha do cookie foi corrigida. */
+/**
+ * `token`: o da linha nova, para gravar no cookie; `null` quando a linha do cookie foi corrigida.
+ *
+ * Sem Turnstile é "voltar" (a tela só manda o Turnstile no primeiro envio de um formulário aberto):
+ * corrige a linha do cookie dentro dos 30 min. Com Turnstile é formulário novo: linha nova, salvo
+ * se telefone e condomínio forem os da linha do cookie (a mesma pessoa de volta, até depois dos
+ * 30 min); aí a corrige. A linha anterior de outro lead nunca é sobrescrita: segue para o cron.
+ */
 async function gravarEtapa1(
   dados: Record<string, string>,
   turnstileToken: string | null,
@@ -96,10 +103,11 @@ async function gravarEtapa1(
     const ip = await clienteIp()
     if (!dentroDoLimite('proposta', ip)) return MUITAS
     const token = await lerTokenDaEtapa()
-    if (token && (await atualizarEtapa1(token, dados))) return { token: null }
-    if (!turnstileToken) return PRECISA_VERIFICAR
+    if (!turnstileToken) {
+      if (token && (await atualizarEtapa1(token, dados))) return { token: null }
+      return PRECISA_VERIFICAR
+    }
     if (!(await verifyTurnstile(turnstileToken, ip))) return ANTI_ROBO
-    // Token vencido, Turnstile novo: a linha do cookie, se o cron ainda não a enviou (sem duplicata).
     if (token && (await reaproveitarEtapa1(token, dados))) return { token: null }
     const novo = randomUUID()
     await inserirEtapa1(dados, await contextoDoEnvio(), novo)

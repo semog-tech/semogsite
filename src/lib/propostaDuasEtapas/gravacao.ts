@@ -44,6 +44,23 @@ function destinoDe(dados: Record<string, string>): string {
 
 const TOKEN_DENTRO_DE_30_MIN = "created_at > now() - interval '30 minutes'"
 
+/**
+ * Nome do condomínio comparável: sem acentos, minúsculas, espaços colapsados e aparados. Em SQL, e
+ * não no Node, porque compara com o valor já gravado na linha.
+ */
+function nomeNormalizado(expr: string): string {
+  return `btrim(regexp_replace(lower(regexp_replace(normalize(${expr}, NFD), '[\\u0300-\\u036f]', '', 'g')), '[[:space:]]+', ' ', 'g'))`
+}
+
+/**
+ * Mesma pessoa, mesmo condomínio: telefone E.164 igual e nome do condomínio normalizado igual.
+ * Telefone sozinho não basta: o síndico de dois condomínios usa o mesmo número para os dois.
+ */
+function mesmaPessoa(linha: string, novos: string): string {
+  return `${linha}->>'telefone' = ${novos}->>'telefone'
+          and ${nomeNormalizado(`${linha}->>'nomeCondominio'`)} = ${nomeNormalizado(`${novos}->>'nomeCondominio'`)}`
+}
+
 export async function inserirEtapa1(
   dados: Record<string, string>,
   ctx: ContextoDoEnvio,
@@ -82,10 +99,12 @@ export async function atualizarEtapa1(
 }
 
 /**
- * "Voltar" com o token vencido mas Turnstile novo (R5/R6): corrige a etapa 1 da linha do cookie
- * enquanto o cron não a reivindicou, sem o limite dos 30 min (o Turnstile restabelece a confiança).
- * `created_at` NÃO muda: o cron mede os 45 min a partir dele, e renová-lo adiaria o envio a cada
- * volta. Linha já reivindicada não é tocada; a action grava uma nova.
+ * Etapa 1 com Turnstile novo e cookie de uma linha anterior (R5/R6): é a mesma pessoa voltando
+ * (token vencido, ou página recarregada) só se telefone e condomínio baterem com a linha; então a
+ * corrige enquanto o cron não a reivindicou, sem o limite dos 30 min. Outro telefone ou outro
+ * condomínio é formulário novo: nada muda aqui, a action grava linha nova e a anterior segue
+ * pendente para o cron. `created_at` NÃO muda: o cron mede os 45 min a partir dele, e renová-lo
+ * adiaria o envio a cada volta. Linha já reivindicada não é tocada.
  */
 export async function reaproveitarEtapa1(
   token: string,
@@ -94,7 +113,8 @@ export async function reaproveitarEtapa1(
   const { rowCount } = await query(
     `/* proposta:reaproveitar-etapa1 */
      update cms.leads set data = (data - 'email') || $2::jsonb, email = $3, notificado_para = $4
-      where token_envio = $1 and etapa = 1 and envio_em is null`,
+      where token_envio = $1 and etapa = 1 and envio_em is null
+        and ${mesmaPessoa('data', '$2::jsonb')}`,
     [token, dados, dados.email ?? null, destinoDe(dados)],
   )
   return (rowCount ?? 0) > 0
@@ -117,8 +137,9 @@ export async function concluirEtapa2(
 
 /**
  * Token vencido mas Turnstile novo (R5, DP3): reaproveita a linha do cookie enquanto o cron não a
- * reivindicou, sem o limite dos 30 min. Se o cron já enviou, nada é atualizado e a action grava
- * uma linha nova completa (duplicata aceita pela spec 4.2).
+ * reivindicou, sem o limite dos 30 min, e só se for a mesma pessoa e o mesmo condomínio (a regra de
+ * `reaproveitarEtapa1`). Se o cron já enviou, ou se os dados são de outro lead, nada é atualizado e
+ * a action grava uma linha nova completa (duplicata aceita pela spec 4.2; sobrescrever, não).
  */
 export async function absorverComTurnstile(
   token: string,
@@ -129,6 +150,7 @@ export async function absorverComTurnstile(
      update cms.leads
         set data = (data - 'email') || $2::jsonb, email = $3, notificado_para = $4, etapa = 2, envio_em = now()
       where token_envio = $1 and etapa = 1 and envio_em is null
+        and ${mesmaPessoa('data', '$2::jsonb')}
       returning ${COLUNAS_DA_LINHA}`,
     [token, dados, dados.email ?? null, destinoDe(dados)],
   )
@@ -140,8 +162,9 @@ export async function absorverComTurnstile(
  * e não deixado ao default da coluna, porque o pós-gravação só pode receber linha que quem chama
  * reivindicou no mesmo comando (o cron nunca a pega, e ninguém mais a envia).
  *
- * No MESMO comando, a etapa 1 órfã da mesma pessoa (cookie perdido: mesmo telefone E.164, mesmo
- * ambiente, pendente, das últimas 2 h) é marcada como substituída: `envio_em` preenchido e
+ * No MESMO comando, a etapa 1 órfã do mesmo lead (cookie perdido: mesmo telefone E.164 E mesmo
+ * nome de condomínio normalizado, mesmo ambiente, pendente, das últimas 2 h) é marcada como
+ * substituída: `envio_em` preenchido e
  * `substituida_por` = id da linha nova. Sem isso o cron a enviaria aos 45 min e o lead viraria dois
  * cards no Exact. Disputa com o cron: o UPDATE exige `envio_em is null` e espera a trava da linha;
  * se o cron a reivindicou antes, nada muda e a duplicata fica (aceita pela spec 4.2). O UPDATE do
@@ -161,7 +184,7 @@ export async function inserirCompleta(
           set envio_em = now(), data = l.data || jsonb_build_object('substituida_por', novo.id::text)
          from novo
         where l.form = 'proposta' and l.etapa = 1 and l.envio_em is null
-          and l.data->>'telefone' = novo.data->>'telefone'
+          and ${mesmaPessoa('l.data', 'novo.data')}
           and l.data->>'ambiente' = novo.data->>'ambiente'
           and l.created_at > now() - interval '2 hours'
         returning l.id
