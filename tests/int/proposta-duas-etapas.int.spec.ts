@@ -114,12 +114,30 @@ function nova(p: unknown[], etapa: 1 | 2, token: string | null): LinhaFalsa {
   return l
 }
 
+/** O INSERT completo e, no mesmo comando, a etapa 1 órfã da mesma pessoa marcada como substituída. */
+function inserirSubstituindo(p: unknown[]): LinhaFalsa {
+  const orfas = tabela.filter(
+    (l) =>
+      l.etapa === 1 &&
+      l.envioEm === null &&
+      l.data.telefone === objeto(p[0]).telefone &&
+      l.data.ambiente === objeto(p[0]).ambiente &&
+      Date.now() - l.criadaEm.getTime() < 2 * 60 * 60_000,
+  )
+  const novo = nova(p, 2, null)
+  for (const l of orfas) {
+    l.envioEm = new Date()
+    l.data = { ...l.data, substituida_por: novo.id }
+  }
+  return novo
+}
+
 async function banco(sql: string, p: unknown[] = []) {
   if (falharGravacao && /proposta:/.test(sql)) throw new Error('connect ECONNREFUSED')
   if (sql.includes('proposta:inserir-etapa1'))
     return { rows: [{ id: nova(p, 1, texto(p[5])).id }], rowCount: 1 }
   if (sql.includes('proposta:inserir-completa'))
-    return { rows: [visivel(nova(p, 2, null))], rowCount: 1 }
+    return { rows: [visivel(inserirSubstituindo(p))], rowCount: 1 }
   if (sql.includes('proposta:atualizar-etapa1') || sql.includes('proposta:reaproveitar-etapa1')) {
     const l = pendente(p[0], sql.includes('atualizar-etapa1'))
     if (!l) return { rows: [], rowCount: 0 }
@@ -559,5 +577,50 @@ describe('cookie que falha não desfaz a gravação', () => {
         tags: expect.objectContaining({ passo: 'cookie', origem: 'etapa1' }),
       }),
     )
+  })
+})
+
+describe('cookie perdido: a etapa 1 órfã é substituída pela proposta completa (Rodada 3)', () => {
+  function sqlDoInsertCompleto(): string {
+    return String(sqlCom('proposta:inserir-completa')[0]?.[0] ?? '')
+  }
+
+  it('o INSERT e a marcação são UM comando, com o critério exato da órfã', async () => {
+    await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')
+    const sql = sqlDoInsertCompleto()
+    expect(sqlCom('proposta:')).toHaveLength(1)
+    expect(sql).toMatch(/with novo as \(\s*insert into cms\.leads/)
+    expect(sql).toContain("jsonb_build_object('substituida_por', novo.id::text)")
+    expect(sql).toMatch(/set envio_em = now\(\)/)
+    expect(sql).toContain("l.form = 'proposta' and l.etapa = 1 and l.envio_em is null")
+    expect(sql).toContain("l.data->>'telefone' = novo.data->>'telefone'")
+    expect(sql).toContain("l.data->>'ambiente' = novo.data->>'ambiente'")
+    expect(sql).toContain("l.created_at > now() - interval '2 hours'")
+    expect(sql).toMatch(/select id, form, etapa, data, .* from novo/)
+  })
+
+  it('etapa 1 do mesmo telefone, cookie sumido: vira substituída e só a linha nova é enviada', async () => {
+    await etapa1Gravada()
+    jar.clear()
+    expect(await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')).toEqual({
+      ok: true,
+      etapa: 2,
+    })
+    expect(tabela).toHaveLength(2)
+    expect(tabela[0]?.envioEm).not.toBeNull()
+    expect(tabela[0]?.data.substituida_por).toBe(tabela[1]?.id)
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(pushLeadMock.mock.calls[0]?.[1]).toMatchObject({ nome: 'Maria', etapa: '2' })
+  })
+
+  it('etapa 1 de outro telefone continua pendente', async () => {
+    await etapa1Gravada()
+    jar.clear()
+    await enviarPropostaCompleta(
+      { ...ETAPA1, ...ETAPA2, telefone: '(81) 98888-7777' },
+      'turnstile-novo',
+    )
+    expect(tabela[0]?.envioEm).toBeNull()
+    expect(tabela[0]?.data.substituida_por).toBeUndefined()
   })
 })

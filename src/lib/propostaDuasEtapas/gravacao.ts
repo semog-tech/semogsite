@@ -139,6 +139,13 @@ export async function absorverComTurnstile(
  * Linha nova completa (etapa 2). Nasce reivindicada: `envio_em = now()` escrito no próprio INSERT,
  * e não deixado ao default da coluna, porque o pós-gravação só pode receber linha que quem chama
  * reivindicou no mesmo comando (o cron nunca a pega, e ninguém mais a envia).
+ *
+ * No MESMO comando, a etapa 1 órfã da mesma pessoa (cookie perdido: mesmo telefone E.164, mesmo
+ * ambiente, pendente, das últimas 2 h) é marcada como substituída: `envio_em` preenchido e
+ * `substituida_por` = id da linha nova. Sem isso o cron a enviaria aos 45 min e o lead viraria dois
+ * cards no Exact. Disputa com o cron: o UPDATE exige `envio_em is null` e espera a trava da linha;
+ * se o cron a reivindicou antes, nada muda e a duplicata fica (aceita pela spec 4.2). O UPDATE do
+ * CTE não enxerga a linha que o INSERT acabou de criar (mesmo snapshot), e ela é etapa 2.
  */
 export async function inserirCompleta(
   dados: Record<string, string>,
@@ -146,8 +153,20 @@ export async function inserirCompleta(
 ): Promise<LinhaDoLead> {
   const { rows } = await query<LinhaDoLead>(
     `/* proposta:inserir-completa */
-     insert into cms.leads (form, data, gclid, email, ads_consent, notificado_para, etapa, envio_em)
-     values ('proposta', $1, $2, $3, $4, $5, 2, now()) returning ${COLUNAS_DA_LINHA}`,
+     with novo as (
+       insert into cms.leads (form, data, gclid, email, ads_consent, notificado_para, etapa, envio_em)
+       values ('proposta', $1, $2, $3, $4, $5, 2, now()) returning ${COLUNAS_DA_LINHA}
+     ), substituidas as (
+       update cms.leads l
+          set envio_em = now(), data = l.data || jsonb_build_object('substituida_por', novo.id::text)
+         from novo
+        where l.form = 'proposta' and l.etapa = 1 and l.envio_em is null
+          and l.data->>'telefone' = novo.data->>'telefone'
+          and l.data->>'ambiente' = novo.data->>'ambiente'
+          and l.created_at > now() - interval '2 hours'
+        returning l.id
+     )
+     select ${COLUNAS_DA_LINHA} from novo`,
     [{ ...dados, ...ctx.origem }, ctx.gclid, dados.email ?? null, ctx.adsConsent, destinoDe(dados)],
   )
   const linha = rows[0]

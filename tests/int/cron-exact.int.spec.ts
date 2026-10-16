@@ -161,6 +161,8 @@ describe('cron push-exact-leads', () => {
     expect(sql).toMatch(/form = 'contato' and data->>'assunto' = 'proposta-comercial'/)
     expect(sql).toContain(SQL_AMBIENTE_LIBERADO)
     expect(sql).toContain("coalesce(data->>'cliente', '') <> 'sim'")
+    // Etapa 1 substituída por proposta completa (Rodada 3 da 2.4) não é lead.
+    expect(sql).toContain("data->>'substituida_por' is null")
     expect(sql).toMatch(/envio_em is not null and envio_em < now\(\) - interval '10 minutes'/)
     expect(sql).toMatch(
       /exact_tentativa_em is null or exact_tentativa_em < now\(\) - interval '10 minutes'/,

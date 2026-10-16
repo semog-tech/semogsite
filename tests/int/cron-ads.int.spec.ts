@@ -348,6 +348,7 @@ describe('cron upload-ads-conversions', () => {
     )
     expect(sql).toContain("coalesce(data->>'ambiente', 'production') = 'production'")
     expect(sql).toContain("coalesce(data->>'cliente', '') <> 'sim'")
+    expect(sql).toContain("data->>'substituida_por' is null")
     expect(sql).toMatch(/envio_em is not null and envio_em < now\(\) - interval '10 minutes'/)
   })
 

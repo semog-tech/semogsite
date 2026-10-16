@@ -19,6 +19,13 @@ export const SQL_PRONTO_PARA_ENVIO =
 /** "Já sou cliente" não é lead (spec 4.3). */
 export const SQL_NAO_E_CLIENTE = "coalesce(data->>'cliente', '') <> 'sim'"
 
+/**
+ * Etapa 1 substituída por uma proposta completa da mesma pessoa (`inserirCompleta`): tem `envio_em`
+ * preenchido sem nunca ter sido enviada, e não é lead. Nem o reenvio do Exact nem o lote do Ads a
+ * pegam; o lead é a linha nova.
+ */
+export const SQL_NAO_SUBSTITUIDA = "data->>'substituida_por' is null"
+
 /** Quem gravou ou reivindicou já teve 10 min para enviar (o Exact tem timeout de 8 s). */
 const SQL_JA_PROCESSADA = "envio_em is not null and envio_em < now() - interval '10 minutes'"
 
@@ -63,6 +70,7 @@ update cms.leads set exact_tentativa_em = now()
       and (exact_tentativa_em is null or exact_tentativa_em < now() - interval '10 minutes')
       and ${SQL_AMBIENTE_LIBERADO}
       and ${SQL_NAO_E_CLIENTE}
+      and ${SQL_NAO_SUBSTITUIDA}
     order by created_at asc
     limit $3
     for update skip locked)
@@ -79,4 +87,5 @@ select id, created_at, gclid, ads_consent, data->>'${TIPO_CLIQUE_FIELD}' as tipo
    and ${SQL_JA_PROCESSADA}
    and ${SQL_AMBIENTE_LIBERADO}
    and ${SQL_NAO_E_CLIENTE}
+   and ${SQL_NAO_SUBSTITUIDA}
  order by created_at desc`
