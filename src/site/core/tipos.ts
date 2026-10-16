@@ -20,7 +20,11 @@ export type ContextoCena = {
   lenis: Lenis | null
   util: typeof util
   conteudo: typeof conteudo
-  /** Resolve quando fontes e load chegaram e `html.motion` foi marcada (no máximo ~5 s). */
+  /**
+   * Resolve quando fontes e load chegaram e `html.motion` foi marcada (no máximo ~5 s). Rejeita
+   * com `DesmontadoAntesDoPronto` se a página desmontar antes; o `.catch` da cena manda a
+   * `ctx.reportar`, que ignora esse caso.
+   */
   pronto: Promise<void>
   /** A `<section>` da cena. Selecione sempre a partir dela. */
   root: HTMLElement

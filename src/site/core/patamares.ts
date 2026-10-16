@@ -37,7 +37,11 @@ const CHAVES_DE_CONTROLE = new Set([
 
 type Trecho = [inicio: number, fim: number]
 
-/** Trechos em que algum tween anima, no tempo da raiz. `data: "respiro"` não conta. */
+/**
+ * Trechos em que algum tween anima, no tempo da raiz. `data: "respiro"` não conta.
+ * `data: "movimento"` conta como movimento: é o tween que só anima por onUpdate (receita C8
+ * da fase 4).
+ */
 function trechosAnimados(tl: gsap.core.Timeline, deslocamento = 0, saida: Trecho[] = []): Trecho[] {
   for (const filho of tl.getChildren(false, true, true)) {
     const inicio = deslocamento + filho.startTime()
@@ -46,7 +50,8 @@ function trechosAnimados(tl: gsap.core.Timeline, deslocamento = 0, saida: Trecho
     } else if (
       filho.totalDuration() > 0 &&
       filho.vars.data !== 'respiro' &&
-      Object.keys(filho.vars).some((chave) => !CHAVES_DE_CONTROLE.has(chave))
+      (filho.vars.data === 'movimento' ||
+        Object.keys(filho.vars).some((chave) => !CHAVES_DE_CONTROLE.has(chave)))
     ) {
       saida.push([inicio, inicio + filho.totalDuration()])
     }

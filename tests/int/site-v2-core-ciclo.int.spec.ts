@@ -3,7 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { iniciarMenu } from '@/site/core/cabecalho'
 import { iniciarImpressao } from '@/site/core/impressao'
-import { marcarMotionQuandoPronto, vigiarAltura } from '@/site/core/motion'
+import { DesmontadoAntesDoPronto, marcarMotionQuandoPronto, vigiarAltura } from '@/site/core/motion'
 import { alvoDaAncora, vigiarPrimeiraInteracao } from '@/site/core/posicao'
 import { iniciarTema } from '@/site/core/tema'
 
@@ -92,7 +92,7 @@ describe('tema, impressão, motion e altura', () => {
     expect(document.readyState).toBe('complete')
     const cancelada = marcarMotionQuandoPronto()
     cancelada.cancelar()
-    await cancelada.pronto
+    await expect(cancelada.pronto).rejects.toBeInstanceOf(DesmontadoAntesDoPronto)
     expect(document.documentElement.classList.contains('motion')).toBe(false)
     const valendo = marcarMotionQuandoPronto()
     await valendo.pronto

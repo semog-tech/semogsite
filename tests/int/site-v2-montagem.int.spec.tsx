@@ -8,18 +8,6 @@ import { montarPagina, type Reportar } from '@/site/core/montagem'
 import type { ListaCenas } from '@/site/core/tipos'
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
-vi.mock('@/site/cenas/registro', () => ({
-  CENAS_POR_PAGINA: {
-    previa: [
-      [
-        'a',
-        (ctx: import('@/site/core/tipos').ContextoCena) => {
-          ctx.ScrollTrigger.create({ trigger: ctx.root })
-        },
-      ],
-    ],
-  },
-}))
 
 class ResizeObserverFalso {
   observe = (): void => undefined
@@ -332,7 +320,17 @@ describe('RunnerDeCenas', () => {
     palco('a')
     const { unmount } = render(
       <StrictMode>
-        <RunnerDeCenas pagina="previa" />
+        <RunnerDeCenas
+          pagina="teste"
+          cenas={[
+            [
+              'a',
+              (ctx) => {
+                ctx.ScrollTrigger.create({ trigger: ctx.root })
+              },
+            ],
+          ]}
+        />
       </StrictMode>,
     )
     expect(ScrollTrigger.getAll()).toHaveLength(1)

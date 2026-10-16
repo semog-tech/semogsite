@@ -12,6 +12,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 /* Utilidades das cenas (ctx.util). Tudo que anda por quadro usa o ticker do GSAP (um único
    requestAnimationFrame na página). */
 
+export { criarDinamica, type Dinamica, type OpcoesDinamica } from './dinamica'
 export {
   aoImprimir,
   formatarNumero,

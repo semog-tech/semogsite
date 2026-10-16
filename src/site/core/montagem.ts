@@ -4,6 +4,7 @@ import { coletarDesligamentos, desligarTudo, type Reportar } from './ganchos'
 import { iniciarImpressao } from './impressao'
 import {
   criarLenis,
+  DesmontadoAntesDoPronto,
   gsap,
   marcarMotionQuandoPronto,
   ScrollTrigger,
@@ -92,6 +93,7 @@ function neutralizarCena(cena: Cena, reportar: Reportar): void {
 }
 
 function tratarFalhaDeCena(cena: Cena, erro: unknown, { reportar, estado }: Apoio): void {
+  if (erro instanceof DesmontadoAntesDoPronto) return
   reportar(erro, `cena:${cena.id}`)
   try {
     neutralizarCena(cena, reportar)
@@ -131,6 +133,32 @@ function executarInit(contexto: gsap.Context, init: InitCena, ctx: ContextoCena)
   return execucao
 }
 
+/**
+ * O `util` de uma cena: igual ao do core, mas o que liga ouvinte ou laço guarda o desligamento
+ * também na lista da cena, inclusive depois de um `await` (o coletor síncrono não vê isso). Se a
+ * cena falhar depois, `neutralizarCena` desliga o que ela ligou (Task 1.6 da fase 1).
+ */
+function utilDaCena(guardar: (desligar: () => void) => void): typeof util {
+  return {
+    ...util,
+    aoRolar: (...args: Parameters<typeof util.aoRolar>) => {
+      const desligar = util.aoRolar(...args)
+      guardar(desligar)
+      return desligar
+    },
+    lacoVisivel: (...args: Parameters<typeof util.lacoVisivel>) => {
+      const desligar = util.lacoVisivel(...args)
+      guardar(desligar)
+      return desligar
+    },
+    registrarDesligamento: (desligar: () => void) => {
+      const umaVez = util.registrarDesligamento(desligar)
+      guardar(umaVez)
+      return umaVez
+    },
+  }
+}
+
 function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context | null {
   const root = document.getElementById(id)
   if (!root) {
@@ -139,13 +167,20 @@ function montarCena(id: string, init: InitCena, apoio: ApoioCenas): gsap.Context
   }
   const marcas = lerMarcas(root)
   const contexto = gsap.context(() => {}, root)
+  const desligamentosDaCena: Desligamentos = []
   const ctx: ContextoCena = {
     ...apoio.base,
+    util: utilDaCena((desligar) => desligamentosDaCena.push(desligar)),
     root,
-    reportar: (erro, parte) => apoio.reportar(erro, `cena:${id}:${parte}`),
+    reportar: (erro, parte) => {
+      if (erro instanceof DesmontadoAntesDoPronto) return
+      apoio.reportar(erro, `cena:${id}:${parte}`)
+    },
   }
   const { retorno, erros, desligamentos } = executarInit(contexto, init, ctx)
-  const cena: Cena = { id, root, contexto, desligamentos, marcas }
+  // Os síncronos chegam pelos dois caminhos; desligar duas vezes não faz nada (rodam uma vez só).
+  desligamentosDaCena.push(...desligamentos)
+  const cena: Cena = { id, root, contexto, desligamentos: desligamentosDaCena, marcas }
   if (erros.length > 0) {
     tratarFalhaDeCena(cena, erros[0], apoio)
   } else if (retorno instanceof Promise) {
@@ -197,7 +232,9 @@ function ligarAposCenas(infra: Infra, { reportar, estado }: Apoio, desligar: Des
     () => {
       if (!estado.encerrado) reancorar(infra.lenis, infra.interacao.rolou)
     },
-    (erro: unknown) => reportar(erro, 'motion'),
+    (erro: unknown) => {
+      if (!(erro instanceof DesmontadoAntesDoPronto)) reportar(erro, 'motion')
+    },
   )
 }
 

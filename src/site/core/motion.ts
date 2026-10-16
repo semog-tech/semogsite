@@ -73,26 +73,45 @@ async function esperarCarregamento(aoAgendarTeto: (id: number) => void): Promise
   }
 }
 
+/** O `pronto` de uma página que desmontou antes do load: não é falha, e não vai ao Sentry. */
+export class DesmontadoAntesDoPronto extends Error {
+  constructor() {
+    super('[motion] A página desmontou antes de ficar pronta.')
+    this.name = 'DesmontadoAntesDoPronto'
+  }
+}
+
 /**
  * Marca `html.motion` depois que fontes e assets chegaram e recalcula os gatilhos. Estado
- * inicial escondido fica no CSS sob `html.js:not(.motion)`. `cancelar` (desmonte) impede a marca.
+ * inicial escondido fica no CSS sob `html.js:not(.motion)`. `cancelar` (desmonte) impede a marca
+ * e rejeita `pronto` com `DesmontadoAntesDoPronto`: antes, a cena que esperava o `pronto` ficava
+ * parada para sempre quando a página desmontava antes do load (StrictMode, navegação rápida).
  */
 export function marcarMotionQuandoPronto(): { pronto: Promise<void>; cancelar: () => void } {
   let cancelado = false
   let teto = 0
-  const pronto = (async () => {
+  let rejeitar: (erro: DesmontadoAntesDoPronto) => void = () => undefined
+  const cancelamento = new Promise<never>((_, recusar) => {
+    rejeitar = recusar
+  })
+  const carregada = (async () => {
     await esperarCarregamento((id) => {
       teto = id
     })
-    if (cancelado) return
+    if (cancelado) throw new DesmontadoAntesDoPronto()
     document.documentElement.classList.add('motion')
     ScrollTrigger.refresh()
   })()
+  const pronto = Promise.race([carregada, cancelamento])
+  // Ninguém é obrigado a ouvir: sem estes dois, desmontar vira rejeição sem handler.
+  carregada.catch(() => undefined)
+  pronto.catch(() => undefined)
   return {
     pronto,
     cancelar: () => {
       cancelado = true
       window.clearTimeout(teto)
+      rejeitar(new DesmontadoAntesDoPronto())
     },
   }
 }

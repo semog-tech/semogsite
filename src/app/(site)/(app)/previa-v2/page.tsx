@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { CenasDaHome } from '@/site/cenas/paginas/home'
 import { EsqueletoApp } from '@/site/layout/EsqueletoApp'
 import { previaLiberada } from '@/site/previa'
 import { Ranking } from '@/site/secoes/home/Ranking'
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export default function PaginaPrevia() {
   if (!previaLiberada()) notFound()
   return (
-    <EsqueletoApp pagina="previa" temProposta>
+    <EsqueletoApp pagina="home" temProposta cenas={<CenasDaHome />}>
       <Ranking />
       <SecaoProposta />
     </EsqueletoApp>

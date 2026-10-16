@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import PaginaPrevia, { metadata } from '@/app/(site)/(app)/previa-v2/page'
 import { PATAMARES_RANKING } from '@/site/cenas/home/ranking'
-import { CENAS_POR_PAGINA } from '@/site/cenas/registro'
 import { previaLiberada } from '@/site/previa'
 import { procurarTermosVedados } from './helpers/identidade'
 
@@ -43,7 +42,7 @@ describe('rota de prévia do site v2', () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
     render(<PaginaPrevia />)
     expect(document.querySelector('[data-cabecalho]')).not.toBeNull()
-    expect(document.querySelector('main#conteudo')?.getAttribute('data-pagina')).toBe('previa')
+    expect(document.querySelector('main#conteudo')?.getAttribute('data-pagina')).toBe('home')
     expect(document.querySelector('section#ranking[data-tema="claro"]')).not.toBeNull()
     expect(document.querySelector('footer[data-tema="marinho"]')).not.toBeNull()
   })
@@ -60,7 +59,7 @@ describe('rota de prévia do site v2', () => {
   it('toda cena registrada para a prévia tem a sua seção na página', () => {
     vi.stubEnv('VERCEL_ENV', 'preview')
     render(<PaginaPrevia />)
-    for (const [id] of CENAS_POR_PAGINA.previa) {
+    for (const id of ['ranking']) {
       expect(document.getElementById(id), id).not.toBeNull()
     }
   })

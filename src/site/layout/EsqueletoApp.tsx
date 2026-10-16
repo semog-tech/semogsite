@@ -1,21 +1,22 @@
 import type React from 'react'
-import type { IdPaginaComCenas } from '@/site/cenas/registro'
-import { RunnerDeCenas } from '@/site/runner/RunnerDeCenas'
+import type { IdPaginaApp } from '@/site/cenas/registro'
 import { Cabecalho, type IdNav } from './Cabecalho'
 import { Rodape } from './Rodape'
 import { SimbolosSvg } from './SimbolosSvg'
 
 type PropsEsqueleto = {
-  /** Vai para `<main data-pagina>` e escolhe a lista de cenas do runner. */
-  pagina: IdPaginaComCenas
+  /** Vai para `<main data-pagina>`. */
+  pagina: IdPaginaApp
   atual?: IdNav
   /** A página tem a cena `#proposta`: "Seja Semog" e "Pedir proposta" vão para ela. */
   temProposta: boolean
+  /** O runner da página (`<CenasDa… />`, de src/site/cenas/paginas). */
+  cenas: React.ReactNode
   children: React.ReactNode
 }
 
 /** Esqueleto das páginas do pacote app (page.html do protótipo): cabeçalho, main, rodapé, runner. */
-export function EsqueletoApp({ pagina, atual, temProposta, children }: PropsEsqueleto) {
+export function EsqueletoApp({ pagina, atual, temProposta, cenas, children }: PropsEsqueleto) {
   const destinoProposta = temProposta ? '#proposta' : '/proposta'
   return (
     <>
@@ -28,7 +29,7 @@ export function EsqueletoApp({ pagina, atual, temProposta, children }: PropsEsqu
         {children}
       </main>
       <Rodape destinoProposta={destinoProposta} />
-      <RunnerDeCenas pagina={pagina} />
+      {cenas}
     </>
   )
 }
