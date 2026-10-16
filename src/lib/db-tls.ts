@@ -92,9 +92,10 @@ export const SUPABASE_ROOT_CAS: readonly string[] = [SUPABASE_ROOT_CA_2021, SUPA
  * Nome conferido no certificado quando a URI aponta para um IP. A produção
  * conecta pelo HAProxy da VPS (143.244.162.48:7432, `mode tcp`), que repassa o
  * TLS do pooler sem terminá-lo — o certificado é o de `*.pooler.supabase.com`.
- * Com host IP, o Node conferiria o nome contra `localhost` e recusaria. Se o
- * backend em `/opt/pg-proxy/haproxy.cfg` mudar de região ou de host, este nome
- * muda junto, senão a conexão cai com ERR_TLS_CERT_ALTNAME_INVALID.
+ * Com host IP, o Node conferiria o nome contra `localhost` e recusaria. Como o
+ * certificado é curinga, outra região do pooler continua valendo; só um backend
+ * fora de `*.pooler.supabase.com` em `/opt/pg-proxy/haproxy.cfg` exige trocar
+ * este nome, senão a conexão cai com ERR_TLS_CERT_ALTNAME_INVALID.
  */
 export const SUPABASE_POOLER_HOST = 'aws-0-us-east-2.pooler.supabase.com'
 

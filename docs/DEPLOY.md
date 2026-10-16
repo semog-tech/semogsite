@@ -43,7 +43,7 @@ eles o `pg` descartaria a configuração de TLS do código; `src/lib/db-tls.ts` 
 garantia. O certificado é verificado (cadeia e nome) contra as raízes da CA da Supabase embutidas
 nesse arquivo; quando a URI aponta para o IP do proxy da VPS, o nome conferido é o do pooler
 (`SUPABASE_POOLER_HOST`). Se a Supabase trocar a raiz (a 2021 vence em 26/04/2031) ou o proxy
-mudar de backend, a conexão falha com erro de certificado: baixar a CA nova em Database Settings →
+passar a apontar para fora de `*.pooler.supabase.com`, a conexão falha com erro de certificado: baixar a CA nova em Database Settings →
 SSL Configuration, conferir o SHA-256, acrescentar em `SUPABASE_ROOT_CAS` (ou ajustar o nome do
 pooler) e fazer deploy.
 
