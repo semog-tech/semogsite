@@ -24,6 +24,8 @@ const MODULOS: ReadonlyArray<readonly [string, () => Promise<unknown>]> = [
   ['formulário: textos', () => import('@/site/formularios/proposta/textos')],
   ['formulário: leitura', () => import('@/site/formularios/proposta/leitura')],
   ['formulário: cortina', () => import('@/site/formularios/proposta/cortina')],
+  ['leitura', () => import('@/site/leitura/ligar-leitura')],
+  ['leitura: componente', () => import('@/site/leitura/LigarLeitura')],
 ]
 
 describe('site v2: módulos do cliente carregam no servidor', () => {
