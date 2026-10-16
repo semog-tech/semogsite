@@ -1,0 +1,119 @@
+/* Páginas de leitura · o que o índice do blog, o artigo e o "Leia também" dividem: o
+   cartão de post e a linha de metadados. Importado pelo layout (leitura). */
+
+/* Rolagem nativa; o salto do índice e dos filtros desliza em vez de pular. */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---- Metadados: categoria · data · tempo de leitura ------------------------------ */
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--e2);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+/* O ponto fecha o item anterior: se a linha quebrar, ele não abre a linha de baixo. */
+.post-meta > * {
+  white-space: nowrap;
+}
+.post-meta > :not(:last-child)::after {
+  content: "·";
+  margin-left: var(--e2);
+}
+.post-categoria {
+  color: var(--marinho);
+  font-weight: 600;
+}
+
+/* ---- Cartão de post ----------------------------------------------------------------
+   Um traço curto marca o início do cartão e cresce no hover. O link do título cobre o
+   cartão inteiro (::after), sem aninhar link dentro de link. */
+.post-cartao {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--e2);
+  padding-top: var(--e3);
+}
+.post-cartao::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--e4);
+  height: 2px;
+  background: var(--marinho);
+  transition: width 480ms var(--ease-expo);
+}
+.post-cartao:hover::before {
+  width: var(--e6);
+}
+.post-cartao-titulo {
+  font-size: clamp(1.4375rem, 1.15rem + 0.8vw, 1.875rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.post-cartao-titulo a {
+  text-decoration: none;
+}
+.post-cartao-titulo a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.post-cartao:hover .post-cartao-titulo a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+.post-resumo {
+  max-width: 54ch;
+  color: var(--texto);
+}
+.post-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  margin-top: var(--e1);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--marinho);
+}
+.post-acao .seta {
+  transition: transform 320ms var(--ease-expo);
+}
+.post-cartao:hover .post-acao .seta {
+  transform: translateX(5px);
+}
+
+/* ---- Entrada do título -----------------------------------------------------------
+   O único movimento da leitura: o bloco sobe 21px por máscara, expo.out. O estado inicial
+   só vale antes de começar (backwards): ao fim não sobra clip-path cortando acento. */
+@keyframes leitura-subir {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+    transform: none;
+  }
+}
+
+/* ---- Impressão: só o texto ---------------------------------------------------------- */
+@media print {
+  html {
+    scroll-behavior: auto;
+  }
+  .rodape,
+  #proposta,
+  #leia-tambem {
+    display: none;
+  }
+}
