@@ -185,6 +185,16 @@ describe('pós-gravação: Exact, e-mail e Ads uma vez cada (spec 4.3 e 4.4)', (
     expect(sendMailMock).toHaveBeenCalledTimes(1)
   })
 
+  it('sem destinatário interno: nada sai e a falha é registrada, não silenciosa', async () => {
+    const resumo = await processarPosGravacao(linha({ notificado_para: null }), 'acao')
+    expect(resumo.email).toBe('sem_destino')
+    expect(sendMailMock).not.toHaveBeenCalled()
+    expect(captureExceptionMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ tags: expect.objectContaining({ passo: 'email' }) }),
+    )
+  })
+
   it('o evento do Sentry não leva telefone, e-mail nem nome (R8)', async () => {
     pushLeadMock.mockResolvedValue({ ok: false, error: 'Exact recusou Maria +5583999501388' })
     sendMailMock.mockResolvedValue({ ok: false, error: 'maria@example.com bounced' })

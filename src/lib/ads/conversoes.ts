@@ -13,6 +13,26 @@ import type { CliqueDoGoogle } from '@/lib/attribution'
 const INGEST_URL = 'https://datamanager.googleapis.com/v1/events:ingest'
 const SCOPE = 'https://www.googleapis.com/auth/datamanager'
 
+/**
+ * Prazo de cada chamada ao Google (token e ingest). O envio roda dentro da Server Action da etapa 2:
+ * Google pendurado não pode prender a resposta (D1). Estourou = falha do Ads, vai ao Sentry e o lote
+ * diário retenta (o `transactionId` evita contar duas vezes).
+ */
+export const PRAZO_ADS_MS = 5000
+
+/** Rejeita se `promessa` não terminar em `ms`; o timer é sempre limpo. */
+async function comPrazo<T>(promessa: Promise<T>, ms: number, rotulo: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const estouro = new Promise<never>((_, rejeitar) => {
+    timer = setTimeout(() => rejeitar(new Error(`${rotulo} passou de ${ms} ms`)), ms)
+  })
+  try {
+    return await Promise.race([promessa, estouro])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export type TipoDeClique = CliqueDoGoogle['tipo']
 
 export type ConfigAds = {
@@ -59,7 +79,10 @@ export function lerConfigAds(
   }
 }
 
-export async function obterTokenAds(config: ConfigAds): Promise<string | null> {
+export async function obterTokenAds(
+  config: ConfigAds,
+  prazoMs = PRAZO_ADS_MS,
+): Promise<string | null> {
   // `as`: é o JSON da conta de serviço que nós mesmos configuramos; os dois campos são obrigatórios nele.
   const sa = JSON.parse(config.saJson) as { client_email: string; private_key: string }
   const jwt = new JWT({
@@ -68,7 +91,7 @@ export async function obterTokenAds(config: ConfigAds): Promise<string | null> {
     scopes: [SCOPE],
     subject: config.subject,
   })
-  return (await jwt.authorize()).access_token ?? null
+  return (await comPrazo(jwt.authorize(), prazoMs, 'Token do Google')).access_token ?? null
 }
 
 export function corpoDoIngest(
@@ -107,8 +130,22 @@ export async function ingerirConversoes(
   config: ConfigAds,
   destinoId: string,
   eventos: readonly EventoDeConversao[],
+  prazoMs = PRAZO_ADS_MS,
+): Promise<ResultadoIngest> {
+  // O sinal aborta a conexão (e a leitura do corpo); `comPrazo` garante o fim mesmo se algo ignorar o sinal.
+  const signal = AbortSignal.timeout(prazoMs)
+  return comPrazo(enviar(token, config, destinoId, eventos, signal), prazoMs, 'Data Manager')
+}
+
+async function enviar(
+  token: string,
+  config: ConfigAds,
+  destinoId: string,
+  eventos: readonly EventoDeConversao[],
+  signal: AbortSignal,
 ): Promise<ResultadoIngest> {
   const res = await fetch(INGEST_URL, {
+    signal,
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(corpoDoIngest(config, destinoId, eventos)),

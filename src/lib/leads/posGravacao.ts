@@ -122,7 +122,15 @@ async function enviarEmails(
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  if (destino.length === 0) return 'sem_destino'
+  if (destino.length === 0) {
+    // Lead que a equipe não vai saber que existe: não pode passar em silêncio.
+    reportarFalhaDoLead(
+      'email',
+      new Error('Lead sem destinatário (notificado_para vazio)'),
+      contexto,
+    )
+    return 'sem_destino'
+  }
   try {
     const formTitle = tituloDoEnvio(linha)
     const desfecho = isExactEligible(linha.form, linha.data)
