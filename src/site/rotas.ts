@@ -11,7 +11,12 @@ export const PREFIXO_DA_PREVIA: string = VIRADA_1_FEITA ? '' : '/previa-v2'
  * (o teste site-v2-rotas exige a rota); o blog e os documentos vieram na fase 3. Depois da virada
  * a lista não importa: tudo vai à URL real.
  */
-export const PAGINAS_NA_PREVIA: ReadonlySet<string> = new Set(['/blog', '/privacidade', '/termos'])
+export const PAGINAS_NA_PREVIA: ReadonlySet<string> = new Set([
+  '/',
+  '/blog',
+  '/privacidade',
+  '/termos',
+])
 
 function existeNaPrevia(caminho: string): boolean {
   if (PAGINAS_NA_PREVIA.has(caminho)) return true

@@ -2,12 +2,20 @@
 
 import type { ListaCenas } from '@/site/core/tipos'
 import { RunnerDeCenas } from '@/site/runner/RunnerDeCenas'
+import { cenaAbertura } from '../home/abertura'
+import { cenaCondominios } from '../home/condominios'
+import { cenaPilares } from '../home/pilares'
 import { cenaRanking } from '../home/ranking'
+import { cenaUnidades } from '../home/unidades'
 import { cenaProposta } from '../proposta'
 
-/** Cenas da home, na ordem das seções (paginas/home.js do protótipo). A 4.5 e a 4.6 completam a lista. */
+/** Cenas da home, na ordem das seções (paginas/home.js do protótipo). A 4.6 acrescenta tecnologia e comunidade. */
 export const CENAS_HOME: ListaCenas = [
+  ['abertura', cenaAbertura],
+  ['condominios', cenaCondominios],
+  ['pilares', cenaPilares],
   ['ranking', cenaRanking],
+  ['unidades', cenaUnidades],
   ['proposta', cenaProposta],
 ]
 

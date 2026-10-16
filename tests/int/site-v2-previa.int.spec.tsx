@@ -18,7 +18,7 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 
-describe('rota de prévia do site v2', () => {
+describe('rota de prévia do site v2 (home)', () => {
   it('fica fechada por padrão; abre só em preview, development e local', () => {
     expect(previaLiberada('production', undefined)).toBe(false)
     expect(previaLiberada('preview', '1')).toBe(true)

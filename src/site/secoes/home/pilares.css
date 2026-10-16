@@ -1,0 +1,405 @@
+/* Cena 03 · pilares. Escopar tudo em #pilares. Cor só por token (--tema-* ou tokens.css).
+   Os três pilares são o símbolo III: largura 36,41 e vão 15,99 do logo (vão = 43,92% da
+   largura do pilar, ou 11,324% da fila). Cada pilar é um prisma em CSS: face frontal clara,
+   lado escuro à esquerda (enche o vão, como na papelaria do rebrand) e topo em luz.
+   Medidas do prisma em cqw da própria coluna (.pilar é contêiner de tamanho).
+   Desktop (≥1100px): o palco fixa e cada face vira coluna de leitura. Abaixo disso: texto
+   empilhado e o III fecha a cena. Na saída, a luz das faces desce e o marinho vira gelo. */
+
+#pilares {
+  --vao-iii: 11.324%;
+  --fundo-lado: 43.92cqw;
+  --altura-topo: 26cqw;
+  --descida: 110svh;
+  /* Recorte do --grad-transparencia: o token começa no marinho profundo e passa pelo
+     marinho puro em ~28,3% (medido no Chromium). A descida usa só daí para baixo, para
+     nascer no marinho da cena. */
+  --corte: 0.283;
+  /* Ponte: o marinho da cena se desfaz sobre o começo do token em 13svh. O ponto de recorte
+     varia entre motores (o Firefox chega 3 níveis mais claro); a ponte garante que a
+     descida nasce exatamente no marinho em qualquer um. */
+  --ponte: 13svh;
+  --marinho-transparente: color-mix(in oklab, var(--marinho) 0%, transparent);
+  --brilho: color-mix(in oklab, var(--branco) 60%, transparent);
+  /* Faixa de luz que desce: pela face na leitura e pelo feixe na descida. */
+  --faixa-de-luz: linear-gradient(
+    in oklab to bottom,
+    transparent 0%,
+    color-mix(in oklab, transparent 93.3%, var(--brilho)) 8.3%,
+    color-mix(in oklab, transparent 75%, var(--brilho)) 16.7%,
+    color-mix(in oklab, transparent 50%, var(--brilho)) 25%,
+    color-mix(in oklab, transparent 25%, var(--brilho)) 33.3%,
+    color-mix(in oklab, transparent 6.7%, var(--brilho)) 41.7%,
+    var(--brilho) 50%,
+    color-mix(in oklab, var(--brilho) 93.3%, transparent) 58.3%,
+    color-mix(in oklab, var(--brilho) 75%, transparent) 66.7%,
+    color-mix(in oklab, var(--brilho) 50%, transparent) 75%,
+    color-mix(in oklab, var(--brilho) 25%, transparent) 83.3%,
+    color-mix(in oklab, var(--brilho) 6.7%, transparent) 91.7%,
+    transparent 100%
+  );
+  padding-block: var(--respiro-cena) 0;
+  background: var(--marinho);
+  overflow-x: clip;
+}
+
+/* ---- Título --------------------------------------------------------------------- */
+.pilares-cabeca {
+  padding-block-end: var(--e7);
+}
+.pilares-titulo {
+  max-width: 19ch;
+  font-size: var(--t-h2);
+  font-weight: 300;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
+.pilares-titulo .peso {
+  font-style: normal;
+}
+
+/* ---- Prisma (vale para a fila do desktop e para o III do celular) ------------------ */
+#pilares .pilar {
+  position: relative;
+  container-type: inline-size;
+  min-width: 0;
+}
+.pilar-corpo {
+  position: absolute;
+  inset: 0;
+}
+.pilar-topo,
+.pilar-lado,
+.pilar-frente {
+  position: absolute;
+  display: block;
+}
+/* O lado e o topo passam 1px por baixo da frente: sem fresta de antisserrilhado. */
+.pilar-lado {
+  top: calc(-1 * var(--altura-topo));
+  bottom: 0;
+  right: calc(100% - 1px);
+  width: calc(var(--fundo-lado) + 1px);
+  clip-path: polygon(0 0, 100% var(--altura-topo), 100% 100%, 0 100%);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho-profundo) 0%,
+    color-mix(in oklab, var(--marinho-profundo) 97.6%, var(--marinho)) 10%,
+    color-mix(in oklab, var(--marinho-profundo) 90.5%, var(--marinho)) 20%,
+    color-mix(in oklab, var(--marinho-profundo) 79.4%, var(--marinho)) 30%,
+    color-mix(in oklab, var(--marinho-profundo) 65.5%, var(--marinho)) 40%,
+    color-mix(in oklab, var(--marinho-profundo) 50%, var(--marinho)) 50%,
+    color-mix(in oklab, var(--marinho-profundo) 34.5%, var(--marinho)) 60%,
+    color-mix(in oklab, var(--marinho-profundo) 20.6%, var(--marinho)) 70%,
+    color-mix(in oklab, var(--marinho-profundo) 9.5%, var(--marinho)) 80%,
+    color-mix(in oklab, var(--marinho-profundo) 2.4%, var(--marinho)) 90%,
+    var(--marinho) 100%
+  );
+}
+.pilar-topo {
+  top: calc(-1 * var(--altura-topo));
+  left: calc(-1 * var(--fundo-lado));
+  right: 0;
+  height: calc(var(--altura-topo) + 1px);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--fundo-lado)) 0,
+    100% var(--altura-topo),
+    var(--fundo-lado) var(--altura-topo)
+  );
+  background: linear-gradient(
+    in oklab to right,
+    var(--ceu-claro) 0%,
+    color-mix(in oklab, var(--ceu-claro) 90.5%, var(--azul-medio)) 11.6%,
+    color-mix(in oklab, var(--ceu-claro) 65.5%, var(--azul-medio)) 23.2%,
+    color-mix(in oklab, var(--ceu-claro) 34.5%, var(--azul-medio)) 34.8%,
+    color-mix(in oklab, var(--ceu-claro) 9.5%, var(--azul-medio)) 46.4%,
+    var(--azul-medio) 58%,
+    color-mix(in oklab, var(--azul-medio) 90.5%, var(--marinho-profundo)) 66.4%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--marinho-profundo)) 74.8%,
+    color-mix(in oklab, var(--azul-medio) 34.5%, var(--marinho-profundo)) 83.2%,
+    color-mix(in oklab, var(--azul-medio) 9.5%, var(--marinho-profundo)) 91.6%,
+    var(--marinho-profundo) 100%
+  );
+}
+/* Face frontal: branco → gelo → céu claro → céu. Termina no céu exato em que o feixe da
+   descida começa, então a luz continua sem emenda. */
+.pilar-frente {
+  inset: 0;
+  overflow: clip;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--branco) 0%,
+    color-mix(in oklab, var(--branco) 90.5%, var(--gelo)) 4.8%,
+    color-mix(in oklab, var(--branco) 65.5%, var(--gelo)) 9.6%,
+    color-mix(in oklab, var(--branco) 34.5%, var(--gelo)) 14.4%,
+    color-mix(in oklab, var(--branco) 9.5%, var(--gelo)) 19.2%,
+    var(--gelo) 24%,
+    color-mix(in oklab, var(--gelo) 90.5%, var(--ceu-claro)) 30.8%,
+    color-mix(in oklab, var(--gelo) 65.5%, var(--ceu-claro)) 37.6%,
+    color-mix(in oklab, var(--gelo) 34.5%, var(--ceu-claro)) 44.4%,
+    color-mix(in oklab, var(--gelo) 9.5%, var(--ceu-claro)) 51.2%,
+    var(--ceu-claro) 58%,
+    color-mix(in oklab, var(--ceu-claro) 90.5%, var(--ceu)) 66.4%,
+    color-mix(in oklab, var(--ceu-claro) 65.5%, var(--ceu)) 74.8%,
+    color-mix(in oklab, var(--ceu-claro) 34.5%, var(--ceu)) 83.2%,
+    color-mix(in oklab, var(--ceu-claro) 9.5%, var(--ceu)) 91.6%,
+    var(--ceu) 100%
+  );
+}
+/* Brilho: uma faixa de luz que desce pela face quando ela vira coluna de leitura (só
+   transform), anunciando a luz que desce na saída da cena. */
+.pilar-brilho {
+  position: absolute;
+  /* Nasce logo acima da face (fora dela); o JS a leva até logo abaixo. */
+  inset: -45% 0 auto;
+  height: 45%;
+  pointer-events: none;
+  background: var(--faixa-de-luz);
+}
+
+/* ---- Palco ---------------------------------------------------------------------- */
+/* Fundo próprio: o grão do palco se mistura com o marinho dele, não com o vazio. */
+.pilares-palco {
+  position: relative;
+  background: var(--marinho);
+  overflow: clip;
+}
+/* Grão por cima de tudo, como no core (.grao), mas sem isolar: mistura com o que está
+   embaixo dentro do palco e da descida. */
+#pilares .pilares-grao {
+  position: absolute;
+  inset: 0;
+  isolation: auto;
+  pointer-events: none;
+}
+#pilares .pilares-grao::after {
+  z-index: auto;
+}
+
+/* ---- Leitura nas faces ---------------------------------------------------------- */
+.pilar-leitura {
+  position: relative;
+}
+.pilar-titulo {
+  font-size: clamp(1.75rem, 1rem + 1.15vw, 2.375rem);
+  font-weight: 300;
+  line-height: 1.05;
+}
+.pilar-numeral {
+  display: block;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(4.5rem, 2rem + 4vw, 6.5rem);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-display);
+  line-height: 0.9;
+  color: var(--tema-titulo);
+}
+.pilar-frase {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+}
+.pilar-texto {
+  color: var(--tema-texto);
+}
+.pilar-leitura > * + * {
+  margin-block-start: var(--e3);
+}
+.pilar-leitura > .pilar-titulo + * {
+  margin-block-start: var(--e4);
+}
+
+/* ---- Desktop: palco fixado, faces como colunas de leitura -------------------------- */
+@media (min-width: 1100px) {
+  .pilares-cabeca {
+    padding-block-end: var(--e6);
+  }
+  .pilares-palco {
+    height: 100svh;
+  }
+  .pilares-fila {
+    position: absolute;
+    inset: calc(var(--cab) + var(--e7)) 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--vao-iii);
+  }
+  /* Face clara: texto em marinho. */
+  .pilar-frente {
+    --tema-titulo: var(--marinho);
+    --tema-texto: var(--texto);
+  }
+  .pilar-leitura {
+    padding: var(--e4) var(--e4) 0;
+  }
+  .pilar-texto {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .pilares-iii {
+    display: none;
+  }
+}
+@media (min-width: 1100px) and (max-width: 1279px) {
+  .pilar-leitura {
+    padding: var(--e3) var(--e3) 0;
+  }
+}
+
+/* ---- Abaixo de 1100px: empilhado, e o III fecha a cena ----------------------------- */
+@media (max-width: 1099px) {
+  #pilares {
+    --descida: 100svh;
+  }
+  .pilares-cabeca {
+    padding-block-end: var(--e6);
+  }
+  .pilares-fila {
+    display: grid;
+    gap: var(--e6);
+  }
+  .pilares-fila .pilar-corpo,
+  .pilares-fila .pilar-frente {
+    position: static;
+    background: none;
+    overflow: visible;
+  }
+  .pilares-fila .pilar-topo,
+  .pilares-fila .pilar-lado,
+  .pilares-fila .pilar-brilho {
+    display: none;
+  }
+  .pilares-fila .pilar-leitura {
+    max-width: var(--largura-texto);
+  }
+  .pilares-iii {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--vao-iii);
+    height: 61.8svh;
+    margin-block-start: var(--e7);
+  }
+}
+
+/* ---- Descida: marinho → gelo (o fundo da cena 04), com a luz dos pilares ----------- */
+.pilares-descida {
+  position: relative;
+  height: var(--descida);
+  /* De cima para baixo: a ponte e o token recortado para nascer no marinho. O token termina
+     no gelo exatamente na última linha da descida, e o gelo é o fundo com que a cena 04
+     abre (.tec-fundo): a junção não tem degrau. O gelo chapado por baixo cobre o
+     arredondamento de subpixel. */
+  --grad-altura: calc(var(--descida) / (1 - var(--corte)));
+  background:
+    linear-gradient(
+        in oklab to bottom,
+        var(--marinho) 0%,
+        color-mix(in oklab, var(--marinho) 96.2%, var(--marinho-transparente)) 12.5%,
+        color-mix(in oklab, var(--marinho) 85.4%, var(--marinho-transparente)) 25%,
+        color-mix(in oklab, var(--marinho) 69.1%, var(--marinho-transparente)) 37.5%,
+        color-mix(in oklab, var(--marinho) 50%, var(--marinho-transparente)) 50%,
+        color-mix(in oklab, var(--marinho) 30.9%, var(--marinho-transparente)) 62.5%,
+        color-mix(in oklab, var(--marinho) 14.6%, var(--marinho-transparente)) 75%,
+        color-mix(in oklab, var(--marinho) 3.8%, var(--marinho-transparente)) 87.5%,
+        var(--marinho-transparente) 100%
+      )
+      0 0 / 100% var(--ponte) no-repeat,
+    var(--grad-transparencia) 0 calc(-1 * var(--grad-altura) * var(--corte)) / 100%
+      var(--grad-altura) no-repeat,
+    var(--gelo);
+}
+.pilares-feixes {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--vao-iii);
+  pointer-events: none;
+}
+/* O feixe é a face frontal que continua: mesma largura, mesmo céu no topo, e clareia até o
+   gelo. Na última linha ele É o gelo do fundo e da cena 04: a luz dos pilares vira o
+   mundo claro da tecnologia, sem borda nem corte. */
+.feixe {
+  position: relative;
+  height: 100%;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--ceu) 0%,
+    color-mix(in oklab, var(--ceu) 93.3%, var(--ceu-claro)) 7.5%,
+    color-mix(in oklab, var(--ceu) 75%, var(--ceu-claro)) 15%,
+    color-mix(in oklab, var(--ceu) 50%, var(--ceu-claro)) 22.5%,
+    color-mix(in oklab, var(--ceu) 25%, var(--ceu-claro)) 30%,
+    color-mix(in oklab, var(--ceu) 6.7%, var(--ceu-claro)) 37.5%,
+    var(--ceu-claro) 45%,
+    color-mix(in oklab, var(--ceu-claro) 93.3%, var(--gelo)) 54.2%,
+    color-mix(in oklab, var(--ceu-claro) 75%, var(--gelo)) 63.3%,
+    color-mix(in oklab, var(--ceu-claro) 50%, var(--gelo)) 72.5%,
+    color-mix(in oklab, var(--ceu-claro) 25%, var(--gelo)) 81.7%,
+    color-mix(in oklab, var(--ceu-claro) 6.7%, var(--gelo)) 90.8%,
+    var(--gelo) 100%
+  );
+}
+/* A luz que desce: uma faixa clara percorre o feixe com a rolagem (só transform). */
+.feixe-trilho {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+.feixe-luz {
+  position: absolute;
+  inset: -25% 0 auto;
+  height: 25%;
+  background: var(--faixa-de-luz);
+}
+/* Halo: a luz que vaza do feixe para os lados. Elipse que nasce do zero no topo da descida
+   e some antes que o fundo fique mais claro que ela (senão vira sombra sobre o gelo).
+   Radial e não máscara: o Firefox não zerava a máscara no topo e marcava uma emenda. */
+.feixe::before {
+  content: "";
+  position: absolute;
+  inset: 0 -55% 50%;
+  background: radial-gradient(
+    in oklab 50% 50% at 50% 50%,
+    color-mix(in oklab, var(--ceu-claro) 24%, transparent) 0%,
+    color-mix(in oklab, var(--ceu-claro) 21%, transparent) 20%,
+    color-mix(in oklab, var(--ceu-claro) 14%, transparent) 40%,
+    color-mix(in oklab, var(--ceu-claro) 7%, transparent) 60%,
+    color-mix(in oklab, var(--ceu-claro) 2%, transparent) 80%,
+    transparent 100%
+  );
+}
+
+@media print {
+  #pilares {
+    padding-block-end: var(--e6);
+  }
+  .pilares-palco {
+    height: auto;
+    overflow: visible;
+  }
+  .pilares-fila {
+    position: static;
+  }
+  /* Com o palco em altura automática, o prisma (absoluto, inset 0) ficava com 0 px e a
+     face, com overflow: clip, recortava o texto inteiro: a folha saía só marinho. */
+  #pilares .pilares-fila .pilar {
+    height: auto;
+  }
+  #pilares .pilares-fila .pilar-corpo,
+  #pilares .pilares-fila .pilar-frente {
+    position: relative;
+    inset: auto;
+    height: auto;
+    overflow: visible;
+    transform: none;
+  }
+  .pilares-descida,
+  .pilares-iii {
+    display: none;
+  }
+}

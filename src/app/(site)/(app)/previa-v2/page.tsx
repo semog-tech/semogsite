@@ -1,25 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { CenasDaHome } from '@/site/cenas/paginas/home'
-import { EsqueletoApp } from '@/site/layout/EsqueletoApp'
-import { previaLiberada } from '@/site/previa'
-import { Ranking } from '@/site/secoes/home/Ranking'
-import { SecaoProposta } from '@/site/secoes/proposta/SecaoProposta'
+import { PaginaHome } from '@/site/paginas/home'
+import { previaLiberada, ROBOTS_DA_PREVIA } from '@/site/previa'
+import { metadadosInstitucionais } from '@/site/seo/institucional'
 
-export const metadata: Metadata = {
-  title: 'Prévia do site v2 · Semog',
-  // O layout (site) não define título nem descrição: cada página declara os seus.
-  description: 'Bancada interna da fundação do site v2 da Semog. Não é uma página pública.',
-  robots: { index: false, follow: false },
-}
+export const metadata: Metadata = { ...metadadosInstitucionais('home'), robots: ROBOTS_DA_PREVIA }
 
-/** Bancada da fundação e dos formulários: a cena do ranking e o pedido de proposta em duas etapas. 404 em produção (src/site/previa.ts). */
-export default function PaginaPrevia() {
+/** A home do site v2 na prévia (substitui a bancada da fundação). 404 em produção. */
+export default function Pagina() {
   if (!previaLiberada()) notFound()
-  return (
-    <EsqueletoApp pagina="home" temProposta cenas={<CenasDaHome />}>
-      <Ranking />
-      <SecaoProposta />
-    </EsqueletoApp>
-  )
+  return <PaginaHome />
 }
