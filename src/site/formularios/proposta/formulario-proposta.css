@@ -340,3 +340,18 @@ html.js .fp-sem-js {
     gap: var(--e2);
   }
 }
+
+/* Pendências visuais da fase 2 (verificação 2.7). Em tela estreita, a etapa inativa sai da célula
+   fora da troca: as duas etapas dividiam a mesma altura, e a 390 sobrava um vão entre o
+   "Continuar" e o aviso da verificação. Na troca (data-transicao) as duas voltam para a cortina. */
+@media (max-width: 760px) {
+  html.js .formulario-proposta:not([data-transicao]):not([data-etapa-ativa="2"]) .fp-etapa[data-etapa="2"],
+  html.js .formulario-proposta:not([data-transicao])[data-etapa-ativa="2"] .fp-etapa[data-etapa="1"] {
+    display: none;
+  }
+}
+/* O título da falha recebe o foco (o botão que enviou ficou desativado): anel para quem usa teclado. */
+.fp-falha-titulo:focus-visible {
+  outline: 2px solid var(--fp-tinta);
+  outline-offset: 4px;
+}

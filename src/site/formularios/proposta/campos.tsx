@@ -31,12 +31,14 @@ type PropsCampoTexto = {
   rotulo: { texto: string; opcional?: string }
   erro?: string
   entrada: InputHTMLAttributes<HTMLInputElement>
+  /** Marca `.entrada`: a cena da seção Metades sobe o campo em cascata. */
+  entrar?: boolean
 }
 
-function CampoTexto({ id, nome, rotulo, erro, entrada }: PropsCampoTexto) {
+function CampoTexto({ id, nome, rotulo, erro, entrada, entrar }: PropsCampoTexto) {
   const alvo = idDe(id, nome)
   return (
-    <div className="fp-campo">
+    <div className={entrar ? 'fp-campo entrada' : 'fp-campo'}>
       <label htmlFor={alvo}>
         {rotulo.texto}
         {rotulo.opcional ? <span className="fp-opcional"> {rotulo.opcional}</span> : null}
@@ -96,10 +98,20 @@ function GrupoDeOpcoes({ id, grupo, erro, escolha }: PropsGrupo) {
 
 type Uf = { valor: string; aoMudar: (uf: string) => void }
 
-function SeletorDeUf({ id, erro, uf }: { id: string; erro?: string; uf: Uf }) {
+function SeletorDeUf({
+  id,
+  erro,
+  uf,
+  entrar,
+}: {
+  id: string
+  erro?: string
+  uf: Uf
+  entrar?: boolean
+}) {
   const alvo = idDe(id, 'uf')
   return (
-    <div className="fp-campo">
+    <div className={entrar ? 'fp-campo entrada' : 'fp-campo'}>
       <label htmlFor={alvo}>Estado</label>
       <div className="fp-controle fp-controle--select">
         <select
@@ -133,7 +145,17 @@ function SeletorDeUf({ id, erro, uf }: { id: string; erro?: string; uf: Uf }) {
   )
 }
 
-export function CamposDaEtapa1({ id, erros, uf }: { id: string; erros: Erros; uf: Uf }) {
+export function CamposDaEtapa1({
+  id,
+  erros,
+  uf,
+  entrar,
+}: {
+  id: string
+  erros: Erros
+  uf: Uf
+  entrar?: boolean
+}) {
   return (
     <>
       <CampoTexto
@@ -142,9 +164,10 @@ export function CamposDaEtapa1({ id, erros, uf }: { id: string; erros: Erros; uf
         rotulo={{ texto: 'Nome do condomínio' }}
         erro={erros.nomeCondominio}
         entrada={{ type: 'text', autoComplete: 'off', maxLength: 120 }}
+        entrar={entrar}
       />
       <div className="fp-par">
-        <SeletorDeUf id={id} erro={erros.uf} uf={uf} />
+        <SeletorDeUf id={id} erro={erros.uf} uf={uf} entrar={entrar} />
         {/* Sem maxLength: cortaria a colagem com +55; quem limita é a máscara (DP7). */}
         <CampoTexto
           id={id}
@@ -158,6 +181,7 @@ export function CamposDaEtapa1({ id, erros, uf }: { id: string; erros: Erros; uf
             placeholder: '(00) 00000-0000',
             onChange: mascararTelefone,
           }}
+          entrar={entrar}
         />
       </div>
       <CampoTexto
@@ -166,6 +190,7 @@ export function CamposDaEtapa1({ id, erros, uf }: { id: string; erros: Erros; uf
         rotulo={{ texto: 'E-mail', opcional: '(opcional)' }}
         erro={erros.email}
         entrada={{ type: 'email', autoComplete: 'email', maxLength: 254 }}
+        entrar={entrar}
       />
     </>
   )

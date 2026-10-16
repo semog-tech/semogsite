@@ -1,26 +1,83 @@
-/* Seção do pedido de proposta (fase 2: só na /previa-v2). Título à esquerda, formulário à direita,
-   na razão áurea; empilha em tela estreita. */
-#proposta {
-  padding-block: var(--respiro-cena);
-  background: var(--branco);
-}
-#proposta .proposta-grade {
+/* Cena 08 · proposta "Metades": convite no véu lavanda 38,2% à esquerda (o mesmo que a
+   cena 07 entrega ao sair), pedido de proposta em duas etapas 61,8% à direita. O formulário
+   é o componente compartilhado (formularios/proposta/formulario-proposta.css); aqui só o encaixe. */
+#proposta.proposta-metades {
+  --proposta-veu: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
   display: grid;
   grid-template-columns: var(--menor) var(--maior);
-  gap: var(--e5);
+  min-height: 100svh;
+  padding-block: 0;
+  background: var(--branco);
+}
+#proposta.proposta-metades > * {
+  min-width: 0;
+}
+
+/* ---- Convite ------------------------------------------------------------------ */
+#proposta.proposta-metades .proposta-convite {
+  padding: var(--respiro-cena) var(--e6) var(--respiro-cena)
+    max(var(--margem), calc((100vw - var(--largura)) / 2));
+  background: var(--proposta-veu);
+}
+/* O convite acompanha o formulário enquanto ele passa. */
+#proposta.proposta-metades .proposta-convite-texto {
+  position: sticky;
+  top: calc(var(--cab) + var(--e5));
+}
+#proposta.proposta-metades .proposta-titulo {
+  font-size: clamp(3.4rem, 0.8rem + 5.4vw, 6.5rem);
+  font-weight: 300;
+  color: var(--tema-titulo);
+  text-wrap: initial;
+}
+#proposta.proposta-metades .proposta-chamada {
+  margin-top: var(--e5);
+  max-width: 19ch;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.3125rem, 1rem + 0.6vw, 1.625rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+}
+
+/* ---- Formulário --------------------------------------------------------------- */
+#proposta.proposta-metades .proposta-metade-form {
+  padding: var(--respiro-cena) var(--margem) var(--respiro-cena) var(--e7);
+}
+#proposta.proposta-metades .proposta-form {
+  max-width: 560px;
+  gap: var(--e4);
+}
+#proposta.proposta-metades .fp-etapa {
+  gap: var(--e4);
+}
+#proposta.proposta-metades .fp-par {
   align-items: start;
 }
-#proposta .proposta-titulo {
-  font-family: var(--fonte-titulo);
-  font-size: var(--t-h2);
-  font-weight: var(--peso-titulo);
-  letter-spacing: var(--tracking-titulo);
-  line-height: var(--lh-titulo);
-  color: var(--marinho);
-}
-@media (max-width: 900px) {
-  #proposta .proposta-grade {
+
+/* ---- Celular: convite em cima, formulário embaixo ----------------------------- */
+@media (max-width: 760px) {
+  #proposta.proposta-metades {
     grid-template-columns: 1fr;
-    gap: var(--e4);
+    min-height: 0;
+  }
+  #proposta.proposta-metades .proposta-convite {
+    padding: var(--e6) var(--margem) var(--e5);
+  }
+  #proposta.proposta-metades .proposta-convite-texto {
+    position: static;
+  }
+  #proposta.proposta-metades .proposta-titulo {
+    font-size: 3.5rem;
+  }
+  #proposta.proposta-metades .proposta-chamada {
+    margin-top: var(--e4);
+  }
+  #proposta.proposta-metades .proposta-metade-form {
+    padding: var(--e5) var(--margem) var(--e6);
+  }
+  #proposta.proposta-metades .fp-etapa {
+    gap: var(--e3);
   }
 }

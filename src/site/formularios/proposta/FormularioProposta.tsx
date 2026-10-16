@@ -4,7 +4,7 @@ import './formulario-proposta.css'
 import { useGSAP } from '@gsap/react'
 import { type FormEvent, type RefObject, useEffect, useRef, useState } from 'react'
 import { Turnstile } from '@/components/forms/Turnstile'
-import { PERFIS } from '@/lib/propostaDuasEtapas/schema'
+import { PERFIS, type Perfil } from '@/lib/propostaDuasEtapas/schema'
 import { conteudo } from '@/site/conteudo/conteudo'
 import { CamposDaEtapa1, CamposDaEtapa2 } from './campos'
 import { trocarEtapa } from './cortina'
@@ -19,7 +19,15 @@ import { type EstadoDoEnvio, useEnvioDaProposta } from './useEnvioDaProposta'
  * Sem JS, mostra o aviso com os telefones (o Turnstile exige JS).
  */
 
-type PropsFormulario = { id: string; ufInicial?: string }
+type PropsFormulario = {
+  id: string
+  ufInicial?: string
+  /** Classe a mais no `<form>`, ao lado de `formulario-proposta` (a seção Metades usa `proposta-form`). */
+  classe?: string
+  /** Marca o título, os campos e o "Continuar" da etapa 1 com `.entrada`, para a cascata da cena. */
+  comEntrada?: boolean
+  perfilInicial?: Perfil
+}
 
 function Seta() {
   return (
@@ -87,26 +95,36 @@ function useCortina(formRef: RefObject<HTMLFormElement | null>, etapa: 1 | 2) {
   )
 }
 
-/** `?perfil=construtora` pré-marca a etapa 2 (spec 4.1); valor fora da lista é ignorado. */
-function usePerfilDaUrl(formRef: RefObject<HTMLFormElement | null>) {
+/**
+ * `?perfil=construtora` pré-marca a etapa 2 (spec 4.1); valor fora da lista é ignorado. Sem
+ * `?perfil`, vale o `perfilInicial` da página (Incorporadoras chega com "Construtora" marcado).
+ */
+function usePerfilDaUrl(formRef: RefObject<HTMLFormElement | null>, perfilInicial?: Perfil) {
   useEffect(() => {
-    const perfil = new URLSearchParams(window.location.search).get('perfil')
-    if (!perfil || !PERFIS.some((p) => p === perfil)) return
+    const daUrl = new URLSearchParams(window.location.search).get('perfil')
+    const perfil = daUrl && PERFIS.some((p) => p === daUrl) ? daUrl : perfilInicial
+    if (!perfil) return
     const opcao = formRef.current?.querySelector<HTMLInputElement>(
       `input[name="perfil"][value="${perfil}"]`,
     )
     if (opcao) opcao.checked = true
-  }, [formRef])
+  }, [formRef, perfilInicial])
 }
 
-export function FormularioProposta({ id, ufInicial = '' }: PropsFormulario) {
+export function FormularioProposta({
+  id,
+  ufInicial = '',
+  classe,
+  comEntrada = false,
+  perfilInicial,
+}: PropsFormulario) {
   const formRef = useRef<HTMLFormElement>(null)
   const [uf, setUf] = useState(ufInicial)
   const [cidadeEscolha, setCidadeEscolha] = useState('')
   const envio = useEnvioDaProposta()
   const { estado } = envio
   useCortina(formRef, estado.etapa)
-  usePerfilDaUrl(formRef)
+  usePerfilDaUrl(formRef, perfilInicial)
 
   function aoEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
@@ -124,7 +142,7 @@ export function FormularioProposta({ id, ufInicial = '' }: PropsFormulario) {
     <div className="fp-moldura">
       <form
         ref={formRef}
-        className="formulario-proposta"
+        className={classe ? `formulario-proposta ${classe}` : 'formulario-proposta'}
         noValidate
         onSubmit={aoEnviar}
         onChange={(evento) => envio.revisarErros(evento.currentTarget)}
@@ -133,17 +151,23 @@ export function FormularioProposta({ id, ufInicial = '' }: PropsFormulario) {
         aria-busy={estado.enviando || undefined}
         hidden={estado.concluido}
       >
-        <p id={`${id}-titulo`} className="fp-titulo">
+        <p id={`${id}-titulo`} className={comEntrada ? 'fp-titulo entrada' : 'fp-titulo'}>
           {TEXTOS.titulo}
         </p>
         <div className="fp-etapas">
           <div className="fp-etapa" data-etapa="1" inert={estado.etapa !== 1}>
-            <CamposDaEtapa1 id={id} erros={estado.erros} uf={{ valor: uf, aoMudar: mudarUf }} />
+            <CamposDaEtapa1
+              id={id}
+              erros={estado.erros}
+              uf={{ valor: uf, aoMudar: mudarUf }}
+              entrar={comEntrada}
+            />
             {/* Some quando o servidor pede outra verificação: o widget de baixo a substitui. */}
             {estado.etapa1Gravada || estado.verificar ? null : (
               <Turnstile onToken={envio.guardarToken} theme="light" className="fp-verificacao" />
             )}
-            <div className="fp-acoes">
+            {/* No protótipo o "Continuar" entra na cascata junto com os campos. */}
+            <div className={comEntrada ? 'fp-acoes entrada' : 'fp-acoes'}>
               <BotaoPrincipal enviando={estado.enviando} texto={TEXTOS.continuar} />
             </div>
           </div>

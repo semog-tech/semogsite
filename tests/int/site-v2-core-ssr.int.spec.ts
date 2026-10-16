@@ -21,6 +21,7 @@ const MODULOS: ReadonlyArray<readonly [string, () => Promise<unknown>]> = [
   ['registro', () => import('@/site/cenas/registro')],
   ['runner', () => import('@/site/runner/RunnerDeCenas')],
   ['cena ranking', () => import('@/site/cenas/home/ranking')],
+  ['cena proposta', () => import('@/site/cenas/proposta')],
   ['cenas da home', () => import('@/site/cenas/paginas/home')],
   ['dinâmica', () => import('@/site/core/dinamica')],
   ['formulário: textos', () => import('@/site/formularios/proposta/textos')],
