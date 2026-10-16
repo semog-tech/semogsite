@@ -15,7 +15,7 @@ import { textosDe } from './helpers/identidade'
  * continua existindo.
  */
 const ARQUIVOS_TECNICOS: Readonly<Record<string, string>> = {
-  '/sitemap.xml': 'src/app/(frontend)/sitemap.ts',
+  '/sitemap.xml': 'src/app/sitemap.ts',
   '/robots.txt': 'src/app/robots.ts',
   '/icon.svg': 'src/app/icon.svg',
   '/apple-icon.png': 'src/app/apple-icon.png',
