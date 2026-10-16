@@ -11,6 +11,7 @@ for (const url of [databaseUrl, siteUrl]) {
 assert.ok(databaseUrl.pathname.endsWith('_test'), 'Banco deve terminar em _test.')
 const client = new pg.Client({
   connectionString: databaseUrl.href,
+  // Banco local de teste (asserção acima): o TLS verificado de `src/lib/db-tls.ts` não se aplica.
   ssl: { rejectUnauthorized: false },
 })
 const manifest = JSON.parse(readFileSync('.next/dev/server/server-reference-manifest.json', 'utf8'))
