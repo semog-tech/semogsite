@@ -13,17 +13,14 @@ import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { Pool, type PoolClient } from 'pg'
+import { conexaoComTls } from '../src/lib/db-tls.js'
 
 const COLUNAS_NOVAS = ['etapa', 'token_envio', 'envio_em', 'exact_tentativa_em'] as const
 const MARCA = 'conferencia-migracao-duas-etapas'
 
 function criarPool(): Pool {
   if (!process.env.DATABASE_URI) throw new Error('DATABASE_URI ausente: passe --env-file.')
-  return new Pool({
-    connectionString: process.env.DATABASE_URI,
-    ssl: { rejectUnauthorized: false },
-    max: 1,
-  })
+  return new Pool({ ...conexaoComTls(process.env.DATABASE_URI), max: 1 })
 }
 
 function afirmar(ok: boolean, o_que: string): void {
