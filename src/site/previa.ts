@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+
 /**
  * A rota de prévia do site v2 (/previa-v2) existe para ver a fundação em Preview e local. Fica
  * FECHADA por padrão (404): só abre com `VERCEL_ENV` em preview ou development, ou numa máquina
@@ -14,3 +16,6 @@ export function previaLiberada(
   if (ambiente === 'preview' || ambiente === 'development') return true
   return ambiente === undefined && naVercel === undefined
 }
+
+/** A prévia nunca é indexada, em ambiente nenhum (o canonical das páginas aponta para a URL real). */
+export const ROBOTS_DA_PREVIA: NonNullable<Metadata['robots']> = { index: false, follow: false }
