@@ -23,7 +23,7 @@ const PREFERENCIAS: Readonly<Record<string, Preferencia>> = {
 /**
  * Rotas de grupos intocados (spec 6) que o sitemap lista. A landing do Semog Experience vive no
  * grupo `(evento)`, fora do inventário de páginas, e o comentário do sitemap antigo já previa
- * tirá-la depois do evento (26/09/2026): decisão pendente, fora desta fase.
+ * tirá-la depois do evento (26/09/2026); o Leandro decidiu mantê-la (16/10/2026).
  */
 export const INTOCADAS_NO_SITEMAP: readonly string[] = ['/experience']
 

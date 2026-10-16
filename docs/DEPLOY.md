@@ -226,7 +226,7 @@ Depois do primeiro deploy de produção em `semog.com.br`, plugar (via os MCPs d
 disponíveis no ambiente de trabalho):
 
 - **Google Search Console** — verificar o domínio e submeter `/sitemap.xml`
-  (`src/app/(frontend)/sitemap.ts`, já existe e é servido em produção).
+  (`src/app/sitemap.ts`, gerado do inventário `src/site/inventario.ts`).
 - **Google Tag Manager** — o `ConsentProvider`/`CookieBanner` (LGPD, `src/lib/consent.ts`) já
   implementam o gate de consentimento (`hasConsent('analytics')` / `hasConsent('marketing')`);
   o container GTM deve carregar **condicionalmente**, só depois do usuário aceitar a categoria
