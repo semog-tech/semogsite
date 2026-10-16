@@ -13,6 +13,7 @@ import { entradaDe } from '@/site/inventario'
 import { Cabecalho } from '@/site/layout/Cabecalho'
 import { Rodape } from '@/site/layout/Rodape'
 import { SimbolosSvg } from '@/site/layout/SimbolosSvg'
+import { caminhoNoSite, semPrefixoDaPrevia } from '@/site/rotas'
 
 vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
 // next/font/local é transformado pelo compilador do Next; no Vitest basta o nome da classe.
@@ -33,7 +34,9 @@ function lerFonte(...partes: string[]): string {
 }
 
 function linksInternos(raiz: HTMLElement): string[] {
-  return Array.from(raiz.querySelectorAll('a[href^="/"]')).map((a) => a.getAttribute('href') ?? '')
+  return Array.from(raiz.querySelectorAll('a[href^="/"]')).map((a) =>
+    semPrefixoDaPrevia(a.getAttribute('href') ?? ''),
+  )
 }
 
 describe('cabeçalho do site v2', () => {
@@ -59,7 +62,9 @@ describe('cabeçalho do site v2', () => {
     expect(screen.getByRole('link', { name: 'Seja Semog' }).getAttribute('href')).toBe('#proposta')
     unmount()
     render(<Cabecalho destinoProposta="/proposta" />)
-    expect(screen.getByRole('link', { name: 'Seja Semog' }).getAttribute('href')).toBe('/proposta')
+    expect(screen.getByRole('link', { name: 'Seja Semog' }).getAttribute('href')).toBe(
+      caminhoNoSite('/proposta'),
+    )
   })
 
   it('o logo é um link com nome acessível, no cabeçalho e no rodapé', () => {
@@ -70,7 +75,10 @@ describe('cabeçalho do site v2', () => {
       </>,
     )
     const marcas = screen.getAllByRole('link', { name: 'Semog, página inicial' })
-    expect(marcas.map((a) => a.getAttribute('href'))).toEqual(['/', '/'])
+    expect(marcas.map((a) => a.getAttribute('href'))).toEqual([
+      caminhoNoSite('/'),
+      caminhoNoSite('/'),
+    ])
   })
 
   it('o botão Menu abre e fecha o painel, e Esc devolve o foco', () => {

@@ -119,4 +119,8 @@ describe('OG do inventário', () => {
     )
     expect(rotaQueAtende('/blog/opengraph-image', semIndice)?.arquivo).toBe('page')
   })
+
+  it('a URL nova /tecnologia tem título próprio no card (a fase 4 a tira do content/pages)', () => {
+    expect(tituloDoOg('/tecnologia')).toBe('Tecnologia · Semog One, a plataforma própria da Semog')
+  })
 })

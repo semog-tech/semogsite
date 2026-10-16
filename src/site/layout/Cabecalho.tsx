@@ -1,4 +1,5 @@
 import { conteudo } from '@/site/conteudo/conteudo'
+import { caminhoNoSite } from '@/site/rotas'
 import { LigarMenu } from './LigarMenu'
 
 export type IdNav =
@@ -31,7 +32,7 @@ function Links({ itens, atual }: { itens: readonly ItemNav[]; atual?: IdNav }) {
   return itens.map((item) => (
     <a
       key={item.id}
-      href={item.href}
+      href={caminhoNoSite(item.href)}
       data-pagina-link={item.id}
       aria-current={item.id === atual ? 'page' : undefined}
     >
@@ -46,7 +47,7 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
   return (
     <header className="cabecalho" data-cabecalho="" data-tema="claro">
       <div className="cabecalho-faixa">
-        <a className="marca" href="/">
+        <a className="marca" href={caminhoNoSite('/')}>
           <span className="sr-only">Semog, página inicial</span>
           <svg className="marca-escura logo-escuro" viewBox="0 0 601.59 94.93" aria-hidden="true">
             <use href="#logo-semog" />
@@ -57,7 +58,7 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
         </a>
         <nav className="nav" aria-label="Principal">
           <Links itens={ANTES_DE_UNIDADES} atual={atual} />
-          <a href="/#unidades" data-secao-link="unidades">
+          <a href={caminhoNoSite('/#unidades')} data-secao-link="unidades">
             Unidades
           </a>
           <Links itens={DEPOIS_DE_UNIDADES} atual={atual} />
@@ -67,7 +68,10 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
           <a className="cab-login" href={loginUrl}>
             Login
           </a>
-          <a className="botao botao--pequeno" href={destinoProposta}>
+          <a
+            className="botao botao--pequeno"
+            href={destinoProposta === '#proposta' ? '#proposta' : caminhoNoSite('/proposta')}
+          >
             Seja Semog
           </a>
           <button
@@ -87,7 +91,7 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
       </div>
       <nav className="painel-menu" id="painel-menu" aria-label="Menu">
         <Links itens={ANTES_DE_UNIDADES} atual={atual} />
-        <a href="/#unidades">Unidades</a>
+        <a href={caminhoNoSite('/#unidades')}>Unidades</a>
         <Links itens={DEPOIS_DE_UNIDADES} atual={atual} />
         <a className="painel-login" href={loginUrl}>
           Login · Área do cliente

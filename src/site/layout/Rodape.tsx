@@ -1,4 +1,5 @@
 import { conteudo } from '@/site/conteudo/conteudo'
+import { caminhoNoSite } from '@/site/rotas'
 import type { DestinoProposta } from './Cabecalho'
 
 const LINKS_SEMOG = [
@@ -17,7 +18,7 @@ export function Rodape({ destinoProposta }: { destinoProposta: DestinoProposta }
     <footer className="rodape grao" data-tema="marinho">
       <div className="container rodape-grade">
         <div>
-          <a className="marca" href="/">
+          <a className="marca" href={caminhoNoSite('/')}>
             <span className="sr-only">Semog, página inicial</span>
             <svg className="logo-claro" viewBox="0 0 601.59 94.93" aria-hidden="true">
               <use href="#logo-semog" />
@@ -43,7 +44,7 @@ export function Rodape({ destinoProposta }: { destinoProposta: DestinoProposta }
             <ul>
               {LINKS_SEMOG.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href}>{link.rotulo}</a>
+                  <a href={caminhoNoSite(link.href)}>{link.rotulo}</a>
                 </li>
               ))}
             </ul>
@@ -52,10 +53,14 @@ export function Rodape({ destinoProposta }: { destinoProposta: DestinoProposta }
             <h2>Fale com a gente</h2>
             <ul>
               <li>
-                <a href={destinoProposta}>Pedir proposta</a>
+                <a
+                  href={destinoProposta === '#proposta' ? '#proposta' : caminhoNoSite('/proposta')}
+                >
+                  Pedir proposta
+                </a>
               </li>
               <li>
-                <a href="/contato">Telefones e endereços</a>
+                <a href={caminhoNoSite('/contato')}>Telefones e endereços</a>
               </li>
               <li>
                 <a href={marca.loginUrl}>Login · Área do cliente</a>
@@ -67,10 +72,10 @@ export function Rodape({ destinoProposta }: { destinoProposta: DestinoProposta }
       <div className="container rodape-base">
         <p>Semog · administradora de condomínios {numeros.anos.detalhe}.</p>
         <nav className="rodape-legal" aria-label="Documentos">
-          <a href="/privacidade" data-pagina-link="privacidade">
+          <a href={caminhoNoSite('/privacidade')} data-pagina-link="privacidade">
             Privacidade
           </a>
-          <a href="/termos" data-pagina-link="termos">
+          <a href={caminhoNoSite('/termos')} data-pagina-link="termos">
             Termos de uso
           </a>
         </nav>

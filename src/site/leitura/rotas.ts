@@ -1,10 +1,7 @@
-import { VIRADA_1_FEITA } from '@/site/inventario'
+import { PREFIXO_DA_PREVIA } from '@/site/rotas'
 
-/**
- * Prefixo das páginas de leitura enquanto elas vivem na prévia (fase 3). Vira '' na virada 1
- * (fase 5), no mesmo commit que leva as rotas a /blog, /privacidade e /termos.
- */
-export const PREFIXO_DA_LEITURA: string = VIRADA_1_FEITA ? '' : '/previa-v2'
+/** Prefixo das páginas de leitura: o mesmo da prévia (fase 4, DP3). */
+export const PREFIXO_DA_LEITURA: string = PREFIXO_DA_PREVIA
 
 export type CaminhoDeLeitura = '/blog' | `/blog/${string}` | '/privacidade' | '/termos'
 

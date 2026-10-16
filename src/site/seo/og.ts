@@ -1,6 +1,7 @@
 import { pages } from '@/../content/pages'
 import { findPostBySlug } from '@/lib/blog'
 import { OG_SITE_NAME } from '@/lib/og'
+import { META_DA_TECNOLOGIA } from './institucional'
 
 /**
  * Título do card OG de uma URL do site, para as rotas `src/app/[slug]/opengraph-image.tsx` e
@@ -12,6 +13,7 @@ import { OG_SITE_NAME } from '@/lib/og'
 export function tituloDoOg(caminho: string): string {
   const post = /^\/blog\/([a-z0-9-]+)$/.exec(caminho)?.[1]
   if (post) return findPostBySlug(post)?.title ?? OG_SITE_NAME
+  if (caminho === '/tecnologia') return META_DA_TECNOLOGIA.title
   const pagina = pages[caminho.replace(/^\/+/, '') || 'home']
   return pagina?.meta?.title || pagina?.title || OG_SITE_NAME
 }
