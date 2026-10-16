@@ -50,7 +50,9 @@ import {
   type SubmitFormResult,
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
+import { AMBIENTE_FIELD, ambienteAtual, ambienteLiberaEnvio } from '@/lib/leads/ambiente'
 import { BELEM_TO, PB_TO, RECIFE_TO, TODAS_AS_PRACAS } from '@/lib/leads/destinatarios'
+import { reportarFalhaDoLead } from '@/lib/leads/reportar'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
@@ -387,6 +389,7 @@ async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: bo
 function montarLeadData(
   data: DadosDoEnvio,
   attributionFields: { label: string; value: string }[],
+  formType: FormType,
 ): Record<string, string> {
   const leadData: Record<string, string> = {}
   for (const [field, value] of Object.entries(data)) {
@@ -394,6 +397,9 @@ function montarLeadData(
       leadData[field] = String(value)
     }
   }
+  // De onde veio a linha (R1). O Experience fica de fora: o `data` dele vai para a função
+  // `cms.experience_lotacao`, que não tem DDL neste repo e cuja entrada não mexemos.
+  if (formType !== 'experience') leadData[AMBIENTE_FIELD] = ambienteAtual()
   for (const f of attributionFields) {
     leadData[`origem — ${f.label}`] = f.value
   }
@@ -425,9 +431,17 @@ async function enviarAoExact(
           leadRowId,
         ],
       )
+      if (!push.ok)
+        reportarFalhaDoLead(
+          'exact',
+          new Error('Exact recusou ou não respondeu (detalhe em exact_error)'),
+          { leadId: leadRowId, origem: formType },
+        )
     }
   } catch (exactErr) {
-    console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
+    // Sem o erro cru no console: com o Sentry no servidor ele viraria breadcrumb do evento (pode
+    // trazer e-mail ou telefone). `reportarFalhaDoLead` loga só passo, origem e classe.
+    reportarFalhaDoLead('exact', exactErr, { leadId: leadRowId, origem: formType })
   }
 }
 
@@ -489,7 +503,10 @@ async function enviarNotificacao(emails: EmailsDoEnvio): Promise<void> {
     }),
   })
   if (notificationResult.ok === false) {
-    console.error('[submit-form] sendMail falhou:', notificationResult.error)
+    reportarFalhaDoLead('email', new Error('SendGrid recusou a notificação interna'), {
+      leadId: leadRowId,
+      origem: envio.formType,
+    })
   }
 }
 
@@ -527,7 +544,9 @@ async function enviarAutoReply(envio: Envio, email: string | undefined): Promise
     react: autoReply.react,
   })
   if (autoReplyResult.ok === false) {
-    console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
+    reportarFalhaDoLead('email', new Error('SendGrid recusou o aviso ao lead'), {
+      origem: envio.formType,
+    })
   }
 }
 
@@ -541,7 +560,11 @@ async function enviarEmails(emails: EmailsDoEnvio): Promise<void> {
     await enviarNotificacao(emails)
     await enviarAutoReply(emails.envio, emails.email)
   } catch (mailErr) {
-    console.error('[submit-form] falha ao enviar e-mail (submissão já salva):', mailErr)
+    // Erro cru fora do console, pelo mesmo motivo de `enviarAoExact`.
+    reportarFalhaDoLead('email', mailErr, {
+      leadId: emails.leadRowId,
+      origem: emails.envio.formType,
+    })
   }
 }
 
@@ -598,7 +621,7 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
     const attributionCookie = jar.get(ATTRIBUTION_COOKIE)?.value
     const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
 
-    const leadData = montarLeadData(data, attributionFields)
+    const leadData = montarLeadData(data, attributionFields, formType)
     const { gclid, email } = extractLeadColumns(leadData)
 
     // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
@@ -635,6 +658,14 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
       }
     }
 
+    // Preview e local gravam no banco de produção; daqui não sai nada (R1).
+    if (!ambienteLiberaEnvio(leadData)) {
+      console.info(
+        `[submit-form] ambiente ${leadData[AMBIENTE_FIELD]}: lead gravado; Exact e e-mail não saem.`,
+      )
+      return { ok: true, message: 'Recebemos sua mensagem!' }
+    }
+
     const leadRowId = gravado.id
     if (leadRowId) await enviarAoExact(formType, leadData, leadRowId)
 
@@ -642,7 +673,8 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
 
     return { ok: true, message: 'Recebemos sua mensagem!' }
   } catch (err) {
-    console.error('[submit-form] erro inesperado:', err)
+    // Erro cru fora do console, pelo mesmo motivo de `enviarAoExact`.
+    reportarFalhaDoLead('gravacao', err, { origem: formType })
     return { ok: false, message: 'Erro ao enviar. Tente novamente.' }
   }
 }

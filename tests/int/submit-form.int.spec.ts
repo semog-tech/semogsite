@@ -19,10 +19,14 @@ const verifyTurnstileMock = vi.fn()
 const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
+const captureExceptionMock = vi.fn()
 
 // `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
 // mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
 vi.mock('server-only', () => ({}))
+vi.mock('@sentry/nextjs', () => ({
+  captureException: (...a: unknown[]) => captureExceptionMock(...a),
+}))
 
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
@@ -61,6 +65,15 @@ vi.mock('next/headers', () => ({
 // Import só depois dos `vi.mock` acima (hoisted pelo Vitest, mas mantém aqui
 // pela leitura linear do arquivo).
 const { submitForm } = await import('@/app/(frontend)/_actions/submit-form')
+
+// O formulário antigo só envia Exact e e-mail em produção (R1); a suíte simula produção, e o
+// teste de Preview abaixo troca o ambiente.
+beforeEach(() => {
+  vi.stubEnv('VERCEL_ENV', 'production')
+})
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 /** Fake `ReadonlyHeaders` — só o `get` usado por `getClientIp`. */
 function fakeHeaders(ip: string) {
@@ -797,5 +810,55 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
     await submitForm('contato', contatoValido, 'test-token')
 
     expect(notificadoPara()).toBeNull()
+  })
+})
+
+describe('submitForm — ambiente e Sentry (fase 2 do site v2)', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 1 })
+  })
+
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'João Pessoa e região',
+  }
+
+  it('grava data.ambiente e, em Preview, não chama Exact nem e-mail (R1)', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.201'))
+    const r = await submitForm('proposta', proposta, 'test-token')
+    expect(r.ok).toBe(true)
+    const [, params] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(params[1]).toMatchObject({ ambiente: 'preview' })
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    expect(sendMailMock).not.toHaveBeenCalled()
+  })
+
+  it('em produção segue como sempre: Exact e e-mail na hora', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.202'))
+    await submitForm('proposta', proposta, 'test-token')
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(sendMailMock).toHaveBeenCalled()
+  })
+
+  it('falha de gravação vai ao Sentry do servidor e a resposta segue genérica', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.203'))
+    queryMock.mockRejectedValue(new Error('ECONNREFUSED'))
+    const r = await submitForm('proposta', proposta, 'test-token')
+    expect(r).toEqual({ ok: false, message: 'Erro ao enviar. Tente novamente.' })
+    expect(captureExceptionMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: expect.objectContaining({ passo: 'gravacao', origem: 'proposta' }),
+      }),
+    )
   })
 })
