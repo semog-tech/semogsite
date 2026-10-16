@@ -49,6 +49,32 @@ export const TERMOS_VEDADOS: readonly string[] = [
   'ranking nacional',
 ]
 
+/**
+ * Regras de redação que dependem de quem faz a ação na frase, e não de uma palavra solta
+ * (respostas do Leandro de 16/10/2026 e memória de conformidade): a Semog assessora (não
+ * conduz nem assume), o jurídico é "com escritório parceiro", o Garante não zera a
+ * inadimplência, a base do 1% é o valor total da arrecadação e não há WhatsApp no conteúdo.
+ * As regex valem por frase: `[^.!?\n]*` para no fim dela.
+ */
+export const REDACAO_VEDADA: readonly Regra[] = [
+  [/\bconduz\w*|\bcondu[çc][ãa]o\b/i, 'a Semog assessora; "conduz"/"condução" não entram'],
+  [/\bSemog\b[^.!?\n]*\bassum\w*|\bassumimos\b/i, 'a Semog não "assume": assessora ou faz'],
+  [/\bcom parceir[oa]s?\b/i, 'jurídico é "com escritório parceiro", nunca "com parceiro"'],
+  [/\bzera\w* a inadimpl/i, 'o Garante não zera a inadimplência: o condomínio recebe 100%'],
+  [/arrecadação mensal total/i, 'a base do 1% é "o valor total da arrecadação"'],
+  [
+    /gestão d[eo]s? (?:garantias?|pós-obra)/i,
+    'a Semog não faz gestão de garantias nem do pós-obra',
+  ],
+  [/wa\.me\//i, 'WhatsApp fora do conteúdo (spec 5): o atendimento sai do "Sou cliente"'],
+]
+
+/** Os motivos de cada regra de redação que o texto quebra (vazio = texto limpo). */
+export function procurarRedacaoVedada(texto: string): string[] {
+  const limpo = normalizar(texto)
+  return REDACAO_VEDADA.filter(([padrao]) => padrao.test(limpo)).map(([, motivo]) => motivo)
+}
+
 function normalizar(texto: string): string {
   return texto.replace(/\r\n?/g, '\n')
 }

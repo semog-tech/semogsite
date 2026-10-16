@@ -31,6 +31,8 @@ describe('conteúdo tipado do site v2', () => {
       'propostaPagina',
       'contatoPagina',
       'naoEncontrada',
+      'souCliente',
+      'solucoesPagina',
     ])
     expect(TEXTOS.length).toBeGreaterThanOrEqual(800)
   })

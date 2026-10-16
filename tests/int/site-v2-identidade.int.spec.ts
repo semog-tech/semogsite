@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import {
   listarArquivos,
   listarSeExiste,
+  procurarRedacaoVedada,
   procurarTermosVedados,
   verificarCodigo,
   verificarCss,
@@ -97,6 +98,13 @@ describe('guarda de identidade: varredura de src/site e src/app/(site)', () => {
     // comentário que cite um termo vedado também acusa: reescrever o comentário.
     const achados = codigo.flatMap((a) =>
       procurarTermosVedados(readFileSync(a, 'utf8')).map((termo) => `${relativo(a)}: ${termo}`),
+    )
+    expect(achados).toEqual([])
+  })
+
+  it('nenhum TS/TSX do site v2 quebra uma regra de redação (conduz, assume, com parceiro, wa.me…)', () => {
+    const achados = codigo.flatMap((a) =>
+      procurarRedacaoVedada(readFileSync(a, 'utf8')).map((motivo) => `${relativo(a)}: ${motivo}`),
     )
     expect(achados).toEqual([])
   })

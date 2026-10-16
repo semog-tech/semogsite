@@ -3,6 +3,32 @@
  * de onde foi gerado em 15/10/2026). Marca inexistente é erro de tipo. Fato novo entra aqui,
  * nunca escrito à mão numa seção ou cena. "A CONFIRMAR" marca o que ainda depende do Leandro.
  */
+import { type OuPendente, pendente } from './pendencias'
+
+export type NumerosDaPrestacao = { prestacoes: number; condominios: number; corte: string }
+export type FotoDosSocios = { src: string; alt: string; largura: number; altura: number }
+export type VideoDoExperience = {
+  src: string
+  poster: string
+  legenda: string
+  largura: number
+  altura: number
+}
+
+/** Números da NOVA prestação de contas digital (lançada em maio de 2026) e a data de corte. */
+const NUMEROS_DA_PRESTACAO: OuPendente<NumerosDaPrestacao> = pendente(
+  'números da nova prestação de contas digital e a data de corte (o Leandro informa)',
+)
+/**
+ * A 1ª foto do post do Instagram que o Leandro indicou em 16/10/2026 (DeR7uo5EbRX), com todos os
+ * sócios. Pendente até o arquivo chegar (Tarefa 4.7, Step 4a).
+ */
+const FOTO_DOS_SOCIOS: OuPendente<FotoDosSocios> = pendente('foto dos sócios (arquivo do Leandro)')
+/** O reel do Semog Experience 26 (DP12). Pendente só até a Tarefa 4.5a, que traz o arquivo. */
+const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = pendente(
+  'vídeo do Semog Experience 26 (arquivo do Leandro)',
+)
+
 export const conteudo = {
   marca: {
     slogan: 'Preocupe-se apenas em morar.',
@@ -88,7 +114,7 @@ export const conteudo = {
         id: 'garante',
         titulo: 'Semog Garante',
         texto:
-          'O condomínio recebe 100% da arrecadação prevista, todos os meses. O custo é de 1% da arrecadação mensal total.',
+          'O condomínio recebe 100% da arrecadação prevista, todos os meses. O custo é de 1% do valor total da arrecadação.',
       },
       {
         id: 'cobranca',
@@ -100,8 +126,8 @@ export const conteudo = {
   },
   tecnologia: {
     titulo: 'Prestação de contas digital, conferida antes de sair.',
-    contexto:
-      'Em produção desde maio de 2026: mais de 670 prestações em 220 condomínios até setembro de 2026.',
+    contexto: 'Prestação de contas digital desde 2023. Em maio de 2026, lançamos a nova.',
+    numerosDaPrestacao: NUMEROS_DA_PRESTACAO,
     prestacao: [
       'Os números vêm do ERP e são conferidos: se um total não bate, o documento não sai.',
       'Um PDF único e organizado: sumário, parecer, extratos, receitas, inadimplência e acordos, demonstrativo com gráficos e despesas com comprovantes.',
@@ -129,15 +155,8 @@ export const conteudo = {
         mes: 'Ver o mês',
         linha: 'Um mês de condomínio',
         numeros: {
-          prestacoes: {
-            valor: 670,
-            prefixo: '+',
-            rotulo: 'prestações de contas digitais, de maio a setembro de 2026',
-          },
-          condominios: {
-            valor: 220,
-            rotulo: 'condomínios com prestação de contas digital',
-          },
+          prestacoes: { prefixo: '+', rotulo: 'prestações de contas na nova prestação digital' },
+          condominios: { rotulo: 'condomínios com a nova prestação de contas digital' },
           semana: {
             valor: 'Toda semana',
             rotulo: 'a plataforma evolui, com equipe de desenvolvimento própria',
@@ -173,8 +192,6 @@ export const conteudo = {
             texto:
               'No site, o condômino informa o CPF, recebe um código no e-mail e vê os boletos em aberto. No WhatsApp, o bot identifica a unidade com verificação em dois fatores e prepara a 2ª via.',
             fluxo: ['CPF', 'Código no e-mail', 'Boletos em aberto'],
-            apoio: 'Boleto inteligente',
-            confirmar: 'A CONFIRMAR: o que é o boleto inteligente',
           },
           {
             quando: 'Todo dia',
@@ -189,7 +206,7 @@ export const conteudo = {
             quando: 'Depois do vencimento',
             titulo: 'A cobrança tem régua. E tem gente.',
             texto:
-              'Quem atrasou recebe lembretes numa régua e, depois, uma proposta de acordo. Quem conduz a cobrança é a equipe própria da Semog, sem terceirizar.',
+              'Quem atrasou recebe lembretes numa régua e, depois, uma proposta de acordo. A cobrança é feita pela equipe própria da Semog, sem terceirizar.',
             fluxo: ['Lembrete', 'Lembrete', 'Proposta de acordo', 'Equipe Semog'],
           },
           {
@@ -233,7 +250,7 @@ export const conteudo = {
           },
           {
             maquina: 'A régua lembra quem atrasou e propõe o acordo.',
-            pessoa: 'A equipe própria da Semog conduz a cobrança.',
+            pessoa: 'A equipe própria da Semog faz a cobrança.',
           },
           {
             maquina: 'Os números vêm do ERP e só saem se os totais baterem.',
@@ -269,7 +286,6 @@ export const conteudo = {
   },
   depoimentos: {
     titulo: 'Quem é atendido pela Semog conta.',
-    aviso: 'Autorização de uso a confirmar.',
     itens: [
       {
         nome: 'Nicia A.',
@@ -308,7 +324,8 @@ export const conteudo = {
       texto: 'Encontros gratuitos organizados pela Semog em Belém.',
       mote: 'Não é mais uma palestra. Aqui o síndico é protagonista de resolução de conflitos na prática.',
       edicao:
-        'A 4ª edição foi em 27/09/2026, a bordo, pela Prainha e Estação das Docas. A 5ª edição já está anunciada.',
+        'A 4ª edição foi em 27/09/2026, a bordo, pela Prainha e Estação das Docas. Aguarde novas informações sobre os próximos encontros.',
+      proximos: { rotulo: 'Próximos encontros', texto: 'Aguarde novas informações.' },
       foto: '/site-v2/fotos/cafe-condominio-marco-2026.webp',
       alt: 'Síndicos convidados reunidos no Café com Condomínio de março de 2026, em Belém',
       legenda: 'Encontro de 21/03/2026, em Belém.',
@@ -330,6 +347,7 @@ export const conteudo = {
         },
       ],
       legenda: 'Semog Experience 2025.',
+      video26: VIDEO_DO_EXPERIENCE_26,
     },
     blog: {
       titulo: 'Blog Semog',
@@ -343,10 +361,6 @@ export const conteudo = {
     botao: 'Pedir proposta',
     demo: 'Demonstração: nada foi enviado.',
     perfis: ['Síndico', 'Conselheiro', 'Morador', 'Construtora'],
-    whatsapp: {
-      url: 'https://wa.me/551130034506',
-      texto: '(11) 3003-4506',
-    },
   },
   aSemog: {
     manifesto: {
@@ -429,7 +443,7 @@ export const conteudo = {
           ano: 2025,
           titulo: 'Semog Garante',
           texto:
-            'Com a G5 Partners, criamos o produto que zera a inadimplência por 1% da arrecadação.',
+            'Com a G5 Partners, criamos o produto que garante ao condomínio 100% da arrecadação prevista, por 1% do valor total da arrecadação.',
         },
         {
           data: '2026',
@@ -474,7 +488,7 @@ export const conteudo = {
         'Investimos pesado em tecnologia para que sobre tempo para o que importa: ouvir. Na Semog, síndico e condômino falam com quem decide.',
       itens: [
         {
-          titulo: 'Canal direto com os sócios',
+          titulo: 'Acesso fácil aos sócios',
           texto: 'Sem camadas, sem protocolo, sem "vou verificar e retorno". Quem atende resolve.',
         },
         {
@@ -487,9 +501,7 @@ export const conteudo = {
         },
       ],
       legenda: 'Acesso fácil aos sócios. Regra da casa desde 1991.',
-      fotoAEnviar: 'Foto real a enviar',
-      fotoSocios: 'Sócios da Semog',
-      fotoEquipe: 'Equipe da Unidade',
+      fotoDosSocios: FOTO_DOS_SOCIOS,
     },
     assembleia: {
       rotulo: 'Pauta da assembleia · escolha da administradora',
@@ -529,7 +541,7 @@ export const conteudo = {
           pergunta: 'E se os condôminos atrasarem o pagamento?',
           dado: '100%',
           resposta: 'Da arrecadação prevista, todos os meses, com o Semog Garante.',
-          apoio: 'O custo é de 1% da arrecadação mensal total.',
+          apoio: 'O custo é de 1% do valor total da arrecadação.',
         },
         {
           pergunta: 'Quem cobra os inadimplentes?',
@@ -552,8 +564,6 @@ export const conteudo = {
       percurso: 'Ver o percurso',
       fotoAlt:
         'Canteiro de obras ao anoitecer, com edifícios em construção, gruas e um técnico lendo a planta',
-      fotoLegenda: 'Imagem ilustrativa.',
-      fotoConfirmar: 'A CONFIRMAR origem',
     },
     numeros: {
       implantados: {
@@ -585,7 +595,7 @@ export const conteudo = {
         },
         {
           risco: 'Assembleia tumultuada',
-          resposta: 'Assembleia de instalação conduzida',
+          resposta: 'Assembleia de instalação assessorada',
         },
         {
           risco: 'Áreas comuns sem manutenção',
@@ -613,14 +623,14 @@ export const conteudo = {
           titulo: 'Convenção e regimento sob medida',
           texto:
             'Coordenamos, com escritório de advocacia parceiro, a convenção e o regimento interno adequados ao perfil do empreendimento, prontos para registro e alinhados ao memorial de incorporação.',
-          apoio: 'Jurídico com escritório parceiro · Registro em cartório',
+          apoio: 'Suporte jurídico com escritório parceiro · Registro em cartório',
         },
         {
           rotulo: 'Instalação',
-          titulo: 'Assembleia de instalação conduzida',
+          titulo: 'Assembleia de instalação assessorada',
           texto:
-            'Organizamos e conduzimos a assembleia que dá vida jurídica ao condomínio: eleição do síndico, aprovação da previsão e posse da administração. Com a ata, o condomínio tira o CNPJ.',
-          apoio: 'Convocação dos compradores · Condução da assembleia · CNPJ do condomínio',
+            'Organizamos e assessoramos a assembleia que dá vida jurídica ao condomínio: eleição do síndico, aprovação da previsão e posse da administração. Com a ata, o condomínio tira o CNPJ.',
+          apoio: 'Convocação dos compradores · Assessoria na assembleia · CNPJ do condomínio',
         },
         {
           rotulo: 'Entrega',
@@ -702,15 +712,13 @@ export const conteudo = {
       texto:
         'Envolva a Semog ainda na planta e lance com a taxa certa, a convenção certa e a operação pronta.',
       botao: 'Pedir proposta',
-      parceiras: 'Construtoras parceiras',
-      parceirasConfirmar: 'A CONFIRMAR: nomes e logos com autorização',
     },
   },
   garantePagina: {
     abertura: {
       antes: 'Semog',
       enfase: 'Garante.',
-      lead: 'O condomínio recebe 100% da arrecadação prevista, todos os meses. Se um condômino não paga, a Semog Garante paga o boleto ao condomínio e assume a cobrança.',
+      lead: 'O condomínio recebe 100% da arrecadação prevista, todos os meses. Se um condômino não paga, a Semog Garante paga o boleto ao condomínio e a equipe própria da Semog cobra quem atrasou.',
       origem: 'Criado em 2025 com a G5 Partners. Exclusivo para condomínios Semog.',
       botao: 'Pedir proposta',
       comoFunciona: 'Ver como funciona',
@@ -721,7 +729,7 @@ export const conteudo = {
         },
         custo: {
           valor: '1%',
-          rotulo: 'da arrecadação mensal total: é o custo do Garante',
+          rotulo: 'do valor total da arrecadação: é o custo do Garante',
         },
         equipe: {
           valor: 'Equipe própria',
@@ -758,7 +766,7 @@ export const conteudo = {
             'A cobrança passa para a Semog Garante e é feita pela equipe própria da Semog: lembretes numa régua e, depois, proposta de acordo. Ela corre fora da conta do condomínio, e o síndico não participa.',
         },
         {
-          titulo: 'Tudo isso por 1% da arrecadação mensal total.',
+          titulo: 'Tudo isso por 1% do valor total da arrecadação.',
           texto:
             'É o custo do Garante, sem taxa de adesão. Em troca, a receita prevista no orçamento é a receita que entra.',
         },
@@ -769,11 +777,11 @@ export const conteudo = {
       itens: [
         {
           quem: 'O condomínio',
-          faz: 'Recebe 100% da arrecadação prevista, todo mês, na conta própria. Paga 1% da arrecadação mensal total.',
+          faz: 'Recebe 100% da arrecadação prevista, todo mês, na conta própria. Paga 1% do valor total da arrecadação.',
         },
         {
           quem: 'A Semog Garante',
-          faz: 'Paga ao condomínio os boletos que ficaram em aberto e assume a cobrança de quem atrasou.',
+          faz: 'Paga ao condomínio os boletos que ficaram em aberto. A cobrança de quem atrasou fica com a equipe própria da Semog.',
         },
         {
           quem: 'A equipe da Semog',
@@ -788,13 +796,11 @@ export const conteudo = {
     duvidas: {
       titulo: 'O que o síndico pergunta.',
       outra: 'Ficou outra dúvida?',
-      whatsapp: 'Fale com a gente no WhatsApp',
       itens: [
         {
           pergunta: 'O que acontece com o condômino que não paga?',
           resposta:
             'O condomínio já recebeu o valor do boleto, pago pela Semog Garante. A cobrança desse condômino passa para a Semog Garante e é feita pela equipe própria da Semog: lembretes numa régua e, depois, proposta de acordo.',
-          confirmar: 'A CONFIRMAR: o que acontece quando não há acordo',
         },
         {
           pergunta: 'Quem faz a cobrança? O síndico participa?',
@@ -809,18 +815,16 @@ export const conteudo = {
         {
           pergunta: 'Como o Garante entra no orçamento?',
           resposta:
-            'Como um custo de 1% sobre a arrecadação mensal total, sem taxa de adesão. Do outro lado, a receita prevista passa a ser a receita que entra, todo mês.',
-          confirmar: 'A CONFIRMAR: como o custo aparece na prestação de contas',
+            'Como um custo de 1% do valor total da arrecadação, sem taxa de adesão, que aparece no plano de contas como “Semog Garante”. Do outro lado, a receita prevista passa a ser a receita que entra, todo mês.',
         },
         {
           pergunta: 'Tem fidelidade ou prazo mínimo?',
-          resposta: 'As condições de contrato são apresentadas na proposta.',
-          confirmar: 'A CONFIRMAR: prazo mínimo, fidelidade e condições de saída',
+          resposta: 'Não. O Garante não tem prazo mínimo nem fidelidade: o contrato é mensal.',
         },
         {
           pergunta: 'Meu condomínio precisa ser administrado pela Semog?',
           resposta:
-            'Sim. O Garante é exclusivo para condomínios Semog. Se o seu ainda não é, a migração é conduzida pela equipe da Semog, sem interromper a operação.',
+            'Sim. O Garante é exclusivo para condomínios Semog. Se o seu ainda não é, a equipe da Semog assessora a migração, sem interromper a operação.',
         },
       ],
     },
@@ -841,7 +845,7 @@ export const conteudo = {
         'Assembleias',
         'Manutenção e fornecedores',
         'Atendimento ao condômino',
-        'Suporte jurídico com parceiro',
+        'Suporte jurídico com escritório parceiro',
       ],
       ranking: 'entre mais de 3.500 administradoras no Ranking Top 200 da Superlógica',
     },
@@ -896,12 +900,12 @@ export const conteudo = {
         {
           titulo: 'A assembleia chega preparada.',
           texto:
-            'Convocação, condução e ata, presencial ou digital. Na assembleia digital, o condômino vota por link e a presença fica registrada.',
+            'Convocação, assessoria na assembleia e ata, presencial ou digital. Na assembleia digital, o condômino vota por link e a presença fica registrada.',
         },
         {
-          titulo: 'A manutenção tem rotina e orçamento comparado.',
+          titulo: 'A manutenção tem rotina, cotação e orçamento.',
           texto:
-            'Manutenção preventiva e orçamentos de fornecedores comparados, para o síndico escolher com tudo à vista.',
+            'Manutenção preventiva, com cotações e orçamentos de fornecedores feitos pela Semog.',
         },
         {
           titulo: 'Na mesa do síndico fica o que é dele: decidir.',
@@ -912,7 +916,7 @@ export const conteudo = {
     atende: {
       tituloA: 'Perto do condomínio',
       tituloB: 'e de quem decide.',
-      lead: 'Além das frentes do dia a dia, o condomínio tem canais para o condômino, equipe na própria cidade, suporte jurídico com parceiro e acesso a quem decide na Semog.',
+      lead: 'Além das frentes do dia a dia, o condomínio tem canais para o condômino, equipe na própria cidade, suporte jurídico com escritório parceiro e acesso a quem decide na Semog.',
       itens: [
         {
           titulo: 'Atendimento ao condômino',
@@ -927,13 +931,13 @@ export const conteudo = {
           link: 'Ver as Unidades',
         },
         {
-          titulo: 'Canal direto com os sócios',
+          titulo: 'Acesso fácil aos sócios',
           texto: 'Quando o síndico precisa, fala com quem decide na Semog.',
         },
         {
-          titulo: 'Suporte jurídico com parceiro',
+          titulo: 'Suporte jurídico com escritório parceiro',
           texto:
-            'Convenção, regimento, notificações e acordos, conduzidos por escritório de advocacia parceiro.',
+            'Convenção, regimento, notificações e acordos, com escritório de advocacia parceiro.',
         },
       ],
       tipos: 'Para condomínios residenciais, comerciais e mistos, e para associações de moradores.',
@@ -942,7 +946,7 @@ export const conteudo = {
         {
           titulo: 'Semog Garante',
           texto:
-            'O condomínio recebe 100% da arrecadação prevista, todos os meses, por 1% da arrecadação mensal total.',
+            'O condomínio recebe 100% da arrecadação prevista, todos os meses, por 1% do valor total da arrecadação.',
         },
         {
           titulo: 'Tecnologia',
@@ -973,7 +977,7 @@ export const conteudo = {
         {
           titulo: 'Transição',
           texto:
-            'A equipe da Semog conduz a migração: documentos, comunicação aos condôminos e transição financeira.',
+            'A equipe da Semog assessora a migração: documentos, comunicação aos condôminos e transição financeira.',
         },
       ],
     },
@@ -1000,12 +1004,12 @@ export const conteudo = {
         {
           pergunta: 'Trocar de administradora dá trabalho?',
           resposta:
-            'Aprovada a troca em assembleia, a equipe da Semog conduz a migração: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'Aprovada a troca em assembleia, a equipe da Semog assessora a migração: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
         {
           pergunta: 'Quem faz a cobrança dos inadimplentes?',
           resposta:
-            'A equipe própria da Semog, e não uma empresa terceirizada. Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista todos os meses, por 1% da arrecadação mensal total.',
+            'A equipe própria da Semog, e não uma empresa terceirizada. Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista todos os meses, por 1% do valor total da arrecadação.',
         },
         {
           pergunta: 'A Semog atende o meu tipo de condomínio?',
@@ -1059,7 +1063,7 @@ export const conteudo = {
         {
           titulo: 'Transição',
           texto:
-            'A equipe local conduz a migração: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'A equipe local assessora a migração: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
       ],
     },
@@ -1247,7 +1251,7 @@ export const conteudo = {
         {
           pergunta: 'Como funciona a troca de administradora?',
           resposta:
-            'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'Aprovada a troca em assembleia, a equipe local assessora a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
         {
           pergunta: 'Vocês atendem a Região Metropolitana do Recife?',
@@ -1257,7 +1261,7 @@ export const conteudo = {
         {
           pergunta: 'O que é o Semog Garante?',
           resposta:
-            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% da arrecadação mensal total.',
+            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% do valor total da arrecadação.',
         },
         {
           pergunta: 'A Semog tem aplicativo?',
@@ -1326,7 +1330,7 @@ export const conteudo = {
         {
           pergunta: 'Como funciona a troca de administradora?',
           resposta:
-            'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'Aprovada a troca em assembleia, a equipe local assessora a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
         {
           pergunta: 'Vocês atendem a Grande João Pessoa?',
@@ -1341,7 +1345,7 @@ export const conteudo = {
         {
           pergunta: 'O que é o Semog Garante?',
           resposta:
-            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% da arrecadação mensal total.',
+            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% do valor total da arrecadação.',
         },
       ],
     },
@@ -1386,7 +1390,7 @@ export const conteudo = {
         {
           pergunta: 'Como funciona a troca de administradora?',
           resposta:
-            'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'Aprovada a troca em assembleia, a equipe local assessora a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
         {
           pergunta: 'Vocês atendem a região de Campina Grande?',
@@ -1396,7 +1400,7 @@ export const conteudo = {
         {
           pergunta: 'O que é o Semog Garante?',
           resposta:
-            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% da arrecadação mensal total.',
+            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% do valor total da arrecadação.',
         },
         {
           pergunta: 'A Semog tem aplicativo?',
@@ -1465,7 +1469,7 @@ export const conteudo = {
         {
           pergunta: 'Como funciona a troca de administradora?',
           resposta:
-            'Aprovada a troca em assembleia, a equipe local conduz a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
+            'Aprovada a troca em assembleia, a equipe local assessora a migração completa: documentos, comunicação aos condôminos e transição financeira, sem interromper boletos nem pagamentos.',
         },
         {
           pergunta: 'Vocês atendem a Grande Belém?',
@@ -1475,7 +1479,7 @@ export const conteudo = {
         {
           pergunta: 'O que é o Semog Garante?',
           resposta:
-            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% da arrecadação mensal total.',
+            'Com o Semog Garante, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. O custo é de 1% do valor total da arrecadação.',
         },
         {
           pergunta: 'A Semog tem aplicativo?',
@@ -1519,7 +1523,6 @@ export const conteudo = {
       segundaVia: {
         titulo: '2ª via de boleto',
         texto: 'Pelo CPF: um código chega no e-mail e os boletos em aberto aparecem.',
-        confirmar: 'A CONFIRMAR: rota da 2ª via no site novo',
       },
       login: {
         titulo: 'Área do cliente',
@@ -1550,15 +1553,237 @@ export const conteudo = {
   },
   naoEncontrada: {
     rotulo: 'Erro 404',
-    titulo: 'Esta página',
-    enfase: 'não existe mais.',
-    texto: 'O endereço pode ter mudado com o site novo. Daqui, você chega aonde precisa:',
+    titulo: 'Não achamos',
+    enfase: 'esta página.',
+    texto:
+      'O endereço pode ter mudado ou ter sido digitado com algum erro. Daqui, você chega aonde precisa:',
     links: {
-      inicio: 'Página inicial',
-      unidades: 'Unidades Semog',
-      proposta: 'Pedir proposta',
-      blog: 'Blog',
-      contato: 'Fale com a gente',
+      inicio: {
+        titulo: 'Página inicial',
+        texto: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
+      },
+      unidades: { titulo: 'Unidades Semog', texto: 'Recife, João Pessoa, Campina Grande e Belém.' },
+      proposta: {
+        titulo: 'Pedir proposta',
+        texto: 'Para o seu condomínio, personalizada e em até 24 horas úteis.',
+      },
+      blog: {
+        titulo: 'Blog',
+        texto: 'Conteúdo para síndicos, escrito por quem administra condomínios há 35 anos.',
+      },
+      // TEXTO-NOVO: o cliente chega à 2ª via pelo Contato (a 404 não tem "Sou cliente" no corpo, DP6)
+      contato: {
+        titulo: 'Fale com a gente',
+        texto: 'Telefones e endereços das quatro Unidades, e a 2ª via do boleto para clientes.',
+      },
+    },
+  },
+  souCliente: {
+    botao: 'Sou cliente',
+    titulo: 'Sou cliente',
+    // TEXTO-NOVO: frase de abertura do painel
+    lead: 'Escolha o que você precisa.',
+    segundaVia: {
+      titulo: '2ª via do boleto',
+      texto: 'Pelo CPF: um código chega no e-mail e os boletos em aberto aparecem.',
+    },
+    // TEXTO-NOVO: quando a 2ª via do site está desligada, ela sai pelo WhatsApp (como a triagem)
+    segundaViaPeloWhatsApp: {
+      titulo: '2ª via do boleto',
+      texto: 'Peça a 2ª via à equipe da Semog pelo WhatsApp.',
+    },
+    // TEXTO-NOVO
+    atendimento: {
+      titulo: 'Atendimento ao condômino',
+      texto: 'Fale com a equipe da Semog pelo WhatsApp.',
+    },
+    area: {
+      titulo: 'Área do cliente',
+      texto: 'Login de síndicos e condôminos.',
+    },
+  },
+  solucoesPagina: {
+    abertura: {
+      antes: 'Tudo o que um condomínio precisa,',
+      enfase: 'com uma equipe só.',
+      lead: 'Gestão financeira, contábil e de pessoas, suporte jurídico com escritório parceiro, prestação de contas digital e o Semog Garante, para o condomínio receber 100% da arrecadação prevista.',
+      botao: 'Pedir proposta',
+    },
+    tipos: [
+      {
+        id: 'residenciais',
+        rotulo: 'Condomínios residenciais',
+        titulo: 'O prédio funciona. O morador nem percebe.',
+        texto:
+          'Auxiliamos em toda a operação do condomínio para que síndico e moradores tenham uma única preocupação: viver bem. Financeiro em dia, funcionários cuidados, manutenção prevista e assembleias organizadas.',
+        itens: [
+          'Gestão financeira',
+          'Cobrança e boletos',
+          'Folha e RH do condomínio',
+          'Assembleias',
+          'Manutenção preventiva',
+          'Seguros obrigatórios',
+        ],
+      },
+      {
+        id: 'comerciais',
+        rotulo: 'Condomínios comerciais',
+        titulo: 'Eficiência que valoriza o metro quadrado.',
+        texto:
+          'Edifícios corporativos e centros empresariais exigem previsibilidade de custos, rateios bem feitos e fornecedores acompanhados de perto. A Semog entrega relatórios gerenciais que o conselho entende e aprova.',
+        itens: [
+          'Rateios e provisões',
+          'Gestão de contratos',
+          'Relatórios gerenciais',
+          'Compliance condominial',
+          'Gestão de facilities',
+          'Previsão orçamentária',
+        ],
+      },
+      {
+        id: 'associacoes',
+        rotulo: 'Associações',
+        titulo: 'Governança para comunidades inteiras.',
+        texto:
+          'Loteamentos, associações de moradores e clubes têm regras, receitas e desafios próprios. Organizamos contribuições e conselhos e, com escritório parceiro, estruturamos os estatutos.',
+        itens: [],
+      },
+    ],
+    porque: {
+      titulo: 'O que muda com a Semog.',
+      itens: [
+        {
+          valor: '24h',
+          titulo: 'Resposta em um dia útil',
+          texto: 'Demandas de síndicos e condôminos com prazo de resposta definido e cumprido.',
+        },
+        { valor: '', titulo: 'Acesso fácil aos sócios', texto: 'Regra da casa desde 1991.' },
+        { valor: '35', titulo: 'Anos de mercado', texto: 'Solidez comprovada desde 1991.' },
+        { valor: '', titulo: 'Equipes locais', texto: 'Presença física em quatro cidades.' },
+        { valor: '100%', titulo: 'Digital', texto: 'Do boleto à assembleia, tudo online.' },
+      ],
+    },
+    prestacao: {
+      titulo: 'Prestação de contas digital, conferida antes de sair.',
+      texto:
+        'Digital desde 2023. A nova prestação de contas, lançada em maio de 2026, transforma o balancete em algo que qualquer condômino entende.',
+      itens: [
+        {
+          titulo: 'Todos os documentos',
+          texto: 'Notas, comprovantes e extratos anexados a cada lançamento.',
+        },
+        {
+          titulo: 'Gráficos claros',
+          texto: 'Receita, despesa e evolução do fundo de reserva em visual simples.',
+        },
+        {
+          titulo: 'Assinatura digital',
+          texto: 'Síndico e conselho assinam digitalmente e registram o parecer.',
+        },
+        {
+          titulo: 'Sempre disponível',
+          texto: 'O condômino confere a versão atual pelo link permanente ou pelo QR.',
+        },
+      ],
+      link: 'Ver a Tecnologia',
+    },
+    garante: {
+      titulo: 'Semog Garante.',
+      texto:
+        'O condomínio recebe 100% da arrecadação prevista, todos os meses. Se um condômino não paga, a Semog Garante paga o boleto ao condomínio e a equipe própria da Semog cobra quem atrasou. Uma parceria Semog e G5 Partners.',
+      itens: [
+        {
+          titulo: 'O condomínio recebe tudo',
+          texto: 'Todo mês, 100% da arrecadação prevista entra no caixa, com ou sem atrasos.',
+        },
+        {
+          titulo: 'A cobrança fica com a equipe da Semog',
+          texto: 'Quem atrasou recebe lembretes numa régua e, depois, proposta de acordo.',
+        },
+        {
+          titulo: 'O orçamento vira certeza',
+          texto:
+            'Sem buracos no fluxo de caixa: obras, manutenção e melhorias saem do papel no prazo.',
+        },
+        {
+          titulo: 'O síndico fica fora da cobrança',
+          texto: 'Sem constrangimento com vizinhos e sem assembleia tensa por causa de devedores.',
+        },
+      ],
+      custo: '1% do valor total da arrecadação, sem taxa de adesão.',
+      link: 'Ver o Semog Garante',
+    },
+    aplicativo: {
+      titulo: 'Um aplicativo que o morador usa de verdade.',
+      texto:
+        'O app da Semog concentra o dia a dia do condomínio numa interface simples, no bolso de cada morador.',
+      itens: [
+        { titulo: 'Boletos e 2ª via', texto: 'Histórico completo e pagamento na hora.' },
+        { titulo: 'Reservas', texto: 'Salão de festas, churrasqueira e quadra.' },
+        { titulo: 'Assembleias e votações', texto: 'Participação e voto de onde estiver.' },
+        { titulo: 'Avisos', texto: 'Comunicados da administração no celular.' },
+        { titulo: 'Ocorrências', texto: 'Registro e acompanhamento.' },
+        { titulo: 'Documentos', texto: 'Convenção, atas e regulamentos sempre à mão.' },
+      ],
+    },
+    tecnologia: {
+      titulo: 'Software de dono, não de prateleira.',
+      texto:
+        'A Semog tem equipe de desenvolvimento própria. Em 2019, lançamos um chatbot de atendimento. Hoje, a operação roda na Semog One, a plataforma que construímos sobre o ERP, e ela evolui toda semana.',
+      itens: [
+        {
+          titulo: 'Nova prestação de contas digital',
+          texto:
+            'Lançada em maio de 2026: documentos anexados, gráficos e assinatura digital com parecer.',
+          estado: 'No ar',
+        },
+        {
+          titulo: 'Chatbot de atendimento',
+          texto: 'Lançado em 2019, em evolução contínua.',
+          estado: 'No ar',
+        },
+        {
+          titulo: 'Gestão de manutenção',
+          texto: 'Preventivas programadas, chamados e histórico por equipamento.',
+          estado: 'Em desenvolvimento',
+        },
+      ],
+      link: 'Ver a Tecnologia',
+    },
+    clube: {
+      titulo: 'Clube de benefícios.',
+      texto:
+        'O clube de benefícios da Semog está sendo atualizado. Estamos criando novas soluções e novos parceiros para condomínios e moradores.',
+    },
+    perguntas: {
+      titulo: 'Perguntas frequentes.',
+      itens: [
+        {
+          pergunta: 'Em que a Semog assessora o condomínio?',
+          resposta:
+            'Atendemos condomínios residenciais, condomínios comerciais e associações de moradores ou loteamentos. Auxiliamos na gestão financeira, na contabilidade, no departamento pessoal, nas assembleias, na manutenção e nos seguros. A administração do condomínio cabe ao síndico, que decide e responde por ele; a Semog assessora e executa com método.',
+        },
+        {
+          pergunta: 'Como funciona o Semog Garante?',
+          resposta:
+            'Em parceria com a G5 Partners, o condomínio recebe 100% da arrecadação prevista, todos os meses, mesmo com condôminos em atraso. A cobrança de quem atrasou é feita pela equipe própria da Semog, e o custo é de 1% do valor total da arrecadação.',
+        },
+        {
+          pergunta: 'Como funciona a prestação de contas digital?',
+          resposta:
+            'Cada lançamento traz documentos e comprovantes anexados, os números viram gráficos fáceis de ler, e síndico e conselho assinam digitalmente com parecer. Qualquer condômino consulta a qualquer hora.',
+        },
+        {
+          pergunta: 'Em quais cidades a Semog atua?',
+          resposta:
+            'Unidades em Recife (PE), João Pessoa (PB), Campina Grande (PB) e Belém (PA), com equipe local em cada cidade.',
+        },
+        {
+          pergunta: 'Como migrar meu condomínio para a Semog?',
+          resposta:
+            'A equipe da Semog assessora a transição de ponta a ponta: documentos, comunicação aos condôminos e migração dos dados, sem interromper a operação do condomínio.',
+        },
+      ],
     },
   },
 } as const
