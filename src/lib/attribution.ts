@@ -134,7 +134,7 @@ export function cliqueDoGoogle(attr: Attribution | null): CliqueDoGoogle | null 
 }
 
 /**
- * Linhas legíveis pra seção "Origem do lead"(e-mail + registro no banco).
+ * Linhas legíveis pra seção "Origem do lead" (e-mail + registro no banco).
  * Prioriza o first-touch (de onde o lead veio originalmente) e só mostra o
  * last-touch quando é de um canal diferente.
  */

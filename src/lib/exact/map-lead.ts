@@ -51,12 +51,14 @@ const REGIAO_DA_UF: Readonly<Record<string, string>> = {
  */
 export function regiaoDoLead(data: Record<string, string>): string | undefined {
   const cidade = nonEmpty(data.cidade) ?? ''
-  const antiga = REGIAO_POR_CIDADE[cidade]
+  // hasOwn: cidade/UF vêm do cliente e "constructor" não pode achar chave herdada do objeto.
+  const antiga = Object.hasOwn(REGIAO_POR_CIDADE, cidade) ? REGIAO_POR_CIDADE[cidade] : undefined
   if (antiga) return antiga
   const uf = nonEmpty(data.uf)
   if (!uf) return undefined
-  if ((CIDADES_DAS_UNIDADES[uf] ?? []).includes(cidade)) return cidade
-  return REGIAO_DA_UF[uf]
+  const cidadesDaUf = Object.hasOwn(CIDADES_DAS_UNIDADES, uf) ? CIDADES_DAS_UNIDADES[uf] : []
+  if (cidadesDaUf.includes(cidade)) return cidade
+  return Object.hasOwn(REGIAO_DA_UF, uf) ? REGIAO_DA_UF[uf] : undefined
 }
 
 const CANAL_FIELD = 'origem — Canal (origem)'

@@ -17,5 +17,6 @@ const POR_UF: Readonly<Record<string, readonly string[]>> = {
 }
 
 export function destinatariosPorUf(uf: string | undefined): readonly string[] {
-  return (uf && POR_UF[uf]) || TODAS_AS_PRACAS
+  // hasOwn: a UF vem do cliente e "constructor" não pode achar chave herdada do objeto.
+  return uf && Object.hasOwn(POR_UF, uf) ? POR_UF[uf] : TODAS_AS_PRACAS
 }

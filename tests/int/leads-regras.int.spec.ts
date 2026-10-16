@@ -12,6 +12,8 @@ describe('roteamento do e-mail interno pela UF (spec 4.3, R3)', () => {
     ['SP', TRES],
     ['', TRES],
     [undefined, TRES],
+    ['constructor', TRES],
+    ['__proto__', TRES],
   ])('%s → %o', (uf, destino) => expect(destinatariosPorUf(uf)).toEqual(destino))
 })
 

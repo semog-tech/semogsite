@@ -219,6 +219,10 @@ describe('formulário de duas etapas no Exact (spec 4.3)', () => {
     [{ uf: 'SP', cidade: 'Recife' }, undefined],
     [{ cidade: 'Belém e região' }, 'Belém'],
     [{ cidade: 'Outra cidade' }, undefined],
+    [{ cidade: 'constructor' }, undefined],
+    [{ cidade: 'toString', uf: 'PB' }, 'João Pessoa'],
+    [{ uf: '__proto__', cidade: 'Recife' }, undefined],
+    [{ uf: 'constructor' }, undefined],
   ])('região de %o → %s', (data, regiao) => {
     expect(regiaoDoLead(data)).toBe(regiao)
   })
