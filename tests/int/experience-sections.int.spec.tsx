@@ -14,8 +14,8 @@ import { QUANTIDADE_ANUNCIADA } from './helpers/quantidade'
  * As seções são um porte do protótipo aprovado
  * (`docs/superpowers/specs/2026-08-21-semog-experience-prototipo.html`): o que
  * estes testes protegem não é o visual, é o que não pode se perder no porte —
- * a programação sair do dado e na ordem, a página dizer que a edição anterior
- * teve outro formato, o Reel tocar no próprio site (nunca embed do Instagram)
+ * a programação sair do dado e na ordem, o vídeo ser o da edição 26 (trocou o
+ * de 2025 em 16/10/2026), o Reel tocar no próprio site (nunca embed do Instagram)
  * e o patrocinador aparecer com alt e link reais.
  *
  * Sem `@testing-library/jest-dom` no projeto (ver `vitest.setup.ts`): as
@@ -204,14 +204,11 @@ describe('ExperienceAgenda', () => {
 })
 
 describe('ExperienceVideo', () => {
-  it('diz que a edição anterior teve outro formato', () => {
+  it('mostra o vídeo do Semog Experience 26, sem a nota do formato de 2025', () => {
     render(<ExperienceVideo />)
-    expect(screen.getByText(/beach tennis/i)).toBeDefined()
-    // O plano pedia `getByText(/2025/)`; o ano aparece em três lugares
-    // (título, nota e legenda) e o singular lançaria "found multiple
-    // elements". O que importa é que o ano venha do dado, não de literal.
-    const ano = new RegExp(String(EXPERIENCE_EVENT.video.previousYear))
-    expect(screen.getAllByText(ano).length).toBeGreaterThan(0)
+    expect(EXPERIENCE_EVENT.video.previousEdition).toBe('26')
+    expect(screen.getAllByText(/Experience 26/).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/beach tennis/i)).toBeNull()
   })
 
   it('toca o Reel no próprio site, sem embed do Instagram', () => {

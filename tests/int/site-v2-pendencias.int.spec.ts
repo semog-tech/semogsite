@@ -19,7 +19,6 @@ describe('pendências de conteúdo (dado que depende do Leandro)', () => {
   it('as pendências de hoje são exatamente as conhecidas (pendência nova é decisão escrita)', () => {
     expect(pendenciasDe(conteudo).map((p) => p.split(':')[0])).toEqual([
       'tecnologia.numerosDaPrestacao',
-      'comunidade.experience.video26',
       'aSemog.pessoas.fotoDosSocios',
     ])
   })

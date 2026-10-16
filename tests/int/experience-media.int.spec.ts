@@ -30,4 +30,11 @@ describe('alts das mídias do Semog Experience', () => {
     expect(() => img(EXPERIENCE_EVENT.video.file)).not.toThrow()
     expect(() => img(EXPERIENCE_EVENT.video.poster)).not.toThrow()
   })
+
+  it('o vídeo do 26 e a capa saem do repositório (/site-v2/videos), não do bucket', () => {
+    expect(img(EXPERIENCE_EVENT.video.file).url).toBe('/site-v2/videos/semog-experience-26.mp4')
+    expect(img(EXPERIENCE_EVENT.video.poster).url).toBe(
+      '/site-v2/videos/semog-experience-26-poster.webp',
+    )
+  })
 })

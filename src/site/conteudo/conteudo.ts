@@ -24,10 +24,14 @@ const NUMEROS_DA_PRESTACAO: OuPendente<NumerosDaPrestacao> = pendente(
  * sócios. Pendente até o arquivo chegar (Tarefa 4.7, Step 4a).
  */
 const FOTO_DOS_SOCIOS: OuPendente<FotoDosSocios> = pendente('foto dos sócios (arquivo do Leandro)')
-/** O reel do Semog Experience 26 (DP12). Pendente só até a Tarefa 4.5a, que traz o arquivo. */
-const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = pendente(
-  'vídeo do Semog Experience 26 (arquivo do Leandro)',
-)
+/** O reel do Semog Experience 26 (DP12; post Dd4jHaQCso5, arquivo do Leandro de 16/10/2026). */
+const VIDEO_DO_EXPERIENCE_26: OuPendente<VideoDoExperience> = {
+  src: '/site-v2/videos/semog-experience-26.mp4',
+  poster: '/site-v2/videos/semog-experience-26-poster.webp',
+  legenda: 'Vídeo com momentos do Semog Experience 2026, na orla de João Pessoa.',
+  largura: 720,
+  altura: 1280,
+}
 
 export const conteudo = {
   marca: {
