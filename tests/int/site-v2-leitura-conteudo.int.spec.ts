@@ -21,6 +21,9 @@ function lerMdx(pasta: 'blog' | 'legal'): ArquivoMdx[] {
 }
 
 const ARQUIVOS = [...lerMdx('blog'), ...lerMdx('legal')]
+/** "Semog" e assume/assumiu/assumir na mesma frase (regra: a Semog assessora, não assume). */
+const SEMOG_ASSUME = /\bSemog\b[^.!?\n]*\bassum(?:e|iu|ir)\b/i
+
 const SLUGS = new Set(getAllPosts().map((post) => post.slug))
 
 describe('texto do blog e dos documentos (site v2, spec 3.3 e 6)', () => {
@@ -44,6 +47,19 @@ describe('texto do blog e dos documentos (site v2, spec 3.3 e 6)', () => {
     ])
   })
 
+  it('o texto não faz a Semog "assumir" (ela assessora); a frase genérica de administradora fica', () => {
+    // O padrão já para no fim da frase, então vale sobre o texto inteiro.
+    const achados = ARQUIVOS.filter(({ corpo }) => SEMOG_ASSUME.test(corpo)).map(
+      ({ arquivo }) => arquivo,
+    )
+    expect(achados).toEqual([])
+    expect(SEMOG_ASSUME.test('Na Semog, alguém assumiu o controle.')).toBe(true)
+    expect(SEMOG_ASSUME.test('A Semog assume a gestão.')).toBe(true)
+    expect(
+      SEMOG_ASSUME.test('Quando uma administradora assume o condomínio, o síndico acompanha.'),
+    ).toBe(false)
+  })
+
   it('o post de assembleia virtual mantém o slug e ganha o título do protótipo', () => {
     const post = findPostBySlug('assembleia-virtual-validade-juridica')
     expect(post?.title).toBe('Assembleia virtual vale? O que a lei permite')
@@ -55,6 +71,12 @@ describe('texto do blog e dos documentos (site v2, spec 3.3 e 6)', () => {
     expect(hashesMalformados('[x](/garante#ok-1)')).toEqual([])
     expect(hashesMalformados('<a href="#Seção">x</a>')).toEqual(['#Seção'])
     expect(hashesMalformados('[x](#cookies) e [y](/blog/a#um-titulo)')).toEqual([])
+    // Link com título opcional e destino entre <...>: o CommonMark aceita os dois.
+    expect(hashesMalformados('[x](/garante#%E0%A4%A "t")')).toEqual(['/garante#%E0%A4%A'])
+    expect(hashesMalformados("[x](/garante#%E0%A4%A 't')")).toEqual(['/garante#%E0%A4%A'])
+    expect(hashesMalformados('[x](</garante#%E0%A4%A> "t")')).toEqual(['/garante#%E0%A4%A'])
+    expect(hashesMalformados('[x](/garante#ok-1 "título")')).toEqual([])
+    expect(linksDoMdx('[x](/a "t") e [y](</b>)')).toEqual(['/a', '/b'])
   })
 
   it('nenhum link do texto tem hash malformado', () => {

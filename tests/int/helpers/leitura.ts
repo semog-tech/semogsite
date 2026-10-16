@@ -1,6 +1,13 @@
+/**
+ * Destino de link Markdown: `(destino)`, `(<destino>)` e qualquer um dos dois seguido do título
+ * opcional (`"t"`, `'t'` ou `(t)`), que o CommonMark aceita depois do destino.
+ */
+const LINK_MARKDOWN =
+  /\]\(\s*(?:<([^<>\n]+)>|([^)\s<]+))(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/g
+
 /** Destinos de link de um texto MDX: `[texto](destino)` e `href="destino"`. */
 export function linksDoMdx(texto: string): string[] {
-  const markdown = [...texto.matchAll(/\]\(([^)\s]+)\)/g)].map((achado) => achado[1] ?? '')
+  const markdown = [...texto.matchAll(LINK_MARKDOWN)].map((achado) => achado[1] ?? achado[2] ?? '')
   const jsx = [...texto.matchAll(/\bhref=["']([^"']+)["']/g)].map((achado) => achado[1] ?? '')
   return [...markdown, ...jsx]
 }
