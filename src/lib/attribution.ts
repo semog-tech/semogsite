@@ -116,8 +116,25 @@ export function classifyChannel(t: AttributionTouch): string {
   return 'Direto / desconhecido'
 }
 
+export type CliqueDoGoogle = { tipo: 'gclid' | 'gbraid' | 'wbraid'; valor: string }
+
 /**
- * Linhas legíveis pra seção "Origem do lead" (e-mail + registro no banco).
+ * Click id do Google do lead: o do primeiro toque, senão o do último (como o beacon do WhatsApp,
+ * `api/track/whatsapp`). Dentro de um toque, gclid > gbraid > wbraid. Os três são campos
+ * distintos em `AdIdentifiers` da Data Manager API, por isso o tipo viaja junto.
+ */
+export function cliqueDoGoogle(attr: Attribution | null): CliqueDoGoogle | null {
+  for (const toque of [attr?.first, attr?.last]) {
+    if (!toque) continue
+    if (toque.gclid) return { tipo: 'gclid', valor: toque.gclid }
+    if (toque.gbraid) return { tipo: 'gbraid', valor: toque.gbraid }
+    if (toque.wbraid) return { tipo: 'wbraid', valor: toque.wbraid }
+  }
+  return null
+}
+
+/**
+ * Linhas legíveis pra seção "Origem do lead"(e-mail + registro no banco).
  * Prioriza o first-touch (de onde o lead veio originalmente) e só mostra o
  * last-touch quando é de um canal diferente.
  */
@@ -140,8 +157,14 @@ export function buildAttributionFields(attr: Attribution | null): AttributionFie
 
   if (first.landing) fields.push({ label: 'Página de entrada', value: first.landing })
 
-  const clickId = first.gclid ?? first.gbraid ?? first.wbraid
-  if (clickId) fields.push({ label: 'gclid (Google Ads)', value: clickId })
+  // O rótulo continua "gclid" também para gbraid/wbraid: é a chave que a coluna `gclid`, o
+  // `source` Anúncio do Exact e os crons já leem (`GCLID_FIELD`). O tipo vai numa linha própria.
+  const clique = cliqueDoGoogle(attr)
+  if (clique) {
+    fields.push({ label: 'gclid (Google Ads)', value: clique.valor })
+    if (clique.tipo !== 'gclid')
+      fields.push({ label: 'Tipo do clique (Google Ads)', value: clique.tipo })
+  }
 
   // Último toque só se for canal diferente do primeiro (ex.: entrou orgânico,
   // voltou pelo Ads e converteu).

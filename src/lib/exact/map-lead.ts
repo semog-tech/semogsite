@@ -1,5 +1,11 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
-import { type FormType, GCLID_FIELD, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
+import {
+  type FormType,
+  GCLID_FIELD,
+  VARIANTE_CONTATO_RAPIDO,
+  VARIANTE_DUAS_ETAPAS,
+} from '@/lib/forms'
+import { CIDADES_DAS_UNIDADES } from '@/lib/propostaDuasEtapas/schema'
 
 /**
  * Tradução do lead do site pro vocabulário do Exact Spotter. Função **pura**:
@@ -30,6 +36,27 @@ const REGIAO_POR_CIDADE: Record<string, string> = {
   'João Pessoa e região': 'João Pessoa',
   'Campina Grande e região': 'Campina Grande',
   'Belém e região': 'Belém',
+}
+
+/** Região pela UF quando a cidade não é de Unidade ("Outra cidade" ou só a etapa 1). PB → João Pessoa (DP5). */
+const REGIAO_DA_UF: Readonly<Record<string, string>> = {
+  PE: 'Recife',
+  PB: 'João Pessoa',
+  PA: 'Belém',
+}
+
+/**
+ * "Mercado" do Exact. Formulário antigo: pelas opções "X e região". Duas etapas: a cidade, se for
+ * de uma Unidade da mesma UF (os nomes coincidem com os do Exact), senão a região da UF (D2).
+ */
+export function regiaoDoLead(data: Record<string, string>): string | undefined {
+  const cidade = nonEmpty(data.cidade) ?? ''
+  const antiga = REGIAO_POR_CIDADE[cidade]
+  if (antiga) return antiga
+  const uf = nonEmpty(data.uf)
+  if (!uf) return undefined
+  if ((CIDADES_DAS_UNIDADES[uf] ?? []).includes(cidade)) return cidade
+  return REGIAO_DA_UF[uf]
 }
 
 const CANAL_FIELD = 'origem — Canal (origem)'
@@ -77,7 +104,8 @@ export function isExactEligible(formType: FormType, data: Record<string, string>
   // CRM. Explícito de propósito — sem esta linha o comportamento correto
   // dependeria da AUSÊNCIA do campo `assunto`, o que é frágil.
   if (formType === 'experience') return false
-  if (formType === 'proposta') return true
+  // "Já sou cliente" (etapa 2 do formulário v2) não é lead: nem card, nem Ads, nem desfecho (spec 4.3).
+  if (formType === 'proposta') return data.cliente !== 'sim'
   return data.assunto === 'proposta-comercial'
 }
 
@@ -131,6 +159,12 @@ function linhaDoFormulario(formType: FormType, data: Record<string, string>): st
     const protocolo = nonEmpty(data.protocolo)
     return `Origem: contato rápido pelo botão de WhatsApp do site.${protocolo ? ` Protocolo ${protocolo}.` : ''}`
   }
+  if (data.variante === VARIANTE_DUAS_ETAPAS) {
+    // `etapa` não é gravada em `data`: vem da coluna, juntada por `dadosParaOExact`.
+    return data.etapa === '1'
+      ? 'Origem: formulário de proposta do site, parcial: só etapa 1 (a pessoa não concluiu a etapa 2).'
+      : 'Origem: formulário de proposta do site (duas etapas).'
+  }
   return 'Origem: formulário de proposta do site.'
 }
 
@@ -154,6 +188,8 @@ export function mapLead(
     nonEmpty(data.tipo) && `tipo: ${data.tipo}`,
     nonEmpty(data.unidades) && `unidades: ${data.unidades}`,
     nonEmpty(data.cidade) && `cidade: ${data.cidade}`,
+    nonEmpty(data.uf) && `UF: ${data.uf}`,
+    nonEmpty(data.cliente) && `já é cliente: ${data.cliente === 'sim' ? 'sim' : 'não'}`,
     nonEmpty(data.assunto) && `assunto: ${data.assunto}`,
     nonEmpty(data.email) && `e-mail: ${data.email}`,
   ].filter(Boolean) as string[]
@@ -174,7 +210,7 @@ export function mapLead(
       // Sem `subSource` de propósito: a API CRIA a sub-origem quando recebe um
       // valor que não existe, então mandar isso daqui mexeria no cadastro do
       // Exact sem ninguém pedir. A granularidade fica no `mktLink`.
-      industry: REGIAO_POR_CIDADE[nonEmpty(data.cidade) ?? ''],
+      industry: regiaoDoLead(data),
       ddiPhone: phone?.ddi,
       phone: phone?.nacional,
       mktLink: urlAbsoluta(nonEmpty(data[LANDING_FIELD])),

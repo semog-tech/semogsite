@@ -50,6 +50,7 @@ import {
   type SubmitFormResult,
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
+import { BELEM_TO, PB_TO, RECIFE_TO, TODAS_AS_PRACAS } from '@/lib/leads/destinatarios'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
@@ -123,12 +124,6 @@ type Envio = {
 }
 
 /**
- * Responsáveis da Paraíba (João Pessoa e Campina Grande) — a mesma caixa da
- * filial que já recebe a inscrição do Experience.
- */
-const PB_TO = 'comercial.pb@semog.com.br'
-
-/**
  * Roteamento da notificação interna de **Proposta** por região, a partir do
  * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
  * `src/lib/form-schemas.ts` — se o enum mudar as opções, o `tsc` cobra a
@@ -147,11 +142,11 @@ const PB_TO = 'comercial.pb@semog.com.br'
  * ligando para o mesmo síndico.
  */
 const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = {
-  'Recife e região': ['ivan@semog.com.br'],
+  'Recife e região': [RECIFE_TO],
   'João Pessoa e região': [PB_TO],
   'Campina Grande e região': [PB_TO],
-  'Belém e região': ['galvao@semog.com.br'],
-  'Outra cidade': ['ivan@semog.com.br', 'galvao@semog.com.br', PB_TO],
+  'Belém e região': [BELEM_TO],
+  'Outra cidade': TODAS_AS_PRACAS,
 }
 
 /**
@@ -160,7 +155,7 @@ const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = 
  * ambiente: `CONTACT_TO` ausente faz a notificação simplesmente não sair, sem
  * erro nenhum, e uma inscrição perdida em silêncio é o pior desfecho possível.
  */
-const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
+const EXPERIENCE_TO = PB_TO
 
 /**
  * Para quem vai a notificação interna deste formulário. `undefined` só acontece

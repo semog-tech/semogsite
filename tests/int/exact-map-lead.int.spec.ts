@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isExactEligible, mapLead } from '@/lib/exact/map-lead'
+import { isExactEligible, mapLead, regiaoDoLead } from '@/lib/exact/map-lead'
 
 /**
  * `mapLead` traduz o lead do site pro vocabulário do Exact. É função pura, e é
@@ -202,5 +202,74 @@ describe('mapLead — contato principal', () => {
       phone1: '83999501388',
       mainContact: true,
     })
+  })
+})
+
+describe('formulário de duas etapas no Exact (spec 4.3)', () => {
+  it.each([
+    [{ uf: 'PB', cidade: 'Campina Grande' }, 'Campina Grande'],
+    [{ uf: 'PB', cidade: 'João Pessoa' }, 'João Pessoa'],
+    [{ uf: 'PE', cidade: 'Recife' }, 'Recife'],
+    [{ uf: 'PA', cidade: 'Belém' }, 'Belém'],
+    [{ uf: 'PB', cidade: 'Mamanguape' }, 'João Pessoa'],
+    [{ uf: 'PE', cidade: 'Caruaru' }, 'Recife'],
+    [{ uf: 'PA' }, 'Belém'],
+    [{ uf: 'PB' }, 'João Pessoa'],
+    [{ uf: 'SP', cidade: 'Campinas' }, undefined],
+    [{ uf: 'SP', cidade: 'Recife' }, undefined],
+    [{ cidade: 'Belém e região' }, 'Belém'],
+    [{ cidade: 'Outra cidade' }, undefined],
+  ])('região de %o → %s', (data, regiao) => {
+    expect(regiaoDoLead(data)).toBe(regiao)
+  })
+
+  it('quem já é cliente não é elegível; quem não é (ou o formulário antigo) é', () => {
+    expect(isExactEligible('proposta', { cliente: 'sim' })).toBe(false)
+    expect(isExactEligible('proposta', { cliente: 'nao' })).toBe(true)
+    expect(isExactEligible('proposta', {})).toBe(true)
+  })
+
+  it('etapa 1 sozinha sai como parcial, com UF e nome do condomínio', () => {
+    const { lead, person } = mapLead(
+      'proposta',
+      {
+        nomeCondominio: 'Aurora',
+        uf: 'PB',
+        telefone: '+5583999501388',
+        variante: 'duas-etapas',
+        etapa: '1',
+      },
+      'sdr@semog.com.br',
+    )
+    expect(lead.name).toBe('Aurora')
+    expect(lead.industry).toBe('João Pessoa')
+    expect(lead.description).toContain('parcial: só etapa 1')
+    expect(lead.description).toContain('UF: PB')
+    expect(person.name).toBe('Contato do site')
+  })
+
+  it('etapa 2 leva papel, unidades, cidade e "já é cliente: não" na descrição', () => {
+    const { lead, person } = mapLead(
+      'proposta',
+      {
+        nomeCondominio: 'Aurora',
+        uf: 'PB',
+        telefone: '+5583999501388',
+        nome: 'Maria',
+        cargo: 'Síndico(a)',
+        cidade: 'Campina Grande',
+        unidades: '120',
+        cliente: 'nao',
+        variante: 'duas-etapas',
+        etapa: '2',
+      },
+      'sdr@semog.com.br',
+    )
+    expect(lead.industry).toBe('Campina Grande')
+    expect(lead.description).toContain('papel: Síndico(a)')
+    expect(lead.description).toContain('unidades: 120')
+    expect(lead.description).toContain('já é cliente: não')
+    expect(lead.description).toContain('Origem: formulário de proposta do site (duas etapas).')
+    expect(person).toMatchObject({ name: 'Maria', jobTitle: 'Síndico(a)' })
   })
 })
