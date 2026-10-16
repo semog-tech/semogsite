@@ -3,7 +3,7 @@
    sitemap.xml do "antes"; as páginas de leitura são comparadas com a prévia (/previa-v2/...),
    que é a página que vai para a URL real na virada 1.
    Compara status, title, description, canonical, og:title, og:description, og:url, og:type,
-   og:image e o JSON-LD (todos os blocos, chaves em ordem), e o conjunto de URLs dos dois
+   og:image, o que a og:image responde (status e content-type) e o JSON-LD (todos os blocos, chaves em ordem), e o conjunto de URLs dos dois
    sitemaps. Diferença fora de DIFERENCAS_EXPLICADAS, ou explicada que não aconteceu, sai com
    código 1.
    No site no ar só há GET de leitura, uma URL por vez, com pausa entre as páginas e User-Agent
@@ -27,11 +27,17 @@ const CAMPOS = [
   'og:url',
   'og:type',
   'og:image',
+  'og:image resolve',
   'jsonld',
 ]
 
 /** Diferenças esperadas desta fase, por URL e campo, com o motivo (texto reescrito de propósito). */
 const DIFERENCAS_EXPLICADAS = {
+  '/blog': {
+    motivo:
+      'a URL de og:image é a mesma, mas no ar ela dá 404 (não existia rota de OG para o índice); a rota nova a serve com 200 image/png',
+    campos: ['og:image resolve'],
+  },
   '/blog/assembleia-virtual-validade-juridica': {
     motivo: 'título e meta.title reescritos sem o termo vedado (spec 6)',
     campos: ['title', 'og:title', 'jsonld'],
@@ -155,12 +161,31 @@ async function compararSitemaps(args, problemas) {
   return deAntes
 }
 
+/**
+ * O que a URL de og:image responde (status e content-type), pedida na mesma origem da página:
+ * a metadata declara o host de produção, e o build local precisa ser medido no próprio host.
+ */
+async function resolverImagem(origem, imagem) {
+  if (!imagem) return null
+  await pausar(PAUSA_MS)
+  const resposta = await fetch(new URL(new URL(imagem).pathname, origem), {
+    method: 'GET',
+    redirect: 'manual',
+    headers: { 'user-agent': USER_AGENT },
+    signal: AbortSignal.timeout(30_000),
+  })
+  await resposta.arrayBuffer()
+  return `${resposta.status} ${resposta.headers.get('content-type') ?? 'sem content-type'}`
+}
+
 async function compararUrl(args, caminho) {
   const destino = destinoNoDepois(caminho)
   const antes = await baixar(`${args.antes}${caminho}`)
   const depois = await baixar(`${args.depois}${destino}`)
   const cabecaAntes = { status: String(antes.status), ...lerCabeca(antes.html) }
   const cabecaDepois = { status: String(depois.status), ...lerCabeca(depois.html) }
+  cabecaAntes['og:image resolve'] = await resolverImagem(args.antes, cabecaAntes['og:image'])
+  cabecaDepois['og:image resolve'] = await resolverImagem(args.depois, cabecaDepois['og:image'])
   return CAMPOS.filter((campo) => cabecaAntes[campo] !== cabecaDepois[campo]).map((campo) => ({
     caminho,
     destino,
