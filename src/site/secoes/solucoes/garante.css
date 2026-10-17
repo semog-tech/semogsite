@@ -1,0 +1,149 @@
+/* Soluções · Semog Garante: o único marinho da página, entre o gelo da prestação e o branco do
+   aplicativo. Nome e texto (61,8) e os dois números (38,2) no topo; no pé, a fila dos quatro
+   ganhos com o traço céu e os nós quadrados dos papéis do Garante. */
+.sl-garante {
+  padding-block: clamp(var(--e6), 9vw, var(--e7));
+}
+.sl-garante .sl-ga-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5) var(--e6);
+  align-items: end;
+}
+.sl-garante .sl-ga-topo > * {
+  min-width: 0;
+}
+.sl-garante .sl-ga-titulo {
+  font-size: clamp(2.75rem, 0.9rem + 4.6vw, 6rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+.sl-garante .sl-ga-lead {
+  max-width: 46ch;
+  margin-top: var(--e4);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+.sl-garante .link-seta {
+  margin-top: var(--e3);
+}
+.sl-garante .sl-ga-fatos {
+  display: grid;
+  gap: var(--e4);
+}
+/* O valor vem antes do rótulo na leitura visual; o dl mantém dt → dd. */
+.sl-garante .sl-ga-fato {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--e1);
+}
+.sl-garante .sl-ga-fato dd {
+  font-size: clamp(3.25rem, 1.6rem + 3.6vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+.sl-garante .sl-ga-fato dt {
+  max-width: 28ch;
+}
+.sl-garante .sl-ga-mascara {
+  display: block;
+  overflow: clip;
+  padding-block-end: 0.08em;
+  margin-block-end: -0.08em;
+}
+.sl-garante .sl-ga-in {
+  display: inline-block;
+}
+
+/* ---- A fila dos quatro ganhos ----------------------------------------------------- */
+.sl-garante .sl-ga-fila {
+  --sl-progresso: 1;
+  position: relative;
+  margin-top: var(--e6);
+}
+.sl-garante .sl-ga-linha {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--ceu);
+  clip-path: inset(0% calc((1 - var(--sl-progresso)) * 100%) 0% 0%);
+}
+.sl-garante .sl-ga-lista {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--e5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sl-garante .sl-ga-item {
+  display: grid;
+  align-content: start;
+  gap: var(--e2);
+}
+.sl-garante .sl-ga-no {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-bottom: var(--e2);
+  background: var(--ceu);
+}
+.sl-garante .sl-ga-item h3 {
+  font-size: clamp(1.375rem, 1.1rem + 0.6vw, 1.75rem);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--tema-titulo);
+}
+.sl-garante .sl-ga-item p {
+  max-width: 30ch;
+  color: var(--tema-texto);
+}
+
+@media (max-width: 1080px) {
+  .sl-garante .sl-ga-topo {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .sl-garante .sl-ga-fatos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sl-garante .sl-ga-lista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--e5);
+  }
+}
+/* No celular, a fila desce: o traço à esquerda, de cima para baixo. */
+@media (max-width: 760px) {
+  .sl-garante .sl-ga-fatos {
+    gap: var(--e3);
+  }
+  .sl-garante .sl-ga-linha {
+    top: 0;
+    left: 5px;
+    width: 2px;
+    height: 100%;
+    clip-path: inset(0% 0% calc((1 - var(--sl-progresso)) * 100%) 0%);
+  }
+  .sl-garante .sl-ga-lista {
+    grid-template-columns: 1fr;
+    row-gap: var(--e4);
+  }
+  .sl-garante .sl-ga-item {
+    grid-template-columns: 12px minmax(0, 1fr);
+    column-gap: var(--e3);
+    row-gap: var(--e1);
+  }
+  .sl-garante .sl-ga-no {
+    grid-row: 1 / 3;
+    margin: 0.45em 0 0;
+  }
+}

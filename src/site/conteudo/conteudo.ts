@@ -1692,7 +1692,6 @@ export const conteudo = {
           texto: 'O condômino confere a versão atual pelo link permanente ou pelo QR.',
         },
       ],
-      link: 'Ver a Tecnologia',
     },
     garante: {
       titulo: 'Semog Garante.',
@@ -1717,7 +1716,7 @@ export const conteudo = {
           texto: 'Sem constrangimento com vizinhos e sem assembleia tensa por causa de devedores.',
         },
       ],
-      custo: '1% do valor total da arrecadação, sem taxa de adesão.',
+      custo: { valor: '1%', rotulo: 'do valor total da arrecadação, sem taxa de adesão' },
       link: 'Ver o Semog Garante',
     },
     aplicativo: {

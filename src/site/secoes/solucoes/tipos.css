@@ -1,37 +1,50 @@
-/* Soluções · tipos: cada tipo na métrica áurea (rótulo 38,2, título e texto 61,8), com os itens
-   numa fileira de marcadores quadrados de ponta reta. Separação por espaço, não por linha. */
+/* Soluções · tipos: os três tipos atendidos lado a lado, sobre o gelo. Cada coluna abre com um
+   traço marinho curto, de ponta reta, que a cena desenha; os itens numa coluna de marcadores
+   quadrados. Separação por espaço, não por linha. */
+.sl-tipos {
+  padding-block: clamp(var(--e6), 8vw, var(--e7));
+}
+.sl-tipos .sl-tipos-grade {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e5);
+}
 .sl-tipos .sl-tipo {
   display: grid;
-  grid-template-columns: var(--menor) var(--maior);
-  gap: var(--e2) var(--e5);
+  align-content: start;
+  gap: var(--e3);
 }
-.sl-tipos .sl-tipo + .sl-tipo {
-  margin-top: var(--e6);
+.sl-tipos .sl-tipo::before {
+  content: "";
+  display: block;
+  width: var(--e5);
+  height: 3px;
+  background: var(--marinho);
+  transform-origin: left center;
+  transform: scaleX(var(--sl-traco, 1));
 }
 .sl-tipo .sl-tipo-titulo {
   font-family: var(--fonte-titulo);
-  font-size: var(--t-h3);
+  font-size: clamp(1.75rem, 1.2rem + 1.1vw, 2.375rem);
   font-weight: var(--peso-titulo);
   line-height: 1.05;
   letter-spacing: var(--tracking-titulo);
   color: var(--tema-titulo);
 }
 .sl-tipo .sl-tipo-texto {
-  margin-top: var(--e3);
-  max-width: var(--largura-texto);
+  max-width: 40ch;
 }
 .sl-itens {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--e1) var(--e4);
-  margin: var(--e3) 0 0;
+  display: grid;
+  gap: var(--e1);
+  margin: var(--e1) 0 0;
   padding: 0;
   list-style: none;
 }
 .sl-itens li {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--e1);
+  gap: var(--e2);
   font-weight: 500;
   color: var(--tema-titulo);
 }
@@ -42,8 +55,17 @@
   height: 8px;
   background: var(--marinho);
 }
-@media (max-width: 760px) {
-  .sl-tipos .sl-tipo {
+@media (max-width: 1080px) {
+  .sl-tipos .sl-tipos-grade {
+    grid-template-columns: 1fr;
+    gap: var(--e6);
+  }
+  .sl-itens {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 420px) {
+  .sl-itens {
     grid-template-columns: 1fr;
   }
 }

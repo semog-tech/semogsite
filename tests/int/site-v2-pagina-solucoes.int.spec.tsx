@@ -26,7 +26,6 @@ const SECOES: SecaoEsperada[] = [
   { id: 'garante', arquivo: null },
   { id: 'aplicativo', arquivo: null },
   { id: 'software-de-dono', arquivo: null },
-  { id: 'beneficios', arquivo: null },
   { id: 'perguntas-solucoes', arquivo: null },
   {
     id: 'proposta',

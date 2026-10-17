@@ -1,4 +1,7 @@
 /* Soluções · perguntas: blocos gelo de ponta reta; o sinal troca de + para − ao abrir. */
+.sl-perguntas {
+  padding-block: clamp(var(--e6), 9vw, var(--e7));
+}
 .sl-perguntas .sl-perguntas-titulo {
   margin-bottom: var(--e4);
   font-family: var(--fonte-titulo);

@@ -5,13 +5,19 @@ import { caminhoNoSite } from '@/site/rotas'
 import { JsonLd } from '@/site/secoes/comum/JsonLd'
 import { SecaoProposta } from '@/site/secoes/proposta/SecaoProposta'
 import { AberturaDeSolucoes } from '@/site/secoes/solucoes/AberturaDeSolucoes'
+import { AplicativoEBeneficios } from '@/site/secoes/solucoes/AplicativoEBeneficios'
 import { BlocoDeSolucao } from '@/site/secoes/solucoes/BlocoDeSolucao'
+import { GaranteNasSolucoes } from '@/site/secoes/solucoes/GaranteNasSolucoes'
 import { PerguntasDeSolucoes } from '@/site/secoes/solucoes/PerguntasDeSolucoes'
 import { PorqueSemog } from '@/site/secoes/solucoes/PorqueSemog'
 import { TiposDeCondominio } from '@/site/secoes/solucoes/TiposDeCondominio'
 import { jsonLdInstitucional } from '@/site/seo/institucional'
 
-/** Corpo de /solucoes (a página no ar, reescrita e no visual v2). Fora do menu, como no protótipo. */
+/**
+ * Corpo de /solucoes (a página no ar, reescrita e no visual v2). Fora do menu, como no protótipo.
+ * Ritmo: branco, gelo, branco, gelo, o marinho do Garante, branco, gelo, branco e a proposta. Um
+ * só link para a Tecnologia, no software, que é dela.
+ */
 export function PaginaSolucoes() {
   const s = conteudo.solucoesPagina
   return (
@@ -23,50 +29,20 @@ export function PaginaSolucoes() {
       <BlocoDeSolucao
         bloco={{
           id: 'prestacao',
-          tema: 'gelo',
           titulo: s.prestacao.titulo,
           texto: s.prestacao.texto,
           itens: s.prestacao.itens,
-          link: { href: caminhoNoSite('/tecnologia'), rotulo: s.prestacao.link },
         }}
       />
-      <BlocoDeSolucao
-        bloco={{
-          id: 'garante',
-          tema: 'claro',
-          titulo: s.garante.titulo,
-          texto: s.garante.texto,
-          itens: s.garante.itens,
-          destaque: s.garante.custo,
-          link: { href: caminhoNoSite('/garante'), rotulo: s.garante.link },
-        }}
-      />
-      <BlocoDeSolucao
-        bloco={{
-          id: 'aplicativo',
-          tema: 'gelo',
-          titulo: s.aplicativo.titulo,
-          texto: s.aplicativo.texto,
-          itens: s.aplicativo.itens,
-        }}
-      />
+      <GaranteNasSolucoes />
+      <AplicativoEBeneficios />
       <BlocoDeSolucao
         bloco={{
           id: 'software-de-dono',
-          tema: 'claro',
           titulo: s.tecnologia.titulo,
           texto: s.tecnologia.texto,
           itens: s.tecnologia.itens,
           link: { href: caminhoNoSite('/tecnologia'), rotulo: s.tecnologia.link },
-        }}
-      />
-      <BlocoDeSolucao
-        bloco={{
-          id: 'beneficios',
-          tema: 'gelo',
-          titulo: s.clube.titulo,
-          texto: s.clube.texto,
-          itens: [],
         }}
       />
       <PerguntasDeSolucoes />

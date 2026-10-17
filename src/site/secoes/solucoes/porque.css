@@ -1,4 +1,7 @@
 /* Soluções · porque: cinco fatos em blocos gelo, o número em Saira leve quando há. */
+.sl-porque {
+  padding-block: clamp(var(--e6), 9vw, var(--e7));
+}
 .sl-porque .sl-porque-titulo {
   font-family: var(--fonte-titulo);
   font-size: var(--t-h2);

@@ -1,0 +1,103 @@
+/* Soluções · aplicativo: o título (38,2) e o texto (61,8) numa linha; as seis funções em três
+   colunas abertas, cada uma com o marcador quadrado marinho, sem caixa; no pé, o clube de
+   benefícios numa nota gelo de uma linha, que não pede uma seção inteira. */
+.sl-aplicativo {
+  padding-block: clamp(var(--e6), 9vw, var(--e7));
+}
+.sl-aplicativo .sl-ap-topo {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e3) var(--e6);
+  align-items: end;
+}
+.sl-aplicativo .sl-ap-titulo {
+  font-size: var(--t-h3);
+  font-weight: var(--peso-titulo);
+  line-height: 1.05;
+  color: var(--tema-titulo);
+}
+.sl-aplicativo .sl-ap-texto {
+  max-width: 46ch;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+}
+.sl-aplicativo .sl-ap-funcoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e5) var(--e5);
+  margin-top: var(--e6);
+  padding: 0;
+  list-style: none;
+}
+.sl-aplicativo .sl-ap-funcao {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  column-gap: var(--e2);
+  row-gap: var(--e1);
+  align-content: start;
+}
+.sl-aplicativo .sl-ap-funcao::before {
+  content: "";
+  grid-row: 1;
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  background: var(--marinho);
+}
+.sl-aplicativo .sl-ap-funcao h3 {
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--marinho);
+}
+.sl-aplicativo .sl-ap-funcao p {
+  grid-column: 2;
+  max-width: 34ch;
+  color: var(--texto-suave);
+}
+
+/* ---- Clube de benefícios: nota compacta ------------------------------------------ */
+.sl-aplicativo .sl-clube {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e1) var(--e6);
+  align-items: baseline;
+  margin-top: var(--e6);
+  padding: var(--e3) var(--e4);
+  background: var(--gelo);
+  scroll-margin-top: calc(var(--cab) + var(--e4));
+}
+.sl-aplicativo .sl-clube-titulo {
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--marinho);
+}
+.sl-aplicativo .sl-clube p {
+  max-width: 62ch;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 1080px) {
+  .sl-aplicativo .sl-ap-funcoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .sl-aplicativo .sl-ap-topo,
+  .sl-aplicativo .sl-clube {
+    grid-template-columns: 1fr;
+  }
+  .sl-aplicativo .sl-ap-funcoes {
+    grid-template-columns: 1fr;
+    gap: var(--e3);
+    margin-top: var(--e5);
+  }
+  .sl-aplicativo .sl-clube {
+    margin-top: var(--e5);
+    padding: var(--e3);
+  }
+}

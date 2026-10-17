@@ -1,10 +1,23 @@
-/* Soluções · abertura (sem protótipo, DP11 do plano da fase 4): título leve com a ênfase por
-   peso, o lead e o botão. Mesma escala das aberturas do pacote app. */
+/* Soluções · abertura (sem protótipo, DP11 do plano da fase 4): a frase e o pedido de proposta
+   (61,8) e as quatro Unidades em faixas de ponta reta (38,2), na dobra. Cada faixa leva à página
+   da cidade; o nome da cidade fica numa etiqueta marinho, legível sobre qualquer foto. */
 .sl-abertura {
-  padding-top: calc(var(--cab) + clamp(var(--e5), 9svh, var(--e7)));
+  display: grid;
+  align-content: center;
+  min-height: 100svh;
+  padding-block: calc(var(--cab) + var(--e5)) var(--e6);
+}
+.sl-abertura .sl-ab-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e6);
+  align-items: center;
+}
+.sl-abertura .sl-ab-quadro > * {
+  min-width: 0;
 }
 .sl-abertura .sl-titulo {
-  max-width: 16ch;
+  max-width: 14ch;
   font-family: var(--fonte-titulo);
   font-size: var(--t-display);
   font-weight: var(--peso-titulo);
@@ -12,10 +25,106 @@
   letter-spacing: var(--tracking-display);
   color: var(--tema-titulo);
 }
-.sl-abertura .lead {
+.sl-abertura .sl-lead {
   margin-top: var(--e4);
-  max-width: 46ch;
+  max-width: 44ch;
 }
 .sl-abertura .sl-acoes {
   margin-top: var(--e5);
+}
+
+/* ---- As quatro Unidades ----------------------------------------------------------- */
+.sl-abertura .sl-cidades {
+  display: grid;
+  gap: var(--e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sl-abertura .sl-cidade a {
+  position: relative;
+  display: block;
+  color: var(--branco);
+  text-decoration: none;
+}
+.sl-abertura .sl-cidade .moldura {
+  position: relative;
+  display: block;
+  overflow: clip;
+  aspect-ratio: 7 / 2;
+  background: var(--marinho);
+}
+/* A foto passa 7% da faixa em cima e embaixo: o parallax da cena não descobre o fundo. */
+.sl-abertura .sl-cidade img {
+  position: absolute;
+  inset: -7% 0;
+  display: block;
+  width: 100%;
+  height: 114%;
+  object-fit: cover;
+  object-position: 50% 55%;
+  transition: scale 900ms var(--ease-expo);
+}
+.sl-abertura .sl-cidade a:hover img {
+  scale: 1.04;
+}
+.sl-abertura .sl-cidade-nome {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: var(--e1) var(--e2);
+  background: var(--marinho);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.sl-abertura .sl-cidade-nome .seta {
+  width: 0;
+  opacity: 0;
+  transition:
+    width 320ms var(--ease-expo),
+    opacity 320ms var(--ease-expo);
+}
+.sl-abertura .sl-cidade a:is(:hover, :focus-visible) .seta {
+  width: 21px;
+  opacity: 1;
+}
+.sl-abertura .sl-cidade a:focus-visible {
+  outline: 2px solid var(--marinho);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1080px) {
+  .sl-abertura .sl-ab-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+  .sl-abertura .sl-cidades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sl-abertura .sl-cidade .moldura {
+    aspect-ratio: 16 / 9;
+  }
+}
+@media (max-width: 760px) {
+  .sl-abertura {
+    min-height: 0;
+    padding-block: calc(var(--cab) + var(--e5)) var(--e6);
+  }
+  .sl-abertura .sl-titulo {
+    font-size: min(12.5vw, 3.25rem);
+  }
+  .sl-abertura .sl-lead {
+    margin-top: var(--e3);
+  }
+  .sl-abertura .sl-acoes {
+    margin-top: var(--e4);
+  }
+  .sl-abertura .sl-cidade-nome {
+    padding: 6px var(--e1);
+    font-size: 0.8125rem;
+  }
 }
