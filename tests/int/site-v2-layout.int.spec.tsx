@@ -57,6 +57,16 @@ describe('cabeçalho do site v2', () => {
     expect(document.querySelectorAll('[aria-current="page"]')).toHaveLength(2)
   })
 
+  it('"Fale com a gente" tem o rótulo curto "Contato" só na faixa do computador', () => {
+    const { container } = render(<Cabecalho destinoProposta="/proposta" />)
+    const naFaixa = container.querySelector('.nav a[data-pagina-link="contato"]')
+    expect(naFaixa?.querySelector('.nav-longo')?.textContent).toBe('Fale com a gente')
+    expect(naFaixa?.querySelector('.nav-curto')?.textContent).toBe('Contato')
+    const noMenu = container.querySelector('.painel-menu a[data-pagina-link="contato"]')
+    expect(noMenu?.textContent).toBe('Fale com a gente')
+    expect(noMenu?.querySelector('.nav-curto')).toBeNull()
+  })
+
   it('"Seja Semog" vai para a proposta da própria página quando ela existe', () => {
     const { unmount } = render(<Cabecalho destinoProposta="#proposta" />)
     expect(screen.getByRole('link', { name: 'Seja Semog' }).getAttribute('href')).toBe('#proposta')

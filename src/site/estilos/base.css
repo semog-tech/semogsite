@@ -578,28 +578,32 @@ html.js:not(.motion) .entrada {
 .painel-menu {
   display: none;
 }
-/* Oito itens com "A Semog" e "Incorporadoras", e o "Sou cliente" ao lado do Login (fase 4): o vão
-   da nav é --e3 na largura cheia; até 1320px, os vãos encolhem um passo; até 1200px, mais um, e
-   o texto do cabeçalho desce a 0.875rem. O celular (até 1080px) não muda. Medido em Chromium e
-   Firefox de 1081 a 1920px: tudo numa linha, dentro da faixa. */
+/* Oito itens com "A Semog" e "Incorporadoras", e o "Sou cliente" ao lado do Login (fase 4). De
+   1081 a 1320px, "Fale com a gente" vira "Contato" (o rótulo inteiro volta no menu e na largura
+   cheia); só a faixa encolhe um passo. Até 1220px, os vãos descem a --e2 e o texto a 0.875rem.
+   O celular (até 1080px) não muda. Medido em Chromium e Firefox de 1081 a 1440px: tudo numa
+   linha, com folga de pelo menos 53px entre a marca e a navegação. */
+.nav-curto {
+  display: none;
+}
 @media (min-width: 1081px) and (max-width: 1320px) {
+  .nav-longo {
+    display: none;
+  }
+  .nav-curto {
+    display: inline;
+  }
   .cabecalho-faixa {
     gap: var(--e3);
   }
-  .nav,
-  .cab-acoes {
-    gap: var(--e2);
-  }
 }
-@media (min-width: 1081px) and (max-width: 1200px) {
+@media (min-width: 1081px) and (max-width: 1220px) {
   .cabecalho-faixa {
     gap: var(--e2);
   }
-  .nav {
-    gap: var(--e1);
-  }
   .nav,
   .cab-acoes {
+    gap: var(--e2);
     font-size: 0.875rem;
   }
 }

@@ -13,7 +13,8 @@ export type IdNav =
   | 'contato'
 export type DestinoProposta = '#proposta' | '/proposta'
 
-type ItemNav = { id: IdNav; href: string; rotulo: string }
+/** `curto`: o rótulo do cabeçalho entre 1081 e 1320px, onde nove itens disputam a faixa. */
+type ItemNav = { id: IdNav; href: string; rotulo: string; curto?: string }
 
 const ANTES_DE_UNIDADES: readonly ItemNav[] = [
   { id: 'semog', href: '/semog', rotulo: 'A Semog' },
@@ -24,12 +25,25 @@ const ANTES_DE_UNIDADES: readonly ItemNav[] = [
 ]
 const DEPOIS_DE_UNIDADES: readonly ItemNav[] = [
   { id: 'blog', href: '/blog', rotulo: 'Blog' },
-  { id: 'contato', href: '/contato', rotulo: 'Fale com a gente' },
+  // TEXTO-NOVO: "Contato" é o rótulo curto do cabeçalho de 1081 a 1320px
+  { id: 'contato', href: '/contato', rotulo: 'Fale com a gente', curto: 'Contato' },
 ]
 
 type PropsCabecalho = { atual?: IdNav; destinoProposta: DestinoProposta }
 
-function Links({ itens, atual }: { itens: readonly ItemNav[]; atual?: IdNav }) {
+type PropsLinks = { itens: readonly ItemNav[]; atual?: IdNav; comCurto?: boolean }
+
+function Rotulo({ item, comCurto }: { item: ItemNav; comCurto: boolean }) {
+  if (!comCurto || !item.curto) return item.rotulo
+  return (
+    <>
+      <span className="nav-longo">{item.rotulo}</span>
+      <span className="nav-curto">{item.curto}</span>
+    </>
+  )
+}
+
+function Links({ itens, atual, comCurto = false }: PropsLinks) {
   return itens.map((item) => (
     <a
       key={item.id}
@@ -37,7 +51,7 @@ function Links({ itens, atual }: { itens: readonly ItemNav[]; atual?: IdNav }) {
       data-pagina-link={item.id}
       aria-current={item.id === atual ? 'page' : undefined}
     >
-      {item.rotulo}
+      <Rotulo item={item} comCurto={comCurto} />
     </a>
   ))
 }
@@ -62,7 +76,7 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
           <a href={caminhoNoSite('/#unidades')} data-secao-link="unidades">
             Unidades
           </a>
-          <Links itens={DEPOIS_DE_UNIDADES} atual={atual} />
+          <Links itens={DEPOIS_DE_UNIDADES} atual={atual} comCurto />
         </nav>
         <div className="cab-acoes">
           <span className="cab-separador" aria-hidden="true" />
