@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { pages } from '@/../content/pages'
@@ -6,7 +6,11 @@ import { CITY_LANDINGS } from '@/data/cityLandings'
 import { getAllPosts } from '@/lib/blog'
 import { conteudo } from '@/site/conteudo/conteudo'
 import { entradaDe, INVENTARIO, servidaComoPagina, VIRADA_1_FEITA } from '@/site/inventario'
-import { REDIRECIONAMENTOS } from '@/site/redirecionamentos'
+import {
+  REDIRECIONAMENTOS,
+  REDIRECIONAMENTOS_DA_VIRADA_1,
+  redirecionamentosDoSite,
+} from '@/site/redirecionamentos'
 import { textosDe } from './helpers/identidade'
 
 /**
@@ -171,5 +175,35 @@ describe('rotas técnicas e o que está no ar (fase 3)', () => {
     )
     expect(fases.length).toBeGreaterThan(0)
     expect(fases.every((fase) => fase === 4)).toBe(true)
+  })
+})
+
+describe('redirects da virada 1 (fase 4, DP7)', () => {
+  it('são exatamente os do inventário: 308 direto para /tecnologia', () => {
+    const doInventario = Object.entries(INVENTARIO).flatMap(([origem, entrada]) =>
+      entrada.tipo === 'redireciona'
+        ? [{ source: origem, destination: entrada.destino, permanent: true }]
+        : [],
+    )
+    expect(REDIRECIONAMENTOS_DA_VIRADA_1).toEqual(doInventario)
+    expect(REDIRECIONAMENTOS_DA_VIRADA_1.map((r) => r.destination)).toEqual([
+      '/tecnologia',
+      '/tecnologia',
+    ])
+  })
+
+  it('antes da virada ficam os 54; com a virada, 56, sem cadeia (a lista de cadeias fica vazia)', () => {
+    expect(redirecionamentosDoSite(false)).toEqual(REDIRECIONAMENTOS)
+    const depois = redirecionamentosDoSite(true)
+    expect(depois).toHaveLength(56)
+    const origens = new Set(depois.map((r) => r.source))
+    expect(depois.filter((r) => origens.has(r.destination)).map((r) => r.source)).toEqual([])
+    expect(depois.every((r) => r.permanent === true)).toBe(true)
+  })
+
+  it('o next.config.ts chama a função com VIRADA_1_FEITA', () => {
+    const fonte = readFileSync('next.config.ts', 'utf8')
+    expect(fonte).toContain('redirecionamentosDoSite(VIRADA_1_FEITA)')
+    expect(fonte).toContain("from './src/site/inventario'")
   })
 })

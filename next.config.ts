@@ -2,7 +2,8 @@ import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { REDIRECIONAMENTOS } from './src/site/redirecionamentos'
+import { VIRADA_1_FEITA } from './src/site/inventario'
+import { redirecionamentosDoSite } from './src/site/redirecionamentos'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
@@ -169,7 +170,7 @@ const nextConfig: NextConfig = {
     ]
   },
   async redirects() {
-    return REDIRECIONAMENTOS
+    return redirecionamentosDoSite(VIRADA_1_FEITA)
   },
 }
 

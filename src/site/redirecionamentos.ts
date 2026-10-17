@@ -243,3 +243,19 @@ export const REDIRECIONAMENTOS: Redirecionamento[] = [
     permanent: true,
   },
 ]
+
+/**
+ * Os dois redirects da fase 4 (spec 6): as páginas de prestação de contas e de software saem e
+ * apontam, direto e sem cadeia, para /tecnologia, que nasce na virada 1. Só entram no
+ * next.config.ts com VIRADA_1_FEITA (DP7 do plano da fase 4): antes disso, as duas URLs seguem
+ * servindo as páginas de hoje.
+ */
+export const REDIRECIONAMENTOS_DA_VIRADA_1: Redirecionamento[] = [
+  { source: '/prestacao-de-contas-condominio', destination: '/tecnologia', permanent: true },
+  { source: '/software-de-gestao-condominial', destination: '/tecnologia', permanent: true },
+]
+
+/** Os redirects que o next.config.ts devolve: os 54 de hoje e, com a virada, os dois da fase 4. */
+export function redirecionamentosDoSite(viradaFeita: boolean): Redirecionamento[] {
+  return viradaFeita ? [...REDIRECIONAMENTOS, ...REDIRECIONAMENTOS_DA_VIRADA_1] : REDIRECIONAMENTOS
+}
