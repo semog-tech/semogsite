@@ -13,6 +13,7 @@ export const PREFIXO_DA_PREVIA: string = VIRADA_1_FEITA ? '' : '/previa-v2'
  */
 export const PAGINAS_NA_PREVIA: ReadonlySet<string> = new Set([
   '/',
+  '/administracao-de-condominios',
   '/blog',
   '/privacidade',
   '/semog',
