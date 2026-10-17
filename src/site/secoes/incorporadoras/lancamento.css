@@ -1,5 +1,6 @@
-/* Lançamento: branco, a pergunta grande à esquerda e, abaixo dela em 38,2, a frase, o botão
-   e o espaço das parceiras. Na saída, a coluna lavanda do convite da proposta. */
+/* Lançamento: branco, a pergunta grande à esquerda e, abaixo dela em 38,2, a frase e o botão
+   (a faixa das construtoras parceiras saiu, por resposta do Leandro). Na saída, a coluna
+   lavanda do convite da proposta. */
 #lancamento {
   padding-block: var(--respiro-cena) 0;
 }
@@ -30,9 +31,6 @@
   letter-spacing: -0.015em;
   line-height: 1.25;
   color: var(--tema-titulo);
-}
-#lancamento .ln-parceiras {
-  max-width: 34ch;
 }
 
 /* ---- Saída: a coluna lavanda sobe e vira o véu da proposta ------------------------ */
