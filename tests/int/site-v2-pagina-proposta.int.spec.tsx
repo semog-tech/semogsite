@@ -40,6 +40,13 @@ describe('página de proposta (pacote landing) na prévia', () => {
     const container = conferirPagina(<Pagina />, { dataPagina: 'proposta', secoes: SECOES })
     expect(container.querySelector('#proposta.pp form.formulario-proposta.pp-form')).not.toBeNull()
     expect(container.querySelector('.proposta-metades')).toBeNull()
+    // A página usa o título do protótipo; os outros formulários mantêm "Peça uma proposta".
+    // O id do formulário não repete o do h1 (antes, os dois eram #pp-titulo).
+    const form = container.querySelector('form.pp-form')
+    const rotulo = form?.getAttribute('aria-labelledby') ?? ''
+    expect(container.querySelectorAll(`#${rotulo}`)).toHaveLength(1)
+    expect(container.querySelector(`#${rotulo}`)?.textContent).toBe('Conte sobre o seu condomínio')
+    expect(container.querySelectorAll('#pp-titulo')).toHaveLength(1)
     expect(container.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
       `${conteudo.propostaPagina.titulo} ${conteudo.propostaPagina.enfase}`,
     )

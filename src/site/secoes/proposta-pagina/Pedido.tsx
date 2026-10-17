@@ -32,7 +32,7 @@ export function PedidoDeProposta() {
         </div>
 
         <div className="pp-painel">
-          <FormularioProposta id="pp" classe="pp-form" />
+          <FormularioProposta id="pp-pedido" classe="pp-form" titulo={propostaPagina.formTitulo} />
         </div>
 
         <div className="pp-porque">

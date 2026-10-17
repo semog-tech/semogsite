@@ -35,6 +35,7 @@ describe('seção de proposta "Metades" (cena 08 do protótipo)', () => {
     const form = container.querySelector('form.formulario-proposta.proposta-form')
     expect(form).not.toBeNull()
     expect(form?.querySelector('.fp-titulo.entrada')).not.toBeNull()
+    expect(form?.querySelector('.fp-titulo')?.textContent).toBe('Peça uma proposta')
     expect(form?.querySelectorAll('[data-etapa="1"] .fp-campo.entrada')).toHaveLength(4)
     // Como no protótipo, o "Continuar" entra na cascata depois dos campos.
     expect(form?.querySelector('[data-etapa="1"] .fp-acoes.entrada')).not.toBeNull()

@@ -27,6 +27,8 @@ type PropsFormulario = {
   /** Marca o título, os campos e o "Continuar" da etapa 1 com `.entrada`, para a cascata da cena. */
   comEntrada?: boolean
   perfilInicial?: Perfil
+  /** Título acima dos campos; sem ele, "Peça uma proposta" (a página de proposta usa o seu). */
+  titulo?: string
 }
 
 function Seta() {
@@ -117,6 +119,7 @@ export function FormularioProposta({
   classe,
   comEntrada = false,
   perfilInicial,
+  titulo = TEXTOS.titulo,
 }: PropsFormulario) {
   const formRef = useRef<HTMLFormElement>(null)
   const [uf, setUf] = useState(ufInicial)
@@ -152,7 +155,7 @@ export function FormularioProposta({
         hidden={estado.concluido}
       >
         <p id={`${id}-titulo`} className={comEntrada ? 'fp-titulo entrada' : 'fp-titulo'}>
-          {TEXTOS.titulo}
+          {titulo}
         </p>
         <div className="fp-etapas">
           <div className="fp-etapa" data-etapa="1" inert={estado.etapa !== 1}>
