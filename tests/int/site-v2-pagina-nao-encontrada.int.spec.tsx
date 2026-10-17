@@ -17,7 +17,13 @@ const SECOES: SecaoEsperada[] = [
   {
     id: 'nao-encontrada',
     arquivo: 'nao-encontrada/01-pagina',
-    diferencas: { semClasses: ['link-seta'], comClasses: ['ne-cartao'] },
+    // Desvio de design (passada 4b): o texto sobe para junto do título e o pedido de proposta sai
+    // da fileira para o destaque ao lado dele; a fileira fica com quatro.
+    diferencas: {
+      semClasses: ['link-seta'],
+      comClasses: ['ne-cartao', 'ne-cabeca', 'ne-principal'],
+      contagemLivre: ['<p>', '<li>', 'ne-texto', 'seta'],
+    },
   },
 ]
 
@@ -33,12 +39,16 @@ describe('404 nova do site v2', () => {
     const cartoes = Array.from(container.querySelectorAll('#nao-encontrada .ne-cartao'))
     expect(cartoes).toHaveLength(5)
     expect(cartoes.map((c) => c.querySelector('strong')?.textContent)).toEqual([
+      'Pedir proposta',
       'Página inicial',
       'Unidades Semog',
-      'Pedir proposta',
       'Blog',
       'Fale com a gente',
     ])
+    // Pedir proposta é o caminho principal: vem antes, ao lado do título, fora da fileira.
+    expect(cartoes[0]?.classList.contains('ne-principal')).toBe(true)
+    expect(cartoes[0]?.getAttribute('href')).toBe('/previa-v2/proposta')
+    expect(container.querySelectorAll('#nao-encontrada .ne-links .ne-cartao')).toHaveLength(4)
     // O "Sou cliente" fica só no cabeçalho, no rodapé e no Contato (resposta do Leandro, DP6).
     expect(container.querySelector('#nao-encontrada [aria-haspopup="dialog"]')).toBeNull()
     expect(container.querySelector('#nao-encontrada [data-wa-caminho]')).toBeNull()
