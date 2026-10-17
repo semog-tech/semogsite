@@ -1,0 +1,66 @@
+/* Contato · mensagem. Título e apoio à esquerda (38,2%), o formulário à direita (61,8%),
+   no mesmo desenho de campo do pedido de proposta: rótulo pequeno acima, só a linha de
+   baixo, que se desenha no foco. A mensagem é uma área de texto com a mesma linha. */
+#contato-mensagem .cm-quadro {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e5) var(--e6);
+  align-items: start;
+}
+#contato-mensagem .cm-quadro > * {
+  min-width: 0;
+}
+#contato-mensagem .cm-titulo {
+  font-size: clamp(2rem, 1.2rem + 2.6vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.02;
+  letter-spacing: var(--tracking-titulo);
+}
+#contato-mensagem .cm-titulo .linha-interna {
+  display: block;
+}
+#contato-mensagem .cm-apoio {
+  max-width: 34ch;
+  margin-top: var(--e3);
+  color: var(--tema-texto);
+}
+#contato-mensagem .cm-form {
+  gap: var(--e4);
+}
+#contato-mensagem .fp-par {
+  align-items: start;
+}
+#contato-mensagem .fp-controle textarea {
+  display: block;
+  width: 100%;
+  min-height: 144px;
+  margin: 0;
+  padding: var(--e1) 0;
+  border: 0;
+  border-bottom: 1px solid var(--fp-linha);
+  background: transparent;
+  font-family: var(--fonte-corpo);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--fp-tinta);
+  resize: vertical;
+}
+#contato-mensagem .fp-controle textarea:focus {
+  outline: none;
+}
+#contato-mensagem .fp-acoes {
+  margin-top: var(--e1);
+}
+
+@media (max-width: 860px) {
+  #contato-mensagem .cm-quadro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e4);
+  }
+}
+@media (max-width: 520px) {
+  /* Nome e e-mail um abaixo do outro: e-mail longo não cabe em 62% de 350px. */
+  #contato-mensagem .fp-par {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

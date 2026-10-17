@@ -51,7 +51,13 @@ import {
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
 import { AMBIENTE_FIELD, ambienteAtual, ambienteLiberaEnvio } from '@/lib/leads/ambiente'
-import { BELEM_TO, PB_TO, RECIFE_TO, TODAS_AS_PRACAS } from '@/lib/leads/destinatarios'
+import {
+  BELEM_TO,
+  destinatariosDoContato,
+  PB_TO,
+  RECIFE_TO,
+  TODAS_AS_PRACAS,
+} from '@/lib/leads/destinatarios'
 import { reportarFalhaDoLead } from '@/lib/leads/reportar'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
@@ -129,7 +135,7 @@ type Envio = {
  * Roteamento da notificação interna de **Proposta** por região, a partir do
  * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
  * `src/lib/form-schemas.ts` — se o enum mudar as opções, o `tsc` cobra a
- * entrada aqui). Só a Proposta usa isto; Contato continua indo pro `CONTACT_TO`.
+ * entrada aqui). Só a Proposta usa isto; Contato vai para `CONTATO_TO` (ola@).
  *
  * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026. Ele é uma lista de
  * distribuição, e lista não responde: com os botões de desfecho no e-mail, um
@@ -154,30 +160,28 @@ const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = 
 /**
  * Destino da inscrição no Semog Experience — quem organiza o evento é a filial
  * de João Pessoa. Cravado no código como os da Proposta, e não em variável de
- * ambiente: `CONTACT_TO` ausente faz a notificação simplesmente não sair, sem
- * erro nenhum, e uma inscrição perdida em silêncio é o pior desfecho possível.
+ * ambiente: variável ausente faria a notificação simplesmente não sair (era o
+ * caso do `CONTACT_TO`, que o Contato deixou de ler), sem erro nenhum, e uma
+ * inscrição perdida em silêncio é o pior desfecho possível.
  */
 const EXPERIENCE_TO = PB_TO
 
 /**
- * Para quem vai a notificação interna deste formulário. `undefined` só acontece
- * no Contato sem `CONTACT_TO` configurado (comum em dev), e aí nenhuma
- * notificação sai — comportamento original.
+ * Para quem vai a notificação interna deste formulário. O Contato vai sempre
+ * para `CONTATO_TO` (ola@, fase 4 do site v2). Em dev e Preview nada sai mesmo
+ * assim: `ambienteLiberaEnvio` barra o e-mail e o CRM fora de produção.
  *
  * É função, e não um trecho dentro do bloco de e-mail, porque a decisão passou
  * a ser gravada na linha do lead (`notificado_para`) e portanto precisa
  * acontecer ANTES do INSERT: quem recebeu o aviso é o que separa, depois, um
  * desfecho com autor conhecido de um que veio de caixa compartilhada.
  */
-function destinatariosDaNotificacao(
-  formType: FormType,
-  data: DadosDoEnvio,
-): readonly string[] | undefined {
+function destinatariosDaNotificacao(formType: FormType, data: DadosDoEnvio): readonly string[] {
   // `as`: com `formType === 'proposta'` os dados são do formulário completo ou
   // da proposta curta, e os dois têm `cidade` com o mesmo enum.
   if (formType === 'proposta') return PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
   if (formType === 'experience') return [EXPERIENCE_TO]
-  return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
+  return destinatariosDoContato()
 }
 
 /**
@@ -552,7 +556,7 @@ async function enviarAutoReply(envio: Envio, email: string | undefined): Promise
 
 /**
  * E-mail é best-effort: a submissão já está salva, então uma falha de SendGrid
- * (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`) não deve derrubar o retorno
+ * (ou ausência de `SENDGRID_API_KEY`) não deve derrubar o retorno
  * `ok: true` pro usuário.
  */
 async function enviarEmails(emails: EmailsDoEnvio): Promise<void> {

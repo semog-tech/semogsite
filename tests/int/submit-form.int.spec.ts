@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CONTATO_TO } from '@/lib/leads/destinatarios'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -342,12 +343,15 @@ describe('submitForm — destino da notificação interna', () => {
     expect(destinoDaNotificacao()).toEqual(['comercial.pb@semog.com.br'])
   })
 
-  it('contato continua indo pro CONTACT_TO', async () => {
+  it('contato vai para ola@ (CONTATO_TO), mesmo com CONTACT_TO no ambiente', async () => {
+    // Desde a fase 4 do site v2 (Leandro, 16/10/2026) o Contato não lê mais CONTACT_TO: a
+    // variável no ambiente (posta no beforeEach) não pode desviar a mensagem.
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.31'))
 
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(destinoDaNotificacao()).toEqual(['caixa-do-contato@example.com'])
+    expect(CONTATO_TO).toBe('ola@semog.com.br')
+    expect(destinoDaNotificacao()).toEqual(['ola@semog.com.br'])
   })
 
   it('proposta continua roteando por cidade', async () => {
@@ -797,19 +801,21 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
     expect(String(notificadoPara()).split(', ')).toEqual(Array.isArray(to) ? to : [to])
   })
 
-  it('contato grava o CONTACT_TO', async () => {
+  it('contato grava ola@ (CONTATO_TO)', async () => {
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(notificadoPara()).toBe('caixa-do-contato@example.com')
+    expect(notificadoPara()).toBe('ola@semog.com.br')
   })
 
-  it('sem CONTACT_TO grava NULL, e não string vazia', async () => {
-    // Coluna vazia é "não avisamos ninguém"; `''` seria um endereço em branco.
+  // O teste "sem CONTACT_TO grava NULL" saiu na fase 4 do site v2: o Contato tem destino fixo
+  // (ola@), então não existe mais Contato sem destino, e o NULL ("não avisamos ninguém") deixou
+  // de acontecer no Contato. O que sobra provar é que a falta da variável não esvazia a coluna.
+  it('sem CONTACT_TO no ambiente o Contato grava ola@ mesmo assim, nunca string vazia', async () => {
     delete process.env.CONTACT_TO
 
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(notificadoPara()).toBeNull()
+    expect(notificadoPara()).toBe('ola@semog.com.br')
   })
 })
 

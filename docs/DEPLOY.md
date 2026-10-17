@@ -76,9 +76,10 @@ pooler) e fazer deploy.
 |---|---|---|---|
 | `SENDGRID_API_KEY` | Opcional | Não | Chave da API (app.sendgrid.com → Settings → API Keys). Sem ela, `src/lib/sendgrid.ts` faz um no-op logado — os formulários continuam salvando normalmente, só não sai e-mail. |
 | `SENDGRID_FROM` | Opcional | Não | Remetente verificado no SendGrid (Sender Authentication), ex. `no-reply@semog.com.br`. |
-| `CONTACT_TO` | Opcional | Não | Caixa de entrada que recebe a notificação interna de cada lead (`submit-form.ts`). |
 
-As 3 são opcionais como grupo — ou preenche todas, ou nenhuma (deixar `SENDGRID_API_KEY` vazia já
+`CONTACT_TO` deixou de ser lida em 10/2026: o Contato vai sempre para `ola@semog.com.br` (`CONTATO_TO`, `src/lib/leads/destinatarios.ts`).
+
+As 2 são opcionais como grupo — ou preenche todas, ou nenhuma (deixar `SENDGRID_API_KEY` vazia já
 desativa o envio real). Recomendado para produção; pode ficar vazio em previews.
 
 ### Cloudflare Turnstile (obrigatório — usar chaves de teste se não houver chaves reais)

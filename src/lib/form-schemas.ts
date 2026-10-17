@@ -53,6 +53,12 @@ const ASSUNTO_OPTIONS = [
   'declaracao-quitacao',
   'reserva-areas-comuns',
   'proposta-comercial',
+  // Assuntos do Contato do site v2 (fase 4, resposta do Leandro de 16/10/2026). Os de cima ficam
+  // até a fase 7: o formulário antigo e abas abertas antes da virada ainda os enviam.
+  'condomino-duvida',
+  'fornecedor',
+  'imprensa',
+  'trabalhe-conosco',
   'outro',
 ] as const
 

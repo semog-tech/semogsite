@@ -20,3 +20,13 @@ export function destinatariosPorUf(uf: string | undefined): readonly string[] {
   // hasOwn: a UF vem do cliente e "constructor" não pode achar chave herdada do objeto.
   return uf && Object.hasOwn(POR_UF, uf) ? POR_UF[uf] : TODAS_AS_PRACAS
 }
+
+/**
+ * Contato do site, todos os assuntos: a caixa ola@, onde o Chatwoot distribui (Leandro,
+ * 16/10/2026). Substitui a variável CONTACT_TO, que deixa de ser lida.
+ */
+export const CONTATO_TO = 'ola@semog.com.br'
+
+export function destinatariosDoContato(): readonly string[] {
+  return [CONTATO_TO]
+}
