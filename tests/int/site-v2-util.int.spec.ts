@@ -136,6 +136,13 @@ describe('utilidades das cenas', () => {
     expect(() => corDoToken('--inexistente')).toThrow(/não é hex/)
   })
 
+  it('corDoToken aceita o hex curto que o minificador do build escreve (o branco vira três dígitos)', () => {
+    document.documentElement.style.setProperty('--branco', '#fff')
+    expect(corDoToken('--branco')).toEqual([255, 255, 255])
+    document.documentElement.style.setProperty('--teste-curto', '#1a2')
+    expect(corDoToken('--teste-curto')).toEqual([17, 170, 34])
+  })
+
   it('familiaDaFonte devolve a família real do next/font e acusa variável ausente', () => {
     document.documentElement.style.setProperty(
       '--fonte-saira',

@@ -52,12 +52,16 @@ export function prepararCanvas2D(canvas: HTMLCanvasElement): Pintura {
   return { ctx, w: caixa.width, h: caixa.height }
 }
 
-/** Cor de um token hex do :root como [r, g, b] (0–255), para canvas e shader. */
+/**
+ * Cor de um token hex do :root como [r, g, b] (0–255), para canvas e shader. Aceita o hex curto:
+ * o minificador de CSS do build encurta o token branco para três dígitos.
+ */
 export function corDoToken(nome: string): [number, number, number] {
   const valor = getComputedStyle(document.documentElement).getPropertyValue(nome).trim()
-  const achado = /^#([0-9a-f]{6})$/i.exec(valor)
-  if (!achado) throw new Error(`Token ${nome} não é hex de 6 dígitos: "${valor}".`)
-  const n = Number.parseInt(achado[1], 16)
+  const achado = /^#([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(valor)
+  if (!achado) throw new Error(`Token ${nome} não é hex de 6 (ou 3) dígitos: "${valor}".`)
+  const hex = achado[1].length === 3 ? achado[1].replace(/./g, '$&$&') : achado[1]
+  const n = Number.parseInt(hex, 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 

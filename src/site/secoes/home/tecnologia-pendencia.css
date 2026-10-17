@@ -1,0 +1,6 @@
+/* O selo A CONFIRMAR dos números da nova prestação (só na prévia, DP5) é longo: dentro da coluna
+   estreita da legenda ele quebra linha, em vez de ser cortado pela máscara de entrada do contexto.
+   Fica fora de tecnologia.css, que é cópia sem edição do protótipo. */
+#tecnologia .tec-contexto .a-confirmar {
+  white-space: normal;
+}

@@ -352,6 +352,8 @@ export const conteudo = {
       ],
       legenda: 'Semog Experience 2025.',
       video26: VIDEO_DO_EXPERIENCE_26,
+      // TEXTO-NOVO: legenda quando o vídeo do 26 entrar (DP12)
+      legendaCom26: 'Semog Experience 2026 e 2025.',
     },
     blog: {
       titulo: 'Blog Semog',
