@@ -1,0 +1,300 @@
+/* Caixa: palco fixo de uma tela. Grade 38,2/61,8: à esquerda o momento da vez, à direita o
+   caixa do ano (o gráfico inteiro, sempre à vista). Sem JS (sem .gc-pin), lê-se a lista dos
+   momentos e o gráfico no estado final, um embaixo do outro.
+   Papéis de cor: branco (fundo), lavanda (o previsto: a linha do patamar e a base), marinho
+   (o que entrou: barras pagas e o traço); o céu é o destaque, só no que a Semog Garante pagou. */
+#caixa-do-condominio {
+  --gc-traco: var(--marinho);
+}
+
+/* ---- Leitura sem palco ------------------------------------------------------------- */
+#caixa-do-condominio .gc-grade {
+  display: grid;
+  gap: var(--e5);
+}
+#caixa-do-condominio .gc-cobertura {
+  display: none;
+}
+#caixa-do-condominio .gc-momentos {
+  display: grid;
+  gap: var(--e6);
+  max-width: var(--largura-texto);
+}
+#caixa-do-condominio .gc-momento-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.08;
+}
+#caixa-do-condominio .gc-texto {
+  max-width: 40ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#caixa-do-condominio .gc-in {
+  display: block;
+}
+
+/* ---- O gráfico (SVG) ------------------------------------------------------------------ */
+#caixa-do-condominio .gc-figura {
+  display: grid;
+  gap: var(--e3);
+  min-width: 0;
+  min-height: 0;
+}
+#caixa-do-condominio .gc-janela {
+  min-width: 0;
+  min-height: 0;
+}
+#caixa-do-condominio .gc-grafico {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+#caixa-do-condominio .gc-grafico text {
+  font-family: var(--fonte-titulo);
+  font-size: 14px;
+  font-weight: 500;
+  fill: var(--texto-suave);
+}
+#caixa-do-condominio .gc-mes-rotulo {
+  font-weight: 400;
+  text-anchor: middle;
+}
+#caixa-do-condominio .gc-area {
+  fill: none;
+}
+#caixa-do-condominio .gc-base,
+#caixa-do-condominio .gc-previsto,
+#caixa-do-condominio .gc-custo-rotulo path {
+  fill: none;
+  stroke-linecap: butt;
+}
+#caixa-do-condominio .gc-base {
+  stroke: var(--lavanda);
+  stroke-width: 1;
+}
+/* O percurso inteiro em lavanda (o patamar previsto, a dobra e a faixa da cobrança), antes de
+   o traço marinho passar por ele. */
+#caixa-do-condominio .gc-previsto {
+  stroke: var(--lavanda);
+  stroke-width: 2.6;
+}
+#caixa-do-condominio .gc-pago {
+  fill: var(--marinho);
+}
+#caixa-do-condominio .gc-coberto {
+  fill: var(--ceu);
+}
+/* O que ficou em aberto: o vão vazado, com o contorno do que faltou. */
+#caixa-do-condominio .gc-aberto {
+  fill: none;
+  stroke: var(--marinho);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+/* O 1%: uma faixa branca do tamanho real, logo abaixo do traço, em todos os meses. */
+#caixa-do-condominio .gc-custo {
+  fill: var(--branco);
+}
+#caixa-do-condominio .gc-custo-rotulo path {
+  stroke: var(--marinho);
+  stroke-width: 1;
+}
+#caixa-do-condominio .gc-custo-rotulo text {
+  text-anchor: end;
+  fill: var(--marinho);
+}
+#caixa-do-condominio .gc-rotulo-cobranca {
+  fill: var(--marinho);
+}
+/* O traço é medido em unidades do desenho (tracejado por pathLength): escala junto. */
+#caixa-do-condominio .gc-traco {
+  fill: none;
+  stroke: var(--gc-traco);
+  stroke-width: 2.6;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+
+/* ---- Legenda: as três chaves e o aviso de ilustração ---------------------------------- */
+#caixa-do-condominio .gc-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e2) var(--e4);
+}
+#caixa-do-condominio .gc-chaves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1) var(--e3);
+}
+#caixa-do-condominio .gc-chave {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+}
+#caixa-do-condominio .gc-chave i {
+  display: block;
+  width: 13px;
+  height: 13px;
+}
+#caixa-do-condominio .gc-chave--pago i {
+  background: var(--marinho);
+}
+#caixa-do-condominio .gc-chave--aberto i {
+  border: 1.5px solid var(--marinho);
+}
+#caixa-do-condominio .gc-chave--coberto i {
+  background: var(--ceu);
+}
+#caixa-do-condominio .gc-ilustracao {
+  font-weight: 400;
+}
+
+/* ---- Palco fixo (com JS) -------------------------------------------------------------- */
+#caixa-do-condominio.gc-pin {
+  padding-block: 0;
+}
+#caixa-do-condominio.gc-pin .gc-palco {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--tema-fundo);
+}
+#caixa-do-condominio.gc-pin .gc-grade {
+  height: 100%;
+  grid-template-columns: var(--menor) var(--maior);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: var(--e6);
+  row-gap: var(--e4);
+  padding-block: calc(var(--cab) + var(--e5)) var(--e5);
+}
+#caixa-do-condominio.gc-pin .gc-titulo {
+  grid-area: 1 / 1;
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#caixa-do-condominio.gc-pin .gc-momentos {
+  grid-area: 2 / 1;
+  align-self: center;
+  display: grid;
+  max-width: none;
+}
+#caixa-do-condominio.gc-pin .gc-momento {
+  grid-area: 1 / 1;
+}
+#caixa-do-condominio.gc-pin .gc-momento-titulo,
+#caixa-do-condominio.gc-pin .gc-texto {
+  overflow: clip;
+  padding-block-end: 0.1em;
+}
+#caixa-do-condominio.gc-pin .gc-momento-titulo {
+  font-size: clamp(1.75rem, 1.15rem + 1.3vw, 2.5rem);
+}
+#caixa-do-condominio.gc-pin .gc-texto {
+  max-width: 38ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+}
+#caixa-do-condominio.gc-pin .gc-figura {
+  grid-area: 1 / 2 / 3 / 3;
+  align-content: center;
+}
+/* O gráfico ocupa a largura da coluna; numa tela baixa, a altura manda. */
+#caixa-do-condominio.gc-pin .gc-grafico {
+  max-height: calc(100svh - var(--cab) - 2 * var(--e5) - 4rem);
+}
+
+/* ---- Cobertura: o patamar dos 100% cresce até virar o marinho da cena seguinte -------- */
+#caixa-do-condominio.gc-pin .gc-cobertura {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--marinho);
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+/* ---- Celular: o gráfico em cima, o momento embaixo ------------------------------------ */
+@media (max-width: 760px) {
+  #caixa-do-condominio .gc-grafico text {
+    font-size: 24px;
+  }
+  #caixa-do-condominio .gc-mes-rotulo {
+    font-size: 21px;
+  }
+  #caixa-do-condominio .gc-traco,
+  #caixa-do-condominio .gc-previsto {
+    stroke-width: 4;
+  }
+  #caixa-do-condominio .gc-aberto {
+    stroke-width: 2.4;
+  }
+  #caixa-do-condominio.gc-pin .gc-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    row-gap: var(--e3);
+    padding-block: calc(var(--cab) + var(--e3)) var(--e4);
+  }
+  #caixa-do-condominio.gc-pin .gc-titulo {
+    grid-area: 1 / 1;
+    font-size: 1.625rem;
+  }
+  #caixa-do-condominio.gc-pin .gc-figura {
+    grid-area: 2 / 1;
+    gap: var(--e2);
+  }
+  #caixa-do-condominio.gc-pin .gc-grafico {
+    max-height: none;
+  }
+  #caixa-do-condominio.gc-pin .gc-momentos {
+    grid-area: 3 / 1;
+    align-self: start;
+  }
+  #caixa-do-condominio.gc-pin .gc-momento-titulo {
+    font-size: 1.5rem;
+  }
+  #caixa-do-condominio.gc-pin .gc-texto {
+    margin-top: var(--e2);
+    font-size: 1rem;
+  }
+  #caixa-do-condominio .gc-legenda {
+    display: grid;
+    gap: var(--e1);
+    font-size: 0.75rem;
+  }
+}
+
+/* Impresso, o palco vira a lista de leitura e o gráfico no estado final. As posições
+   animadas (inline) são anuladas aqui. */
+@media print {
+  #caixa-do-condominio.gc-pin .gc-palco {
+    height: auto;
+    overflow: visible;
+  }
+  #caixa-do-condominio.gc-pin .gc-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    padding-block: var(--e6);
+  }
+  #caixa-do-condominio.gc-pin .gc-grade > *,
+  #caixa-do-condominio.gc-pin .gc-momento {
+    grid-area: auto;
+  }
+  #caixa-do-condominio.gc-pin .gc-momentos {
+    gap: var(--e5);
+  }
+  #caixa-do-condominio .gc-cobertura {
+    display: none !important;
+  }
+  #caixa-do-condominio .gc-in,
+  #caixa-do-condominio .gc-janela {
+    transform: none !important;
+    clip-path: none !important;
+  }
+}

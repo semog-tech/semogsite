@@ -1,0 +1,140 @@
+/* Dúvidas: branco. O título e o caminho para outra dúvida (38,2) e as perguntas (61,8), cada
+   uma num bloco gelo chapado, sem sombra; o marcador de ponta reta vira de "mais" para "menos"
+   quando a resposta abre. Na saída, a coluna lavanda do convite da proposta. */
+#duvidas-garante {
+  padding-block: var(--respiro-cena) 0;
+}
+#duvidas-garante .gd-quadro {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e6);
+  align-items: start;
+}
+#duvidas-garante .gd-quadro > * {
+  min-width: 0;
+}
+#duvidas-garante .gd-cabeca {
+  position: sticky;
+  top: calc(var(--cab) + var(--e5));
+  display: grid;
+  gap: var(--e5);
+}
+#duvidas-garante .gd-titulo {
+  max-width: 12ch;
+  font-size: clamp(2.5rem, 1.1rem + 3.4vw, 4.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#duvidas-garante .gd-outra {
+  display: grid;
+  justify-items: start;
+  gap: var(--e1);
+}
+
+/* ---- Perguntas -------------------------------------------------------------------- */
+#duvidas-garante .gd-lista {
+  display: grid;
+  gap: var(--e1);
+}
+#duvidas-garante .gd-item {
+  background: var(--gelo);
+}
+#duvidas-garante .gd-pergunta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  min-height: 44px;
+  padding: var(--e3) var(--e4);
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1875rem, 1rem + 0.45vw, 1.4375rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+  cursor: pointer;
+  list-style: none;
+}
+#duvidas-garante .gd-pergunta::-webkit-details-marker {
+  display: none;
+}
+#duvidas-garante .gd-pergunta:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+/* Marcador: duas barras de ponta reta; a vertical deita quando a resposta abre. */
+#duvidas-garante .gd-pergunta i {
+  position: relative;
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+#duvidas-garante .gd-pergunta i::before,
+#duvidas-garante .gd-pergunta i::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+#duvidas-garante .gd-pergunta i::before {
+  inset: 5.75px 0;
+}
+#duvidas-garante .gd-pergunta i::after {
+  inset: 0 5.75px;
+  transition: transform 420ms var(--ease-expo);
+}
+#duvidas-garante .gd-item[open] .gd-pergunta i::after {
+  transform: rotate(90deg);
+}
+#duvidas-garante .gd-resposta {
+  overflow: clip;
+  padding: 0 var(--e4) var(--e4);
+}
+#duvidas-garante .gd-resposta p {
+  max-width: 56ch;
+  color: var(--tema-texto);
+}
+
+/* ---- Saída: a coluna lavanda sobe e vira o véu da proposta ------------------------ */
+#duvidas-garante .gd-saida {
+  position: relative;
+  height: 38svh;
+  margin-top: var(--e7);
+}
+#duvidas-garante .gd-veu {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  transform-origin: 50% 100%;
+}
+
+@media (max-width: 760px) {
+  #duvidas-garante .gd-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+  #duvidas-garante .gd-cabeca {
+    position: static;
+    gap: var(--e4);
+  }
+  #duvidas-garante .gd-titulo {
+    font-size: 2.875rem;
+  }
+  #duvidas-garante .gd-pergunta {
+    padding: var(--e3);
+  }
+  #duvidas-garante .gd-resposta {
+    padding: 0 var(--e3) var(--e3);
+  }
+  #duvidas-garante .gd-saida {
+    height: 28svh;
+    margin-top: var(--e6);
+  }
+  /* No celular o convite da proposta ocupa a largura toda: o véu também. */
+  #duvidas-garante .gd-veu {
+    width: 100%;
+  }
+}

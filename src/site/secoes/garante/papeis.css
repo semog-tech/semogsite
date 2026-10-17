@@ -1,0 +1,143 @@
+/* Papéis: uma superfície que começa no marinho exato da cobertura do caixa e desce, pelas
+   mesmas paradas da evolução de Tecnologia, até o branco das dúvidas. O texto mora no marinho;
+   a descida não tem texto. O header acompanha o trecho sob ele (ver a cena). */
+#papeis {
+  padding-block: 0;
+  background: var(--marinho);
+}
+/* Com o caixa fixado, os papéis sobem por cima dos últimos 45svh dele, quando o marinho já
+   cobre o pé do palco (SOBREPOSICAO_TELAS, em 02-caixa.js). Sem JS e na impressão, cada cena
+   no seu lugar. */
+#caixa-do-condominio.gc-pin + #papeis {
+  z-index: 4;
+  margin-top: -45svh;
+}
+@media print {
+  #caixa-do-condominio.gc-pin + #papeis {
+    margin-top: 0;
+  }
+}
+#papeis .gp-topo {
+  padding-block: var(--e6) var(--e6);
+}
+#papeis .gp-titulo {
+  max-width: 14ch;
+  font-size: clamp(2.75rem, 0.9rem + 4.6vw, 6rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+
+/* ---- A fila: quatro papéis ligados por um traço céu ----------------------------------- */
+#papeis .gp-fila {
+  --gp-progresso: 1;
+  position: relative;
+  padding-bottom: var(--e7);
+}
+/* O traço passa pelo nó de cada papel: no desktop, uma linha no alto da fila. */
+#papeis .gp-linha {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--ceu);
+  clip-path: inset(0% calc((1 - var(--gp-progresso)) * 100%) 0% 0%);
+}
+#papeis .gp-lista {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--e5);
+}
+#papeis .gp-papel {
+  display: grid;
+  align-content: start;
+  gap: var(--e3);
+}
+#papeis .gp-no {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: var(--ceu);
+}
+#papeis .gp-quem {
+  margin-top: var(--e3);
+  font-size: clamp(1.625rem, 1.2rem + 0.9vw, 2.125rem);
+  font-weight: 300;
+  line-height: 1.08;
+  color: var(--tema-titulo);
+}
+#papeis .gp-faz {
+  max-width: 30ch;
+  color: var(--tema-texto);
+}
+
+/* ---- Descida: marinho → gelo → branco, as mesmas paradas da evolução ------------------ */
+#papeis .gp-descida {
+  height: 55svh;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho) 0%,
+    color-mix(in oklab, var(--marinho) 89.5%, var(--azul-forte)) 6.6%,
+    color-mix(in oklab, var(--marinho) 60.4%, var(--azul-forte)) 13.4%,
+    color-mix(in oklab, var(--marinho) 16.6%, var(--azul-forte)) 20%,
+    color-mix(in oklab, var(--azul-forte) 53.2%, var(--azul-medio)) 26.6%,
+    color-mix(in oklab, var(--azul-medio) 92.4%, var(--ceu)) 33.4%,
+    color-mix(in oklab, var(--azul-medio) 65.5%, var(--ceu)) 40%,
+    color-mix(in oklab, var(--azul-medio) 38.6%, var(--ceu)) 46.6%,
+    color-mix(in oklab, var(--azul-medio) 13.2%, var(--ceu)) 53.4%,
+    color-mix(in oklab, var(--ceu) 71.8%, var(--ceu-claro)) 60%,
+    color-mix(in oklab, var(--ceu) 16.7%, var(--ceu-claro)) 66.6%,
+    color-mix(in oklab, var(--ceu-claro) 40.1%, var(--gelo)) 73.4%,
+    var(--gelo) 80%,
+    color-mix(in oklab, var(--gelo) 50%, var(--branco)) 90%,
+    var(--branco) 100%
+  );
+}
+
+/* ---- Até 1080px: dois por linha; no celular, um embaixo do outro, com o traço à esquerda */
+@media (max-width: 1080px) {
+  #papeis .gp-lista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--e6);
+  }
+}
+@media (max-width: 760px) {
+  #papeis .gp-topo {
+    padding-block: var(--e5) var(--e5);
+  }
+  #papeis .gp-titulo {
+    font-size: 2.875rem;
+  }
+  #papeis .gp-fila {
+    padding-bottom: var(--e6);
+  }
+  #papeis .gp-linha {
+    top: 0;
+    left: 5px;
+    width: 2px;
+    height: calc(100% - var(--e6));
+    clip-path: inset(0% 0% calc((1 - var(--gp-progresso)) * 100%) 0%);
+  }
+  #papeis .gp-lista {
+    grid-template-columns: 1fr;
+    row-gap: var(--e5);
+  }
+  #papeis .gp-papel {
+    grid-template-columns: 12px minmax(0, 1fr);
+    column-gap: var(--e3);
+    row-gap: var(--e2);
+  }
+  #papeis .gp-no {
+    grid-row: 1 / 3;
+    margin-top: 0.55em;
+  }
+  #papeis .gp-quem {
+    margin-top: 0;
+  }
+  #papeis .gp-descida {
+    height: 48svh;
+  }
+}

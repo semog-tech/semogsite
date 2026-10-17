@@ -1,4 +1,5 @@
 import type { ListaCenas } from '@/site/core/tipos'
+import { CENAS_GARANTE } from './paginas/garante'
 import { CENAS_GESTAO } from './paginas/gestao'
 import { CENAS_HOME } from './paginas/home'
 import { CENAS_SEMOG } from './paginas/semog'
@@ -22,6 +23,7 @@ export const CENAS_POR_PAGINA: Partial<Record<IdPaginaApp, ListaCenas>> = {
   home: CENAS_HOME,
   semog: CENAS_SEMOG,
   gestao: CENAS_GESTAO,
+  garante: CENAS_GARANTE,
 }
 
 export type IdPaginaComCenas = IdPaginaApp
