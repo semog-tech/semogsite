@@ -16,10 +16,8 @@ import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 
 /**
- * Rótulos das opções de `assunto` — copiados de propósito de
- * `src/seed/forms.ts` (`contatoData.fields`, bloco `assunto`) e dos valores
- * de `ASSUNTO_OPTIONS` em `src/lib/form-schemas.ts`. Se um dos dois mudar,
- * atualizar aqui também (mesmo aviso já documentado nos dois arquivos).
+ * Rótulos das opções de `assunto`, com os valores de `ASSUNTO_OPTIONS` em
+ * `src/lib/form-schemas.ts`. Se a lista de lá mudar, atualizar aqui também.
  *
  * "Proposta comercial" saiu da lista em 17/10/2026 (Leandro): o Contato vai à
  * caixa compartilhada ola@, sem Unidade, e quem quer proposta é levado ao
@@ -40,7 +38,7 @@ const ASSUNTO_OPTIONS: { label: string; value: NonNullable<ContatoValues['assunt
 type Status = 'idle' | 'success' | 'error'
 
 /**
- * Formulário "Contato" (form id=1, `src/seed/forms.ts`): RHF + `contatoSchema`
+ * Formulário "Contato" (form id=1): RHF + `contatoSchema`
  * (validação client, mesmas regras do server) + Turnstile (token só liberado
  * quando o widget confirma o desafio) + `submitForm` Server Action.
  *
