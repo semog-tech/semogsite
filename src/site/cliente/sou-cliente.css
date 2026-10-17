@@ -109,6 +109,15 @@ html.sc-travado {
 .sou-cliente .tr-lead {
   margin-bottom: var(--e3);
 }
+/* O aviso de dados (LGPD) é nota, não corpo: um passo menor, para o campo e o botão mandarem. */
+.sou-cliente .tr-dica {
+  font-size: var(--t-pequeno);
+}
+/* A saída para o WhatsApp é a alternativa ao botão: separada dele e centrada embaixo. */
+.sou-cliente .tr-alternativa {
+  margin-top: var(--e3);
+  text-align: center;
+}
 .sou-cliente .tr-opcoes {
   display: grid;
   gap: var(--e1);
@@ -134,6 +143,15 @@ html.sc-travado {
 }
 .sou-cliente .tr-opcao:hover {
   background: var(--ceu-claro);
+}
+/* A seta da opção corre ao passar o mouse, como a dos links do site. */
+.sou-cliente .tr-opcao-seta {
+  flex: none;
+  color: var(--marinho);
+  transition: transform 320ms var(--ease-expo);
+}
+.sou-cliente .tr-opcao:is(:hover, :focus-visible) .tr-opcao-seta {
+  transform: translateX(4px);
 }
 .sou-cliente .tr-opcao-ico {
   flex: none;

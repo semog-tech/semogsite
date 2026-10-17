@@ -85,7 +85,8 @@
   color: var(--marinho);
   transition: transform 320ms var(--ease-expo);
 }
-#contato-abertura a.ct-atalho:hover .seta {
+/* O atalho da 2ª via é link antes de hidratar e botão depois: a seta corre nos dois. */
+#contato-abertura .ct-atalho:hover .seta {
   transform: translateX(5px);
 }
 /* O atalho para o formulário desta página aponta para baixo. */
