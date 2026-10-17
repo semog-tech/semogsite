@@ -1,0 +1,201 @@
+/* 404 do site v2 (fase 4): rótulo, título em duas linhas com a ênfase por peso, o traço que se
+   perde no meio e volta, e os caminhos em cartões. Entrada só de CSS, da primeira pintura: o
+   título sobe pela máscara; a ida do traço para seca no meio; a volta nasce mais abaixo e sobe
+   pela curva; os cartões entram em cascata enquanto a volta sobe. */
+#nao-encontrada {
+  display: grid;
+  align-content: center;
+  gap: var(--e4);
+  min-height: 100svh;
+  padding-block: calc(var(--cab) + var(--e5)) var(--e6);
+  background: var(--branco);
+  overflow: clip;
+}
+#nao-encontrada .ne-rotulo {
+  animation: ne-subir-bloco 0.9s var(--ease-expo) 40ms backwards;
+}
+#nao-encontrada .ne-titulo {
+  margin-top: var(--e2);
+  font-size: clamp(3rem, 1.4rem + 5vw, 6.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#nao-encontrada .ne-titulo .linha-interna {
+  display: block;
+  animation: ne-subir 0.9s var(--ease-expo) calc(var(--i) * 80ms + 60ms) both;
+}
+#nao-encontrada .ne-titulo .peso-fixo::after {
+  animation: ne-peso 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.45s both;
+}
+
+/* ---- O traço: de borda a borda da tela, 1,5px, ponta reta (.percurso). ------------ */
+#nao-encontrada .ne-traco {
+  width: 100%;
+  height: clamp(72px, 9vw, 120px);
+  color: var(--marinho);
+  overflow: visible;
+}
+#nao-encontrada .ne-traco .percurso {
+  stroke-width: 1.5;
+  stroke-dasharray: 1 1;
+}
+#nao-encontrada .ne-ida {
+  animation: ne-desenhar 0.8s var(--ease-expo) 0.3s both;
+}
+#nao-encontrada .ne-volta {
+  animation: ne-desenhar 1.1s var(--ease-expo-in-out) 0.95s both;
+}
+
+/* ---- Caminhos ---------------------------------------------------------------------- */
+#nao-encontrada .ne-texto {
+  max-width: 44ch;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--texto);
+  animation: ne-subir-bloco 0.9s var(--ease-expo) 0.3s backwards;
+}
+#nao-encontrada .ne-links li {
+  animation: ne-subir-bloco 0.9s var(--ease-expo) calc(var(--i) * 70ms + 1.2s) backwards;
+}
+
+@media (max-width: 760px) {
+  #nao-encontrada {
+    align-content: start;
+    gap: var(--e3);
+    padding-top: calc(var(--cab) + var(--e5));
+  }
+  #nao-encontrada .ne-titulo {
+    font-size: min(13vw, 3.5rem);
+  }
+  #nao-encontrada .ne-texto {
+    font-size: 1.0625rem;
+  }
+}
+
+/* ---- Cartões (fase 4): os cinco caminhos em blocos gelo de ponta reta, sem sombra, como os
+   atalhos do Contato. No computador, três em cima e dois mais largos embaixo (cinco não cabem
+   numa grade de três sem deixar um buraco); no tablet, dois por linha e o último inteiro; no
+   celular, um por linha. */
+#nao-encontrada .ne-links {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--e2);
+  margin-top: var(--e4);
+}
+#nao-encontrada .ne-links li {
+  display: grid;
+  grid-column: span 2;
+  min-width: 0;
+}
+#nao-encontrada .ne-links li:nth-child(n + 4) {
+  grid-column: span 3;
+}
+#nao-encontrada .ne-cartao {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--e2);
+  min-height: 100%;
+  padding: var(--e4) var(--e4) var(--e3);
+  background: var(--gelo);
+  color: var(--texto);
+  text-decoration: none;
+  transition: background-color 320ms var(--ease-expo);
+}
+#nao-encontrada .ne-cartao:hover {
+  background: color-mix(in oklab, var(--gelo) 70%, var(--ceu-claro));
+}
+#nao-encontrada .ne-cartao:focus-visible {
+  outline: 2px solid var(--marinho);
+  outline-offset: 2px;
+}
+#nao-encontrada .ne-cartao strong {
+  font-family: var(--fonte-titulo);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--marinho);
+}
+#nao-encontrada .ne-cartao span {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+#nao-encontrada .ne-cartao .seta {
+  margin-top: var(--e1);
+  color: var(--marinho);
+  transition: transform 320ms var(--ease-expo);
+}
+#nao-encontrada .ne-cartao:hover .seta {
+  transform: translateX(5px);
+}
+@media (max-width: 900px) {
+  #nao-encontrada .ne-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #nao-encontrada .ne-links li,
+  #nao-encontrada .ne-links li:nth-child(n + 4) {
+    grid-column: auto;
+  }
+  #nao-encontrada .ne-links li:last-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 760px) {
+  #nao-encontrada .ne-links {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e1);
+    margin-top: var(--e3);
+  }
+  /* No celular o cartão é uma linha: título e seta em cima, o texto embaixo. */
+  #nao-encontrada .ne-cartao {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    gap: 4px var(--e2);
+    padding: var(--e3);
+  }
+  #nao-encontrada .ne-cartao strong {
+    font-size: 1.1875rem;
+  }
+  #nao-encontrada .ne-cartao span {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #nao-encontrada .ne-cartao .seta {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    margin-top: 0;
+  }
+}
+
+@keyframes ne-subir {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes ne-subir-bloco {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(-21px -21px -21px -21px);
+    transform: none;
+  }
+}
+@keyframes ne-peso {
+  from {
+    font-variation-settings: "wght" var(--peso-enfase-de);
+  }
+}
+@keyframes ne-desenhar {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
