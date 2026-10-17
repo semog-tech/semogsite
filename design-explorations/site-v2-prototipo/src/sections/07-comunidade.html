@@ -1,0 +1,194 @@
+<!-- Comunidade · o mundo escuro da página. Uma linha se desenha no gelo e as folhas se abrem
+     para a noite; a mesma linha vira luz e liga Café → Experience → blog. Na saída, as
+     metades claras da proposta sobem e recolhem a noite. -->
+<section id="comunidade" class="cena" data-tema="marinho" aria-labelledby="comunidade-titulo">
+  <!-- Noite: brilhos suaves presos à tela enquanto a cena passa. -->
+  <div class="comunidade-noite" aria-hidden="true">
+    <div class="comunidade-noite-tela">
+      <span class="comunidade-brilho comunidade-brilho--a"></span>
+      <span class="comunidade-brilho comunidade-brilho--b"></span>
+    </div>
+  </div>
+
+  <!-- Abertura: as folhas de gelo se afastam da linha. Sem JS, já estão abertas. -->
+  <header class="comunidade-abertura">
+    <!-- Aurora: o gradiente Transparência invertido (gelo no alto, noite embaixo). Quando as
+         folhas se abrem, o topo da noite nasce do mesmo gelo da cena 06, sem borda. -->
+    <div class="comunidade-aurora" aria-hidden="true"></div>
+    <div class="comunidade-folha comunidade-folha--esq" aria-hidden="true"></div>
+    <div class="comunidade-folha comunidade-folha--dir" aria-hidden="true"></div>
+    <span class="comunidade-fio comunidade-fio--escuro" aria-hidden="true"></span>
+    <span class="comunidade-fio comunidade-fio--luz" aria-hidden="true"></span>
+    <div class="comunidade-abertura-texto">
+      <div class="comunidade-chamada">
+        <h2 id="comunidade-titulo" class="titulo-display">{{comunidade.titulo}}</h2>
+        <!-- TEXTO-NOVO -->
+        <p class="lead">Encontros gratuitos que a Semog organiza para quem vive o condomínio.</p>
+      </div>
+      <!-- TEXTO-NOVO: cidades e datas (fatos do briefing) -->
+      <ul class="comunidade-agenda">
+        <li class="comunidade-agenda-item">
+          <span class="comunidade-marca" aria-hidden="true"></span>
+          <span class="linha"><span class="linha-interna rotulo">Belém</span></span>
+          <span class="linha"
+            ><span class="linha-interna comunidade-agenda-nome"
+              >{{comunidade.cafe.titulo}}</span
+            ></span
+          >
+          <span class="linha"><span class="linha-interna num">4ª edição em 27/09/2026</span></span>
+        </li>
+        <li class="comunidade-agenda-item">
+          <span class="comunidade-marca" aria-hidden="true"></span>
+          <span class="linha"><span class="linha-interna rotulo">João Pessoa</span></span>
+          <span class="linha"
+            ><span class="linha-interna comunidade-agenda-nome"
+              >{{comunidade.experience.titulo}}</span
+            ></span
+          >
+          <span class="linha"><span class="linha-interna num">Edição 26 em 26/09/2026</span></span>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="comunidade-capitulos">
+    <svg class="comunidade-percurso" aria-hidden="true">
+      <path class="percurso"></path>
+      <rect class="comunidade-ponta" width="6" height="6"></rect>
+    </svg>
+
+    <article class="comunidade-cafe" aria-labelledby="comunidade-cafe-titulo">
+      <figure class="comunidade-quadro comunidade-quadro--cafe">
+        <div class="moldura">
+          <span class="comunidade-sombra" aria-hidden="true"></span>
+          <img
+            src="{{comunidade.cafe.foto}}"
+            alt="{{comunidade.cafe.alt}}"
+            width="1179"
+            height="870"
+            loading="lazy"
+          />
+        </div>
+        <figcaption class="rotulo">{{comunidade.cafe.legenda}}</figcaption>
+      </figure>
+
+      <div class="comunidade-par">
+        <figure class="comunidade-mote">
+          <span class="comunidade-aspas" aria-hidden="true">“</span>
+          <blockquote>
+            <p class="comunidade-frase">{{comunidade.cafe.mote}}</p>
+          </blockquote>
+        </figure>
+        <div class="comunidade-texto">
+          <h3 id="comunidade-cafe-titulo">{{comunidade.cafe.titulo}}</h3>
+          <p class="comunidade-corpo">{{comunidade.cafe.texto}}</p>
+          <!-- TEXTO-NOVO: rótulos e frases dos marcos (fatos do briefing; substituem comunidade.cafe.edicao) -->
+          <dl class="comunidade-marcos">
+            <div class="comunidade-marco">
+              <dt class="rotulo">
+                <span class="linha"><span class="linha-interna">4ª edição</span></span>
+              </dt>
+              <dd class="comunidade-data num">
+                <span class="linha"><span class="linha-interna">27/09/2026</span></span>
+              </dd>
+              <dd class="comunidade-nota">A bordo, pela Prainha e Estação das Docas.</dd>
+            </div>
+            <div class="comunidade-marco">
+              <dt class="rotulo">
+                <span class="linha"><span class="linha-interna">5ª edição</span></span>
+              </dt>
+              <dd class="comunidade-data">
+                <span class="linha"><span class="linha-interna">Anunciada</span></span>
+              </dd>
+            </div>
+          </dl>
+          <!-- TEXTO-NOVO: comentário autorizado (briefing) -->
+          <figure class="comunidade-voz">
+            <blockquote>
+              <p>“Esse dia 27/09/2026 ficará marcado na vida de todos nós.”</p>
+            </blockquote>
+            <figcaption class="rotulo">
+              Ana Cláudia, síndica, sobre a 4ª edição, em comentário no Instagram do evento.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <article class="comunidade-experience" aria-labelledby="comunidade-experience-titulo">
+      <div class="comunidade-par comunidade-par--inverso">
+        <div class="comunidade-texto">
+          <h3 id="comunidade-experience-titulo">{{comunidade.experience.titulo}}</h3>
+          <p class="comunidade-corpo">{{comunidade.experience.texto}}</p>
+          <!-- TEXTO-NOVO: rótulos e frases dos marcos (fatos do briefing; substituem comunidade.experience.edicao) -->
+          <dl class="comunidade-marcos comunidade-marcos--menor">
+            <div class="comunidade-marco">
+              <dt class="rotulo">
+                <span class="linha"><span class="linha-interna">Edição 26</span></span>
+              </dt>
+              <dd class="comunidade-data num">
+                <span class="linha"><span class="linha-interna">26/09/2026</span></span>
+              </dd>
+              <dd class="comunidade-nota">Pilates, yoga e funcional.</dd>
+            </div>
+            <div class="comunidade-marco">
+              <dt class="rotulo">
+                <span class="linha"><span class="linha-interna">Em 2025</span></span>
+              </dt>
+              <dd class="comunidade-data">
+                <span class="linha"><span class="linha-interna">Beach tennis</span></span>
+              </dd>
+              <dd class="comunidade-nota">Foi um campeonato.</dd>
+            </div>
+          </dl>
+          <!-- TEXTO-NOVO: rótulo do link -->
+          <a class="link-seta" href="https://www.semog.com.br/experience"
+            ><span>Conhecer o Semog Experience</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+          ></a>
+        </div>
+        <figure class="comunidade-dupla">
+          <div class="comunidade-quadro comunidade-quadro--retrato">
+            <div class="moldura">
+              <span class="comunidade-sombra" aria-hidden="true"></span>
+              <img
+                src="{{comunidade.experience.fotos.0.src}}"
+                alt="{{comunidade.experience.fotos.0.alt}}"
+                width="406"
+                height="720"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div class="comunidade-quadro comunidade-quadro--retrato">
+            <div class="moldura">
+              <span class="comunidade-sombra" aria-hidden="true"></span>
+              <img
+                src="{{comunidade.experience.fotos.1.src}}"
+                alt="{{comunidade.experience.fotos.1.alt}}"
+                width="406"
+                height="720"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <figcaption class="rotulo">{{comunidade.experience.legenda}}</figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="comunidade-blog" aria-labelledby="comunidade-blog-titulo">
+      <h3 id="comunidade-blog-titulo">{{comunidade.blog.titulo}}</h3>
+      <p class="comunidade-corpo">{{comunidade.blog.texto}}</p>
+      <a class="link-seta" href="{{comunidade.blog.url}}"
+        ><span>Ler o blog</span> <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+      ></a>
+    </article>
+  </div>
+
+  <!-- Saída: as duas metades claras da proposta (38,2 / 61,8) sobem e recolhem a noite. -->
+  <div class="comunidade-saida" aria-hidden="true">
+    <span class="comunidade-metade comunidade-metade--menor"></span>
+    <span class="comunidade-metade comunidade-metade--maior"></span>
+  </div>
+</section>

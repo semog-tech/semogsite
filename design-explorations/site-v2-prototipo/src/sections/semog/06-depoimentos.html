@@ -1,0 +1,31 @@
+<!-- Depoimentos · três síndicas falam da relação com a Semog, em avaliações públicas no
+     Google (texto como publicado). A mais curta é a maior: "meu braço direito" é a frase da
+     página. As outras duas seguem em 61,8/38,2. -->
+<section id="depoimentos" class="cena" data-tema="claro" aria-labelledby="depoimentos-titulo">
+  <div class="container dp-quadro">
+    <h2 id="depoimentos-titulo" class="dp-titulo">{{depoimentos.titulo}}</h2>
+    <figure class="dp-citacao dp-citacao--maior">
+      <blockquote class="dp-texto">{{depoimentos.itens.1.texto}}</blockquote>
+      <figcaption class="dp-autoria">
+        <span class="dp-nome">{{depoimentos.itens.1.nome}} · {{depoimentos.itens.1.cidade}}</span>
+        <span class="rotulo">{{aSemog.depoimentos.origem}} · {{depoimentos.itens.1.data}}</span>
+      </figcaption>
+    </figure>
+    <div class="dp-par">
+      <figure class="dp-citacao">
+        <blockquote class="dp-texto">{{depoimentos.itens.0.texto}}</blockquote>
+        <figcaption class="dp-autoria">
+          <span class="dp-nome">{{depoimentos.itens.0.nome}} · {{depoimentos.itens.0.cidade}}</span>
+          <span class="rotulo">{{aSemog.depoimentos.origem}} · {{depoimentos.itens.0.data}}</span>
+        </figcaption>
+      </figure>
+      <figure class="dp-citacao">
+        <blockquote class="dp-texto">{{depoimentos.itens.2.texto}}</blockquote>
+        <figcaption class="dp-autoria">
+          <span class="dp-nome">{{depoimentos.itens.2.nome}} · {{depoimentos.itens.2.cidade}}</span>
+          <span class="rotulo">{{aSemog.depoimentos.origem}} · {{depoimentos.itens.2.data}}</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>

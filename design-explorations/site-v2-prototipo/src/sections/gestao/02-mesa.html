@@ -1,0 +1,186 @@
+<!-- Mesa do síndico · a cena-assinatura de Gestão. Sem JS é a lista dos sete momentos e o
+     desenho no estado final: na mesa, só "decidir" e as vagas vazias do que saiu; nas cinco
+     frentes da Semog, cada tarefa no seu lugar, ao lado de um traço marinho que liga as frentes.
+     Com JS, o palco fica fixo e a rolagem esvazia a mesa: um traço só, de ponta reta, desce pela
+     espinha das frentes; quando ele chega ao nó de uma frente, o nome dela ganha peso e as
+     tarefas daquela frente saem da pilha e pousam ali, uma depois da outra. Cada momento tem
+     um patamar de leitura. No fim, sobra "decidir", que acende e cresce até virar o céu claro da
+     cena seguinte. -->
+<section
+  id="mesa-do-sindico"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="mesa-do-sindico-titulo"
+>
+  <div class="gme-palco">
+    <div class="container gme-grade">
+      <h2 id="mesa-do-sindico-titulo" class="gme-titulo">{{gestaoPagina.mesa.titulo}}</h2>
+
+      <ol class="gme-momentos">
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.0.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.0.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.1.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.1.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.2.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.2.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.3.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.3.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.4.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.4.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.5.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.5.texto}}</span>
+          </p>
+        </li>
+        <li class="gme-momento">
+          <h3 class="gme-momento-titulo">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.6.titulo}}</span>
+          </h3>
+          <p class="gme-texto">
+            <span class="gme-in">{{gestaoPagina.mesa.momentos.6.texto}}</span>
+          </p>
+        </li>
+      </ol>
+
+      <figure class="gme-figura" aria-hidden="true">
+        <div class="gme-mesa">
+          <p class="gme-rotulo rotulo">{{gestaoPagina.mesa.mesaRotulo}}</p>
+          <ul class="gme-pilha">
+            <li class="gme-vaga" data-tarefa="0">
+              <span>{{gestaoPagina.mesa.frentes.0.tarefas.0}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="7">
+              <span>{{gestaoPagina.mesa.frentes.2.tarefas.0}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="12">
+              <span>{{gestaoPagina.mesa.frentes.3.tarefas.2}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="4">
+              <span>{{gestaoPagina.mesa.frentes.1.tarefas.0}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="13">
+              <span>{{gestaoPagina.mesa.frentes.4.tarefas.0}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="1">
+              <span>{{gestaoPagina.mesa.frentes.0.tarefas.1}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="10">
+              <span>{{gestaoPagina.mesa.frentes.3.tarefas.0}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="8">
+              <span>{{gestaoPagina.mesa.frentes.2.tarefas.1}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="5">
+              <span>{{gestaoPagina.mesa.frentes.1.tarefas.1}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="3">
+              <span>{{gestaoPagina.mesa.frentes.0.tarefas.3}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="14">
+              <span>{{gestaoPagina.mesa.frentes.4.tarefas.1}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="9">
+              <span>{{gestaoPagina.mesa.frentes.2.tarefas.2}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="6">
+              <span>{{gestaoPagina.mesa.frentes.1.tarefas.2}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="11">
+              <span>{{gestaoPagina.mesa.frentes.3.tarefas.1}}</span>
+            </li>
+            <li class="gme-vaga" data-tarefa="2">
+              <span>{{gestaoPagina.mesa.frentes.0.tarefas.2}}</span>
+            </li>
+            <li class="gme-decidir">
+              <span class="gme-realce"></span
+              ><span class="gme-decidir-texto">{{gestaoPagina.mesa.decidir}}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="gme-frentes">
+          <p class="gme-rotulo rotulo">{{gestaoPagina.mesa.frentesRotulo}}</p>
+          <span class="gme-espinha"><span class="gme-traco"></span></span>
+          <div class="gme-frente">
+            <i class="gme-no"></i>
+            <p class="gme-frente-nome">{{gestaoPagina.mesa.frentes.0.nome}}</p>
+            <ul class="gme-cartoes">
+              <li class="gme-cartao" data-tarefa="0">{{gestaoPagina.mesa.frentes.0.tarefas.0}}</li>
+              <li class="gme-cartao" data-tarefa="1">{{gestaoPagina.mesa.frentes.0.tarefas.1}}</li>
+              <li class="gme-cartao" data-tarefa="2">{{gestaoPagina.mesa.frentes.0.tarefas.2}}</li>
+              <li class="gme-cartao" data-tarefa="3">{{gestaoPagina.mesa.frentes.0.tarefas.3}}</li>
+            </ul>
+          </div>
+          <div class="gme-frente">
+            <i class="gme-no"></i>
+            <p class="gme-frente-nome">{{gestaoPagina.mesa.frentes.1.nome}}</p>
+            <ul class="gme-cartoes">
+              <li class="gme-cartao" data-tarefa="4">{{gestaoPagina.mesa.frentes.1.tarefas.0}}</li>
+              <li class="gme-cartao" data-tarefa="5">{{gestaoPagina.mesa.frentes.1.tarefas.1}}</li>
+              <li class="gme-cartao" data-tarefa="6">{{gestaoPagina.mesa.frentes.1.tarefas.2}}</li>
+            </ul>
+          </div>
+          <div class="gme-frente">
+            <i class="gme-no"></i>
+            <p class="gme-frente-nome">{{gestaoPagina.mesa.frentes.2.nome}}</p>
+            <ul class="gme-cartoes">
+              <li class="gme-cartao" data-tarefa="7">{{gestaoPagina.mesa.frentes.2.tarefas.0}}</li>
+              <li class="gme-cartao" data-tarefa="8">{{gestaoPagina.mesa.frentes.2.tarefas.1}}</li>
+              <li class="gme-cartao" data-tarefa="9">{{gestaoPagina.mesa.frentes.2.tarefas.2}}</li>
+            </ul>
+          </div>
+          <div class="gme-frente">
+            <i class="gme-no"></i>
+            <p class="gme-frente-nome">{{gestaoPagina.mesa.frentes.3.nome}}</p>
+            <ul class="gme-cartoes">
+              <li class="gme-cartao" data-tarefa="10">{{gestaoPagina.mesa.frentes.3.tarefas.0}}</li>
+              <li class="gme-cartao" data-tarefa="11">{{gestaoPagina.mesa.frentes.3.tarefas.1}}</li>
+              <li class="gme-cartao" data-tarefa="12">{{gestaoPagina.mesa.frentes.3.tarefas.2}}</li>
+            </ul>
+          </div>
+          <div class="gme-frente">
+            <i class="gme-no"></i>
+            <p class="gme-frente-nome">{{gestaoPagina.mesa.frentes.4.nome}}</p>
+            <ul class="gme-cartoes">
+              <li class="gme-cartao" data-tarefa="13">{{gestaoPagina.mesa.frentes.4.tarefas.0}}</li>
+              <li class="gme-cartao" data-tarefa="14">{{gestaoPagina.mesa.frentes.4.tarefas.1}}</li>
+            </ul>
+          </div>
+        </div>
+      </figure>
+    </div>
+    <div class="gme-cobertura" aria-hidden="true"></div>
+  </div>
+</section>

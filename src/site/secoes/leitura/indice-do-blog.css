@@ -1,0 +1,139 @@
+/* Blog · índice. Título e chamada em 61,8/38,2; filtros; o destaque com a foto em
+   61,8 e o texto em 38,2; os outros posts em duas colunas. O filtro por categoria é
+   CSS (:target + :has), com as regras por categoria geradas por regrasDoFiltro (src/site/leitura/dados.ts). */
+#blog-indice {
+  padding-bottom: var(--e7);
+}
+
+/* ---- Topo ------------------------------------------------------------------------- */
+#blog-indice .bi-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  align-items: end;
+  gap: var(--e5);
+}
+#blog-indice .bi-topo > * {
+  min-width: 0;
+}
+#blog-indice .bi-titulo {
+  animation: leitura-subir 1s var(--ease-expo) backwards;
+}
+#blog-indice .bi-intro {
+  animation: leitura-subir 1s var(--ease-expo) 0.12s backwards;
+}
+
+/* ---- Filtros ---------------------------------------------------------------------- */
+#blog-indice .bi-alvo {
+  display: block;
+  /* O salto para o filtro deixa a fila de filtros logo abaixo do header. */
+  scroll-margin-top: calc(var(--cab) + var(--e3));
+}
+#blog-indice .bi-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1);
+  margin-top: var(--e6);
+}
+/* inline-block, não flex: o número menor fica na linha de base do nome. */
+#blog-indice .bi-filtro {
+  display: inline-block;
+  padding: 0 var(--e3);
+  line-height: 38px;
+  border: 1px solid var(--lavanda);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--marinho);
+  text-decoration: none;
+  transition:
+    border-color 240ms var(--ease-expo),
+    background-color 240ms var(--ease-expo),
+    color 240ms var(--ease-expo);
+}
+#blog-indice .bi-filtro .num {
+  margin-left: 3px;
+  font-size: 0.8125rem;
+  opacity: 0.6;
+}
+#blog-indice .bi-filtro:hover {
+  border-color: var(--marinho);
+}
+/* Sem filtro escolhido, "Todos" fica marcado. */
+#blog-indice:not(:has(.bi-alvo--categoria:target)) .bi-filtro--todos {
+  background: var(--marinho);
+  border-color: var(--marinho);
+  color: var(--branco);
+}
+
+/* ---- Lista ------------------------------------------------------------------------ */
+#blog-indice .bi-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e6) var(--e6);
+  margin-top: var(--e5);
+}
+#blog-indice .bi-item {
+  min-width: 0;
+}
+#blog-indice .bi-item--destaque {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  align-items: center;
+  gap: var(--e5);
+}
+#blog-indice .bi-item--destaque > * {
+  min-width: 0;
+}
+#blog-indice .bi-foto {
+  overflow: clip;
+  background: var(--lavanda);
+}
+#blog-indice .bi-foto img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition: transform 900ms var(--ease-expo);
+}
+#blog-indice .bi-item--destaque:hover .bi-foto img {
+  transform: scale(1.03);
+}
+#blog-indice .bi-item--destaque .post-cartao-titulo {
+  font-size: clamp(1.75rem, 1.2rem + 1.5vw, 2.75rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: var(--tracking-titulo);
+}
+/* O cartão do destaque cobre também a foto: o link estica até o <li>. */
+#blog-indice .bi-item--destaque {
+  position: relative;
+}
+#blog-indice .bi-item--destaque .post-cartao {
+  position: static;
+}
+#blog-indice .bi-item--destaque .post-cartao::before {
+  position: static;
+  display: block;
+  margin-bottom: var(--e1);
+}
+
+@media (max-width: 760px) {
+  #blog-indice .bi-topo,
+  #blog-indice .bi-item--destaque {
+    grid-template-columns: 1fr;
+  }
+  #blog-indice .bi-topo {
+    gap: var(--e3);
+  }
+  #blog-indice .bi-item--destaque {
+    gap: var(--e4);
+  }
+  #blog-indice .bi-filtros {
+    margin-top: var(--e5);
+  }
+  #blog-indice .bi-lista {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+    margin-top: var(--e4);
+  }
+}

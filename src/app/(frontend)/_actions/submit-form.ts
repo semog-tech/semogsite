@@ -50,6 +50,15 @@ import {
   type SubmitFormResult,
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
+import { AMBIENTE_FIELD, ambienteAtual, ambienteLiberaEnvio } from '@/lib/leads/ambiente'
+import {
+  BELEM_TO,
+  destinatariosDoContato,
+  PB_TO,
+  RECIFE_TO,
+  TODAS_AS_PRACAS,
+} from '@/lib/leads/destinatarios'
+import { reportarFalhaDoLead } from '@/lib/leads/reportar'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
@@ -123,16 +132,10 @@ type Envio = {
 }
 
 /**
- * Responsáveis da Paraíba (João Pessoa e Campina Grande) — a mesma caixa da
- * filial que já recebe a inscrição do Experience.
- */
-const PB_TO = 'comercial.pb@semog.com.br'
-
-/**
  * Roteamento da notificação interna de **Proposta** por região, a partir do
  * campo `cidade` (as chaves são os `value` exatos de `CIDADE_OPTIONS` em
  * `src/lib/form-schemas.ts` — se o enum mudar as opções, o `tsc` cobra a
- * entrada aqui). Só a Proposta usa isto; Contato continua indo pro `CONTACT_TO`.
+ * entrada aqui). Só a Proposta usa isto; Contato vai para `CONTATO_TO` (ola@).
  *
  * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026. Ele é uma lista de
  * distribuição, e lista não responde: com os botões de desfecho no e-mail, um
@@ -147,40 +150,38 @@ const PB_TO = 'comercial.pb@semog.com.br'
  * ligando para o mesmo síndico.
  */
 const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = {
-  'Recife e região': ['ivan@semog.com.br'],
+  'Recife e região': [RECIFE_TO],
   'João Pessoa e região': [PB_TO],
   'Campina Grande e região': [PB_TO],
-  'Belém e região': ['galvao@semog.com.br'],
-  'Outra cidade': ['ivan@semog.com.br', 'galvao@semog.com.br', PB_TO],
+  'Belém e região': [BELEM_TO],
+  'Outra cidade': TODAS_AS_PRACAS,
 }
 
 /**
  * Destino da inscrição no Semog Experience — quem organiza o evento é a filial
  * de João Pessoa. Cravado no código como os da Proposta, e não em variável de
- * ambiente: `CONTACT_TO` ausente faz a notificação simplesmente não sair, sem
- * erro nenhum, e uma inscrição perdida em silêncio é o pior desfecho possível.
+ * ambiente: variável ausente faria a notificação simplesmente não sair (era o
+ * caso do `CONTACT_TO`, que o Contato deixou de ler), sem erro nenhum, e uma
+ * inscrição perdida em silêncio é o pior desfecho possível.
  */
-const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
+const EXPERIENCE_TO = PB_TO
 
 /**
- * Para quem vai a notificação interna deste formulário. `undefined` só acontece
- * no Contato sem `CONTACT_TO` configurado (comum em dev), e aí nenhuma
- * notificação sai — comportamento original.
+ * Para quem vai a notificação interna deste formulário. O Contato vai sempre
+ * para `CONTATO_TO` (ola@, fase 4 do site v2). Em dev e Preview nada sai mesmo
+ * assim: `ambienteLiberaEnvio` barra o e-mail e o CRM fora de produção.
  *
  * É função, e não um trecho dentro do bloco de e-mail, porque a decisão passou
  * a ser gravada na linha do lead (`notificado_para`) e portanto precisa
  * acontecer ANTES do INSERT: quem recebeu o aviso é o que separa, depois, um
  * desfecho com autor conhecido de um que veio de caixa compartilhada.
  */
-function destinatariosDaNotificacao(
-  formType: FormType,
-  data: DadosDoEnvio,
-): readonly string[] | undefined {
+function destinatariosDaNotificacao(formType: FormType, data: DadosDoEnvio): readonly string[] {
   // `as`: com `formType === 'proposta'` os dados são do formulário completo ou
   // da proposta curta, e os dois têm `cidade` com o mesmo enum.
   if (formType === 'proposta') return PROPOSTA_CIDADE_TO[(data as PropostaValues).cidade]
   if (formType === 'experience') return [EXPERIENCE_TO]
-  return process.env.CONTACT_TO ? [process.env.CONTACT_TO] : undefined
+  return destinatariosDoContato()
 }
 
 /**
@@ -392,6 +393,7 @@ async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: bo
 function montarLeadData(
   data: DadosDoEnvio,
   attributionFields: { label: string; value: string }[],
+  formType: FormType,
 ): Record<string, string> {
   const leadData: Record<string, string> = {}
   for (const [field, value] of Object.entries(data)) {
@@ -399,6 +401,9 @@ function montarLeadData(
       leadData[field] = String(value)
     }
   }
+  // De onde veio a linha (R1). O Experience fica de fora: o `data` dele vai para a função
+  // `cms.experience_lotacao`, que não tem DDL neste repo e cuja entrada não mexemos.
+  if (formType !== 'experience') leadData[AMBIENTE_FIELD] = ambienteAtual()
   for (const f of attributionFields) {
     leadData[`origem — ${f.label}`] = f.value
   }
@@ -430,9 +435,17 @@ async function enviarAoExact(
           leadRowId,
         ],
       )
+      if (!push.ok)
+        reportarFalhaDoLead(
+          'exact',
+          new Error('Exact recusou ou não respondeu (detalhe em exact_error)'),
+          { leadId: leadRowId, origem: formType },
+        )
     }
   } catch (exactErr) {
-    console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
+    // Sem o erro cru no console: com o Sentry no servidor ele viraria breadcrumb do evento (pode
+    // trazer e-mail ou telefone). `reportarFalhaDoLead` loga só passo, origem e classe.
+    reportarFalhaDoLead('exact', exactErr, { leadId: leadRowId, origem: formType })
   }
 }
 
@@ -494,7 +507,10 @@ async function enviarNotificacao(emails: EmailsDoEnvio): Promise<void> {
     }),
   })
   if (notificationResult.ok === false) {
-    console.error('[submit-form] sendMail falhou:', notificationResult.error)
+    reportarFalhaDoLead('email', new Error('SendGrid recusou a notificação interna'), {
+      leadId: leadRowId,
+      origem: envio.formType,
+    })
   }
 }
 
@@ -532,13 +548,15 @@ async function enviarAutoReply(envio: Envio, email: string | undefined): Promise
     react: autoReply.react,
   })
   if (autoReplyResult.ok === false) {
-    console.error('[submit-form] sendMail falhou:', autoReplyResult.error)
+    reportarFalhaDoLead('email', new Error('SendGrid recusou o aviso ao lead'), {
+      origem: envio.formType,
+    })
   }
 }
 
 /**
  * E-mail é best-effort: a submissão já está salva, então uma falha de SendGrid
- * (ou ausência de `CONTACT_TO`/`SENDGRID_API_KEY`) não deve derrubar o retorno
+ * (ou ausência de `SENDGRID_API_KEY`) não deve derrubar o retorno
  * `ok: true` pro usuário.
  */
 async function enviarEmails(emails: EmailsDoEnvio): Promise<void> {
@@ -546,7 +564,11 @@ async function enviarEmails(emails: EmailsDoEnvio): Promise<void> {
     await enviarNotificacao(emails)
     await enviarAutoReply(emails.envio, emails.email)
   } catch (mailErr) {
-    console.error('[submit-form] falha ao enviar e-mail (submissão já salva):', mailErr)
+    // Erro cru fora do console, pelo mesmo motivo de `enviarAoExact`.
+    reportarFalhaDoLead('email', mailErr, {
+      leadId: emails.leadRowId,
+      origem: emails.envio.formType,
+    })
   }
 }
 
@@ -603,7 +625,7 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
     const attributionCookie = jar.get(ATTRIBUTION_COOKIE)?.value
     const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
 
-    const leadData = montarLeadData(data, attributionFields)
+    const leadData = montarLeadData(data, attributionFields, formType)
     const { gclid, email } = extractLeadColumns(leadData)
 
     // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
@@ -640,6 +662,14 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
       }
     }
 
+    // Preview e local gravam no banco de produção; daqui não sai nada (R1).
+    if (!ambienteLiberaEnvio(leadData)) {
+      console.info(
+        `[submit-form] ambiente ${leadData[AMBIENTE_FIELD]}: lead gravado; Exact e e-mail não saem.`,
+      )
+      return { ok: true, message: 'Recebemos sua mensagem!' }
+    }
+
     const leadRowId = gravado.id
     if (leadRowId) await enviarAoExact(formType, leadData, leadRowId)
 
@@ -647,7 +677,8 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
 
     return { ok: true, message: 'Recebemos sua mensagem!' }
   } catch (err) {
-    console.error('[submit-form] erro inesperado:', err)
+    // Erro cru fora do console, pelo mesmo motivo de `enviarAoExact`.
+    reportarFalhaDoLead('gravacao', err, { origem: formType })
     return { ok: false, message: 'Erro ao enviar. Tente novamente.' }
   }
 }

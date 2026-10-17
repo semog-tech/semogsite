@@ -1,0 +1,49 @@
+/* Soluções · perguntas: blocos gelo de ponta reta; o sinal troca de + para − ao abrir. */
+.sl-perguntas {
+  padding-block: clamp(var(--e6), 9vw, var(--e7));
+}
+.sl-perguntas .sl-perguntas-titulo {
+  margin-bottom: var(--e4);
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h2);
+  font-weight: var(--peso-titulo);
+  line-height: var(--lh-titulo);
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+.sl-perguntas details {
+  background: var(--gelo);
+}
+.sl-perguntas details + details {
+  margin-top: var(--e1);
+}
+.sl-perguntas summary {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e3);
+  padding: var(--e3) var(--e4);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--fonte-titulo);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--marinho);
+}
+.sl-perguntas summary::-webkit-details-marker {
+  display: none;
+}
+.sl-perguntas summary::after {
+  content: "+";
+  font-weight: 300;
+}
+.sl-perguntas details[open] summary::after {
+  content: "−";
+}
+.sl-perguntas summary:focus-visible {
+  outline: 2px solid var(--marinho);
+  outline-offset: 2px;
+}
+.sl-perguntas .sl-resposta {
+  padding: 0 var(--e4) var(--e3);
+  max-width: var(--largura-texto);
+}

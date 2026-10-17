@@ -1,0 +1,92 @@
+<!-- A Semog · manifesto. A primeira dobra é a frase da casa, em Saira leve e grande, no
+     marinho do gradiente Transparência; "Esse trabalho é nosso." ganha peso. Embaixo, já
+     na luz, os cinco números que sustentam a frase, contando ao entrar. -->
+<section id="a-semog" class="cena grao" data-tema="marinho" aria-labelledby="a-semog-titulo">
+  <div class="container mf-quadro">
+    <h1 id="a-semog-titulo" class="mf-titulo entrada">
+      {{aSemog.manifesto.antes}} <em class="peso">{{aSemog.manifesto.enfase}}</em>
+      {{aSemog.manifesto.depois}}
+    </h1>
+
+    <dl class="mf-numeros">
+      <div class="mf-numero entrada">
+        <dt class="rotulo">
+          <span class="mf-mascara"
+            ><span class="mf-in">{{numeros.anos.rotulo}}, {{numeros.anos.detalhe}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="mf-mascara"
+            ><span class="mf-in" data-conta="{{numeros.anos.valor}}"
+              >{{numeros.anos.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="mf-numero entrada">
+        <dt class="rotulo">
+          <span class="mf-mascara"><span class="mf-in">{{numeros.condominios.rotulo}}</span></span>
+        </dt>
+        <dd class="num">
+          <span class="mf-mascara"
+            ><span
+              class="mf-in"
+              data-conta="{{numeros.condominios.valor}}"
+              data-prefixo="{{numeros.condominios.prefixo}}"
+              >{{numeros.condominios.prefixo}}{{numeros.condominios.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="mf-numero entrada">
+        <dt class="rotulo">
+          <span class="mf-mascara"><span class="mf-in">{{numeros.clientes.rotulo}}</span></span>
+        </dt>
+        <dd class="num">
+          <span class="mf-mascara"
+            ><span
+              class="mf-in"
+              data-conta="{{numeros.clientes.valor}}"
+              data-prefixo="{{numeros.clientes.prefixo}}"
+              data-sufixo="{{numeros.clientes.sufixo}}"
+              >{{numeros.clientes.prefixo}}{{numeros.clientes.valor}}{{numeros.clientes.sufixo}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="mf-numero entrada">
+        <dt class="rotulo">
+          <span class="mf-mascara"
+            ><span class="mf-in">{{aSemog.numeros.colaboradores.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="mf-mascara"
+            ><span
+              class="mf-in"
+              data-conta="{{aSemog.numeros.colaboradores.valor}}"
+              data-prefixo="{{aSemog.numeros.colaboradores.prefixo}}"
+              >{{aSemog.numeros.colaboradores.prefixo}}{{aSemog.numeros.colaboradores.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="mf-numero entrada">
+        <dt class="rotulo">
+          <span class="mf-mascara"
+            ><span class="mf-in"
+              >{{aSemog.numeros.estados.rotulo}}: {{aSemog.numeros.estados.detalhe}}</span
+            ></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="mf-mascara"
+            ><span class="mf-in" data-conta="{{aSemog.numeros.estados.valor}}"
+              >{{aSemog.numeros.estados.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>

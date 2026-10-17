@@ -1,0 +1,42 @@
+<!-- Landing de cidade · gestão: os quatro compromissos que a home já aprovou (prestação
+     conferida, Semog Garante, cobrança com equipe própria, Semog One), em grade 2×2. -->
+<section
+  id="cidade-gestao"
+  class="cena cg"
+  data-tema="claro"
+  aria-labelledby="cidade-gestao-titulo"
+>
+  <div class="container cg-quadro">
+    <div class="cg-cabeca revelar">
+      <h2 id="cidade-gestao-titulo" class="cg-titulo">
+        <span class="linha"
+          ><span class="linha-interna"
+            >{{landing.gestao.titulo}}
+            <em class="peso peso-fixo" data-texto="{{landing.gestao.enfase}}"
+              >{{landing.gestao.enfase}}</em
+            ></span
+          ></span
+        >
+      </h2>
+      <p class="cg-lead">{{pilares.itens.0.texto}}</p>
+    </div>
+    <ul class="cg-itens">
+      <li class="cg-item revelar revelar--bloco" style="--i: 0">
+        <h3>{{tecnologia.titulo}}</h3>
+        <p>{{tecnologia.prestacao.0}}</p>
+      </li>
+      <li class="cg-item revelar revelar--bloco" style="--i: 1">
+        <h3>{{pilares.itens.1.titulo}}</h3>
+        <p>{{pilares.itens.1.texto}}</p>
+      </li>
+      <li class="cg-item revelar revelar--bloco" style="--i: 0">
+        <h3>{{pilares.itens.2.titulo}}</h3>
+        <p>{{pilares.itens.2.texto}}</p>
+      </li>
+      <li class="cg-item revelar revelar--bloco" style="--i: 1">
+        <h3>{{tecnologia.semogOne.titulo}}</h3>
+        <p>{{tecnologia.semogOne.texto}}</p>
+      </li>
+    </ul>
+  </div>
+</section>

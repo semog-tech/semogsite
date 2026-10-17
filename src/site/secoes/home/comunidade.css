@@ -1,0 +1,485 @@
+/* Cena 07 · comunidade. O mundo escuro da página: noite em marinho profundo com brilhos
+   suaves, texto claro e fotos que ganham luz. Entra por uma linha no gelo que se abre (o
+   único pin) e sai pelas metades claras da proposta, que sobem. Estado final no CSS
+   (leitura sem JS); o JS cria os estados iniciais. */
+
+/* As cores da cena não dependem do data-tema: o JS troca o atributo só para o header
+   acompanhar o gelo da entrada e o branco da saída. */
+#comunidade,
+#comunidade[data-tema] {
+  --tema-fundo: var(--marinho-profundo);
+  --tema-titulo: var(--branco);
+  --tema-texto: var(--texto-sobre-marinho);
+  --tema-suave: var(--texto-suave-sobre-marinho);
+  --tema-destaque: var(--ceu);
+  --tema-foco: var(--ceu);
+  --luz: var(--ceu);
+  --cont: min(var(--largura), 100% - 2 * var(--margem));
+  /* Corte áureo do container: o vão entre as metades 61,8/38,2. */
+  --corte: calc((100% - var(--cont)) / 2 + (var(--cont) - var(--e5)) * 0.618 + var(--e5) / 2);
+  padding-block: 0;
+  isolation: isolate;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--marinho-profundo) 0%,
+    color-mix(in oklab, var(--marinho-profundo) 82%, var(--marinho)) 45%,
+    var(--marinho-profundo) 100%
+  );
+  color: var(--tema-texto);
+}
+
+/* ---- Noite ------------------------------------------------------------------- */
+.comunidade-noite {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.comunidade-noite-tela {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+}
+.comunidade-brilho {
+  position: absolute;
+  will-change: transform;
+  width: 90vmax;
+  height: 70vmax;
+}
+.comunidade-brilho--a {
+  left: -30vmax;
+  top: -30vmax;
+  background: radial-gradient(
+    in oklab closest-side,
+    color-mix(in oklab, var(--azul-forte) 55%, transparent),
+    color-mix(in oklab, var(--azul-forte) 18%, transparent) 55%,
+    transparent
+  );
+}
+.comunidade-brilho--b {
+  right: -34vmax;
+  bottom: -36vmax;
+  background: radial-gradient(
+    in oklab closest-side,
+    color-mix(in oklab, var(--azul-medio) 34%, transparent),
+    color-mix(in oklab, var(--azul-medio) 10%, transparent) 55%,
+    transparent
+  );
+}
+
+/* ---- Abertura ---------------------------------------------------------------- */
+.comunidade-abertura {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-items: end;
+  height: 100svh;
+  min-height: 600px;
+  padding-bottom: var(--e7);
+  overflow: clip;
+}
+.comunidade-aurora {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 46%;
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--gelo) 0%,
+    var(--ceu-claro) 12%,
+    color-mix(in oklab, var(--ceu) 70%, var(--azul-medio)) 30%,
+    var(--azul-forte) 50%,
+    var(--marinho) 68%,
+    color-mix(in oklab, var(--marinho-profundo) 55%, transparent) 86%,
+    transparent 100%
+  );
+}
+/* Folhas de gelo, o mesmo tom em que a cena 06 termina; se afastam da linha. */
+.comunidade-folha {
+  position: absolute;
+  will-change: transform;
+  inset-block: 0;
+  z-index: 2;
+  background: var(--gelo);
+}
+.comunidade-folha--esq {
+  left: 0;
+  width: var(--corte);
+  transform: translateX(-100%);
+}
+.comunidade-folha--dir {
+  left: var(--corte);
+  right: 0;
+  transform: translateX(100%);
+}
+/* A linha: marinho sobre o gelo, luz sobre a noite. Continua nos capítulos como o traço. */
+.comunidade-fio {
+  position: absolute;
+  inset-block: 0;
+  left: var(--corte);
+  z-index: 3;
+  width: 1px;
+  transform-origin: 50% 0;
+}
+.comunidade-fio--escuro {
+  background: var(--marinho);
+  opacity: 0;
+}
+.comunidade-fio--luz {
+  background: var(--luz);
+}
+.comunidade-abertura-texto {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  column-gap: var(--e5);
+  align-items: center;
+  width: var(--cont);
+  margin-inline: auto;
+}
+.comunidade-abertura-texto > * {
+  min-width: 0;
+}
+.comunidade-chamada {
+  display: grid;
+  gap: var(--e4);
+}
+.comunidade-chamada h2 {
+  max-width: 12ch;
+}
+.comunidade-chamada .lead {
+  max-width: 34ch;
+  color: var(--tema-suave);
+}
+.comunidade-agenda {
+  display: grid;
+  gap: var(--e5);
+}
+.comunidade-agenda-item {
+  position: relative;
+  display: grid;
+  gap: 2px;
+}
+/* Estação: um traço curto que sai da linha até o evento. */
+.comunidade-marca {
+  position: absolute;
+  top: 0.7em;
+  left: calc(var(--e5) / -2);
+  width: var(--e3);
+  height: 1px;
+  background: var(--luz);
+  transform-origin: 0 50%;
+}
+.comunidade-agenda-nome {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+.comunidade-agenda .num {
+  color: var(--tema-texto);
+}
+
+/* ---- Capítulos --------------------------------------------------------------- */
+.comunidade-capitulos {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--e8);
+  width: var(--cont);
+  margin-inline: auto;
+  padding-block: var(--e5) var(--e7);
+}
+/* O traço passa por trás das fotos: some numa e reaparece abaixo dela. */
+.comunidade-capitulos > article {
+  position: relative;
+  z-index: 1;
+}
+.comunidade-percurso {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  overflow: visible;
+  color: var(--luz);
+  pointer-events: none;
+}
+.comunidade-ponta {
+  fill: var(--luz);
+  opacity: 0;
+}
+.comunidade-cafe {
+  display: grid;
+  gap: var(--e6);
+}
+.comunidade-par {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: start;
+}
+.comunidade-par > * {
+  min-width: 0;
+}
+.comunidade-par--inverso {
+  grid-template-columns: var(--menor) var(--maior);
+}
+
+/* Quadros: a imagem é maior que a moldura para o parallax interno (±5%); a sombra
+   marinho por cima some quando a foto abre (a foto ganha luz). */
+.comunidade-quadro {
+  display: grid;
+  gap: var(--e2);
+}
+.comunidade-quadro .moldura {
+  position: relative;
+  overflow: clip;
+  background: var(--marinho);
+}
+.comunidade-sombra {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--marinho-profundo);
+  opacity: 0;
+  pointer-events: none;
+}
+.comunidade-quadro .moldura img {
+  position: absolute;
+  top: -5%;
+  left: 0;
+  width: 100%;
+  height: 110%;
+  max-width: none;
+  object-fit: cover;
+  will-change: transform;
+}
+/* Café: largura toda do container, enquadramento de cinema nos rostos (as sacolas do
+   parceiro ficam fora do quadro). */
+.comunidade-quadro--cafe .moldura {
+  aspect-ratio: 21 / 9;
+}
+.comunidade-quadro--cafe .moldura img {
+  left: -8%;
+  width: 116%;
+  object-position: 50% 4%;
+}
+.comunidade-quadro--retrato .moldura {
+  aspect-ratio: 9 / 16;
+}
+.comunidade-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e3);
+  align-items: start;
+  width: min(100%, 560px);
+  margin-inline-start: auto;
+}
+.comunidade-dupla > .comunidade-quadro:nth-child(2) {
+  margin-top: var(--e6);
+}
+.comunidade-dupla figcaption {
+  grid-column: 1 / -1;
+}
+
+.comunidade-texto {
+  display: grid;
+  align-content: start;
+  gap: var(--e3);
+}
+.comunidade-corpo {
+  max-width: 40ch;
+}
+.comunidade-marcos {
+  display: grid;
+  gap: var(--e4);
+  margin-block: var(--e3) var(--e2);
+}
+.comunidade-marco {
+  display: grid;
+  gap: 4px;
+}
+.comunidade-data {
+  font-family: var(--fonte-titulo);
+  font-size: clamp(2.5rem, 1.5rem + 2.8vw, 4.25rem);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+.comunidade-marcos--menor .comunidade-data {
+  font-size: clamp(2rem, 1.4rem + 1.5vw, 2.875rem);
+}
+.comunidade-nota {
+  color: var(--tema-suave);
+}
+
+/* Mote do Café: citação grande, Saira leve; a ênfase é o peso animado. */
+.comunidade-mote {
+  display: grid;
+  gap: var(--e3);
+  font-size: clamp(2rem, 1rem + 3.1vw, 4rem);
+}
+.comunidade-mote blockquote,
+.comunidade-voz blockquote {
+  margin: 0;
+}
+.comunidade-aspas {
+  display: block;
+  height: 0.5em;
+  font-family: var(--fonte-titulo);
+  font-size: 2em;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--luz);
+  transform-origin: 0% 100%;
+}
+.comunidade-frase {
+  font-family: var(--fonte-titulo);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+  text-wrap: balance;
+}
+.comunidade-voz {
+  display: grid;
+  gap: var(--e2);
+  margin-top: var(--e4);
+}
+.comunidade-voz p {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--tema-titulo);
+}
+
+/* Blog: linha final, menor, alinhada à coluna larga. */
+.comunidade-blog {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  column-gap: var(--e5);
+  row-gap: var(--e2);
+}
+.comunidade-blog > * {
+  grid-column: 2;
+  min-width: 0;
+}
+.comunidade-blog h3 {
+  font-size: clamp(1.5rem, 1.2rem + 0.8vw, 2rem);
+}
+
+/* ---- Saída ------------------------------------------------------------------- */
+/* As metades da proposta (38,2 da largura toda, como a cena 08) sobem do pé da cena. */
+.comunidade-saida {
+  position: relative;
+  z-index: 1;
+  height: 55svh;
+}
+.comunidade-metade {
+  position: absolute;
+  will-change: transform;
+  inset-block: 0;
+  background: var(--branco);
+  transform-origin: 50% 100%;
+}
+/* A menor já no véu lavanda do convite da cena 08: a cortina dela sobe ao encontro desta. */
+.comunidade-metade--menor {
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+}
+.comunidade-metade--maior {
+  left: 38.2%;
+  right: 0;
+}
+
+@media (max-width: 760px) {
+  /* No celular a linha mora na margem esquerda, onde o traço desce. */
+  #comunidade,
+  #comunidade[data-tema] {
+    --corte: calc((100% - var(--cont)) / 2 + 1px);
+  }
+  .comunidade-abertura {
+    padding-bottom: var(--e5);
+  }
+  .comunidade-aurora {
+    height: 28%;
+  }
+  .comunidade-abertura-texto {
+    grid-template-columns: 1fr;
+    row-gap: var(--e5);
+    padding-inline-start: var(--e3);
+  }
+  .comunidade-agenda {
+    gap: var(--e4);
+  }
+  .comunidade-marca {
+    left: calc(var(--e3) * -1);
+    width: var(--e2);
+  }
+  .comunidade-capitulos {
+    gap: var(--e7);
+    padding-inline-start: var(--e3);
+  }
+  .comunidade-par,
+  .comunidade-par--inverso,
+  .comunidade-blog {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+  .comunidade-blog {
+    gap: var(--e2);
+  }
+  .comunidade-blog > * {
+    grid-column: 1;
+  }
+  .comunidade-quadro--cafe .moldura {
+    aspect-ratio: 16 / 9;
+  }
+  .comunidade-quadro--cafe .moldura img {
+    left: -25%;
+    width: 150%;
+    object-position: 50% 0%;
+  }
+  .comunidade-dupla {
+    width: 100%;
+  }
+  .comunidade-dupla > .comunidade-quadro:nth-child(2) {
+    margin-top: var(--e5);
+  }
+  .comunidade-saida {
+    height: 45svh;
+  }
+  /* No celular o convite da 08 ocupa a largura toda: as duas metades vêm no véu. */
+  .comunidade-metade--maior {
+    background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  }
+}
+
+@media print {
+  #comunidade,
+  #comunidade[data-tema] {
+    --tema-titulo: var(--marinho);
+    --tema-texto: var(--texto);
+    --tema-suave: var(--texto-suave);
+    --luz: var(--marinho);
+    background: var(--branco);
+  }
+  .comunidade-noite,
+  .comunidade-aurora,
+  .comunidade-folha,
+  .comunidade-percurso,
+  .comunidade-saida {
+    display: none;
+  }
+  .comunidade-abertura {
+    height: auto;
+    min-height: 0;
+    padding-block: var(--e6);
+  }
+}

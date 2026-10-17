@@ -1,0 +1,70 @@
+<!-- 404: "Esta página não existe mais", e os caminhos de volta. Atravessando a tela, o traço
+     de ponta reta da marca se perde no meio (termina seco) e volta mais abaixo, numa curva
+     que o devolve à linha de antes: o desenho do que a página oferece. Leve: um SVG, só CSS.
+     Os links são relativos, como em todo o protótipo: servida na raiz (dist/404.html),
+     funciona por HTTP e file://; numa rota aninhada do servidor final, os caminhos precisam
+     ser absolutos. -->
+<section id="nao-encontrada" class="ne" data-tema="claro" aria-labelledby="ne-titulo">
+  <div class="container ne-topo">
+    <p class="ne-rotulo rotulo">{{naoEncontrada.rotulo}}</p>
+    <h1 id="ne-titulo" class="ne-titulo">
+      <span class="linha"
+        ><span class="linha-interna" style="--i: 0">{{naoEncontrada.titulo}}</span></span
+      >
+      <span class="linha"
+        ><span class="linha-interna" style="--i: 1"
+          ><em class="peso peso-fixo" data-texto="{{naoEncontrada.enfase}}"
+            >{{naoEncontrada.enfase}}</em
+          ></span
+        ></span
+      >
+    </h1>
+  </div>
+
+  <svg
+    class="ne-traco"
+    viewBox="0 0 1440 120"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path class="percurso ne-ida" pathLength="1" d="M0 40H560"></path>
+    <path class="percurso ne-volta" pathLength="1" d="M700 96C820 96 860 40 980 40H1440"></path>
+  </svg>
+
+  <div class="container ne-caminhos">
+    <p class="ne-texto">{{naoEncontrada.texto}}</p>
+    <ul class="ne-links">
+      <li style="--i: 0">
+        <a class="link-seta" href="index.html"
+          ><span>{{naoEncontrada.links.inicio}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li style="--i: 1">
+        <a class="link-seta" href="index.html#unidades"
+          ><span>{{naoEncontrada.links.unidades}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li style="--i: 2">
+        <a class="link-seta" href="proposta.html"
+          ><span>{{naoEncontrada.links.proposta}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li style="--i: 3">
+        <a class="link-seta" href="blog.html"
+          ><span>{{naoEncontrada.links.blog}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li style="--i: 4">
+        <a class="link-seta" href="contato.html"
+          ><span>{{naoEncontrada.links.contato}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+    </ul>
+  </div>
+</section>

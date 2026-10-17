@@ -1,0 +1,183 @@
+/* Gestão · abertura: metades de ponta a ponta, como a proposta que fecha a página. À esquerda
+   (61,8) o H1, o pedido de proposta e os números; à direita (38,2) a coluna gelo do contrato,
+   que se apaga em branco no último quinto: a junção com a mesa do síndico é branco sobre
+   branco. As bordas de dentro alinham com o container (1200px). */
+#administracao-de-condominios {
+  --gab-borda: max(var(--margem), calc((100vw - var(--largura)) / 2));
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  min-height: 100svh;
+  padding-block: 0;
+  background: var(--branco);
+}
+#administracao-de-condominios > * {
+  min-width: 0;
+}
+
+/* ---- Esquerda: título, ações e números ----------------------------------------------- */
+#administracao-de-condominios .gab-esquerda {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--e6);
+  padding: calc(var(--cab) + var(--e5)) var(--e6) var(--e5) var(--gab-borda);
+}
+#administracao-de-condominios .gab-texto {
+  display: grid;
+  align-content: center;
+  gap: var(--e4);
+}
+#administracao-de-condominios .gab-titulo {
+  max-width: 12ch;
+  font-size: clamp(3rem, 0.9rem + 4.6vw, 5.75rem);
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: var(--tracking-display);
+  text-wrap: initial;
+}
+#administracao-de-condominios .gab-lead {
+  max-width: 42ch;
+}
+#administracao-de-condominios .gab-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e3) var(--e4);
+}
+#administracao-de-condominios .gab-prazo {
+  margin-top: calc(var(--e2) - var(--e4));
+}
+
+/* Os números sob um traço marinho que corre da esquerda para a direita. */
+#administracao-de-condominios .gab-numeros {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: var(--e4);
+  padding-top: var(--e4);
+}
+#administracao-de-condominios .gab-traco {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--marinho);
+  transform-origin: 0% 50%;
+}
+#administracao-de-condominios .gab-numero {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: var(--e1);
+}
+#administracao-de-condominios .gab-numero dd {
+  font-size: clamp(2.5rem, 1.5rem + 2.2vw, 4rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#administracao-de-condominios .gab-numero dt {
+  max-width: 26ch;
+}
+#administracao-de-condominios .gab-mascara {
+  display: block;
+  overflow: clip;
+  padding-block-end: 0.08em;
+  margin-block-end: -0.08em;
+}
+#administracao-de-condominios .gab-in {
+  display: inline-block;
+}
+
+/* ---- Direita: a coluna gelo do contrato ---------------------------------------------- */
+#administracao-de-condominios .gab-direita {
+  display: grid;
+  align-content: center;
+  padding: calc(var(--cab) + var(--e6)) var(--gab-borda) var(--e7) var(--e6);
+  background: linear-gradient(
+    in oklab to bottom,
+    var(--gelo) 0%,
+    var(--gelo) 80%,
+    color-mix(in oklab, var(--gelo) 50%, var(--branco)) 90%,
+    var(--branco) 100%
+  );
+}
+#administracao-de-condominios .gab-contrato-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.05;
+}
+#administracao-de-condominios .gab-frentes {
+  display: grid;
+  gap: var(--e3);
+  margin-top: var(--e5);
+}
+#administracao-de-condominios .gab-frente {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--e3);
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1875rem, 0.95rem + 0.5vw, 1.4375rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+}
+/* O nó: um quadrado marinho de ponta reta, na altura da linha. */
+#administracao-de-condominios .gab-frente i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: var(--marinho);
+  transform: translateY(-0.12em);
+}
+
+@media (max-width: 1080px) {
+  #administracao-de-condominios .gab-esquerda {
+    padding-right: var(--e5);
+  }
+  #administracao-de-condominios .gab-direita {
+    padding-left: var(--e5);
+  }
+  #administracao-de-condominios .gab-numeros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- Celular: o texto, os números e o contrato, um embaixo do outro ------------------ */
+@media (max-width: 760px) {
+  #administracao-de-condominios {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  #administracao-de-condominios .gab-esquerda {
+    gap: var(--e5);
+    padding: calc(var(--cab) + var(--e5)) var(--margem) var(--e5);
+  }
+  #administracao-de-condominios .gab-titulo {
+    font-size: 3.25rem;
+  }
+  #administracao-de-condominios .gab-numeros {
+    gap: var(--e4) var(--e3);
+  }
+  #administracao-de-condominios .gab-numero:last-child {
+    grid-column: 1 / -1;
+  }
+  /* Empilhada, a coluna gelo nasce e se apaga em branco: nenhuma borda dura no meio. */
+  #administracao-de-condominios .gab-direita {
+    padding: var(--e6) var(--margem) var(--e6);
+    background: linear-gradient(
+      in oklab to bottom,
+      var(--branco) 0%,
+      color-mix(in oklab, var(--gelo) 50%, var(--branco)) 10%,
+      var(--gelo) 22%,
+      var(--gelo) 78%,
+      color-mix(in oklab, var(--gelo) 50%, var(--branco)) 90%,
+      var(--branco) 100%
+    );
+  }
+  #administracao-de-condominios .gab-frentes {
+    margin-top: var(--e4);
+    gap: var(--e2);
+  }
+}

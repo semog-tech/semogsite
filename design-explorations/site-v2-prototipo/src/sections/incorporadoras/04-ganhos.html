@@ -1,0 +1,109 @@
+<!-- Ganhos · a promessa da abertura, "protegendo a entrega, o cliente e a sua marca", vira
+     as três zonas da cena, e cada uma diz o que a incorporadora ganha ali. É uma superfície
+     contínua que desce do marinho (que o percurso entrega) ao branco: a entrega no marinho,
+     o cliente na descida do gradiente Transparência até o gelo, a marca no branco, com as
+     quatro praças em fotos reais. Um fio de ponta reta desce pela margem e liga as três. -->
+<section id="ganhos" class="cena" data-tema="marinho" aria-labelledby="ganhos-titulo">
+  <div class="gn-fio" aria-hidden="true"><span class="gn-fio-traco"></span></div>
+
+  <div class="container gn-topo" data-tema="marinho">
+    <h2 id="ganhos-titulo" class="gn-titulo">{{incorporadoras.ganhos.titulo}}</h2>
+  </div>
+
+  <article class="gn-zona gn-zona--entrega" data-tema="marinho" aria-labelledby="gn-entrega">
+    <div class="container gn-conteudo">
+      <span class="gn-no" aria-hidden="true"></span>
+      <h3 id="gn-entrega" class="gn-nome">{{incorporadoras.ganhos.zonas.0.titulo}}</h3>
+      <div class="gn-textos">
+        <p class="gn-texto">{{incorporadoras.ganhos.zonas.0.texto}}</p>
+        <p class="gn-apoio">{{incorporadoras.ganhos.zonas.0.apoio}}</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="gn-zona gn-zona--cliente" data-tema="gelo" aria-labelledby="gn-cliente">
+    <div class="container gn-conteudo">
+      <span class="gn-no" aria-hidden="true"></span>
+      <h3 id="gn-cliente" class="gn-nome">{{incorporadoras.ganhos.zonas.1.titulo}}</h3>
+      <div class="gn-textos">
+        <p class="gn-texto">{{incorporadoras.ganhos.zonas.1.texto}}</p>
+        <p class="gn-apoio">{{incorporadoras.ganhos.zonas.1.apoio}}</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="gn-zona gn-zona--marca" data-tema="claro" aria-labelledby="gn-marca">
+    <div class="container gn-conteudo">
+      <span class="gn-no" aria-hidden="true"></span>
+      <h3 id="gn-marca" class="gn-nome">{{incorporadoras.ganhos.zonas.2.titulo}}</h3>
+      <div class="gn-textos">
+        <p class="gn-texto">{{incorporadoras.ganhos.zonas.2.texto}}</p>
+        <p class="gn-apoio">{{incorporadoras.ganhos.zonas.2.apoio}}</p>
+      </div>
+    </div>
+    <div class="container gn-pracas">
+      <ul class="gn-cidades">
+        <li>
+          <figure class="gn-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.0.foto}}"
+                alt="{{unidades.0.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.0.cidade}}/{{unidades.0.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="gn-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.1.foto}}"
+                alt="{{unidades.1.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.1.cidade}}/{{unidades.1.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="gn-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.2.foto}}"
+                alt="{{unidades.2.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.2.cidade}}/{{unidades.2.uf}}</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="gn-cidade">
+            <div class="moldura">
+              <img
+                src="{{unidades.3.foto}}"
+                alt="{{unidades.3.alt}}"
+                width="1376"
+                height="768"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="rotulo">{{unidades.3.cidade}}/{{unidades.3.uf}}</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+  </article>
+</section>

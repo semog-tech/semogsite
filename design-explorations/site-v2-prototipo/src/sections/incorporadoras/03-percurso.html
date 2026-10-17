@@ -1,0 +1,144 @@
+<!-- Percurso · a cena-assinatura de Incorporadoras. Sem JS é uma lista dos cinco passos com o
+     desenho inteiro. Com JS, o palco fica fixo e a rolagem percorre o desenho: um traço só,
+     de ponta reta, sai do chão e desenha cada passo (a planta, a convenção, a mesa da
+     assembleia, o prédio e a chave, a régua do pós-obra, com a garantia e a manutenção anotadas) e volta ao chão para
+     seguir. Em lavanda, o projeto inteiro; em marinho, o que já foi feito. A câmera acompanha
+     a ponta do traço, cada passo tem um patamar de leitura e o texto troca por máscara. No
+     fim, a linha do eixo se estende, desce e sobe até virar o marinho da cena seguinte. -->
+<section id="percurso" class="cena" data-tema="claro" aria-labelledby="percurso-titulo">
+  <div class="pc-palco">
+    <div class="container pc-grade">
+      <h2 id="percurso-titulo" class="pc-titulo">{{incorporadoras.percurso.titulo}}</h2>
+
+      <ol class="pc-passos">
+        <li class="pc-passo">
+          <h3 class="pc-passo-titulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.0.titulo}}</span>
+          </h3>
+          <p class="pc-passo-texto">
+            <span class="pc-in">{{incorporadoras.percurso.passos.0.texto}}</span>
+          </p>
+          <p class="pc-passo-apoio rotulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.0.apoio}}</span>
+          </p>
+        </li>
+        <li class="pc-passo">
+          <h3 class="pc-passo-titulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.1.titulo}}</span>
+          </h3>
+          <p class="pc-passo-texto">
+            <span class="pc-in">{{incorporadoras.percurso.passos.1.texto}}</span>
+          </p>
+          <p class="pc-passo-apoio rotulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.1.apoio}}</span>
+          </p>
+        </li>
+        <li class="pc-passo">
+          <h3 class="pc-passo-titulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.2.titulo}}</span>
+          </h3>
+          <p class="pc-passo-texto">
+            <span class="pc-in">{{incorporadoras.percurso.passos.2.texto}}</span>
+          </p>
+          <p class="pc-passo-apoio rotulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.2.apoio}}</span>
+          </p>
+        </li>
+        <li class="pc-passo">
+          <h3 class="pc-passo-titulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.3.titulo}}</span>
+          </h3>
+          <p class="pc-passo-texto">
+            <span class="pc-in">{{incorporadoras.percurso.passos.3.texto}}</span>
+          </p>
+          <p class="pc-passo-apoio rotulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.3.apoio}}</span>
+          </p>
+        </li>
+        <li class="pc-passo">
+          <h3 class="pc-passo-titulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.4.titulo}}</span>
+          </h3>
+          <p class="pc-passo-texto">
+            <span class="pc-in">{{incorporadoras.percurso.passos.4.texto}}</span>
+          </p>
+          <p class="pc-passo-apoio rotulo">
+            <span class="pc-in">{{incorporadoras.percurso.passos.4.apoio}}</span>
+          </p>
+        </li>
+      </ol>
+
+      <figure class="pc-desenho">
+        <div class="pc-janela">
+          <svg
+            class="pc-faixa"
+            viewBox="0 60 2600 260"
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              class="pc-trilho percurso"
+              pathLength="1"
+              d="M0 300H150V90H300V175V90H450V200H370H450V300H550M550 300H650V140H800H650V180H820H650V220H760H650V80H840V140H900V300H1050M1050 300H1140V130H1175V104H1205V130H1250V104H1280V130H1325V104H1355V130H1400V104H1430V130H1460V165H1486V195H1460V230H1430V256H1400V230H1355V256H1325V230H1280V256H1250V230H1205V256H1175V230H1140V300H1550M1550 300H1680V268H1716V300H1610V80H1800V124H1610H1800V168H1610H1800V212H1610H1800V256H1610H1800V300H1870V195H1920V245H1870H1920V220H1975V238H1990V220H2010V300H2050M2050 300H2100V180H2250V300H2200V280V300H2150V280V300H2250H2300V280V300H2350V280V300H2400V250V300H2450V280V300H2600"
+            ></path>
+            <path
+              class="pc-traco percurso"
+              data-passo="0"
+              pathLength="1"
+              d="M0 300H150V90H300V175V90H450V200H370H450V300H550"
+            ></path>
+            <path
+              class="pc-traco percurso"
+              data-passo="1"
+              pathLength="1"
+              d="M550 300H650V140H800H650V180H820H650V220H760H650V80H840V140H900V300H1050"
+            ></path>
+            <path
+              class="pc-traco percurso"
+              data-passo="2"
+              pathLength="1"
+              d="M1050 300H1140V130H1175V104H1205V130H1250V104H1280V130H1325V104H1355V130H1400V104H1430V130H1460V165H1486V195H1460V230H1430V256H1400V230H1355V256H1325V230H1280V256H1250V230H1205V256H1175V230H1140V300H1550"
+            ></path>
+            <path
+              class="pc-traco percurso"
+              data-passo="3"
+              pathLength="1"
+              d="M1550 300H1680V268H1716V300H1610V80H1800V124H1610H1800V168H1610H1800V212H1610H1800V256H1610H1800V300H1870V195H1920V245H1870H1920V220H1975V238H1990V220H2010V300H2050"
+            ></path>
+            <path
+              class="pc-traco percurso"
+              data-passo="4"
+              pathLength="1"
+              d="M2050 300H2100V180H2250V300H2200V280V300H2150V280V300H2250H2300V280V300H2350V280V300H2400V250V300H2450V280V300H2600"
+            ></path>
+            <text class="pc-anotacao" data-passo="4" x="2175" y="166" text-anchor="middle">
+              {{incorporadoras.percurso.desenho.garantia}}
+            </text>
+            <text class="pc-anotacao" data-passo="4" x="2375" y="238" text-anchor="middle">
+              {{incorporadoras.percurso.desenho.manutencao}}
+            </text>
+          </svg>
+        </div>
+        <figcaption class="pc-esquema rotulo">
+          <span>{{incorporadoras.percurso.esquema}}</span>
+        </figcaption>
+      </figure>
+
+      <div class="pc-eixo" aria-hidden="true">
+        <div class="pc-eixo-linha">
+          <span class="pc-eixo-trilho"></span>
+          <span class="pc-eixo-traco"></span>
+        </div>
+        <ol class="pc-ticks">
+          <li style="--x: 0"><i></i><span>{{incorporadoras.percurso.passos.0.rotulo}}</span></li>
+          <li style="--x: 0.25"><i></i><span>{{incorporadoras.percurso.passos.1.rotulo}}</span></li>
+          <li style="--x: 0.5"><i></i><span>{{incorporadoras.percurso.passos.2.rotulo}}</span></li>
+          <li style="--x: 0.75"><i></i><span>{{incorporadoras.percurso.passos.3.rotulo}}</span></li>
+          <li style="--x: 1"><i></i><span>{{incorporadoras.percurso.passos.4.rotulo}}</span></li>
+        </ol>
+      </div>
+    </div>
+    <div class="pc-cobertura" aria-hidden="true"><span class="pc-cobertura-mare"></span></div>
+  </div>
+</section>

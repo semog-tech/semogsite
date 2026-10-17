@@ -67,7 +67,6 @@ export default defineConfig({
       // variável já presente, mesmo vazia: zerar aqui desliga banco, e-mail e CRM.
       DATABASE_URI: '',
       SENDGRID_API_KEY: '',
-      CONTACT_TO: '',
       EXACT_SPOTTER_TOKEN: '',
     },
   },

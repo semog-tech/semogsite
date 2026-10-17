@@ -1,0 +1,67 @@
+/* Lançamento: branco, a pergunta grande à esquerda e, abaixo dela em 38,2, a frase e o botão
+   (a faixa das construtoras parceiras saiu, por resposta do Leandro). Na saída, a coluna
+   lavanda do convite da proposta. */
+#lancamento {
+  padding-block: var(--respiro-cena) 0;
+}
+#lancamento .ln-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5) var(--e6);
+  align-items: end;
+}
+#lancamento .ln-quadro > * {
+  min-width: 0;
+}
+#lancamento .ln-titulo {
+  max-width: 10ch;
+  font-size: clamp(3.4rem, 0.8rem + 6vw, 7.5rem);
+  font-weight: 300;
+}
+#lancamento .ln-corpo {
+  display: grid;
+  gap: var(--e4);
+  padding-bottom: 0.6em;
+}
+#lancamento .ln-texto {
+  max-width: 30ch;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.3125rem, 1rem + 0.6vw, 1.625rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+}
+
+/* ---- Saída: a coluna lavanda sobe e vira o véu da proposta ------------------------ */
+#lancamento .ln-saida {
+  position: relative;
+  height: 38svh;
+  margin-top: var(--e7);
+}
+#lancamento .ln-veu {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  transform-origin: 50% 100%;
+}
+
+@media (max-width: 760px) {
+  #lancamento .ln-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+  #lancamento .ln-titulo {
+    font-size: 3.5rem;
+  }
+  #lancamento .ln-saida {
+    height: 28svh;
+    margin-top: var(--e6);
+  }
+  /* No celular o convite da proposta ocupa a largura toda: o véu também. */
+  #lancamento .ln-veu {
+    width: 100%;
+  }
+}

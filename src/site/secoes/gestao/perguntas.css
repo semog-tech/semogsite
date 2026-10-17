@@ -1,0 +1,140 @@
+/* Perguntas: branco. O título e o caminho para outra dúvida (38,2) e as perguntas (61,8), cada
+   uma num bloco gelo chapado, sem sombra; o marcador de ponta reta vira de "mais" para "menos"
+   quando a resposta abre. Na saída, a coluna lavanda do convite da proposta. */
+#perguntas-gestao {
+  padding-block: var(--respiro-cena) 0;
+}
+#perguntas-gestao .gpf-quadro {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e6);
+  align-items: start;
+}
+#perguntas-gestao .gpf-quadro > * {
+  min-width: 0;
+}
+#perguntas-gestao .gpf-cabeca {
+  position: sticky;
+  top: calc(var(--cab) + var(--e5));
+  display: grid;
+  gap: var(--e5);
+}
+#perguntas-gestao .gpf-titulo {
+  max-width: 14ch;
+  font-size: clamp(2.5rem, 1.1rem + 3.4vw, 4.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#perguntas-gestao .gpf-outra {
+  display: grid;
+  justify-items: start;
+  gap: var(--e1);
+}
+
+/* ---- Perguntas -------------------------------------------------------------------- */
+#perguntas-gestao .gpf-lista {
+  display: grid;
+  gap: var(--e1);
+}
+#perguntas-gestao .gpf-item {
+  background: var(--gelo);
+}
+#perguntas-gestao .gpf-pergunta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  min-height: 44px;
+  padding: var(--e3) var(--e4);
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1875rem, 1rem + 0.45vw, 1.4375rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--tema-titulo);
+  cursor: pointer;
+  list-style: none;
+}
+#perguntas-gestao .gpf-pergunta::-webkit-details-marker {
+  display: none;
+}
+#perguntas-gestao .gpf-pergunta:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+/* Marcador: duas barras de ponta reta; a vertical deita quando a resposta abre. */
+#perguntas-gestao .gpf-pergunta i {
+  position: relative;
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+#perguntas-gestao .gpf-pergunta i::before,
+#perguntas-gestao .gpf-pergunta i::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+#perguntas-gestao .gpf-pergunta i::before {
+  inset: 5.75px 0;
+}
+#perguntas-gestao .gpf-pergunta i::after {
+  inset: 0 5.75px;
+  transition: transform 420ms var(--ease-expo);
+}
+#perguntas-gestao .gpf-item[open] .gpf-pergunta i::after {
+  transform: rotate(90deg);
+}
+#perguntas-gestao .gpf-resposta {
+  overflow: clip;
+  padding: 0 var(--e4) var(--e4);
+}
+#perguntas-gestao .gpf-resposta p {
+  max-width: 56ch;
+  color: var(--tema-texto);
+}
+
+/* ---- Saída: a coluna lavanda sobe e vira o véu da proposta ------------------------ */
+#perguntas-gestao .gpf-saida {
+  position: relative;
+  height: 38svh;
+  margin-top: var(--e7);
+}
+#perguntas-gestao .gpf-veu {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  transform-origin: 50% 100%;
+}
+
+@media (max-width: 760px) {
+  #perguntas-gestao .gpf-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+  #perguntas-gestao .gpf-cabeca {
+    position: static;
+    gap: var(--e4);
+  }
+  #perguntas-gestao .gpf-titulo {
+    font-size: 2.875rem;
+  }
+  #perguntas-gestao .gpf-pergunta {
+    padding: var(--e3);
+  }
+  #perguntas-gestao .gpf-resposta {
+    padding: 0 var(--e3) var(--e3);
+  }
+  #perguntas-gestao .gpf-saida {
+    height: 28svh;
+    margin-top: var(--e6);
+  }
+  /* No celular o convite da proposta ocupa a largura toda: o véu também. */
+  #perguntas-gestao .gpf-veu {
+    width: 100%;
+  }
+}

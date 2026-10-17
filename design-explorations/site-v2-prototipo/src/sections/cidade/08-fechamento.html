@@ -1,0 +1,26 @@
+<!-- Landing de cidade · fechamento: um convite e um botão que leva de volta ao formulário
+     da abertura. Um formulário só por página: uma conversão, uma medida. -->
+<section
+  id="cidade-fechamento"
+  class="cena cf"
+  data-tema="claro"
+  aria-labelledby="cidade-fechamento-titulo"
+>
+  <div class="container cf-quadro revelar">
+    <h2 id="cidade-fechamento-titulo" class="cf-titulo">
+      <span class="linha"
+        ><span class="linha-interna"
+          >{{landing.fechamento.titulo}}
+          <em class="peso peso-fixo" data-texto="{{dados.emCidade}}.">{{dados.emCidade}}.</em></span
+        ></span
+      >
+    </h2>
+    <div class="cf-acao">
+      <p class="cf-texto">{{landing.fechamento.texto}}</p>
+      <a class="botao" href="#proposta"
+        >{{landing.fechamento.botao}}
+        <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+      ></a>
+    </div>
+  </div>
+</section>

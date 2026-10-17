@@ -1,0 +1,36 @@
+/* Landing de cidade · fechamento: título grande à esquerda (61,8%), frase e botão à
+   direita (38,2%), alinhados pela base. */
+#cidade-fechamento .cf-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+}
+#cidade-fechamento .cf-quadro > * {
+  min-width: 0;
+}
+#cidade-fechamento .cf-titulo {
+  max-width: 18ch;
+}
+#cidade-fechamento .cf-acao {
+  display: grid;
+  gap: var(--e3);
+  justify-items: start;
+}
+#cidade-fechamento .cf-texto {
+  max-width: 34ch;
+  color: var(--tema-texto);
+}
+#cidade-fechamento .botao .seta {
+  transition: transform 320ms var(--ease-expo);
+}
+#cidade-fechamento .botao:hover .seta {
+  transform: translateX(4px);
+}
+
+@media (max-width: 760px) {
+  #cidade-fechamento .cf-quadro {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+}

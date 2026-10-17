@@ -1,0 +1,220 @@
+<!-- Proposta · metades 38,2/61,8: fecha a narrativa voltando à abertura. À esquerda, o véu
+     lavanda que a cena 07 entrega, com o título e a chamada; à direita, o pedido de proposta em
+     duas etapas (core/formulario-proposta.js), o mesmo da abertura. -->
+<section id="proposta" class="cena" data-tema="claro" aria-labelledby="proposta-titulo">
+  <div class="proposta-convite">
+    <div class="proposta-convite-texto">
+      <h2 id="proposta-titulo" class="proposta-titulo titulo-display">
+        <span class="linha"><span class="linha-interna entrada">Seja</span></span>
+        <span class="linha"
+          ><span class="linha-interna entrada"><em class="peso">Semog.</em></span></span
+        >
+      </h2>
+    </div>
+  </div>
+
+  <div class="proposta-metade-form">
+    <form
+      class="formulario-proposta proposta-form"
+      data-formulario-proposta
+      method="post"
+      aria-labelledby="proposta-form-titulo"
+    >
+      <p id="proposta-form-titulo" class="fp-titulo entrada">Peça uma proposta</p>
+      <div class="fp-etapas">
+        <div class="fp-etapa" data-etapa="1">
+          <div class="fp-campo entrada">
+            <label for="proposta-condominio">Nome do condomínio</label>
+            <div class="fp-controle">
+              <input
+                id="proposta-condominio"
+                name="condominio"
+                type="text"
+                autocomplete="off"
+                required
+                aria-describedby="proposta-condominio-erro"
+              />
+            </div>
+            <p class="fp-erro" id="proposta-condominio-erro" aria-live="polite"></p>
+          </div>
+          <div class="fp-par">
+            <div class="fp-campo entrada">
+              <label for="proposta-uf">Estado</label>
+              <div class="fp-controle fp-controle--select">
+                <select
+                  id="proposta-uf"
+                  name="uf"
+                  autocomplete="address-level1"
+                  required
+                  aria-describedby="proposta-uf-erro"
+                >
+                  <option value="" selected disabled>Selecione</option>
+                  <option value="PE">Pernambuco</option>
+                  <option value="PB">Paraíba</option>
+                  <option value="PA">Pará</option>
+                  <optgroup label="Outros estados">
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                  </optgroup>
+                </select>
+              </div>
+              <p class="fp-erro" id="proposta-uf-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-campo entrada">
+              <label for="proposta-telefone">Telefone com DDD</label>
+              <div class="fp-controle">
+                <input
+                  id="proposta-telefone"
+                  name="telefone"
+                  type="tel"
+                  autocomplete="tel-national"
+                  inputmode="tel"
+                  placeholder="(00) 00000-0000"
+                  pattern="\(?\d{2}\)?\s?\d{4,5}-?\d{4}"
+                  maxlength="15"
+                  required
+                  aria-describedby="proposta-telefone-erro"
+                />
+              </div>
+              <p class="fp-erro" id="proposta-telefone-erro" aria-live="polite"></p>
+            </div>
+          </div>
+          <div class="fp-campo entrada">
+            <label for="proposta-email">E-mail <span class="fp-opcional">(opcional)</span></label>
+            <div class="fp-controle">
+              <input
+                id="proposta-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                aria-describedby="proposta-email-erro"
+              />
+            </div>
+            <p class="fp-erro" id="proposta-email-erro" aria-live="polite"></p>
+          </div>
+          <div class="fp-acoes fp-so-js entrada">
+            <button class="botao" type="submit">
+              Continuar <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="fp-etapa" data-etapa="2" role="group" aria-labelledby="proposta-etapa-2">
+          <div class="fp-par fp-par--invertido">
+            <div class="fp-campo">
+              <label for="proposta-nome">Seu nome</label>
+              <div class="fp-controle">
+                <input
+                  id="proposta-nome"
+                  name="nome"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  aria-describedby="proposta-nome-erro"
+                />
+              </div>
+              <p class="fp-erro" id="proposta-nome-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-campo">
+              <label for="proposta-cidade"
+                >Cidade <span class="fp-opcional">(opcional)</span></label
+              >
+              <div class="fp-controle">
+                <input
+                  id="proposta-cidade"
+                  name="cidade"
+                  type="text"
+                  autocomplete="address-level2"
+                />
+              </div>
+            </div>
+          </div>
+          <fieldset class="fp-grupo" data-grupo="perfil" aria-describedby="proposta-perfil-erro">
+            <legend>Você é</legend>
+            <div class="fp-opcoes">
+              <label
+                ><input type="radio" name="perfil" value="sindico" required />
+                {{proposta.perfis.0}}</label
+              >
+              <label
+                ><input type="radio" name="perfil" value="conselheiro" />
+                {{proposta.perfis.1}}</label
+              >
+              <label
+                ><input type="radio" name="perfil" value="morador" /> {{proposta.perfis.2}}</label
+              >
+              <label
+                ><input type="radio" name="perfil" value="construtora" />
+                {{proposta.perfis.3}}</label
+              >
+            </div>
+            <p class="fp-erro" id="proposta-perfil-erro" aria-live="polite"></p>
+          </fieldset>
+          <div class="fp-par">
+            <div class="fp-campo">
+              <label for="proposta-unidades"
+                >Nº de unidades <span class="fp-opcional">(aprox.)</span></label
+              >
+              <div class="fp-controle">
+                <input
+                  id="proposta-unidades"
+                  name="unidades"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="\d*"
+                  maxlength="5"
+                />
+              </div>
+            </div>
+            <fieldset
+              class="fp-grupo"
+              data-grupo="cliente"
+              aria-describedby="proposta-cliente-erro"
+            >
+              <legend>Já é cliente Semog?</legend>
+              <div class="fp-opcoes">
+                <label><input type="radio" name="cliente" value="sim" required /> Sim</label>
+                <label><input type="radio" name="cliente" value="nao" /> Não</label>
+              </div>
+              <p class="fp-erro" id="proposta-cliente-erro" aria-live="polite"></p>
+            </fieldset>
+          </div>
+          <div class="fp-acoes">
+            <button class="botao" type="submit">
+              {{proposta.botao}}
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+            </button>
+            <button class="fp-voltar fp-so-js" type="button" data-acao="voltar">
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              <span>Voltar</span>
+            </button>
+            <p class="fp-indicador fp-so-js" id="proposta-etapa-2">Etapa 2 de 2</p>
+          </div>
+        </div>
+      </div>
+      <p class="fp-status" role="status" aria-live="polite" data-status></p>
+    </form>
+  </div>
+</section>

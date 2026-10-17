@@ -1,0 +1,265 @@
+/* Cena 04 · tecnologia. Sem JS (ou na impressão) a seção é um documento: título, contexto
+   e os cinco passos em lista. Com o palco (.tec-com-palco, sob html.motion) vira um palco
+   fixado de uma tela: legenda à esquerda, canvas à direita (acima da legenda no celular). */
+#tecnologia .tec-fundo,
+#tecnologia .tec-campo,
+#tecnologia .tec-trilha {
+  display: none;
+}
+#tecnologia .tec-titulo {
+  font-size: var(--t-h2);
+  letter-spacing: var(--tracking-display);
+}
+#tecnologia .tec-sub {
+  max-width: 28ch;
+  margin-top: var(--e3);
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  color: var(--tema-titulo);
+}
+#tecnologia .tec-contexto {
+  max-width: 44ch;
+  margin-top: var(--e3);
+  font-size: var(--t-pequeno);
+  line-height: 1.55;
+  color: var(--tema-suave);
+}
+#tecnologia .tec-num {
+  font-weight: 500;
+  font-size: 1.15em;
+  color: var(--tema-titulo);
+}
+#tecnologia .tec-passos {
+  display: grid;
+  gap: var(--e5);
+  max-width: var(--largura-texto);
+  margin: var(--e5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+#tecnologia .tec-passo h3 {
+  font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.875rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+#tecnologia .tec-passo p {
+  max-width: 46ch;
+  margin-top: var(--e2);
+  color: var(--tema-texto);
+}
+#tecnologia .tec-passo p + p {
+  margin-top: var(--e1);
+}
+#tecnologia .tec-passo em {
+  font-family: var(--fonte-titulo);
+  font-style: normal;
+  font-variation-settings: "wght" 520;
+  color: var(--tema-titulo);
+}
+#tecnologia .tec-itens {
+  display: grid;
+  gap: var(--e2);
+  margin: var(--e3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+#tecnologia .tec-itens li {
+  position: relative;
+  padding-left: var(--e3);
+  font-size: var(--t-pequeno);
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+/* Marcador reto: uma barra do padrão (1:2), não um ponto. */
+#tecnologia .tec-itens li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 4px;
+  height: 8px;
+  background: var(--tema-titulo);
+  transform-origin: 50% 100%;
+  transition: transform 0.6s var(--ease-expo);
+}
+
+/* ---- Palco fixado (só tela) ---------------------------------------------------- */
+@media screen {
+  .motion #tecnologia.tec-com-palco {
+    padding-block: 0;
+    background: var(--branco);
+  }
+  .motion #tecnologia.tec-com-palco .tec-palco {
+    position: relative;
+    height: 100svh;
+    overflow: hidden;
+  }
+  .motion #tecnologia.tec-com-palco .tec-fundo {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: var(--gelo);
+  }
+  .motion #tecnologia.tec-com-palco .tec-campo {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .motion #tecnologia.tec-com-palco .tec-grade {
+    position: absolute;
+    inset: var(--cab) 0 0;
+    display: grid;
+    align-items: center;
+    pointer-events: none;
+  }
+  .motion #tecnologia.tec-com-palco .tec-legendas {
+    width: min(420px, 31vw);
+    pointer-events: auto;
+  }
+  .motion #tecnologia.tec-com-palco .tec-passos {
+    gap: 0;
+    margin-top: var(--e5);
+  }
+  .motion #tecnologia.tec-com-palco .tec-passo {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+  .motion #tecnologia.tec-com-palco .tec-passo.ativo,
+  .motion #tecnologia.tec-com-palco .tec-passo.saindo {
+    visibility: visible;
+  }
+  /* Legenda do palco em corpo maior: é o texto que se lê durante cada patamar. */
+  .motion #tecnologia.tec-com-palco .tec-passo h3 {
+    font-size: clamp(1.625rem, 1.2rem + 1vw, 2.125rem);
+  }
+  .motion #tecnologia.tec-com-palco .tec-passo p {
+    font-size: var(--t-lead);
+    line-height: 1.5;
+    color: var(--tema-texto);
+  }
+  .motion #tecnologia.tec-com-palco .tec-contexto {
+    font-size: 0.9375rem;
+    color: var(--tema-texto);
+  }
+  .motion #tecnologia.tec-com-palco .tec-adendo {
+    color: var(--tema-suave);
+    transition: color 0.6s var(--ease-expo);
+  }
+  .motion #tecnologia.tec-com-palco .tec-adendo.ativo {
+    color: var(--tema-titulo);
+  }
+  /* Semog One: um diferencial por vez, em destaque, no lugar do outro. */
+  .motion #tecnologia.tec-com-palco .tec-itens {
+    gap: 0;
+    margin-top: var(--e4);
+  }
+  .motion #tecnologia.tec-com-palco .tec-itens li {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    padding-left: var(--e4);
+    font-family: var(--fonte-titulo);
+    font-size: clamp(1.25rem, 1rem + 0.7vw, 1.5rem);
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--tema-titulo);
+  }
+  .motion #tecnologia.tec-com-palco .tec-itens li::before {
+    top: 0.25em;
+    width: 6px;
+    height: 12px;
+    transform: scaleY(2);
+  }
+  .motion #tecnologia.tec-com-palco .tec-itens li.ativo,
+  .motion #tecnologia.tec-com-palco .tec-itens li.saindo {
+    visibility: visible;
+  }
+  .motion #tecnologia.tec-com-palco .tec-trilha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e1);
+    margin-top: var(--e5);
+  }
+  #tecnologia .tec-trilha button {
+    position: relative;
+    min-height: 34px;
+    padding: 0 var(--e2);
+    border: 1px solid var(--tema-trilho);
+    background: transparent;
+    color: var(--tema-suave);
+    font: 500 0.8125rem / 1 var(--fonte-corpo);
+    cursor: pointer;
+    transition:
+      color 0.4s var(--ease-expo),
+      border-color 0.4s var(--ease-expo);
+  }
+  #tecnologia .tec-trilha button::after {
+    content: "";
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    height: 2px;
+    background: var(--tema-titulo);
+    transform: scaleX(var(--prog, 0));
+    transform-origin: 0 50%;
+  }
+  #tecnologia .tec-trilha button:hover,
+  #tecnologia .tec-trilha button[aria-current] {
+    color: var(--tema-titulo);
+    border-color: var(--tema-titulo);
+  }
+}
+
+/* ---- Celular: palco em cima, legenda embaixo ----------------------------------- */
+@media screen and (max-width: 760px) {
+  .motion #tecnologia.tec-com-palco .tec-grade {
+    align-items: end;
+    padding-bottom: var(--e4);
+  }
+  .motion #tecnologia.tec-com-palco .tec-legendas {
+    width: 100%;
+    max-height: calc(45svh - var(--e4));
+  }
+  .motion #tecnologia.tec-com-palco .tec-titulo {
+    font-size: var(--t-h3);
+  }
+  .motion #tecnologia.tec-com-palco .tec-sub {
+    display: none;
+  }
+  .motion #tecnologia.tec-com-palco .tec-contexto {
+    margin-top: var(--e1);
+    font-size: 0.875rem;
+  }
+  .motion #tecnologia.tec-com-palco .tec-passos {
+    margin-top: var(--e3);
+  }
+  .motion #tecnologia.tec-com-palco .tec-passo h3 {
+    font-size: 1.25rem;
+  }
+  .motion #tecnologia.tec-com-palco .tec-passo p {
+    margin-top: var(--e1);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+  }
+  .motion #tecnologia.tec-com-palco .tec-itens {
+    margin-top: var(--e1);
+  }
+  .motion #tecnologia.tec-com-palco .tec-itens li {
+    font-size: 1.125rem;
+  }
+  .motion #tecnologia.tec-com-palco .tec-trilha {
+    gap: 4px;
+    margin-top: var(--e3);
+  }
+  #tecnologia .tec-trilha button {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 0.75rem;
+  }
+}

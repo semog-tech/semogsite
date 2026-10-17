@@ -1,0 +1,41 @@
+{
+  "_nota": "Mídia dos posts convertidos. Chave = nome do arquivo no bucket do site atual (o que o MDX cita); alt e dimensões copiados de semogsite/content/media.ts. 'src' local = cópia do arquivo do bucket; 'src' https = arquivo servido do bucket (vídeo de 7,4 MB, não entra no pacote).",
+  "arquivos": {
+    "incorporadoras.webp": {
+      "src": "assets/fotos/blog-incorporadoras.webp",
+      "alt": "Obra de torre residencial ao amanhecer",
+      "largura": 2048,
+      "altura": 1152
+    },
+    "g20-next-2026-01.webp": {
+      "src": "assets/fotos/blog-g20-next-2026-01.webp",
+      "alt": "Time da Semog diante do painel do Superlógica Next 2026, com a chamada \"O futuro bate à porta\"",
+      "largura": 1600,
+      "altura": 900
+    },
+    "g20-next-2026-02.webp": {
+      "src": "assets/fotos/reconhecimento-semog.webp",
+      "alt": "Equipe da Semog no palco do Superlógica Next 2026 segurando a placa do G20 Condo, com o logotipo da empresa no telão",
+      "largura": 1600,
+      "altura": 900
+    },
+    "g20-next-2026-03.webp": {
+      "src": "assets/fotos/blog-g20-next-2026-03.webp",
+      "alt": "Representantes das administradoras do G20 Condo reunidas no palco do Superlógica Next 2026",
+      "largura": 1600,
+      "altura": 900
+    },
+    "g20-next-2026-poster.webp": {
+      "src": "assets/fotos/blog-g20-next-2026-poster.webp",
+      "alt": "Primeiro quadro do vídeo do Superlógica Next 2026",
+      "largura": 636,
+      "altura": 1080
+    },
+    "g20-next-2026.mp4": {
+      "src": "https://qvxlkovrxfqigeaopvui.supabase.co/storage/v1/object/public/media/g20-next-2026.mp4",
+      "alt": "Vídeo do Superlógica Next 2026: bastidores do evento e a entrega do G20 Condo à Semog",
+      "largura": 636,
+      "altura": 1080
+    }
+  }
+}

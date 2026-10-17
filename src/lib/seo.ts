@@ -216,7 +216,8 @@ function gbpPlaceUrl(unit: SeoUnit): string {
   return `https://www.google.com/maps/place/?q=place_id:${unit.placeId}`
 }
 
-const UNITS: SeoUnit[] = [
+/** Fonte única do NAP das Unidades (spec 6 do site v2); o teste site-v2-nap amarra os outros textos a ela. */
+export const UNITS: SeoUnit[] = [
   {
     slug: 'administradora-de-condominios-recife',
     city: 'Recife',

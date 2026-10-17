@@ -1,0 +1,225 @@
+<!-- Landing de cidade · abertura: a foto da cidade sangra pela esquerda; à direita, o título
+     com a cidade em peso, a frase local e o pedido de proposta (etapa 1) com o estado já
+     escolhido. Tudo na dobra em 1440×900 e 390×844. A entrada é de CSS e começa na primeira
+     pintura: nada aqui espera o JS. Um molde só para as quatro cidades (marcas dados.*). -->
+<section id="cidade-abertura" class="ca" data-tema="claro" aria-labelledby="cidade-titulo">
+  <div class="ca-palco">
+    <figure class="ca-foto">
+      <div class="ca-moldura">
+        <img
+          src="{{dados.foto}}"
+          srcset="{{dados.fotoMovel}} 800w, {{dados.foto}} 1376w"
+          sizes="(max-width: 760px) 100vw, 1376px"
+          alt="{{dados.alt}}"
+          width="1376"
+          height="768"
+          fetchpriority="high"
+        />
+      </div>
+      <figcaption class="ca-legenda">{{dados.nome}} · {{landing.abertura.unidade}}</figcaption>
+    </figure>
+
+    <div class="ca-texto">
+      <h1 id="cidade-titulo" class="ca-titulo">
+        <span class="linha"
+          ><span class="linha-interna" style="--i: 0">{{landing.abertura.titulo}}</span></span
+        >
+        <span class="linha"
+          ><span class="linha-interna" style="--i: 1"
+            ><em class="peso peso-fixo" data-texto="{{dados.emCidade}}."
+              >{{dados.emCidade}}.</em
+            ></span
+          ></span
+        >
+      </h1>
+      <p class="ca-sub">{{dados.sub}}</p>
+
+      <form
+        id="proposta"
+        class="formulario-proposta ca-form"
+        data-formulario-proposta
+        method="post"
+        aria-labelledby="cidade-form-titulo"
+      >
+        <p id="cidade-form-titulo" class="fp-titulo">{{landing.abertura.formTitulo}}</p>
+        <div class="fp-etapas">
+          <div class="fp-etapa" data-etapa="1">
+            <div class="fp-campo">
+              <label for="cidade-condominio">Nome do condomínio</label>
+              <div class="fp-controle">
+                <input
+                  id="cidade-condominio"
+                  name="condominio"
+                  type="text"
+                  autocomplete="off"
+                  required
+                  aria-describedby="cidade-condominio-erro"
+                />
+              </div>
+              <p class="fp-erro" id="cidade-condominio-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-par">
+              <div class="fp-campo">
+                <label for="cidade-uf">Estado</label>
+                <div class="fp-controle fp-controle--select">
+                  <select
+                    id="cidade-uf"
+                    name="uf"
+                    autocomplete="address-level1"
+                    required
+                    aria-describedby="cidade-uf-erro"
+                  >
+                    <option value="" disabled>Selecione</option>
+                    {{#cada formulario.ufsPrincipais}} {{#igual item.uf dados.uf}}
+                    <option value="{{item.uf}}" selected>{{item.nome}}</option>
+                    {{/igual}} {{#diferente item.uf dados.uf}}
+                    <option value="{{item.uf}}">{{item.nome}}</option>
+                    {{/diferente}} {{/cada}}
+                    <optgroup label="Outros estados">
+                      {{#cada formulario.ufsOutras}}
+                      <option value="{{item.uf}}">{{item.nome}}</option>
+                      {{/cada}}
+                    </optgroup>
+                  </select>
+                </div>
+                <p class="fp-erro" id="cidade-uf-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo">
+                <label for="cidade-telefone">Telefone com DDD</label>
+                <div class="fp-controle">
+                  <input
+                    id="cidade-telefone"
+                    name="telefone"
+                    type="tel"
+                    autocomplete="tel-national"
+                    inputmode="tel"
+                    placeholder="(00) 00000-0000"
+                    pattern="\(?\d{2}\)?\s?\d{4,5}-?\d{4}"
+                    maxlength="15"
+                    required
+                    aria-describedby="cidade-telefone-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="cidade-telefone-erro" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="fp-campo">
+              <label for="cidade-email">E-mail <span class="fp-opcional">(opcional)</span></label>
+              <div class="fp-controle">
+                <input
+                  id="cidade-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  aria-describedby="cidade-email-erro"
+                />
+              </div>
+              <p class="fp-erro" id="cidade-email-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-acoes fp-so-js">
+              <button class="botao" type="submit">
+                Continuar <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+              <p class="fp-indicador">Etapa 1 de 2</p>
+            </div>
+          </div>
+
+          <div class="fp-etapa" data-etapa="2" role="group" aria-labelledby="cidade-etapa-2">
+            <div class="fp-par fp-par--invertido">
+              <div class="fp-campo">
+                <label for="cidade-nome">Seu nome</label>
+                <div class="fp-controle">
+                  <input
+                    id="cidade-nome"
+                    name="nome"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    aria-describedby="cidade-nome-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="cidade-nome-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo">
+                <label for="cidade-cidade"
+                  >Cidade <span class="fp-opcional">(opcional)</span></label
+                >
+                <div class="fp-controle">
+                  <input
+                    id="cidade-cidade"
+                    name="cidade"
+                    type="text"
+                    autocomplete="address-level2"
+                    value="{{dados.nome}}"
+                  />
+                </div>
+              </div>
+            </div>
+            <fieldset class="fp-grupo" data-grupo="perfil" aria-describedby="cidade-perfil-erro">
+              <legend>Você é</legend>
+              <div class="fp-opcoes">
+                <label
+                  ><input type="radio" name="perfil" value="sindico" required />
+                  {{proposta.perfis.0}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="conselheiro" />
+                  {{proposta.perfis.1}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="morador" /> {{proposta.perfis.2}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="construtora" />
+                  {{proposta.perfis.3}}</label
+                >
+              </div>
+              <p class="fp-erro" id="cidade-perfil-erro" aria-live="polite"></p>
+            </fieldset>
+            <div class="fp-par">
+              <div class="fp-campo">
+                <label for="cidade-unidades"
+                  >Nº de unidades <span class="fp-opcional">(aprox.)</span></label
+                >
+                <div class="fp-controle">
+                  <input
+                    id="cidade-unidades"
+                    name="unidades"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\d*"
+                    maxlength="5"
+                  />
+                </div>
+              </div>
+              <fieldset
+                class="fp-grupo"
+                data-grupo="cliente"
+                aria-describedby="cidade-cliente-erro"
+              >
+                <legend>Já é cliente Semog?</legend>
+                <div class="fp-opcoes">
+                  <label><input type="radio" name="cliente" value="sim" required /> Sim</label>
+                  <label><input type="radio" name="cliente" value="nao" /> Não</label>
+                </div>
+                <p class="fp-erro" id="cidade-cliente-erro" aria-live="polite"></p>
+              </fieldset>
+            </div>
+            <div class="fp-acoes">
+              <button class="botao" type="submit">
+                {{proposta.botao}}
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+              <button class="fp-voltar fp-so-js" type="button" data-acao="voltar">
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+                <span>Voltar</span>
+              </button>
+              <p class="fp-indicador fp-so-js" id="cidade-etapa-2">Etapa 2 de 2</p>
+            </div>
+          </div>
+        </div>
+        <p class="fp-status" role="status" aria-live="polite" data-status></p>
+      </form>
+    </div>
+  </div>
+</section>

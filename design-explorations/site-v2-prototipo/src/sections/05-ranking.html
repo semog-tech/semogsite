@@ -1,0 +1,83 @@
+<section id="ranking" class="cena" data-tema="claro" aria-labelledby="ranking-titulo">
+  <div class="ranking-palco">
+    <canvas class="ranking-campo" aria-hidden="true"></canvas>
+    <div class="container ranking-grade">
+      <!-- TEXTO-NOVO: fato informado pelo Leandro (melhor posicionada do Norte e Nordeste no ranking); ainda não está no conteudo.json -->
+      <h2 id="ranking-titulo" class="ranking-passo ranking-chamada">
+        <span data-texto
+          >A administradora <span class="peso">mais bem posicionada</span> do Norte e
+          Nordeste.</span
+        >
+      </h2>
+      <p class="ranking-manchete">
+        <span class="ranking-posicao-mascara"
+          ><span class="ranking-posicao num peso">{{ranking.posicao}}º</span></span
+        >
+        <!-- TEXTO-NOVO: a manchete aprovada, dividida em numeral + frase (mesmo texto de ranking.titulo) -->
+        <span class="ranking-entre">entre mais de {{ranking.total|numero}} administradoras</span>
+      </p>
+      <div class="ranking-passos">
+        <div class="ranking-passo" data-passo="0">
+          <!-- TEXTO-NOVO -->
+          <p class="ranking-frase" data-texto>
+            Mais de <span class="peso">{{ranking.total|numero}} administradoras</span> usam a
+            Superlógica.
+          </p>
+        </div>
+        <div class="ranking-passo" data-passo="1">
+          <!-- TEXTO-NOVO -->
+          <p class="ranking-frase" data-texto>
+            Todo mês, o Ranking <span class="peso">Top 200</span> classifica essa base.
+          </p>
+          <p class="ranking-apoio" data-texto>{{ranking.apoio}}</p>
+        </div>
+        <div class="ranking-passo" data-passo="2">
+          <!-- TEXTO-NOVO: mesmo fato de ranking.g20, com ênfase -->
+          <p class="ranking-frase" data-texto>
+            No <span class="peso">G20 Condo</span> pelo terceiro ciclo seguido.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container ranking-depois">
+    <div class="ranking-historico">
+      <!-- TEXTO-NOVO -->
+      <p class="ranking-historico-titulo">Três ciclos seguidos no G20 Condo</p>
+      <div class="ranking-linha">
+        <span class="ranking-traco" aria-hidden="true"></span>
+        <ol class="ranking-ciclos">
+          <li>
+            <span class="ranking-ciclo"><span>Ciclo {{ranking.ciclos.2.ciclo}}</span></span>
+            <span class="ranking-ciclo-posicao"><span>G20 Condo</span></span>
+          </li>
+          <li>
+            <span class="ranking-ciclo"><span>Ciclo {{ranking.ciclos.1.ciclo}}</span></span>
+            <span class="ranking-ciclo-posicao"><span>G20 Condo</span></span>
+          </li>
+          <li class="ranking-ciclo-atual">
+            <span class="ranking-ciclo"><span>Ciclo {{ranking.ciclos.0.ciclo}}</span></span>
+            <span class="ranking-ciclo-posicao"
+              ><span>G20 Condo, <span class="num">{{ranking.ciclos.0.posicao}}º</span></span></span
+            >
+          </li>
+        </ol>
+      </div>
+    </div>
+    <figure class="ranking-foto">
+      <div class="moldura">
+        <img
+          src="{{ranking.foto}}"
+          alt="{{ranking.alt}}"
+          width="1600"
+          height="900"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <!-- TEXTO-NOVO: legenda derivada do alt (ranking.alt) -->
+      <figcaption>Superlógica Next 2026, placa do G20 Condo.</figcaption>
+    </figure>
+  </div>
+</section>

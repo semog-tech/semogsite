@@ -1,0 +1,12 @@
+/* O reel do Experience 26 (DP12) no lugar da foto do primeiro retrato: as mesmas medidas que
+   comunidade.css (cópia do protótipo, sem edição) dá ao img da moldura, para o parallax interno. */
+.comunidade-quadro .moldura video {
+  position: absolute;
+  top: -5%;
+  left: 0;
+  width: 100%;
+  height: 110%;
+  max-width: none;
+  object-fit: cover;
+  will-change: transform;
+}

@@ -1,0 +1,8 @@
+/* O selo A CONFIRMAR dos números da nova prestação (só na prévia, DP5) fica no lugar do valor. É
+   longo: na coluna dos números ele quebra linha, em vez de ser cortado pela máscara (overflow: clip)
+   da entrada. Ocupa menos altura que o número que ele substitui. Fica fora de abertura.css, que é
+   cópia sem edição do protótipo. */
+#semog-one .so-numero dd .a-confirmar {
+  margin-left: 0;
+  white-space: normal;
+}

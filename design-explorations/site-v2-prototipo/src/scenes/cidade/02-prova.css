@@ -1,0 +1,61 @@
+/* Landing de cidade · prova, no gelo: a frase do ranking à esquerda (61,8%), o apoio à
+   direita (38,2%), e os quatro números numa linha, em Saira leve e grande. */
+#cidade-prova .cp-quadro {
+  display: grid;
+  gap: var(--e6);
+}
+#cidade-prova .cp-ranking {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+}
+#cidade-prova .cp-ranking > * {
+  min-width: 0;
+}
+#cidade-prova .cp-titulo {
+  max-width: 16ch;
+}
+#cidade-prova .cp-apoio {
+  max-width: 40ch;
+  color: var(--tema-texto);
+}
+#cidade-prova .cp-numeros {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e4);
+}
+#cidade-prova .cp-numero {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: start;
+  gap: var(--e1);
+  padding-top: var(--e3);
+  border-top: 2px solid var(--marinho);
+}
+#cidade-prova .cp-numero dd {
+  margin: 0;
+  font-size: clamp(2.75rem, 1.8rem + 2.6vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+#cidade-prova .cp-sufixo {
+  font-size: 0.5em;
+  letter-spacing: var(--tracking-titulo);
+}
+
+@media (max-width: 760px) {
+  #cidade-prova .cp-quadro {
+    gap: var(--e5);
+  }
+  #cidade-prova .cp-ranking {
+    grid-template-columns: 1fr;
+    gap: var(--e3);
+  }
+  #cidade-prova .cp-numeros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e4) var(--e3);
+  }
+}

@@ -1,0 +1,251 @@
+<!-- Abertura · metades: as quatro Unidades em sequência + pedido de proposta (etapa 1). -->
+<section id="abertura" class="abertura" data-tema="claro" aria-labelledby="abertura-titulo">
+  <div class="abertura-palco">
+    <figure class="vitrine" aria-label="Unidades Semog">
+      <div class="vitrine-moldura">
+        <div class="slide" data-cidade="{{unidades.0.cidade}} · Unidade Semog">
+          <img
+            src="{{unidades.0.foto}}"
+            alt="{{unidades.0.alt}}"
+            width="1376"
+            height="768"
+            fetchpriority="high"
+          />
+        </div>
+        <div class="slide" data-cidade="{{unidades.1.cidade}} · Unidade Semog">
+          <img src="{{unidades.1.foto}}" alt="{{unidades.1.alt}}" width="1376" height="768" />
+        </div>
+        <div class="slide" data-cidade="{{unidades.2.cidade}} · Unidade Semog">
+          <img src="{{unidades.2.foto}}" alt="{{unidades.2.alt}}" width="1376" height="768" />
+        </div>
+        <div class="slide" data-cidade="{{unidades.3.cidade}} · Unidade Semog">
+          <img src="{{unidades.3.foto}}" alt="{{unidades.3.alt}}" width="1376" height="768" />
+        </div>
+      </div>
+      <figcaption class="vitrine-legenda entrada">
+        <span class="vitrine-cidade" aria-live="polite"
+          ><span data-cidade-atual>{{unidades.0.cidade}} · Unidade Semog</span></span
+        >
+        <span class="vitrine-passos" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      </figcaption>
+    </figure>
+
+    <div class="abertura-texto">
+      <h1 id="abertura-titulo" class="abertura-titulo">
+        <span class="linha"
+          ><span class="linha-interna entrada abertura-inteira">Preocupe-se</span></span
+        >
+        <span class="linha"><span class="linha-interna entrada">apenas em</span></span>
+        <span class="linha"
+          ><span class="linha-interna entrada"><em class="peso">morar.</em></span></span
+        >
+      </h1>
+      <p class="abertura-sub entrada">{{marca.subtitulo}}</p>
+
+      <form
+        class="formulario-proposta abertura-form"
+        data-formulario-proposta
+        method="post"
+        aria-labelledby="abertura-form-titulo"
+      >
+        <!-- TEXTO-NOVO -->
+        <p id="abertura-form-titulo" class="fp-titulo entrada">Peça uma proposta</p>
+        <div class="fp-etapas">
+          <div class="fp-etapa" data-etapa="1">
+            <div class="fp-campo entrada">
+              <label for="abertura-condominio">Nome do condomínio</label>
+              <div class="fp-controle">
+                <input
+                  id="abertura-condominio"
+                  name="condominio"
+                  type="text"
+                  autocomplete="off"
+                  required
+                  aria-describedby="abertura-condominio-erro"
+                />
+              </div>
+              <p class="fp-erro" id="abertura-condominio-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-par">
+              <div class="fp-campo entrada">
+                <label for="abertura-uf">Estado</label>
+                <div class="fp-controle fp-controle--select">
+                  <select
+                    id="abertura-uf"
+                    name="uf"
+                    autocomplete="address-level1"
+                    required
+                    aria-describedby="abertura-uf-erro"
+                  >
+                    <option value="" selected disabled>Selecione</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PA">Pará</option>
+                    <optgroup label="Outros estados">
+                      <option value="AC">Acre</option>
+                      <option value="AL">Alagoas</option>
+                      <option value="AP">Amapá</option>
+                      <option value="AM">Amazonas</option>
+                      <option value="BA">Bahia</option>
+                      <option value="CE">Ceará</option>
+                      <option value="DF">Distrito Federal</option>
+                      <option value="ES">Espírito Santo</option>
+                      <option value="GO">Goiás</option>
+                      <option value="MA">Maranhão</option>
+                      <option value="MT">Mato Grosso</option>
+                      <option value="MS">Mato Grosso do Sul</option>
+                      <option value="MG">Minas Gerais</option>
+                      <option value="PR">Paraná</option>
+                      <option value="PI">Piauí</option>
+                      <option value="RJ">Rio de Janeiro</option>
+                      <option value="RN">Rio Grande do Norte</option>
+                      <option value="RS">Rio Grande do Sul</option>
+                      <option value="RO">Rondônia</option>
+                      <option value="RR">Roraima</option>
+                      <option value="SC">Santa Catarina</option>
+                      <option value="SP">São Paulo</option>
+                      <option value="SE">Sergipe</option>
+                      <option value="TO">Tocantins</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <p class="fp-erro" id="abertura-uf-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo entrada">
+                <label for="abertura-telefone">Telefone com DDD</label>
+                <div class="fp-controle">
+                  <input
+                    id="abertura-telefone"
+                    name="telefone"
+                    type="tel"
+                    autocomplete="tel-national"
+                    inputmode="tel"
+                    placeholder="(00) 00000-0000"
+                    pattern="\(?\d{2}\)?\s?\d{4,5}-?\d{4}"
+                    maxlength="15"
+                    required
+                    aria-describedby="abertura-telefone-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="abertura-telefone-erro" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="fp-campo entrada">
+              <label for="abertura-email">E-mail <span class="fp-opcional">(opcional)</span></label>
+              <div class="fp-controle">
+                <input
+                  id="abertura-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  aria-describedby="abertura-email-erro"
+                />
+              </div>
+              <p class="fp-erro" id="abertura-email-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-acoes fp-so-js entrada">
+              <button class="botao" type="submit">
+                Continuar <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="fp-etapa" data-etapa="2" role="group" aria-labelledby="abertura-etapa-2">
+            <div class="fp-par fp-par--invertido">
+              <div class="fp-campo">
+                <label for="abertura-nome">Seu nome</label>
+                <div class="fp-controle">
+                  <input
+                    id="abertura-nome"
+                    name="nome"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    aria-describedby="abertura-nome-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="abertura-nome-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo">
+                <label for="abertura-cidade"
+                  >Cidade <span class="fp-opcional">(opcional)</span></label
+                >
+                <div class="fp-controle">
+                  <input
+                    id="abertura-cidade"
+                    name="cidade"
+                    type="text"
+                    autocomplete="address-level2"
+                  />
+                </div>
+              </div>
+            </div>
+            <fieldset class="fp-grupo" data-grupo="perfil" aria-describedby="abertura-perfil-erro">
+              <legend>Você é</legend>
+              <div class="fp-opcoes">
+                <label
+                  ><input type="radio" name="perfil" value="sindico" required />
+                  {{proposta.perfis.0}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="conselheiro" />
+                  {{proposta.perfis.1}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="morador" /> {{proposta.perfis.2}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="construtora" />
+                  {{proposta.perfis.3}}</label
+                >
+              </div>
+              <p class="fp-erro" id="abertura-perfil-erro" aria-live="polite"></p>
+            </fieldset>
+            <div class="fp-par">
+              <div class="fp-campo">
+                <label for="abertura-unidades"
+                  >Nº de unidades <span class="fp-opcional">(aprox.)</span></label
+                >
+                <div class="fp-controle">
+                  <input
+                    id="abertura-unidades"
+                    name="unidades"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\d*"
+                    maxlength="5"
+                  />
+                </div>
+              </div>
+              <fieldset
+                class="fp-grupo"
+                data-grupo="cliente"
+                aria-describedby="abertura-cliente-erro"
+              >
+                <legend>Já é cliente Semog?</legend>
+                <div class="fp-opcoes">
+                  <label><input type="radio" name="cliente" value="sim" required /> Sim</label>
+                  <label><input type="radio" name="cliente" value="nao" /> Não</label>
+                </div>
+                <p class="fp-erro" id="abertura-cliente-erro" aria-live="polite"></p>
+              </fieldset>
+            </div>
+            <div class="fp-acoes">
+              <button class="botao" type="submit">
+                {{proposta.botao}}
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+              <button class="fp-voltar fp-so-js" type="button" data-acao="voltar">
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+                <span>Voltar</span>
+              </button>
+              <!-- TEXTO-NOVO -->
+              <p class="fp-indicador fp-so-js" id="abertura-etapa-2">Etapa 2 de 2</p>
+            </div>
+          </div>
+        </div>
+        <p class="fp-status" role="status" aria-live="polite" data-status></p>
+      </form>
+    </div>
+  </div>
+</section>

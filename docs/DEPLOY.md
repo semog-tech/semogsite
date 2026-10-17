@@ -76,9 +76,10 @@ pooler) e fazer deploy.
 |---|---|---|---|
 | `SENDGRID_API_KEY` | Opcional | Não | Chave da API (app.sendgrid.com → Settings → API Keys). Sem ela, `src/lib/sendgrid.ts` faz um no-op logado — os formulários continuam salvando normalmente, só não sai e-mail. |
 | `SENDGRID_FROM` | Opcional | Não | Remetente verificado no SendGrid (Sender Authentication), ex. `no-reply@semog.com.br`. |
-| `CONTACT_TO` | Opcional | Não | Caixa de entrada que recebe a notificação interna de cada lead (`submit-form.ts`). |
 
-As 3 são opcionais como grupo — ou preenche todas, ou nenhuma (deixar `SENDGRID_API_KEY` vazia já
+`CONTACT_TO` deixou de ser lida em 10/2026: o Contato vai sempre para `ola@semog.com.br` (`CONTATO_TO`, `src/lib/leads/destinatarios.ts`).
+
+As 2 são opcionais como grupo — ou preenche todas, ou nenhuma (deixar `SENDGRID_API_KEY` vazia já
 desativa o envio real). Recomendado para produção; pode ficar vazio em previews.
 
 ### Cloudflare Turnstile (obrigatório — usar chaves de teste se não houver chaves reais)
@@ -106,10 +107,26 @@ existirem — ligar a integração é ação de configuração, não de código.
 
 O que a integração faz: toda submissão de **Proposta** (e de **Contato** com
 `assunto = proposta-comercial`) cria um lead no funil Padrão do Exact, com contato principal, logo
-depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fica em
-`cms.leads.exact_error` e o cron `/api/cron/push-exact-leads` (diário, 07:00) retenta por 48 h.
-Detalhes do contrato da API — que diverge do PDF oficial da Exact — em
-`scripts/probe-exact-create-lead.ts`.
+depois de gravar em `cms.leads`. No formulário de duas etapas do site v2, o envio sai quando a
+etapa 2 chega; se a pessoa parar na etapa 1, o cron `/api/cron/push-exact-leads` envia depois de
+45 min (Exact, e-mail interno e conversão do Ads, uma vez cada). Esse cron roda **a cada 15
+minutos** e também retenta por 48 h o que falhou na hora (fica em `cms.leads.exact_error`).
+Quem marca "já sou cliente" não vai ao Exact nem ao Ads. Detalhes do contrato da API — que
+diverge do PDF oficial da Exact — em `scripts/probe-exact-create-lead.ts`.
+
+### Google Ads e crons (só Production)
+
+| Variável | Descrição |
+|---|---|
+| `CRON_SECRET` | Bearer dos dois crons de `vercel.json`. |
+| `GOOGLE_ADS_LOGIN_CUSTOMER_ID`, `GOOGLE_ADS_CUSTOMER_ID` | Conta gerente e conta operadora do Ads. |
+| `GOOGLE_ADS_CONVERSION_ACTION_ID` | Ação "Proposta (servidor) - gclid". |
+| `GOOGLE_ADS_WHATSAPP_CONVERSION_ACTION_ID` | Opcional: ação "WhatsApp (servidor) - gclid". |
+| `GOOGLE_ADS_IMPERSONATED_EMAIL`, `GOOGLE_SA_JSON` | Conta de serviço com delegação no escopo `datamanager`. |
+
+A conversão do formulário sobe pelo servidor junto com o Exact (Data Manager API,
+`transactionId = lead-<id>`); o cron `/api/cron/upload-ads-conversions` (diário, 06:00 UTC) é a
+rede de recuperação, com o mesmo critério. `gbraid`/`wbraid` vão no campo próprio.
 
 ### 2ª via de boleto na triagem (opcional; desligada sem `SEGUNDA_VIA_ATIVA=true`)
 
@@ -182,6 +199,10 @@ pooler — veja `docs/DEV.md` para os comandos.
   produção — não há banco/projeto isolado por preview. Tenha cuidado ao testar fluxos que
   escrevem dados (formulários, admin do Payload) em previews: eles gravam nos mesmos dados de
   produção.
+- Por isso **toda linha nova de proposta e contato grava `data.ambiente`** (`VERCEL_ENV`, ou
+  `local` fora da Vercel), e Exact, e-mail interno e Ads — na hora, no cron e no lote — só
+  processam linhas de produção ou antigas (sem a chave). Um teste em Preview grava a linha, mas
+  não sai para ninguém. `VERCEL_ENV` é variável de sistema da Vercel (precisa estar exposta).
 - O **draft/live preview do Payload** (rotas de preview do CMS, versionamento de páginas/posts)
   funciona normalmente nos previews, já que aponta para o mesmo Postgres.
 - Variáveis de ambiente marcadas para o environment **Preview** no Project Settings se aplicam a
@@ -206,7 +227,7 @@ Depois do primeiro deploy de produção em `semog.com.br`, plugar (via os MCPs d
 disponíveis no ambiente de trabalho):
 
 - **Google Search Console** — verificar o domínio e submeter `/sitemap.xml`
-  (`src/app/(frontend)/sitemap.ts`, já existe e é servido em produção).
+  (`src/app/sitemap.ts`, gerado do inventário `src/site/inventario.ts`).
 - **Google Tag Manager** — o `ConsentProvider`/`CookieBanner` (LGPD, `src/lib/consent.ts`) já
   implementam o gate de consentimento (`hasConsent('analytics')` / `hasConsent('marketing')`);
   o container GTM deve carregar **condicionalmente**, só depois do usuário aceitar a categoria

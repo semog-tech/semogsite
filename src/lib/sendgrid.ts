@@ -1,6 +1,7 @@
 import { render } from '@react-email/render'
 import sgMail from '@sendgrid/mail'
 import type { ReactElement } from 'react'
+import { comPrazo } from '@/lib/prazo'
 
 export type SendMailArgs = {
   /**
@@ -15,6 +16,12 @@ export type SendMailArgs = {
   subject: string
   react: ReactElement
 }
+
+/**
+ * Prazo do envio ao SendGrid. O e-mail sai dentro da action da etapa 2 e do cron, que tem teto de
+ * duração: SendGrid pendurado não pode prender nenhum dos dois. Estourou = `{ ok: false }`.
+ */
+export const PRAZO_SENDGRID_MS = 5000
 
 export type SendMailResult = { ok: boolean; skipped?: boolean; error?: string }
 
@@ -44,13 +51,20 @@ export async function sendMail({
     const text = await render(react, { plainText: true })
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    await sgMail.send({
-      to,
-      from: from ?? (process.env.SENDGRID_FROM as string),
-      subject,
-      html,
-      text,
-    })
+    // O `timeout` do client (axios) é de inatividade do socket, não do envio inteiro: o `comPrazo`
+    // é que garante o teto; o do client só encerra a conexão parada.
+    sgMail.setTimeout(PRAZO_SENDGRID_MS)
+    await comPrazo(
+      sgMail.send({
+        to,
+        from: from ?? (process.env.SENDGRID_FROM as string),
+        subject,
+        html,
+        text,
+      }),
+      PRAZO_SENDGRID_MS,
+      'SendGrid',
+    )
 
     return { ok: true }
   } catch (err) {

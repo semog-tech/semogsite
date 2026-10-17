@@ -1,0 +1,216 @@
+/* Cena 02 · condominios. Escopar tudo em #condominios. Cor só por token (--tema-* ou tokens.css).
+   Sem JS (ou se a cena falhar) vale o layout de leitura: texto à esquerda, números à direita.
+   Com a cena montada (.cond-com-campo), o palco ocupa a tela e as camadas se sobrepõem
+   ao canvas; o pin troca uma pela outra. Só na tela: a impressão fica com a leitura. */
+
+#condominios .cond-campo,
+#condominios .cond-alvo-numero,
+#condominios .cond-alvo-grade {
+  display: none;
+}
+
+/* ---- Leitura (sem campo) -------------------------------------------------------- */
+#condominios .cond-quadro {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: start;
+}
+#condominios .cond-quadro > * {
+  min-width: 0;
+}
+#condominios .cond-texto > * + * {
+  margin-block-start: var(--e4);
+}
+#condominios h2 {
+  font-size: var(--t-h2);
+  max-width: 14ch;
+}
+#condominios .cond-destaque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+}
+#condominios .cond-destaque .num {
+  font-size: var(--t-h3);
+  font-weight: 300;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1;
+  color: var(--tema-titulo);
+}
+#condominios .cond-destaque .mascara + .mascara {
+  font-size: var(--t-lead);
+  color: var(--tema-texto);
+}
+#condominios .cond-dados {
+  display: grid;
+  gap: var(--e4);
+}
+#condominios .cond-dados > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--e1);
+}
+#condominios .cond-dados .num {
+  font-size: clamp(2.75rem, 1.2rem + 4.4vw, 6.2rem);
+  font-weight: 300;
+  letter-spacing: var(--tracking-display);
+  line-height: 0.95;
+  color: var(--tema-titulo);
+  white-space: nowrap;
+}
+#condominios .cond-dados .rotulo {
+  font-size: var(--t-corpo);
+  font-weight: 400;
+}
+
+/* Máscara de uma linha: o texto sobe de baixo, recortado. Respiro para descendentes. */
+#condominios .mascara {
+  display: block;
+  overflow: clip;
+  overflow-clip-margin: 0.04em;
+  padding-block-end: 0.1em;
+  margin-block-end: -0.1em;
+}
+#condominios .mascara-in {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  #condominios .cond-quadro {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Palco (cena montada) --------------------------------------------------------- */
+@media screen {
+  /* A cena seguinte sobe por cima do palco na última tela do pin, quando ele já é só
+     marinho (CAUDA no JS): o pin acaba junto com a cobertura, sem tela vazia. */
+  #condominios.cond-com-campo:not([data-cena-erro]) {
+    padding-block: 0;
+    margin-block-end: -100svh;
+  }
+  /* O número já é o desenho das barras: o "+650" em texto fica só na leitura sem JS. */
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-destaque {
+    display: none;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-palco {
+    position: relative;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    /* Branco fixo, e não o fundo do tema: o tema vira marinho quando a torre passa sob o
+       header (80% da largura), e as faixas laterais ainda descobertas não podem trocar de
+       cor de uma vez. Quem pinta o marinho é só a torre. */
+    background: var(--branco);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-campo {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-quadro {
+    display: block;
+    position: relative;
+    height: 100%;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-alvo-numero {
+    position: absolute;
+    left: 0;
+    top: var(--cab);
+    bottom: 0;
+    width: 57%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--e4);
+  }
+  /* Proporção da tinta de "650" em Saira 500: o número preenche a caixa e a legenda
+     fica logo abaixo dele. */
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-alvo-glifo {
+    width: 100%;
+    aspect-ratio: 3.3;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-legenda {
+    font-size: var(--t-corpo);
+    font-weight: 400;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto {
+    position: absolute;
+    right: 0;
+    top: var(--cab);
+    bottom: 0;
+    width: 34%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto h2 {
+    font-size: clamp(2rem, 1.2rem + 2.2vw, 3.4rem);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto .lead {
+    font-size: var(--t-corpo);
+    color: var(--tema-suave);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-dados {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--cab) + var(--e5));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--e5);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-alvo-grade {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--e5);
+    height: 44%;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-alvo-numero {
+    top: calc(var(--cab) + 13svh);
+    bottom: auto;
+    width: 100%;
+    justify-content: flex-start;
+    gap: var(--e2);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto {
+    top: calc(var(--cab) + 13svh + (100vw - 2 * var(--margem)) / 3.3 + var(--e6));
+    bottom: var(--e4);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto > * + * {
+    margin-block-start: var(--e3);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-texto h2 {
+    font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.25rem);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-dados {
+    top: calc(var(--cab) + var(--e4));
+    grid-template-columns: 1fr;
+    gap: var(--e3);
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-dados .num {
+    font-size: 2.75rem;
+  }
+  #condominios.cond-com-campo:not([data-cena-erro]) .cond-alvo-grade {
+    height: 26%;
+    bottom: var(--e4);
+  }
+}
+
+/* Impressão: o pin fica onde estava; a leitura sai inteira, sem máscara nem recorte. */
+@media print {
+  #condominios .mascara-in,
+  #condominios .cond-texto {
+    transform: none !important;
+    clip-path: none !important;
+  }
+}

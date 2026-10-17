@@ -1,0 +1,83 @@
+/* Landing de cidade · troca: um traço contínuo liga os três passos (horizontal no desktop,
+   vertical no celular). Ele se desenha uma vez, da ponta de origem (1,3 s, expo.inOut), e
+   cada passo assenta sobre o traço com um marco quadrado. Sem numerais. */
+#cidade-troca .cx-quadro {
+  display: grid;
+  gap: var(--e5);
+}
+#cidade-troca .cx-titulo {
+  max-width: 20ch;
+}
+#cidade-troca .cx-passos {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--e5);
+}
+#cidade-troca .cx-passos::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--marinho);
+  transform-origin: 0 50%;
+  transition: transform 1.3s var(--ease-expo-in-out);
+}
+html.landing-viva #cidade-troca .cx-passos:not(.visivel)::before {
+  transform: scaleX(0);
+}
+/* O marco fica dentro da caixa do passo: a máscara de entrada (00-comum.css) corta o que
+   passa de 21px para fora. */
+#cidade-troca .cx-passo {
+  position: relative;
+  display: grid;
+  gap: var(--e2);
+  align-content: start;
+  padding-top: var(--e4);
+}
+#cidade-troca .cx-passo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  background: var(--marinho);
+}
+#cidade-troca .cx-passo h3 {
+  font-size: clamp(1.375rem, 1.1rem + 0.7vw, 1.75rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+#cidade-troca .cx-passo p {
+  max-width: 36ch;
+  color: var(--tema-texto);
+}
+
+@media (max-width: 760px) {
+  #cidade-troca .cx-passos {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+  #cidade-troca .cx-passos::before {
+    top: 0;
+    bottom: 0;
+    left: 5px;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform-origin: 50% 0;
+  }
+  html.landing-viva #cidade-troca .cx-passos:not(.visivel)::before {
+    transform: scaleY(0);
+  }
+  #cidade-troca .cx-passo {
+    padding: 0 0 0 var(--e4);
+  }
+  #cidade-troca .cx-passo::before {
+    left: 0;
+    top: 6px;
+  }
+}

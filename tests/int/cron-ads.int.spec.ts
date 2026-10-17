@@ -333,7 +333,32 @@ describe('cron upload-ads-conversions', () => {
     // mas o ponto chave é que não existe uma 2ª/3ª chamada de UPDATE que
     // pudesse ter marcado só parte do lote antes da falha.
     expect(res.status).toBe(500)
-    expect(json.error).toContain('conexão caiu no meio do UPDATE')
+    // Só a classe do erro na resposta (o texto do Postgres pode ecoar dado pessoal).
+    expect(json.error).toBe('Error')
+    expect(JSON.stringify(json)).not.toContain('conexão caiu no meio do UPDATE')
     expect(queryMock).toHaveBeenCalledTimes(3) // 2 SELECTs + 1 UPDATE (que falhou)
+  })
+
+  it('SELECT de leads segue o critério das duas etapas, ambiente, cliente e já processada (D1)', async () => {
+    selects([])
+    await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(sql).toContain(
+      "(etapa is null or etapa = 2 or created_at < now() - interval '45 minutes')",
+    )
+    expect(sql).toContain("coalesce(data->>'ambiente', 'production') = 'production'")
+    expect(sql).toContain("coalesce(data->>'cliente', '') <> 'sim'")
+    expect(sql).toContain("data->>'substituida_por' is null")
+    expect(sql).toMatch(/envio_em is not null and envio_em < now\(\) - interval '10 minutes'/)
+  })
+
+  it('gbraid sobe no campo gbraid, não como gclid (R9)', async () => {
+    selects([{ ...leadComGclid, gclid: 'GBRAID-1', tipo_de_clique: 'gbraid' }])
+    queryMock.mockResolvedValueOnce({ rows: [] })
+    await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(options.body as string)
+    expect(body.events[0].adIdentifiers).toEqual({ gbraid: 'GBRAID-1' })
+    expect(body.events[0].transactionId).toBe('lead-42')
   })
 })

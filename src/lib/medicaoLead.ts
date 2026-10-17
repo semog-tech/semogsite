@@ -8,3 +8,15 @@
 export function registrarLeadGerado(form: string, extras: Record<string, string> = {}) {
   window.gtag?.('event', 'generate_lead', { form, ...extras, currency: 'BRL', value: 1 })
 }
+
+/**
+ * Etapa 2 do formulário de duas etapas → GA4 `lead_qualificado` (spec 4.4). Evento de análise: não
+ * é evento-chave e não tem valor. `cliente` é só sim/não; nenhum dado pessoal.
+ */
+export function registrarLeadQualificado(extras: Record<string, string> = {}) {
+  window.gtag?.('event', 'lead_qualificado', {
+    form: 'proposta',
+    variante: 'duas_etapas',
+    ...extras,
+  })
+}

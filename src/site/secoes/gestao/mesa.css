@@ -1,0 +1,305 @@
+/* Mesa do síndico: palco fixo de uma tela. Grade 38,2/61,8: à esquerda o momento da vez, à
+   direita o desenho inteiro, sempre à vista: a mesa em cima (a pilha de tarefas) e as cinco
+   frentes embaixo, ligadas por um traço só. Sem JS (sem .gme-pin), lê-se a lista dos
+   momentos e o desenho no estado final, um embaixo do outro.
+   Papéis de cor: branco (fundo), lavanda (as tarefas e a espinha ainda por fazer), marinho
+   (texto, nomes, nós e o traço que já passou); o céu claro é o destaque, só em "decidir". */
+#mesa-do-sindico {
+  --gme-cartao-fonte: 15px;
+}
+
+/* ---- Leitura sem palco --------------------------------------------------------------- */
+#mesa-do-sindico .gme-grade {
+  display: grid;
+  gap: var(--e5);
+}
+#mesa-do-sindico .gme-cobertura {
+  display: none;
+}
+#mesa-do-sindico .gme-momentos {
+  display: grid;
+  gap: var(--e6);
+  max-width: var(--largura-texto);
+}
+#mesa-do-sindico .gme-momento-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.08;
+}
+#mesa-do-sindico .gme-texto {
+  max-width: 40ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#mesa-do-sindico .gme-in {
+  display: block;
+}
+
+/* ---- O desenho: a mesa e as frentes -------------------------------------------------- */
+#mesa-do-sindico .gme-figura {
+  display: grid;
+  align-content: center;
+  gap: var(--e4);
+  min-width: 0;
+  min-height: 0;
+}
+#mesa-do-sindico .gme-rotulo {
+  margin-bottom: var(--e2);
+}
+#mesa-do-sindico .gme-pilha,
+#mesa-do-sindico .gme-cartoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1);
+}
+/* Tarefa: um bloco lavanda de ponta reta, nome em Saira. A vaga tem a mesma caixa e, vazia,
+   fica só o contorno: o lugar de onde a tarefa saiu. */
+#mesa-do-sindico .gme-vaga,
+#mesa-do-sindico .gme-cartao,
+#mesa-do-sindico .gme-decidir {
+  position: relative;
+  padding: 5px 10px 6px;
+  border: 1px solid var(--lavanda);
+  font-family: var(--fonte-titulo);
+  font-size: var(--gme-cartao-fonte);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--marinho);
+}
+#mesa-do-sindico .gme-cartao {
+  background: var(--lavanda);
+  will-change: transform;
+}
+#mesa-do-sindico .gme-vaga span {
+  visibility: hidden;
+}
+/* "decidir": o que fica na mesa. Contorno marinho; o realce cresce por baixo do texto no
+   mesmo céu claro da cobertura, que nasce dele. */
+#mesa-do-sindico .gme-decidir {
+  border-color: var(--marinho);
+  font-variation-settings: "wght" 600;
+}
+#mesa-do-sindico .gme-realce {
+  position: absolute;
+  inset: 0;
+  background: var(--ceu-claro);
+  transform-origin: 0% 50%;
+}
+#mesa-do-sindico .gme-decidir-texto {
+  position: relative;
+}
+
+/* As frentes: o nó na espinha, o nome ao lado dele e as tarefas embaixo do nome. A espinha é o traço que
+   liga as cinco frentes; o JS a estende do primeiro ao último nó. */
+#mesa-do-sindico .gme-frentes {
+  position: relative;
+  display: grid;
+  gap: var(--e2);
+}
+#mesa-do-sindico .gme-frente {
+  display: grid;
+  grid-template-columns: var(--e4) minmax(0, 1fr);
+  align-items: center;
+  row-gap: var(--e1);
+}
+#mesa-do-sindico .gme-cartoes {
+  grid-column: 2;
+  min-height: calc(var(--gme-cartao-fonte) * 1.2 + 13px);
+}
+#mesa-do-sindico .gme-no {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: 10px;
+  height: 10px;
+  background: var(--lavanda);
+}
+#mesa-do-sindico .gme-no::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--marinho);
+  transform: scale(var(--gme-acesa, 1));
+}
+#mesa-do-sindico .gme-frente-nome {
+  font-family: var(--fonte-titulo);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  font-variation-settings: "wght" 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--marinho);
+}
+#mesa-do-sindico .gme-espinha {
+  position: absolute;
+  left: calc(var(--e4) / 2 - 1px);
+  top: var(--gme-espinha-topo, 0px);
+  width: 2px;
+  height: var(--gme-espinha-altura, 100%);
+  background: var(--lavanda);
+}
+#mesa-do-sindico .gme-traco {
+  position: absolute;
+  inset: 0;
+  background: var(--marinho);
+  transform: scaleY(var(--gme-p, 1));
+  transform-origin: 50% 0%;
+}
+
+/* ---- Palco fixo (com JS) ------------------------------------------------------------- */
+#mesa-do-sindico.gme-pin {
+  padding-block: 0;
+}
+#mesa-do-sindico.gme-pin .gme-palco {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--tema-fundo);
+}
+#mesa-do-sindico.gme-pin .gme-grade {
+  height: 100%;
+  grid-template-columns: var(--menor) var(--maior);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: var(--e6);
+  row-gap: var(--e4);
+  padding-block: calc(var(--cab) + var(--e5)) var(--e5);
+}
+#mesa-do-sindico.gme-pin .gme-titulo {
+  grid-area: 1 / 1;
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#mesa-do-sindico.gme-pin .gme-momentos {
+  grid-area: 2 / 1;
+  align-self: center;
+  display: grid;
+  max-width: none;
+}
+#mesa-do-sindico.gme-pin .gme-momento {
+  grid-area: 1 / 1;
+}
+#mesa-do-sindico.gme-pin .gme-momento-titulo,
+#mesa-do-sindico.gme-pin .gme-texto {
+  overflow: clip;
+  padding-block-end: 0.1em;
+}
+#mesa-do-sindico.gme-pin .gme-momento-titulo {
+  font-size: clamp(1.75rem, 1.15rem + 1.3vw, 2.5rem);
+}
+#mesa-do-sindico.gme-pin .gme-texto {
+  max-width: 38ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+}
+#mesa-do-sindico.gme-pin .gme-figura {
+  grid-area: 1 / 2 / 3 / 3;
+}
+/* Com o palco, a vaga mostra o contorno vazio e o cartão pousa por cima dela; o nome da
+   frente começa leve e ganha peso quando o traço chega (ver a cena). */
+#mesa-do-sindico.gme-pin .gme-frente-nome {
+  font-variation-settings: "wght" 300;
+}
+
+/* ---- Cobertura: "decidir" cresce até virar o céu claro seguinte ------------------- */
+#mesa-do-sindico.gme-pin .gme-cobertura {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--ceu-claro);
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+/* ---- Celular: o desenho em cima, o momento embaixo ----------------------------------- */
+@media (max-width: 760px) {
+  #mesa-do-sindico {
+    --gme-cartao-fonte: 12px;
+  }
+  #mesa-do-sindico .gme-vaga,
+  #mesa-do-sindico .gme-cartao,
+  #mesa-do-sindico .gme-decidir {
+    padding: 3px 6px 4px;
+  }
+  #mesa-do-sindico .gme-pilha,
+  #mesa-do-sindico .gme-cartoes {
+    gap: 5px;
+  }
+  #mesa-do-sindico .gme-figura {
+    gap: var(--e3);
+  }
+  #mesa-do-sindico .gme-rotulo {
+    margin-bottom: var(--e1);
+    font-size: 0.75rem;
+  }
+  #mesa-do-sindico .gme-frentes {
+    gap: var(--e1);
+  }
+  #mesa-do-sindico .gme-frente {
+    grid-template-columns: var(--e3) minmax(0, 1fr);
+    row-gap: 5px;
+  }
+  #mesa-do-sindico .gme-frente-nome {
+    font-size: 0.875rem;
+  }
+  #mesa-do-sindico .gme-espinha {
+    left: calc(var(--e3) / 2 - 1px);
+  }
+  #mesa-do-sindico.gme-pin .gme-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    row-gap: var(--e3);
+    padding-block: calc(var(--cab) + var(--e3)) var(--e4);
+  }
+  #mesa-do-sindico.gme-pin .gme-titulo {
+    grid-area: 1 / 1;
+    font-size: 1.625rem;
+  }
+  #mesa-do-sindico.gme-pin .gme-figura {
+    grid-area: 2 / 1;
+  }
+  #mesa-do-sindico.gme-pin .gme-momentos {
+    grid-area: 3 / 1;
+    align-self: start;
+  }
+  #mesa-do-sindico.gme-pin .gme-momento-titulo {
+    font-size: 1.375rem;
+  }
+  #mesa-do-sindico.gme-pin .gme-texto {
+    margin-top: var(--e2);
+    font-size: 1rem;
+  }
+}
+
+/* Impresso, o palco vira a lista de leitura e o desenho no estado final. As posições
+   animadas (inline) são anuladas aqui. */
+@media print {
+  #mesa-do-sindico.gme-pin .gme-palco {
+    height: auto;
+    overflow: visible;
+  }
+  #mesa-do-sindico.gme-pin .gme-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    padding-block: var(--e6);
+  }
+  #mesa-do-sindico.gme-pin .gme-grade > *,
+  #mesa-do-sindico.gme-pin .gme-momento {
+    grid-area: auto;
+  }
+  #mesa-do-sindico.gme-pin .gme-momentos {
+    gap: var(--e5);
+  }
+  #mesa-do-sindico .gme-cobertura {
+    display: none !important;
+  }
+  #mesa-do-sindico .gme-in,
+  #mesa-do-sindico .gme-cartao,
+  #mesa-do-sindico .gme-realce {
+    transform: none !important;
+  }
+}

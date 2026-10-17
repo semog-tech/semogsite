@@ -1,0 +1,229 @@
+/* 404 do site v2 (fase 4): o título em duas linhas com a ênfase por peso e, ao lado, o pedido de
+   proposta em destaque no marinho; o traço que se perde no meio e volta; e os outros quatro
+   caminhos numa fileira de cartões. Tudo cabe na primeira tela do computador (1366 × 768).
+   Entrada só de CSS, da primeira pintura: o título sobe pela máscara; o destaque abre de baixo;
+   a ida do traço para seca no meio; a volta nasce mais abaixo e sobe pela curva; os cartões
+   entram em cascata enquanto a volta sobe. */
+#nao-encontrada {
+  display: grid;
+  align-content: center;
+  gap: var(--e3);
+  min-height: 100svh;
+  padding-block: calc(var(--cab) + var(--e4)) var(--e5);
+  background: var(--branco);
+  overflow: clip;
+}
+#nao-encontrada .ne-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e4) var(--e6);
+  align-items: end;
+}
+#nao-encontrada .ne-topo > * {
+  min-width: 0;
+}
+#nao-encontrada .ne-rotulo {
+  animation: ne-subir-bloco 0.9s var(--ease-expo) 40ms backwards;
+}
+#nao-encontrada .ne-titulo {
+  margin-top: var(--e2);
+  /* Em tela baixa, o título encolhe com a altura: os cartões ficam na primeira tela. */
+  font-size: min(clamp(3rem, 1.4rem + 5vw, 6.5rem), 12svh);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#nao-encontrada .ne-titulo .linha-interna {
+  display: block;
+  animation: ne-subir 0.9s var(--ease-expo) calc(var(--i) * 80ms + 60ms) both;
+}
+#nao-encontrada .ne-titulo .peso-fixo::after {
+  animation: ne-peso 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.45s both;
+}
+#nao-encontrada .ne-texto {
+  max-width: 44ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--texto);
+  animation: ne-subir-bloco 0.9s var(--ease-expo) 0.3s backwards;
+}
+
+/* ---- O traço: de borda a borda da tela, 1,5px, ponta reta (.percurso). ------------ */
+#nao-encontrada .ne-traco {
+  width: 100%;
+  height: clamp(56px, 7vw, 96px);
+  color: var(--marinho);
+  overflow: visible;
+}
+#nao-encontrada .ne-traco .percurso {
+  stroke-width: 1.5;
+  stroke-dasharray: 1 1;
+}
+#nao-encontrada .ne-ida {
+  animation: ne-desenhar 0.8s var(--ease-expo) 0.3s both;
+}
+#nao-encontrada .ne-volta {
+  animation: ne-desenhar 1.1s var(--ease-expo-in-out) 0.95s both;
+}
+
+/* ---- Cartões: blocos de ponta reta, sem sombra, como os atalhos do Contato. -------- */
+#nao-encontrada .ne-cartao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: var(--e1) var(--e2);
+  height: 100%;
+  padding: var(--e3);
+  background: var(--gelo);
+  color: var(--texto);
+  text-decoration: none;
+  transition: background-color 320ms var(--ease-expo);
+}
+#nao-encontrada .ne-cartao:hover {
+  background: color-mix(in oklab, var(--gelo) 70%, var(--ceu-claro));
+}
+#nao-encontrada .ne-cartao:focus-visible {
+  outline: 2px solid var(--marinho);
+  outline-offset: 2px;
+}
+#nao-encontrada .ne-cartao strong {
+  font-family: var(--fonte-titulo);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--marinho);
+}
+#nao-encontrada .ne-cartao span {
+  grid-column: 1 / -1;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+#nao-encontrada .ne-cartao .seta {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+  color: var(--marinho);
+  transition: transform 320ms var(--ease-expo);
+}
+#nao-encontrada .ne-cartao:hover .seta {
+  transform: translateX(5px);
+}
+
+/* O caminho principal: o pedido de proposta, no marinho, com o título maior e o botão-seta no
+   pé. Abre de baixo logo depois do título. */
+#nao-encontrada .ne-principal {
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+  gap: var(--e2);
+  min-height: 13.5rem;
+  padding: var(--e4);
+  background: var(--marinho);
+  animation: ne-subir-bloco 1s var(--ease-expo) 0.5s backwards;
+}
+#nao-encontrada .ne-principal:hover {
+  background: color-mix(in oklab, var(--marinho) 88%, var(--azul-forte));
+}
+#nao-encontrada .ne-principal strong {
+  font-size: clamp(1.75rem, 1.3rem + 1vw, 2.375rem);
+  font-weight: 300;
+  color: var(--branco);
+}
+#nao-encontrada .ne-principal span {
+  max-width: 30ch;
+  font-size: 1rem;
+  color: var(--texto-sobre-marinho);
+}
+#nao-encontrada .ne-principal .seta {
+  grid-row: 3;
+  grid-column: 1;
+  align-self: end;
+  width: 34px;
+  height: 21px;
+  color: var(--branco);
+}
+#nao-encontrada .ne-principal:focus-visible {
+  outline-offset: 3px;
+}
+
+#nao-encontrada .ne-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e2);
+}
+#nao-encontrada .ne-links li {
+  display: grid;
+  min-width: 0;
+  animation: ne-subir-bloco 0.9s var(--ease-expo) calc(var(--i) * 70ms + 1.1s) backwards;
+}
+
+@media (max-width: 1080px) {
+  #nao-encontrada .ne-topo {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  #nao-encontrada .ne-principal {
+    min-height: 0;
+  }
+  #nao-encontrada .ne-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  #nao-encontrada {
+    align-content: start;
+    padding-top: calc(var(--cab) + var(--e5));
+  }
+  #nao-encontrada .ne-titulo {
+    font-size: min(13vw, 3.5rem);
+  }
+  #nao-encontrada .ne-texto {
+    font-size: 1.0625rem;
+  }
+  #nao-encontrada .ne-principal {
+    padding: var(--e3);
+  }
+  #nao-encontrada .ne-links {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e1);
+  }
+  #nao-encontrada .ne-cartao strong {
+    font-size: 1.1875rem;
+  }
+  #nao-encontrada .ne-principal strong {
+    font-size: 1.75rem;
+  }
+}
+
+@keyframes ne-subir {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes ne-subir-bloco {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(-21px -21px -21px -21px);
+    transform: none;
+  }
+}
+@keyframes ne-peso {
+  from {
+    font-variation-settings: "wght" var(--peso-enfase-de);
+  }
+}
+@keyframes ne-desenhar {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

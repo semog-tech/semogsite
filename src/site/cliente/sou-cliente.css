@@ -1,0 +1,293 @@
+/* "Sou cliente" (DP6 do plano da fase 4): o painel de atendimento a quem já é cliente, no visual
+   do site v2. As telas da 2ª via são as da triagem (src/components/triagem), com as classes tr-*;
+   aqui elas ganham tokens, Saira e Barlow e ponta reta. Painel à direita no computador, folha que
+   sobe do rodapé no celular. Com ele aberto, a página atrás não rola (o Lenis respeita o
+   data-lenis-prevent do diálogo). */
+html.sc-travado {
+  overflow: hidden;
+}
+.sou-cliente {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(420px, 100%);
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--branco);
+  color: var(--texto);
+  font-family: var(--fonte-corpo);
+}
+/* Literal: o ::backdrop não herda variável CSS em todos os navegadores. É o --marinho-noite a 55%. */
+.sou-cliente::backdrop {
+  background: rgb(8 2 52 / 0.55);
+}
+.sou-cliente .tr-painel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.sou-cliente .tr-topo {
+  flex: none;
+  background: var(--marinho);
+  color: var(--branco);
+}
+.sou-cliente .tr-alca {
+  display: none;
+}
+.sou-cliente .tr-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--e1);
+  min-height: var(--cab);
+  padding: var(--e2) var(--e2) var(--e2) var(--e4);
+}
+.sou-cliente .tr-cabecalho h2 {
+  flex: 1;
+  font-family: var(--fonte-titulo);
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--branco);
+}
+.sou-cliente .tr-cabecalho h2:focus {
+  outline: none;
+}
+.sou-cliente .tr-cabecalho h2:focus-visible {
+  outline: 2px solid var(--ceu);
+  outline-offset: 4px;
+}
+.sou-cliente .tr-icone-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave-sobre-marinho);
+  cursor: pointer;
+}
+.sou-cliente .tr-icone-btn:hover {
+  background: var(--marinho-retidao);
+  color: var(--branco);
+}
+.sou-cliente .tr-icone-btn svg,
+.sou-cliente .tr-opcao svg {
+  width: 22px;
+  height: 22px;
+}
+.sou-cliente .tr-etapa {
+  display: grid;
+  gap: var(--e1);
+  padding: 0 var(--e4) var(--e3);
+  font-size: var(--t-pequeno);
+  color: var(--texto-suave-sobre-marinho);
+}
+.sou-cliente .tr-etapa-barra {
+  display: block;
+  height: 3px;
+  background: color-mix(in oklab, var(--branco) 20%, transparent);
+}
+.sou-cliente .tr-etapa-barra > span {
+  display: block;
+  height: 100%;
+  background: var(--ceu);
+}
+.sou-cliente .tr-corpo {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--e4);
+}
+.sou-cliente :is(.tr-lead, .tr-dica, .tr-alternativa, .tr-carregando) {
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+.sou-cliente .tr-lead {
+  margin-bottom: var(--e3);
+}
+/* O aviso de dados (LGPD) é nota, não corpo: um passo menor, para o campo e o botão mandarem. */
+.sou-cliente .tr-dica {
+  font-size: var(--t-pequeno);
+}
+/* A saída para o WhatsApp é a alternativa ao botão: separada dele e centrada embaixo. */
+.sou-cliente .tr-alternativa {
+  margin-top: var(--e3);
+  text-align: center;
+}
+.sou-cliente .tr-opcoes {
+  display: grid;
+  gap: var(--e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sou-cliente .tr-opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--e2) var(--e3);
+  border: 0;
+  background: var(--gelo);
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 320ms var(--ease-expo);
+}
+.sou-cliente .tr-opcao:hover {
+  background: var(--ceu-claro);
+}
+/* A seta da opção corre ao passar o mouse, como a dos links do site. */
+.sou-cliente .tr-opcao-seta {
+  flex: none;
+  color: var(--marinho);
+  transition: transform 320ms var(--ease-expo);
+}
+.sou-cliente .tr-opcao:is(:hover, :focus-visible) .tr-opcao-seta {
+  transform: translateX(4px);
+}
+.sou-cliente .tr-opcao-ico {
+  flex: none;
+  display: inline-flex;
+  color: var(--marinho);
+}
+.sou-cliente .tr-opcao-texto {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.sou-cliente .tr-opcao-texto strong {
+  font-weight: 600;
+  color: var(--marinho);
+}
+.sou-cliente .tr-opcao-texto span {
+  font-size: var(--t-pequeno);
+  color: var(--texto-suave);
+}
+.sou-cliente :is(.tr-primario, .tr-secundario) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e1);
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--e4);
+  border: 0;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sou-cliente .tr-primario {
+  background: var(--marinho);
+  color: var(--branco);
+}
+.sou-cliente .tr-primario:hover {
+  background: color-mix(in oklab, var(--marinho) 88%, var(--azul-forte));
+}
+.sou-cliente .tr-secundario {
+  background: var(--gelo);
+  color: var(--marinho);
+}
+.sou-cliente :is(.tr-primario, .tr-secundario):disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+.sou-cliente .tr-acoes {
+  display: grid;
+  gap: var(--e1);
+  margin-top: var(--e3);
+}
+.sou-cliente :is(.tr-link, .tr-alternativa a, .tr-dica a, .tr-erro a) {
+  color: var(--marinho);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.sou-cliente .tr-girando {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: sc-girar 0.8s linear infinite;
+}
+@keyframes sc-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sou-cliente :is(.tr-erro, .tr-aviso-restrita, .tr-vazio, .tr-nota-vencido, .tr-nota-baixa, .tr-indisponivel) {
+  margin-top: var(--e2);
+  padding: var(--e2) var(--e3);
+  border-left: 5px solid var(--marinho);
+  background: var(--gelo);
+}
+.sou-cliente .tr-aviso-restrita {
+  display: flex;
+  gap: var(--e2);
+}
+.sou-cliente label {
+  display: block;
+  margin-bottom: var(--e1);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--marinho);
+}
+.sou-cliente input:not([type="radio"]):not([type="checkbox"]) {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--e2);
+  border: 0;
+  border-bottom: 1.5px solid var(--marinho);
+  background: var(--gelo);
+  color: var(--texto);
+  font: inherit;
+}
+.sou-cliente .campo-erro {
+  margin-top: var(--e1);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  color: var(--marinho);
+}
+.sou-cliente fieldset {
+  display: grid;
+  gap: var(--e3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.sou-cliente :is(.tr-boleto-valor, .tr-situacao) {
+  font-family: var(--fonte-titulo);
+  font-variant-numeric: tabular-nums;
+}
+.sou-cliente :is(a, button, input):focus-visible {
+  outline: 2px solid var(--marinho);
+  outline-offset: 2px;
+}
+.sou-cliente .tr-topo :is(a, button):focus-visible {
+  outline-color: var(--ceu);
+}
+/* Os ícones da triagem desenham com ponta redonda; no site v2 a ponta é reta. */
+.sou-cliente svg :is(path, line, polyline, circle, rect) {
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+@media (max-width: 760px) {
+  .sou-cliente {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 88dvh;
+  }
+  .sou-cliente .tr-painel {
+    height: auto;
+    max-height: 88dvh;
+  }
+}

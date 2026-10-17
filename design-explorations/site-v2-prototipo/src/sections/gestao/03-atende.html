@@ -1,0 +1,78 @@
+<!-- Quem atende · nasce no céu claro em que "decidir" cobriu a tela. À esquerda (38,2) o
+     título, com "e de quem decide." ganhando peso, o lead e os tipos de condomínio; à direita
+     (61,8) o que fica perto do síndico além das frentes: atendimento ao condômino, equipe local,
+     canal com os sócios e o jurídico com parceiro. Embaixo, três caminhos para ir além da
+     gestão (Garante, Tecnologia, Incorporadoras), em blocos brancos de ponta reta. A superfície
+     desce do céu claro ao branco da troca de administradora. -->
+<section id="quem-atende" class="cena" data-tema="gelo" aria-labelledby="quem-atende-titulo">
+  <div class="container gat-quadro">
+    <div class="gat-cabeca">
+      <h2 id="quem-atende-titulo" class="gat-titulo">
+        {{gestaoPagina.atende.tituloA}}
+        <em class="peso">{{gestaoPagina.atende.tituloB}}</em>
+      </h2>
+      <p class="gat-lead lead">{{gestaoPagina.atende.lead}}</p>
+      <p class="gat-tipos rotulo">{{gestaoPagina.atende.tipos}}</p>
+    </div>
+
+    <ul class="gat-itens">
+      <li class="gat-item">
+        <i aria-hidden="true"></i>
+        <h3 class="gat-item-titulo">{{gestaoPagina.atende.itens.0.titulo}}</h3>
+        <p class="gat-item-texto">{{gestaoPagina.atende.itens.0.texto}}</p>
+        <a class="link-seta" href="tecnologia.html"
+          ><span>{{gestaoPagina.atende.itens.0.link}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li class="gat-item">
+        <i aria-hidden="true"></i>
+        <h3 class="gat-item-titulo">{{gestaoPagina.atende.itens.1.titulo}}</h3>
+        <p class="gat-item-texto">{{gestaoPagina.atende.itens.1.texto}}</p>
+        <a class="link-seta" href="index.html#unidades"
+          ><span>{{gestaoPagina.atende.itens.1.link}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </li>
+      <li class="gat-item">
+        <i aria-hidden="true"></i>
+        <h3 class="gat-item-titulo">{{gestaoPagina.atende.itens.2.titulo}}</h3>
+        <p class="gat-item-texto">{{gestaoPagina.atende.itens.2.texto}}</p>
+      </li>
+      <li class="gat-item">
+        <i aria-hidden="true"></i>
+        <h3 class="gat-item-titulo">{{gestaoPagina.atende.itens.3.titulo}}</h3>
+        <p class="gat-item-texto">{{gestaoPagina.atende.itens.3.texto}}</p>
+      </li>
+    </ul>
+  </div>
+
+  <nav class="container gat-alem" aria-labelledby="quem-atende-alem">
+    <p id="quem-atende-alem" class="gat-alem-rotulo rotulo">{{gestaoPagina.atende.alemRotulo}}</p>
+    <ul class="gat-links">
+      <li>
+        <a class="gat-link" href="garante.html">
+          <span class="gat-link-titulo">{{gestaoPagina.atende.alem.0.titulo}}</span>
+          <span class="gat-link-texto">{{gestaoPagina.atende.alem.0.texto}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+      <li>
+        <a class="gat-link" href="tecnologia.html">
+          <span class="gat-link-titulo">{{gestaoPagina.atende.alem.1.titulo}}</span>
+          <span class="gat-link-texto">{{gestaoPagina.atende.alem.1.texto}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+      <li>
+        <a class="gat-link" href="incorporadoras.html">
+          <span class="gat-link-titulo">{{gestaoPagina.atende.alem.2.titulo}}</span>
+          <span class="gat-link-texto">{{gestaoPagina.atende.alem.2.texto}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="gat-descida" aria-hidden="true"></div>
+</section>

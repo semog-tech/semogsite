@@ -1,0 +1,38 @@
+/* Landing de cidade · avaliações: o título e a origem em cima; as falas em colunas, em
+   Saira leve, sem aspas decorativas nem cartões. Autoria e origem embaixo, em texto. */
+#cidade-avaliacoes .ct-quadro {
+  display: grid;
+  gap: var(--e5);
+}
+#cidade-avaliacoes .ct-cabeca {
+  display: grid;
+  gap: var(--e2);
+}
+#cidade-avaliacoes .ct-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--e5) var(--e5);
+}
+#cidade-avaliacoes .ct-citacao {
+  display: grid;
+  gap: var(--e3);
+  align-content: start;
+  margin: 0;
+}
+#cidade-avaliacoes .ct-texto {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1875rem, 1.05rem + 0.4vw, 1.4375rem);
+  font-weight: 300;
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+  color: var(--tema-titulo);
+}
+#cidade-avaliacoes .ct-autoria {
+  display: grid;
+  gap: 2px;
+}
+#cidade-avaliacoes .ct-nome {
+  font-weight: 500;
+  color: var(--tema-titulo);
+}

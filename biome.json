@@ -10,7 +10,8 @@
       "!src/app/(payload)/**",
       "!src/payload-types.ts",
       "!src/migrations/**",
-      "!src/styles/**"
+      "!src/styles/**",
+      "!src/site/**/*.css"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },

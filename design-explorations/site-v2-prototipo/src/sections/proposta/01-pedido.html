@@ -1,0 +1,220 @@
+<!-- Proposta · pedido: a página para onde levam "Seja Semog" e "Pedir proposta" vindos de
+     fora. O formulário em duas etapas (core/formulario-proposta.js) fica na dobra, num painel
+     gelo; ao lado, o título e, em seguida, por que pedir agora. No celular o porquê desce
+     para depois do formulário, que fica na dobra em 390×844. Entrada só de CSS, desde a
+     primeira pintura. ?perfil=construtora marca "Construtora" na etapa 2. -->
+<section id="proposta" class="pp" data-tema="claro" aria-labelledby="pp-titulo">
+  <div class="container pp-quadro">
+    <div class="pp-intro">
+      <h1 id="pp-titulo" class="pp-titulo">
+        <span class="linha"
+          ><span class="linha-interna" style="--i: 0">{{propostaPagina.titulo}}</span></span
+        >
+        <span class="linha"
+          ><span class="linha-interna" style="--i: 1"
+            ><em class="peso peso-fixo" data-texto="{{propostaPagina.enfase}}"
+              >{{propostaPagina.enfase}}</em
+            ></span
+          ></span
+        >
+      </h1>
+      <p class="pp-sub">{{propostaPagina.sub}}</p>
+    </div>
+
+    <div class="pp-painel">
+      <form
+        class="formulario-proposta pp-form"
+        data-formulario-proposta
+        method="post"
+        aria-labelledby="pp-form-titulo"
+      >
+        <p id="pp-form-titulo" class="fp-titulo">{{propostaPagina.formTitulo}}</p>
+        <div class="fp-etapas">
+          <div class="fp-etapa" data-etapa="1">
+            <div class="fp-campo">
+              <label for="pp-condominio">Nome do condomínio</label>
+              <div class="fp-controle">
+                <input
+                  id="pp-condominio"
+                  name="condominio"
+                  type="text"
+                  autocomplete="off"
+                  required
+                  aria-describedby="pp-condominio-erro"
+                />
+              </div>
+              <p class="fp-erro" id="pp-condominio-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-par">
+              <div class="fp-campo">
+                <label for="pp-uf">Estado</label>
+                <div class="fp-controle fp-controle--select">
+                  <select
+                    id="pp-uf"
+                    name="uf"
+                    autocomplete="address-level1"
+                    required
+                    aria-describedby="pp-uf-erro"
+                  >
+                    <option value="" selected disabled>Selecione</option>
+                    {{#cada formulario.ufsPrincipais}}
+                    <option value="{{item.uf}}">{{item.nome}}</option>
+                    {{/cada}}
+                    <optgroup label="Outros estados">
+                      {{#cada formulario.ufsOutras}}
+                      <option value="{{item.uf}}">{{item.nome}}</option>
+                      {{/cada}}
+                    </optgroup>
+                  </select>
+                </div>
+                <p class="fp-erro" id="pp-uf-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo">
+                <label for="pp-telefone">Telefone com DDD</label>
+                <div class="fp-controle">
+                  <input
+                    id="pp-telefone"
+                    name="telefone"
+                    type="tel"
+                    autocomplete="tel-national"
+                    inputmode="tel"
+                    placeholder="(00) 00000-0000"
+                    pattern="\(?\d{2}\)?\s?\d{4,5}-?\d{4}"
+                    maxlength="15"
+                    required
+                    aria-describedby="pp-telefone-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="pp-telefone-erro" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="fp-campo">
+              <label for="pp-email">E-mail <span class="fp-opcional">(opcional)</span></label>
+              <div class="fp-controle">
+                <input
+                  id="pp-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  aria-describedby="pp-email-erro"
+                />
+              </div>
+              <p class="fp-erro" id="pp-email-erro" aria-live="polite"></p>
+            </div>
+            <div class="fp-acoes fp-so-js">
+              <button class="botao" type="submit">
+                Continuar <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+              <p class="fp-indicador">Etapa 1 de 2</p>
+            </div>
+          </div>
+
+          <div class="fp-etapa" data-etapa="2" role="group" aria-labelledby="pp-etapa-2">
+            <div class="fp-par fp-par--invertido">
+              <div class="fp-campo">
+                <label for="pp-nome">Seu nome</label>
+                <div class="fp-controle">
+                  <input
+                    id="pp-nome"
+                    name="nome"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    aria-describedby="pp-nome-erro"
+                  />
+                </div>
+                <p class="fp-erro" id="pp-nome-erro" aria-live="polite"></p>
+              </div>
+              <div class="fp-campo">
+                <label for="pp-cidade">Cidade <span class="fp-opcional">(opcional)</span></label>
+                <div class="fp-controle">
+                  <input id="pp-cidade" name="cidade" type="text" autocomplete="address-level2" />
+                </div>
+              </div>
+            </div>
+            <fieldset class="fp-grupo" data-grupo="perfil" aria-describedby="pp-perfil-erro">
+              <legend>Você é</legend>
+              <div class="fp-opcoes">
+                <label
+                  ><input type="radio" name="perfil" value="sindico" required />
+                  {{proposta.perfis.0}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="conselheiro" />
+                  {{proposta.perfis.1}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="morador" /> {{proposta.perfis.2}}</label
+                >
+                <label
+                  ><input type="radio" name="perfil" value="construtora" />
+                  {{proposta.perfis.3}}</label
+                >
+              </div>
+              <p class="fp-erro" id="pp-perfil-erro" aria-live="polite"></p>
+            </fieldset>
+            <div class="fp-par">
+              <div class="fp-campo">
+                <label for="pp-unidades"
+                  >Nº de unidades <span class="fp-opcional">(aprox.)</span></label
+                >
+                <div class="fp-controle">
+                  <input
+                    id="pp-unidades"
+                    name="unidades"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="\d*"
+                    maxlength="5"
+                  />
+                </div>
+              </div>
+              <fieldset class="fp-grupo" data-grupo="cliente" aria-describedby="pp-cliente-erro">
+                <legend>Já é cliente Semog?</legend>
+                <div class="fp-opcoes">
+                  <label><input type="radio" name="cliente" value="sim" required /> Sim</label>
+                  <label><input type="radio" name="cliente" value="nao" /> Não</label>
+                </div>
+                <p class="fp-erro" id="pp-cliente-erro" aria-live="polite"></p>
+              </fieldset>
+            </div>
+            <div class="fp-acoes">
+              <button class="botao" type="submit">
+                {{proposta.botao}}
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+              </button>
+              <button class="fp-voltar fp-so-js" type="button" data-acao="voltar">
+                <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+                <span>Voltar</span>
+              </button>
+              <p class="fp-indicador fp-so-js" id="pp-etapa-2">Etapa 2 de 2</p>
+            </div>
+          </div>
+        </div>
+        <p class="fp-status" role="status" aria-live="polite" data-status></p>
+      </form>
+    </div>
+
+    <div class="pp-porque">
+      <h2 class="pp-porque-titulo">{{propostaPagina.porque.titulo}}</h2>
+      <ul class="pp-fatos">
+        <li style="--i: 0">
+          <strong>{{numeros.anos.valor}} anos</strong>
+          <span>{{propostaPagina.porque.anos}}</span>
+        </li>
+        <li style="--i: 1">
+          <strong>{{ranking.titulo}}</strong>
+          <span>{{landing.prova.rankingApoio}}</span>
+        </li>
+        <li style="--i: 2">
+          <strong>{{pilares.itens.1.titulo}}</strong>
+          <span>{{propostaPagina.porque.garante}}</span>
+        </li>
+        <li style="--i: 3">
+          <strong>{{propostaPagina.porque.prestacao.destaque}}</strong>
+          <span>{{propostaPagina.porque.prestacao.texto}}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

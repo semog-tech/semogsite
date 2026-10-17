@@ -1,0 +1,76 @@
+<section id="tecnologia" class="cena" data-tema="gelo" aria-labelledby="tecnologia-titulo">
+  <div class="tec-palco">
+    <div class="tec-fundo" aria-hidden="true"></div>
+    <canvas class="tec-campo" aria-hidden="true"></canvas>
+
+    <div class="container tec-grade">
+      <div class="tec-legendas">
+        <!-- TEXTO-NOVO: título da cena -->
+        <h2 id="tecnologia-titulo" class="tec-titulo">Tecnologia Semog.</h2>
+        <p class="tec-sub">{{tecnologia.titulo}}</p>
+        <p class="tec-contexto">{{tecnologia.contexto}}</p>
+
+        <ol class="tec-passos">
+          <li class="tec-passo" data-passo="0">
+            <!-- TEXTO-NOVO: títulos dos passos 1 a 4 -->
+            <h3 class="tec-revela">Do ERP, conferida.</h3>
+            <p class="tec-revela">{{tecnologia.prestacao.0}}</p>
+          </li>
+          <li class="tec-passo" data-passo="1">
+            <h3 class="tec-revela">Um PDF, organizado.</h3>
+            <p class="tec-revela">{{tecnologia.prestacao.1}}</p>
+          </li>
+          <li class="tec-passo" data-passo="2">
+            <h3 class="tec-revela">Assinada, com parecer.</h3>
+            <p class="tec-revela">{{tecnologia.prestacao.2}}</p>
+          </li>
+          <li class="tec-passo" data-passo="3">
+            <h3 class="tec-revela">Link e QR permanentes.</h3>
+            <p class="tec-revela">{{tecnologia.prestacao.3}}</p>
+            <p class="tec-revela tec-adendo">{{tecnologia.prestacao.4}}</p>
+          </li>
+          <li class="tec-passo" data-passo="4">
+            <h3 class="tec-revela">{{tecnologia.semogOne.titulo}}</h3>
+            <p class="tec-revela">{{tecnologia.semogOne.texto}}</p>
+            <ul class="tec-itens">
+              <li class="tec-revela">{{tecnologia.semogOne.itens.0}}</li>
+              <li class="tec-revela">{{tecnologia.semogOne.itens.1}}</li>
+              <li class="tec-revela">{{tecnologia.semogOne.itens.2}}</li>
+              <li class="tec-revela">{{tecnologia.semogOne.itens.3}}</li>
+            </ul>
+          </li>
+        </ol>
+
+        <!-- TEXTO-NOVO: nomes curtos da trilha -->
+        <nav class="tec-trilha" aria-label="Passos da prestação de contas">
+          <button type="button" data-ir="0">ERP</button>
+          <button type="button" data-ir="1">PDF</button>
+          <button type="button" data-ir="2">Assinatura</button>
+          <button type="button" data-ir="3">QR</button>
+          <button type="button" data-ir="4">Semog One</button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- TEXTO-NOVO: rótulos desenhados no palco (o canvas é decorativo; o texto completo
+         está nos passos acima). Nomes das partes do PDF vêm de tecnologia.prestacao.1. -->
+    <ul class="tec-rotulos" hidden>
+      <li data-rotulo="folha">Parecer</li>
+      <li data-rotulo="folha">Extratos</li>
+      <li data-rotulo="folha">Receitas</li>
+      <li data-rotulo="folha">Inadimplência e acordos</li>
+      <li data-rotulo="folha">Demonstrativo</li>
+      <li data-rotulo="folha">Despesas</li>
+      <li data-rotulo="assinatura">Síndico</li>
+      <li data-rotulo="assinatura">Conselho</li>
+      <li data-rotulo="parecer">Parecer</li>
+      <li data-rotulo="url">prestacao.semog.com.br</li>
+      <li data-rotulo="confere">Qualquer condômino confere a versão atual</li>
+      <li data-rotulo="adendo">Adendo</li>
+      <li data-rotulo="original">Versão original preservada</li>
+      <li data-rotulo="historico">Adendo com histórico</li>
+      <li data-rotulo="convencao">Convenção</li>
+      <li data-rotulo="condominios">condomínios</li>
+    </ul>
+  </div>
+</section>

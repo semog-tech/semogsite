@@ -61,6 +61,10 @@ const ALT_BY_FILENAME: Record<string, string> = {
     'Jogada de beach tennis na areia durante o Semog Experience 2025',
   'experience-2025.mp4':
     'Vídeo com os melhores momentos do Semog Experience 2025, em João Pessoa',
+  // O reel do Semog Experience 26 substituiu o de 2025 na seção de vídeo (Leandro, 16/10/2026).
+  'semog-experience-26.mp4':
+    'Vídeo com momentos do Semog Experience 2026 na orla de João Pessoa, com pilates, yoga e treino funcional na areia',
+  'semog-experience-26-poster.webp': 'Quadro do vídeo do Semog Experience 2026',
   // Uma por atividade da programação (`EXPERIENCE_EVENT.schedule[].image`).
   // São imagens da MODALIDADE, não dos professores: as fotos de Paloma, Igor e
   // Assis ainda não chegaram (24/08/2026) e a decisão do cliente foi subir com
@@ -160,6 +164,9 @@ const LOCAL_BY_FILENAME: Record<string, string> = {
   'experience-pilates.webp': '/media/experience/experience-pilates.webp',
   'experience-funcional.webp': '/media/experience/experience-funcional.webp',
   'experience-yoga.webp': '/media/experience/experience-yoga.webp',
+  // O reel do 26 nasce no repositório, como as fotos das atividades (servido também pela home do v2).
+  'semog-experience-26.mp4': '/site-v2/videos/semog-experience-26.mp4',
+  'semog-experience-26-poster.webp': '/site-v2/videos/semog-experience-26-poster.webp',
 }
 
 /** Monta `{url, alt, width?, height?}` (o shape que `Media` aceita) a partir do filename já semeado no bucket. */

@@ -1,0 +1,7 @@
+/* O selo A CONFIRMAR dos números da nova prestação (só na prévia, DP5) fecha o apoio do fim do
+   mês. É longo: na coluna do momento ele quebra linha, em vez de ser cortado pela máscara
+   (overflow: clip) do apoio no palco. Fica fora de mes.css, que é cópia sem edição do protótipo. */
+#mes .ms-apoio .a-confirmar {
+  margin-left: 0;
+  white-space: normal;
+}

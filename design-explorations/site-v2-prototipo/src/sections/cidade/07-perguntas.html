@@ -1,0 +1,27 @@
+<!-- Landing de cidade · perguntas frequentes da cidade (SEO local). <details> nativo: abre
+     sem JS e o texto da resposta fica no HTML para o buscador. -->
+<section
+  id="cidade-perguntas"
+  class="cena cq"
+  data-tema="gelo"
+  aria-labelledby="cidade-perguntas-titulo"
+>
+  <div class="container cq-quadro">
+    <h2 id="cidade-perguntas-titulo" class="cq-titulo revelar">
+      <span class="linha"
+        ><span class="linha-interna"
+          >{{landing.perguntas.titulo}}
+          <em class="peso peso-fixo" data-texto="{{dados.emCidade}}.">{{dados.emCidade}}.</em></span
+        ></span
+      >
+    </h2>
+    <div class="cq-lista">
+      {{#cada dados.perguntas}}
+      <details class="cq-item revelar revelar--bloco">
+        <summary><span>{{item.pergunta}}</span><i class="cq-sinal" aria-hidden="true"></i></summary>
+        <p>{{item.resposta}}</p>
+      </details>
+      {{/cada}}
+    </div>
+  </div>
+</section>

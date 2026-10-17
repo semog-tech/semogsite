@@ -1,0 +1,93 @@
+/* Instalação: branco, como a assembleia de A Semog. O nome do item em Saira leve (61,8) e o
+   que ele quer dizer (38,2); o fio desce pela margem e o nó de cada item fica na altura da
+   primeira linha do nome. */
+#instalacao {
+  --it-recuo: var(--e6);
+  --it-fonte: clamp(1.625rem, 1.05rem + 1.5vw, 2.625rem);
+}
+#instalacao .it-quadro {
+  display: grid;
+  gap: var(--e6);
+}
+#instalacao .it-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+}
+#instalacao .it-titulo {
+  font-size: var(--t-h2);
+  font-weight: 300;
+}
+#instalacao .it-lead {
+  padding-bottom: 0.3em;
+}
+
+/* ---- Lista ---------------------------------------------------------------------- */
+#instalacao .it-lista {
+  position: relative;
+  padding-inline-start: var(--it-recuo);
+}
+#instalacao .it-itens {
+  display: grid;
+}
+#instalacao .it-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  padding-block: var(--e4);
+}
+#instalacao .it-nome {
+  font-size: var(--it-fonte);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-titulo);
+}
+#instalacao .it-textos {
+  display: grid;
+  gap: var(--e2);
+  padding-top: 0.35em;
+}
+#instalacao .it-texto {
+  max-width: 40ch;
+  color: var(--tema-texto);
+}
+#instalacao .it-contexto {
+  max-width: 40ch;
+}
+#instalacao .it-no {
+  position: absolute;
+  top: calc(var(--e4) + 0.55 * var(--it-fonte) - 5px);
+  left: calc(var(--it-recuo) * -1 - 4px);
+  width: 10px;
+  height: 10px;
+  background: var(--marinho);
+}
+#instalacao .it-fio {
+  position: absolute;
+  left: 0;
+  top: var(--it-fio-topo, 0);
+  width: 2px;
+  height: var(--it-fio, 100%);
+}
+#instalacao .it-fio-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  background: var(--marinho);
+}
+
+@media (max-width: 760px) {
+  #instalacao {
+    --it-recuo: var(--e4);
+  }
+  #instalacao .it-topo,
+  #instalacao .it-item {
+    grid-template-columns: 1fr;
+    gap: var(--e2);
+  }
+  #instalacao .it-topo {
+    gap: var(--e4);
+  }
+}

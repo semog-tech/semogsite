@@ -1,0 +1,39 @@
+<!-- Proposta · depois: os três passos honestos depois do pedido, ligados por um traço só,
+     de ponta reta, que se desenha da esquerda para a direita quando a seção chega à tela (no
+     celular, de cima para baixo). Os textos dos passos 2 e 3 são os da troca de
+     administradora das landings. Para quem prefere telefone, o caminho para o contato. -->
+<section id="proposta-depois" class="cena pd" data-tema="gelo" aria-labelledby="pd-titulo">
+  <div class="container">
+    <h2 id="pd-titulo" class="pd-titulo revelar">
+      <span class="linha"
+        ><span class="linha-interna"
+          >{{propostaPagina.depois.titulo}}
+          <em class="peso peso-fixo" data-texto="{{propostaPagina.depois.enfase}}"
+            >{{propostaPagina.depois.enfase}}</em
+          ></span
+        ></span
+      >
+    </h2>
+    <ol class="pd-passos revelar revelar--bloco">
+      <li style="--i: 0">
+        <h3>{{propostaPagina.depois.primeiroPasso}}</h3>
+        <p>{{landing.troca.passos.0.texto}}</p>
+      </li>
+      <li style="--i: 1">
+        <h3>{{landing.troca.passos.1.titulo}}</h3>
+        <p>{{landing.troca.passos.1.texto}}</p>
+      </li>
+      <li style="--i: 2">
+        <h3>{{landing.troca.passos.2.titulo}}</h3>
+        <p>{{landing.troca.passos.2.texto}}</p>
+      </li>
+    </ol>
+    <p class="pd-contato revelar revelar--bloco">
+      <span>{{propostaPagina.depois.contato}}</span>
+      <a class="link-seta" href="contato.html"
+        ><span>{{propostaPagina.depois.contatoLink}}</span>
+        <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+      ></a>
+    </p>
+  </div>
+</section>

@@ -1,0 +1,442 @@
+/* Leitura · modelo de artigo. Grade de duas colunas no desktop: índice fixo (233px) e o
+   texto (60–70 caracteres por linha, Barlow 18–20px, entrelinha 1,65). O topo e o texto alinham pela mesma
+   borda; a foto ocupa as duas colunas. No celular, uma coluna e o índice no topo. */
+#artigo {
+  --artigo-indice: 233px;
+  --artigo-medida: 54ch; /* Barlow é estreita: 54ch dão ~65 caracteres por linha */
+  padding-top: calc(var(--cab) + var(--e6));
+  padding-bottom: var(--e7);
+}
+
+/* ---- Progresso de leitura: 2px sob o header, ponta reta ----------------------------- */
+#artigo .artigo-progresso {
+  position: fixed;
+  inset: var(--cab) 0 auto;
+  z-index: 49;
+  height: 2px;
+  pointer-events: none;
+}
+#artigo .artigo-progresso span {
+  display: block;
+  height: 100%;
+  background: var(--marinho);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+html.sem-js #artigo .artigo-progresso {
+  display: none;
+}
+
+/* ---- Grade ------------------------------------------------------------------------ */
+#artigo .artigo-grade {
+  display: grid;
+  grid-template-columns: var(--artigo-indice) minmax(0, 1fr);
+  column-gap: var(--e6);
+}
+#artigo .artigo-topo,
+#artigo .artigo-coluna {
+  grid-column: 2;
+  min-width: 0;
+}
+#artigo .artigo-capa {
+  grid-column: 1 / -1;
+}
+
+/* ---- Topo: voltar, metadados, título, resumo ---------------------------------------- */
+#artigo .artigo-topo {
+  display: grid;
+  justify-items: start;
+  gap: var(--e3);
+  max-width: 52rem;
+}
+#artigo .artigo-topo > * {
+  animation: leitura-subir 1s var(--ease-expo) calc(var(--i, 0) * 90ms) backwards;
+}
+#artigo .artigo-meta {
+  --i: 1;
+}
+#artigo .artigo-titulo {
+  --i: 2;
+  font-size: clamp(2.125rem, 1.3rem + 2.6vw, 4rem);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: var(--tracking-titulo);
+  max-width: 22ch;
+}
+#artigo .artigo-lead {
+  --i: 3;
+  max-width: 46ch;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--texto);
+}
+#artigo .artigo-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  min-height: 44px;
+  margin-bottom: calc(-1 * var(--e2));
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--marinho);
+  text-decoration: none;
+}
+#artigo .artigo-voltar .seta {
+  transform: scaleX(-1);
+  transition: transform 320ms var(--ease-expo);
+}
+#artigo .artigo-voltar:hover .seta {
+  transform: scaleX(-1) translateX(5px);
+}
+#artigo .artigo-voltar:hover span {
+  text-decoration: underline;
+}
+
+/* ---- Foto de capa ----------------------------------------------------------------- */
+#artigo .artigo-capa {
+  margin-top: var(--e6);
+  overflow: clip;
+  background: var(--lavanda);
+}
+#artigo .artigo-capa img {
+  width: 100%;
+  height: auto;
+  max-height: 78svh;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* ---- Índice ----------------------------------------------------------------------- */
+#artigo .artigo-indice {
+  grid-column: 1;
+  align-self: start;
+  position: sticky;
+  top: calc(var(--cab) + var(--e5));
+  margin-top: var(--e6);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+#artigo .artigo-indice-titulo {
+  margin-bottom: var(--e2);
+  font-size: var(--t-pequeno);
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+#artigo .artigo-indice ol {
+  display: grid;
+  gap: var(--e1);
+}
+#artigo .artigo-indice a {
+  position: relative;
+  display: block;
+  padding: var(--e1) 0 var(--e1) var(--e3);
+  color: var(--texto-suave);
+  text-decoration: none;
+  transition: color 240ms var(--ease-expo);
+}
+/* O trecho atual ganha um traço à esquerda, de ponta reta. */
+#artigo .artigo-indice a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: var(--e1);
+  bottom: var(--e1);
+  width: 2px;
+  background: var(--lavanda);
+  transition: background-color 240ms var(--ease-expo);
+}
+#artigo .artigo-indice a:hover,
+#artigo .artigo-indice a[aria-current] {
+  color: var(--marinho);
+}
+#artigo .artigo-indice a[aria-current]::before {
+  background: var(--marinho);
+}
+
+/* ---- Coluna de texto -------------------------------------------------------------- */
+#artigo .artigo-coluna {
+  margin-top: var(--e6);
+  max-width: var(--artigo-medida);
+  font-size: clamp(1.125rem, 1.05rem + 0.25vw, 1.25rem);
+}
+#artigo .artigo-resumo {
+  margin-bottom: var(--e5);
+  padding: var(--e4);
+  background: var(--gelo);
+  font-size: 0.9em;
+  line-height: 1.55;
+}
+#artigo .artigo-resumo-titulo {
+  margin-bottom: var(--e2);
+  font-family: var(--fonte-titulo);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--marinho);
+}
+#artigo .artigo-resumo ul {
+  display: grid;
+  gap: var(--e2);
+}
+
+/* ---- Tipografia do corpo ---------------------------------------------------------- */
+#artigo .artigo-corpo {
+  line-height: 1.65;
+  color: var(--texto);
+}
+#artigo .artigo-corpo > * + * {
+  margin-top: 1.1em;
+}
+#artigo .artigo-corpo h2 {
+  margin-top: 2.2em;
+  font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.375rem);
+  font-weight: 400;
+  line-height: 1.1;
+  scroll-margin-top: calc(var(--cab) + var(--e4));
+}
+#artigo .artigo-corpo h3 {
+  margin-top: 1.8em;
+  font-size: 1.375em;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  scroll-margin-top: calc(var(--cab) + var(--e4));
+}
+#artigo .artigo-corpo h2 + *,
+#artigo .artigo-corpo h3 + * {
+  margin-top: 0.6em;
+}
+#artigo .artigo-corpo strong {
+  font-weight: 600;
+  color: var(--marinho);
+}
+#artigo .artigo-corpo a {
+  color: var(--marinho);
+  text-decoration-color: var(--ceu);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 240ms var(--ease-expo);
+}
+#artigo .artigo-corpo a:hover {
+  text-decoration-color: var(--marinho);
+}
+
+/* Listas: marcador quadrado de ponta reta; numeral em Saira na numerada. */
+#artigo .artigo-corpo :is(ul, ol) {
+  display: grid;
+  gap: 0.6em;
+}
+#artigo .artigo-corpo li,
+#artigo .artigo-resumo li {
+  position: relative;
+  padding-left: 1.5em;
+}
+#artigo .artigo-corpo ul > li::before,
+#artigo .artigo-resumo li::before {
+  content: "";
+  position: absolute;
+  left: 0.2em;
+  top: 0.68em;
+  width: 6px;
+  height: 6px;
+  background: var(--marinho);
+}
+#artigo .artigo-corpo ol {
+  counter-reset: item;
+}
+#artigo .artigo-corpo ol > li {
+  counter-increment: item;
+  padding-left: 2em;
+}
+#artigo .artigo-corpo ol > li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0;
+  font-family: var(--fonte-titulo);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--marinho);
+}
+
+#artigo .artigo-corpo blockquote {
+  margin-block: 1.8em;
+  padding: var(--e1) 0 var(--e1) var(--e4);
+  border-left: 3px solid var(--ceu);
+  font-family: var(--fonte-titulo);
+  font-size: 1.3em;
+  font-weight: 300;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  color: var(--marinho);
+}
+
+/* Figuras: a foto acompanha a coluna; o vídeo vertical fica estreito e centrado. */
+#artigo .artigo-figura {
+  margin-block: 2em;
+}
+#artigo .artigo-figura img,
+#artigo .artigo-figura video {
+  width: 100%;
+  height: auto;
+  background: var(--lavanda);
+}
+#artigo .artigo-figura--vertical {
+  max-width: 360px;
+  margin-inline: auto;
+}
+#artigo .artigo-figura figcaption {
+  margin-top: var(--e2);
+  font-size: var(--t-pequeno);
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+/* Tabela simples: rola sozinha na horizontal se não couber. */
+#artigo .artigo-tabela {
+  overflow-x: auto;
+  margin-block: 2em;
+}
+#artigo .artigo-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  line-height: 1.45;
+}
+#artigo .artigo-tabela th {
+  padding: var(--e2) var(--e3) var(--e2) 0;
+  border-bottom: 2px solid var(--marinho);
+  font-weight: 600;
+  text-align: left;
+  color: var(--marinho);
+}
+#artigo .artigo-tabela td {
+  padding: var(--e2) var(--e3) var(--e2) 0;
+  border-bottom: 1px solid var(--lavanda);
+  vertical-align: top;
+}
+
+/* Nota do fim da Política de Privacidade (o texto aponta para #cookies). */
+#artigo .artigo-cookies {
+  margin-top: var(--e6);
+  padding: var(--e4);
+  background: var(--gelo);
+  scroll-margin-top: calc(var(--cab) + var(--e4));
+}
+#artigo .artigo-cookies h2 {
+  font-size: 1.375em;
+  font-weight: 400;
+}
+#artigo .artigo-cookies p {
+  margin-top: var(--e2);
+  font-size: 0.9em;
+}
+
+/* ---- Até 1080px: uma coluna, índice no topo do texto ------------------------------ */
+@media (max-width: 1080px) {
+  #artigo .artigo-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #artigo .artigo-topo,
+  #artigo .artigo-coluna,
+  #artigo .artigo-indice {
+    grid-column: 1;
+  }
+  #artigo .artigo-coluna {
+    margin-inline: auto;
+    width: 100%;
+  }
+  #artigo .artigo-topo {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--artigo-medida);
+  }
+  #artigo .artigo-indice {
+    position: static;
+    width: 100%;
+    max-width: var(--artigo-medida);
+    margin: var(--e5) auto 0;
+    padding: var(--e3) var(--e4);
+    background: var(--gelo);
+  }
+  #artigo .artigo-coluna {
+    margin-top: var(--e5);
+  }
+}
+@media (max-width: 760px) {
+  #artigo {
+    padding-top: calc(var(--cab) + var(--e5));
+  }
+  #artigo .artigo-capa {
+    margin-top: var(--e5);
+    margin-inline: calc(-1 * var(--margem));
+  }
+  #artigo .artigo-resumo,
+  #artigo .artigo-cookies {
+    padding: var(--e3);
+  }
+  #artigo .artigo-indice {
+    padding: var(--e3);
+  }
+}
+
+/* ---- Impressão: o texto inteiro, sem navegação ------------------------------------- */
+@page {
+  margin: 16mm 18mm;
+}
+@media print {
+  /* Marcadores de lista e caixas são fundo: sem isto o navegador não os imprime. */
+  #artigo {
+    padding-block: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  #artigo .artigo-progresso,
+  #artigo .artigo-indice,
+  #artigo .artigo-voltar {
+    display: none;
+  }
+  #artigo .artigo-grade {
+    display: block;
+    width: auto;
+  }
+  #artigo .artigo-topo > * {
+    animation: none;
+  }
+  #artigo .artigo-capa,
+  #artigo .artigo-coluna {
+    margin-top: var(--e4);
+  }
+  #artigo .artigo-coluna {
+    max-width: 15.5cm;
+  }
+  #artigo .artigo-capa img {
+    max-height: 9cm;
+  }
+  #artigo .artigo-coluna {
+    font-size: 12pt;
+  }
+  /* Título não fica sozinho no pé da folha; foto e citação não partem ao meio. */
+  #artigo .artigo-corpo h2,
+  #artigo .artigo-corpo h3 {
+    break-after: avoid;
+  }
+  #artigo .artigo-figura,
+  #artigo .artigo-corpo blockquote {
+    break-inside: avoid;
+  }
+  #artigo .artigo-figura img {
+    max-height: 8.5cm;
+    object-fit: cover;
+  }
+  /* Vídeo não se imprime: sairia o player parado. */
+  #artigo .artigo-figura:has(video) {
+    display: none;
+  }
+  #artigo .artigo-corpo a[href^="http"]::after,
+  #artigo .artigo-corpo a[href^="mailto:"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: var(--texto-suave);
+  }
+}

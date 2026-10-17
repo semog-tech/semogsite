@@ -1,0 +1,91 @@
+<!-- Semog Garante · abertura. O nome em Saira leve, com "Garante." ganhando peso; ao lado, os
+     três fatos que sustentam o produto (100% recebido, 1% de custo, equipe própria). No pé da
+     dobra, doze meses de arrecadação prevista: doze casas em lavanda e um traço marinho reto que
+     atravessa o ano no mesmo nível, o patamar que a cena seguinte garante mês a mês. -->
+<section id="semog-garante" class="cena" data-tema="claro" aria-labelledby="semog-garante-titulo">
+  <div class="container ga-quadro">
+    <div class="ga-texto">
+      <h1 id="semog-garante-titulo" class="ga-titulo entrada">
+        {{garantePagina.abertura.antes}}
+        <em class="peso">{{garantePagina.abertura.enfase}}</em>
+      </h1>
+      <p class="ga-lead lead entrada">{{garantePagina.abertura.lead}}</p>
+      <p class="ga-origem rotulo entrada">{{garantePagina.abertura.origem}}</p>
+      <div class="ga-acoes entrada">
+        <a class="botao" href="#proposta"
+          >{{garantePagina.abertura.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+        <a class="link-seta" href="#caixa-do-condominio"
+          ><span>{{garantePagina.abertura.comoFunciona}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+    </div>
+
+    <dl class="ga-fatos">
+      <div class="ga-fato entrada">
+        <dt class="rotulo">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.recebe.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.recebe.valor}}</span></span
+          >
+        </dd>
+      </div>
+      <div class="ga-fato entrada">
+        <dt class="rotulo">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.custo.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.custo.valor}}</span></span
+          >
+        </dd>
+      </div>
+      <div class="ga-fato ga-fato--texto entrada">
+        <dt class="rotulo">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.equipe.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ga-mascara"
+            ><span class="ga-in">{{garantePagina.abertura.fatos.equipe.valor}}</span></span
+          >
+        </dd>
+      </div>
+    </dl>
+
+    <div class="ga-ano" aria-hidden="true">
+      <p class="ga-ano-rotulo rotulo">
+        <span class="ga-mascara"><span class="ga-in">{{garantePagina.abertura.linha}}</span></span>
+      </p>
+      <div class="ga-regua">
+        <span class="ga-regua-casas"
+          ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+        ></span>
+        <span class="ga-regua-previsto"></span>
+      </div>
+      <ol class="ga-meses rotulo">
+        <li>{{garantePagina.caixa.meses.0}}</li>
+        <li>{{garantePagina.caixa.meses.1}}</li>
+        <li>{{garantePagina.caixa.meses.2}}</li>
+        <li>{{garantePagina.caixa.meses.3}}</li>
+        <li>{{garantePagina.caixa.meses.4}}</li>
+        <li>{{garantePagina.caixa.meses.5}}</li>
+        <li>{{garantePagina.caixa.meses.6}}</li>
+        <li>{{garantePagina.caixa.meses.7}}</li>
+        <li>{{garantePagina.caixa.meses.8}}</li>
+        <li>{{garantePagina.caixa.meses.9}}</li>
+        <li>{{garantePagina.caixa.meses.10}}</li>
+        <li>{{garantePagina.caixa.meses.11}}</li>
+      </ol>
+    </div>
+  </div>
+</section>

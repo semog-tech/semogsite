@@ -1,0 +1,72 @@
+<!-- Conferência · o princípio da plataforma. A frase em Saira leve, com "A gente confere." em
+     peso; embaixo, três pares tirados do próprio mês: à esquerda o que a plataforma faz, à
+     direita a pessoa que responde por aquilo, ligados por um traço que termina no mesmo visto
+     que as regras da convenção receberam. Na saída, a coluna lavanda sobe e vira o véu do
+     pedido de proposta. -->
+<section id="conferencia" class="cena" data-tema="claro" aria-labelledby="conferencia-titulo">
+  <div class="container cf-quadro">
+    <div class="cf-topo">
+      <h2 id="conferencia-titulo" class="cf-titulo">
+        {{tecnologia.pagina.conferencia.tituloA}}
+        <em class="peso">{{tecnologia.pagina.conferencia.tituloB}}</em>
+      </h2>
+      <p class="cf-lead lead">{{tecnologia.pagina.conferencia.lead}}</p>
+    </div>
+
+    <div class="cf-tabela">
+      <p class="cf-cabeca" aria-hidden="true">
+        <span class="rotulo">{{tecnologia.pagina.conferencia.plataforma}}</span>
+        <span class="rotulo">{{tecnologia.pagina.conferencia.pessoa}}</span>
+      </p>
+      <ul class="cf-pares">
+        <li class="cf-par">
+          <p class="cf-maquina">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.plataforma}}: </span
+            >{{tecnologia.pagina.conferencia.pares.0.maquina}}
+          </p>
+          <span class="cf-traco" aria-hidden="true"
+            ><i></i
+            ><svg class="cf-visto" viewBox="0 0 14 11" focusable="false">
+              <path class="percurso" pathLength="1" d="M1 5.5l3.5 3.5l8 -8.5"></path></svg
+          ></span>
+          <p class="cf-pessoa">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.pessoa}}: </span
+            >{{tecnologia.pagina.conferencia.pares.0.pessoa}}
+          </p>
+        </li>
+        <li class="cf-par">
+          <p class="cf-maquina">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.plataforma}}: </span
+            >{{tecnologia.pagina.conferencia.pares.1.maquina}}
+          </p>
+          <span class="cf-traco" aria-hidden="true"
+            ><i></i
+            ><svg class="cf-visto" viewBox="0 0 14 11" focusable="false">
+              <path class="percurso" pathLength="1" d="M1 5.5l3.5 3.5l8 -8.5"></path></svg
+          ></span>
+          <p class="cf-pessoa">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.pessoa}}: </span
+            >{{tecnologia.pagina.conferencia.pares.1.pessoa}}
+          </p>
+        </li>
+        <li class="cf-par">
+          <p class="cf-maquina">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.plataforma}}: </span
+            >{{tecnologia.pagina.conferencia.pares.2.maquina}}
+          </p>
+          <span class="cf-traco" aria-hidden="true"
+            ><i></i
+            ><svg class="cf-visto" viewBox="0 0 14 11" focusable="false">
+              <path class="percurso" pathLength="1" d="M1 5.5l3.5 3.5l8 -8.5"></path></svg
+          ></span>
+          <p class="cf-pessoa">
+            <span class="sr-only">{{tecnologia.pagina.conferencia.pessoa}}: </span
+            >{{tecnologia.pagina.conferencia.pares.2.pessoa}}
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cf-saida" aria-hidden="true"><span class="cf-veu"></span></div>
+</section>

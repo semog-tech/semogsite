@@ -194,25 +194,18 @@ export const EXPERIENCE_EVENT = {
   ] satisfies Ongoing[],
 
   /**
-   * Edição anterior, usada como prova social. O formato mudou (2025 foi
-   * campeonato de beach tennis, 2026 é manhã wellness) e a página diz isso
-   * com todas as letras — ver `ExperienceVideo`.
-   *
-   * O plano previa `fileUrl: null` com fallback de capa clicável para o Reel;
-   * o arquivo JÁ subiu para o bucket (ver "Assets já prontos" no plano e o
-   * player nativo do protótipo aprovado), então aqui ficam os **filenames**,
-   * resolvidos por `img()` de `content/media.ts` — que é quem sabe a base do
-   * bucket e guarda o alt. Guardar a URL crua aqui duplicaria as duas coisas.
+   * Prova social: o vídeo da edição 26, que trocou o de 2025 em 16/10/2026 (decisão do Leandro).
+   * Os campos guardam os **filenames**, resolvidos por `img()` de `content/media.ts`, que sabe
+   * onde o arquivo mora (este, no repositório) e guarda o alt.
    */
   video: {
-    previousYear: 2025,
-    /** Mesma convenção do `name`: a edição passada é "Semog Experience 25". */
-    previousEdition: '25',
-    previousFormat: 'campeonato de beach tennis',
+    year: 2026,
+    /** Mesma convenção do `name`: a edição é "Semog Experience 26" (a própria, não a anterior). */
+    edition: '26',
     /** Post original, mantido só como crédito/origem — o site não embute o Instagram. */
-    reelUrl: 'https://www.instagram.com/reel/DRm_ivskVfC/',
-    file: 'experience-2025.mp4',
-    poster: 'experience-2025-poster.webp',
+    reelUrl: 'https://www.instagram.com/reel/Dd4jHaQCso5/',
+    file: 'semog-experience-26.mp4',
+    poster: 'semog-experience-26-poster.webp',
     /** O material é um Reel vertical: em moldura 16:9 sobram tarjas pretas. */
     aspectRatio: '9 / 16',
   },

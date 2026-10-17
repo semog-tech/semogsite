@@ -1,0 +1,138 @@
+/* Tokens da identidade Semog (rebrand Heaven Brand Office). Hex só aqui, no :root;
+   em todo o resto, cor por papel. Branco domina; marinho é marca, título e botão;
+   os marinhos profundos só existem dentro de gradiente.
+   Fontes: src/site/fontes (next/font/local), expostas como --fonte-saira e --fonte-barlow no <html>. */
+
+:root {
+  /* ---- Paleta ---------------------------------------------------------------- */
+  --branco: #ffffff;
+  --marinho: #1b2d70; /* Blue World: marca, título, botão */
+  --marinho-profundo: #0a1330; /* só dentro de gradiente */
+  --marinho-noite: #080234; /* quase-preto azulado; só dentro de gradiente */
+  --azul-medio: #4f6fb5;
+  --azul-forte: #2f4fa0;
+  --ceu: #add5eb; /* Sky */
+  --ceu-claro: #e2f1f9;
+  --gelo: #f4fafd;
+  --nevoa: #bcbcc7; /* gray mist: véu e apoio, nunca texto */
+  --lavanda: #dfe3ef; /* véu e apoio */
+  --logo-claro: #f4f6fb; /* fill de public/semog-logo-light.svg */
+
+  /* Texto corrido em marinho em tons; nada de cinza neutro puro. */
+  --texto: color-mix(in oklab, var(--marinho) 88%, var(--branco));
+  --texto-suave: color-mix(in oklab, var(--marinho) 68%, var(--branco));
+  --texto-sobre-marinho: color-mix(in oklab, var(--branco) 90%, var(--ceu));
+  --texto-suave-sobre-marinho: color-mix(in oklab, var(--ceu) 74%, var(--branco));
+  --marinho-retidao: color-mix(in oklab, var(--marinho) 80%, var(--marinho-profundo));
+
+  /* ---- Gradientes do rebrand -------------------------------------------------
+     Longos e suaves: interpolação em oklab, paradas com ease-in-out (seno) aplicado
+     à mistura, e grão por cima (classe .grao) para não formar faixas. */
+  --grad-transparencia: linear-gradient(
+    in oklab to bottom,
+    var(--marinho-profundo) 0%,
+    color-mix(in oklab, var(--marinho-profundo) 97.6%, var(--marinho)) 4.2%,
+    color-mix(in oklab, var(--marinho-profundo) 90.5%, var(--marinho)) 8.3%,
+    color-mix(in oklab, var(--marinho-profundo) 78.9%, var(--marinho)) 12.5%,
+    color-mix(in oklab, var(--marinho-profundo) 62.8%, var(--marinho)) 16.7%,
+    color-mix(in oklab, var(--marinho-profundo) 42.6%, var(--marinho)) 20.8%,
+    color-mix(in oklab, var(--marinho-profundo) 18.6%, var(--marinho)) 25%,
+    color-mix(in oklab, var(--marinho) 92.2%, var(--azul-forte)) 29.2%,
+    color-mix(in oklab, var(--marinho) 65%, var(--azul-forte)) 33.3%,
+    color-mix(in oklab, var(--marinho) 35.7%, var(--azul-forte)) 37.5%,
+    color-mix(in oklab, var(--marinho) 4.7%, var(--azul-forte)) 41.7%,
+    color-mix(in oklab, var(--azul-forte) 60.9%, var(--azul-medio)) 45.8%,
+    color-mix(in oklab, var(--azul-forte) 14.3%, var(--azul-medio)) 50%,
+    color-mix(in oklab, var(--azul-medio) 74.9%, var(--ceu)) 54.2%,
+    color-mix(in oklab, var(--azul-medio) 39.2%, var(--ceu)) 58.3%,
+    color-mix(in oklab, var(--azul-medio) 4.8%, var(--ceu)) 62.5%,
+    color-mix(in oklab, var(--ceu) 68.8%, var(--ceu-claro)) 66.7%,
+    color-mix(in oklab, var(--ceu) 34.8%, var(--ceu-claro)) 70.8%,
+    color-mix(in oklab, var(--ceu) 4%, var(--ceu-claro)) 75%,
+    color-mix(in oklab, var(--ceu-claro) 73.8%, var(--gelo)) 79.2%,
+    color-mix(in oklab, var(--ceu-claro) 47.8%, var(--gelo)) 83.3%,
+    color-mix(in oklab, var(--ceu-claro) 27.2%, var(--gelo)) 87.5%,
+    color-mix(in oklab, var(--ceu-claro) 12.2%, var(--gelo)) 91.7%,
+    color-mix(in oklab, var(--ceu-claro) 3.1%, var(--gelo)) 95.8%,
+    var(--gelo) 100%
+  );
+  /* Marinho chapado: só uma respiração de profundidade, quase imperceptível. */
+  --grad-retidao: linear-gradient(
+    in oklab 172deg,
+    var(--marinho) 0%,
+    color-mix(in oklab, var(--marinho) 96.2%, var(--marinho-retidao)) 12.5%,
+    color-mix(in oklab, var(--marinho) 85.4%, var(--marinho-retidao)) 25%,
+    color-mix(in oklab, var(--marinho) 69.1%, var(--marinho-retidao)) 37.5%,
+    color-mix(in oklab, var(--marinho) 50%, var(--marinho-retidao)) 50%,
+    color-mix(in oklab, var(--marinho) 30.9%, var(--marinho-retidao)) 62.5%,
+    color-mix(in oklab, var(--marinho) 14.6%, var(--marinho-retidao)) 75%,
+    color-mix(in oklab, var(--marinho) 3.8%, var(--marinho-retidao)) 87.5%,
+    var(--marinho-retidao) 100%
+  );
+  /* Mesh difuso, branco dominante. Versão CSS; core/dinamica.js tem a versão viva (WebGL). */
+  --grad-dinamica:
+    radial-gradient(
+      in oklab 62% 55% at 8% 6%,
+      color-mix(in oklab, var(--ceu) 78%, transparent) 0%,
+      color-mix(in oklab, var(--ceu) 52%, transparent) 30%,
+      color-mix(in oklab, var(--ceu) 18%, transparent) 62%,
+      transparent 100%
+    ),
+    radial-gradient(
+      in oklab 48% 42% at 92% 92%,
+      color-mix(in oklab, var(--ceu) 60%, transparent) 0%,
+      color-mix(in oklab, var(--ceu) 30%, transparent) 40%,
+      transparent 100%
+    ),
+    radial-gradient(
+      in oklab 60% 34% at 55% 88%,
+      color-mix(in oklab, var(--lavanda) 70%, transparent) 0%,
+      color-mix(in oklab, var(--lavanda) 30%, transparent) 50%,
+      transparent 100%
+    ),
+    var(--branco);
+
+  /* ---- Tipografia ------------------------------------------------------------- */
+  --fonte-titulo: var(--fonte-saira), "Segoe UI", system-ui, -apple-system, sans-serif;
+  --fonte-corpo: var(--fonte-barlow), "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Escala ~1,618. Títulos leves (300–500); ênfase por peso animado. */
+  --t-pequeno: 0.875rem;
+  --t-corpo: 1.0625rem;
+  --t-lead: clamp(1.1875rem, 1.05rem + 0.45vw, 1.375rem);
+  --t-h3: clamp(1.75rem, 1.25rem + 1.6vw, 2.75rem);
+  --t-h2: clamp(2.5rem, 1.3rem + 4vw, 4.5rem);
+  --t-display: clamp(2.9rem, 0.9rem + 4.1vw, 5.6rem);
+  --tracking-titulo: -0.035em;
+  --tracking-display: -0.045em;
+  --peso-titulo: 300;
+  --peso-enfase-de: 250;
+  --peso-enfase: 650;
+  --lh-titulo: 1;
+  --lh-corpo: 1.6;
+
+  /* ---- Espaço: Fibonacci ------------------------------------------------------ */
+  --e1: 8px;
+  --e2: 13px;
+  --e3: 21px;
+  --e4: 34px;
+  --e5: 55px;
+  --e6: 89px;
+  --e7: 144px;
+  --e8: 233px;
+  --respiro-cena: clamp(89px, 10vw, 233px);
+
+  /* ---- Métrica ---------------------------------------------------------------- */
+  --maior: 61.8fr;
+  --menor: 38.2fr;
+  --largura: 1200px;
+  --largura-texto: 62ch;
+  --margem: clamp(16px, 4.2vw, 55px);
+  --cab: 68px;
+
+  /* ---- Movimento -------------------------------------------------------------- */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* Forma: ponta sempre reta. Não existe token de raio além deste. */
+  --raio: 0;
+}

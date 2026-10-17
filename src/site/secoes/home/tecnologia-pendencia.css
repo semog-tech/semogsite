@@ -1,0 +1,27 @@
+/* O selo A CONFIRMAR dos números da nova prestação (só na prévia, DP5) é longo. Fica fora de
+   tecnologia.css, que é cópia sem edição do protótipo. Sem o palco (documento), segue o contexto no
+   fluxo e quebra linha. No palco, sai do fluxo: ali ele somava ~37 px à legenda e empurrava a barra
+   de abas para fora da tela a 390x844 (verificação 4a, I2). */
+#tecnologia .tec-legendas > .a-confirmar {
+  margin: var(--e1) 0 0;
+  white-space: normal;
+}
+@media screen {
+  .motion #tecnologia.tec-com-palco .tec-legendas {
+    position: relative;
+  }
+  /* Sem top/bottom, fica onde estaria no fluxo: logo abaixo do contexto, sobre o respiro (--e5)
+     que separa o contexto dos passos. */
+  .motion #tecnologia.tec-com-palco .tec-legendas > .a-confirmar {
+    position: absolute;
+    left: 0;
+    max-width: 100%;
+  }
+}
+/* No celular o respiro é só --e3 e o selo cobriria o passo: vai para o palco livre acima do título. */
+@media screen and (max-width: 760px) {
+  .motion #tecnologia.tec-com-palco .tec-legendas > .a-confirmar {
+    bottom: calc(100% + var(--e2));
+    margin: 0;
+  }
+}

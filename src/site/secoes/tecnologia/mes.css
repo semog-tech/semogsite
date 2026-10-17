@@ -1,0 +1,386 @@
+/* Mês: palco fixo de uma tela. Grade 38,2/61,8: à esquerda o momento da vez, à direita a
+   folha do mês (o calendário inteiro, sempre à vista). Sem JS (sem .ms-pin), lê-se a lista
+   dos momentos e o calendário com o mês já percorrido, um embaixo do outro.
+   Papéis de cor: branco (fundo), lavanda (o projeto do mês: a grade), marinho (o que
+   já aconteceu: traço, dias e casas abertas); o céu é o destaque, só nos lembretes. */
+#mes {
+  --ms-grade: var(--lavanda);
+  --ms-traco: var(--marinho);
+}
+
+/* ---- Leitura sem palco ---------------------------------------------------------- */
+#mes .ms-grade {
+  display: grid;
+  gap: var(--e5);
+}
+#mes .ms-cobertura {
+  display: none;
+}
+#mes .ms-momentos {
+  display: grid;
+  gap: var(--e6);
+  max-width: var(--largura-texto);
+}
+#mes .ms-quando {
+  font-family: var(--fonte-titulo);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--tema-titulo);
+}
+#mes .ms-momento-titulo {
+  margin-top: var(--e1);
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.08;
+}
+#mes .ms-texto {
+  max-width: 40ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#mes .ms-apoio {
+  max-width: 44ch;
+  margin-top: var(--e3);
+}
+#mes .ms-in {
+  display: block;
+}
+
+/* ---- Fluxo do momento: nós de ponta reta ligados por um traço ------------------------ */
+#mes .ms-fluxo-mascara {
+  margin-top: var(--e4);
+}
+#mes .ms-fluxo {
+  position: relative;
+}
+#mes .ms-fluxo-linha {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(100% * (var(--n) - 1) / var(--n));
+  height: 1.5px;
+  background: var(--ms-traco);
+  transform-origin: 0 50%;
+}
+#mes .ms-fluxo-passos {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  column-gap: var(--e2);
+}
+#mes .ms-fluxo-passos li {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--e2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--tema-suave);
+}
+#mes .ms-fluxo-passos i {
+  position: relative;
+  display: block;
+  width: 9px;
+  height: 9px;
+  background: var(--ms-traco);
+}
+
+/* ---- Folha do mês (SVG) -------------------------------------------------------------- */
+#mes .ms-folha {
+  display: grid;
+  gap: var(--e2);
+  min-width: 0;
+  min-height: 0;
+}
+#mes .ms-janela {
+  min-width: 0;
+  min-height: 0;
+}
+#mes .ms-calendario {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+#mes .ms-calendario text {
+  font-family: var(--fonte-titulo);
+}
+#mes .ms-semana text {
+  font-size: 14px;
+  font-weight: 500;
+  fill: var(--texto-suave);
+}
+#mes .ms-dias text {
+  font-size: 17px;
+  font-weight: 300;
+  fill: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+#mes .ms-quadricula rect,
+#mes .ms-quadricula path {
+  fill: none;
+  stroke: var(--ms-grade);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+/* Traços medidos em unidades do desenho (tracejado por pathLength): escalam junto. */
+#mes .ms-traco,
+#mes .ms-visto {
+  vector-effect: none;
+}
+#mes .ms-traco {
+  color: var(--ms-traco);
+  stroke-width: 2.6;
+}
+/* Na virada de semana o traço desce pela margem, mais fino: é o mesmo fio, de passagem. */
+#mes .ms-traco--virada {
+  stroke-width: 1.2;
+}
+#mes .ms-no,
+#mes .ms-celula-fundo,
+#mes .ms-seguinte-fundo {
+  transform-box: fill-box;
+}
+#mes .ms-no {
+  fill: var(--ms-traco);
+  transform-origin: 50% 50%;
+}
+/* A casa abre a partir do traço, que passa a 70% da altura dela. */
+#mes .ms-celula-fundo,
+#mes .ms-seguinte-fundo {
+  transform-origin: 50% 70%;
+}
+#mes .ms-celula--forte .ms-celula-fundo,
+#mes .ms-seguinte-fundo {
+  fill: var(--marinho);
+}
+#mes .ms-celula--leve .ms-celula-fundo {
+  fill: var(--ceu-claro);
+}
+#mes .ms-celula-dia {
+  font-size: 17px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+#mes .ms-celula-rotulo {
+  font-size: 13px;
+  font-weight: 500;
+}
+#mes .ms-celula--forte text,
+#mes .ms-seguinte-rotulo {
+  fill: var(--branco);
+}
+#mes .ms-celula--leve text {
+  fill: var(--marinho);
+}
+#mes .ms-seguinte-rotulo {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ---- Convenção: as casas antes do dia 1 ---------------------------------------------- */
+#mes .ms-conv-fundo {
+  fill: var(--gelo);
+}
+#mes .ms-conv-titulo {
+  font-size: 17px;
+  font-weight: 400;
+  fill: var(--marinho);
+}
+#mes .ms-regra text {
+  font-size: 13px;
+  /* O peso sobe quando a regra age no mês (--ms-peso, escrito pela cena). */
+  font-variation-settings: "wght" var(--ms-peso, 400);
+  fill: var(--marinho);
+}
+#mes .ms-visto {
+  color: var(--marinho);
+  stroke-width: 1.6;
+}
+#mes .ms-conv-leitura {
+  fill: var(--ceu);
+  opacity: 0;
+}
+
+#mes .ms-legenda {
+  overflow: clip;
+  text-align: right;
+}
+#mes .ms-legenda > span {
+  display: block;
+}
+
+/* ---- Palco fixo (com JS) ---------------------------------------------------------------- */
+#mes.ms-pin {
+  padding-block: 0;
+}
+#mes.ms-pin .ms-palco {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--tema-fundo);
+}
+#mes.ms-pin .ms-grade {
+  height: 100%;
+  grid-template-columns: var(--menor) var(--maior);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: var(--e6);
+  row-gap: var(--e4);
+  padding-block: calc(var(--cab) + var(--e5)) var(--e5);
+}
+#mes.ms-pin .ms-titulo {
+  grid-area: 1 / 1;
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#mes.ms-pin .ms-momentos {
+  grid-area: 2 / 1;
+  align-self: center;
+  display: grid;
+  max-width: none;
+}
+#mes.ms-pin .ms-momento {
+  grid-area: 1 / 1;
+}
+#mes.ms-pin .ms-quando,
+#mes.ms-pin .ms-momento-titulo,
+#mes.ms-pin .ms-texto,
+#mes.ms-pin .ms-fluxo-mascara,
+#mes.ms-pin .ms-apoio {
+  overflow: clip;
+  padding-block-end: 0.1em;
+}
+#mes.ms-pin .ms-momento-titulo {
+  font-size: clamp(1.75rem, 1.15rem + 1.3vw, 2.5rem);
+}
+#mes.ms-pin .ms-texto {
+  max-width: 38ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+}
+#mes.ms-pin .ms-folha {
+  grid-area: 1 / 2 / 3 / 3;
+  align-content: center;
+}
+/* O calendário ocupa a largura da coluna; numa tela baixa, a altura manda e ele centra. */
+#mes.ms-pin .ms-calendario {
+  max-height: calc(100svh - var(--cab) - 2 * var(--e5) - 3rem);
+}
+
+/* ---- Cobertura: as casas do mês seguinte crescem até virar o marinho da cena seguinte --- */
+#mes.ms-pin .ms-cobertura {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--marinho);
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+/* ---- Celular: a folha em cima, o momento embaixo ---------------------------------------- */
+@media (max-width: 760px) {
+  #mes .ms-traco {
+    stroke-width: 4.4;
+  }
+  #mes .ms-traco--virada {
+    stroke-width: 2;
+  }
+  #mes .ms-visto {
+    stroke-width: 2.6;
+  }
+  #mes .ms-semana text {
+    font-size: 22px;
+  }
+  #mes .ms-dias text,
+  #mes .ms-celula-dia {
+    font-size: 26px;
+  }
+  #mes .ms-conv-titulo {
+    font-size: 22px;
+  }
+  #mes .ms-regra text {
+    font-size: 18px;
+  }
+  #mes .ms-seguinte-rotulo {
+    font-size: 22px;
+  }
+  /* Com a folha a meia escala, o nome dentro da casa ficaria ilegível: o momento ao lado já
+     diz o que é. */
+  #mes .ms-celula-rotulo {
+    display: none;
+  }
+  #mes.ms-pin .ms-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    row-gap: var(--e3);
+    padding-block: calc(var(--cab) + var(--e3)) var(--e4);
+  }
+  #mes.ms-pin .ms-titulo {
+    grid-area: 1 / 1;
+    font-size: 1.625rem;
+  }
+  #mes.ms-pin .ms-folha {
+    grid-area: 2 / 1;
+  }
+  #mes.ms-pin .ms-calendario {
+    max-height: none;
+  }
+  #mes.ms-pin .ms-momentos {
+    grid-area: 3 / 1;
+    align-self: start;
+  }
+  #mes.ms-pin .ms-momento-titulo {
+    font-size: 1.5rem;
+  }
+  #mes.ms-pin .ms-texto {
+    margin-top: var(--e2);
+    font-size: 1rem;
+  }
+  #mes.ms-pin .ms-fluxo-mascara {
+    margin-top: var(--e3);
+  }
+  #mes.ms-pin .ms-apoio {
+    margin-top: var(--e2);
+    font-size: 0.8125rem;
+  }
+  #mes .ms-fluxo-passos li {
+    font-size: 0.75rem;
+  }
+  #mes .ms-legenda {
+    display: none;
+  }
+}
+
+/* Impresso, o palco vira a lista de leitura e o calendário inteiro. As posições animadas
+   (inline) são anuladas aqui. */
+@media print {
+  #mes.ms-pin .ms-palco {
+    height: auto;
+    overflow: visible;
+  }
+  #mes.ms-pin .ms-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    padding-block: var(--e6);
+  }
+  #mes.ms-pin .ms-grade > *,
+  #mes.ms-pin .ms-momento {
+    grid-area: auto;
+  }
+  #mes.ms-pin .ms-momentos {
+    gap: var(--e5);
+  }
+  #mes .ms-cobertura {
+    display: none !important;
+  }
+  #mes .ms-in,
+  #mes .ms-legenda > span,
+  #mes .ms-janela {
+    transform: none !important;
+    clip-path: none !important;
+  }
+}

@@ -1,0 +1,260 @@
+<!-- História · a cena-assinatura de A Semog. Sem JS é uma lista ordenada dos marcos, com o
+     esquema das Unidades e a foto do G20. Com JS, o palco fica fixo e a rolagem percorre os
+     35 anos: um traço de ponta reta anda pelo eixo do tempo (espaçado pelos anos reais, com
+     folga mínima entre marcos vizinhos), o ano conta, cada marco troca por máscara e o
+     esquema da costa ganha a Unidade da vez. No fim, o traço abre e vira o marinho da cena
+     seguinte. -->
+<section id="historia" class="cena" data-tema="claro" aria-labelledby="historia-titulo">
+  <div class="hist-palco">
+    <div class="container hist-grade">
+      <h2 id="historia-titulo" class="hist-titulo">{{aSemog.historia.titulo}}</h2>
+
+      <dl class="hist-contadores" aria-hidden="true">
+        <div class="hist-contador">
+          <dt class="rotulo">{{aSemog.historia.contadores.unidades}}</dt>
+          <dd class="num">
+            <span class="hist-rolo" data-rolo="unidades"
+              ><span>1</span><span>2</span><span>3</span><span>4</span></span
+            >
+          </dd>
+        </div>
+        <div class="hist-contador">
+          <dt class="rotulo">{{aSemog.historia.contadores.estados}}</dt>
+          <dd class="num">
+            <span class="hist-rolo" data-rolo="estados"
+              ><span>1</span><span>2</span><span>3</span></span
+            >
+          </dd>
+          <dd class="hist-ufs rotulo">
+            <span class="hist-rolo" data-rolo="ufs"
+              ><span>PE</span><span>PE · PB</span><span>PE · PB · PA</span></span
+            >
+          </dd>
+        </div>
+      </dl>
+
+      <div class="hist-ano num" aria-hidden="true">
+        <span class="hist-ano-numero">1991</span>
+        <span class="hist-ano-hoje">{{aSemog.historia.marcos.9.data}}</span>
+      </div>
+
+      <ol class="hist-marcos">
+        <li class="hist-marco" data-tick="0">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.0.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.0.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.0.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="1">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.1.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.1.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.1.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="2">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.2.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.2.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.2.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="3">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.3.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.3.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.3.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="3">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.4.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.4.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.4.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="4">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.5.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.5.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.5.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="5">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.6.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.6.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.6.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="5">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.7.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.7.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.7.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="6" data-foto>
+          <p class="hist-marco-data">{{aSemog.historia.marcos.8.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.8.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.8.texto}}</span>
+          </p>
+        </li>
+        <li class="hist-marco" data-tick="7">
+          <p class="hist-marco-data">{{aSemog.historia.marcos.9.data}}</p>
+          <h3 class="hist-marco-titulo">
+            <span class="hist-in">{{aSemog.historia.marcos.9.titulo}}</span>
+          </h3>
+          <p class="hist-marco-texto">
+            <span class="hist-in">{{aSemog.historia.marcos.9.texto}}</span>
+          </p>
+        </li>
+      </ol>
+
+      <!-- Esquema: a linha da costa de Belém ao Recife, sem escala nem geografia precisa;
+           só a ordem das Unidades no eixo da costa (Campina Grande, no interior da Paraíba). -->
+      <figure class="hist-mapa">
+        <div class="hist-mapa-caixa">
+          <svg class="hist-mapa-svg" viewBox="0 0 760 460" aria-hidden="true" focusable="false">
+            <path
+              class="hist-costa percurso"
+              d="M30 104C150 98 260 126 370 146C460 162 540 172 580 200C608 220 614 256 608 296C602 336 590 384 572 450"
+            ></path>
+            <path
+              class="hist-rota percurso"
+              d="M30 104C150 98 260 126 370 146C460 162 540 172 580 200C608 220 614 256 608 296C602 336 590 384 572 450"
+            ></path>
+            <path class="hist-ramal percurso" d="M607.9 245.5C575 238 535 244 500 252"></path>
+            <rect
+              class="hist-no"
+              data-no="recife"
+              x="593.5"
+              y="335.4"
+              width="12"
+              height="12"
+            ></rect>
+            <rect
+              class="hist-no"
+              data-no="joao-pessoa"
+              x="601.9"
+              y="239.5"
+              width="12"
+              height="12"
+            ></rect>
+            <rect class="hist-no" data-no="belem" x="146.8" y="102.4" width="12" height="12"></rect>
+            <rect
+              class="hist-no"
+              data-no="campina-grande"
+              x="494"
+              y="246"
+              width="12"
+              height="12"
+            ></rect>
+          </svg>
+          <p
+            class="hist-cidade hist-cidade--direita"
+            data-cidade="recife"
+            style="--x: 599.5; --y: 341.4"
+          >
+            <span class="hist-cidade-mascara"
+              ><span class="hist-cidade-in"
+                ><strong>{{unidades.0.cidade}}</strong>
+                <span class="hist-uf">{{unidades.0.uf}}</span></span
+              ></span
+            >
+          </p>
+          <p
+            class="hist-cidade hist-cidade--direita"
+            data-cidade="joao-pessoa"
+            style="--x: 607.9; --y: 245.5"
+          >
+            <span class="hist-cidade-mascara"
+              ><span class="hist-cidade-in"
+                ><strong>{{unidades.1.cidade}}</strong>
+                <span class="hist-uf">{{unidades.1.uf}}</span></span
+              ></span
+            >
+          </p>
+          <p
+            class="hist-cidade hist-cidade--abaixo"
+            data-cidade="belem"
+            style="--x: 152.8; --y: 108.4"
+          >
+            <span class="hist-cidade-mascara"
+              ><span class="hist-cidade-in"
+                ><strong>{{unidades.3.cidade}}</strong>
+                <span class="hist-uf">{{unidades.3.uf}}</span></span
+              ></span
+            >
+          </p>
+          <p
+            class="hist-cidade hist-cidade--esquerda"
+            data-cidade="campina-grande"
+            style="--x: 500; --y: 252"
+          >
+            <span class="hist-cidade-mascara"
+              ><span class="hist-cidade-in"
+                ><strong>{{unidades.2.cidade}}</strong>
+                <span class="hist-uf">{{unidades.2.uf}}</span></span
+              ></span
+            >
+          </p>
+        </div>
+        <figcaption class="hist-esquema rotulo">
+          <span>{{aSemog.historia.esquema}}</span>
+        </figcaption>
+      </figure>
+
+      <figure class="hist-foto">
+        <div class="moldura">
+          <img
+            src="{{ranking.foto}}"
+            alt="{{ranking.alt}}"
+            width="1600"
+            height="900"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </figure>
+
+      <div class="hist-eixo" aria-hidden="true">
+        <div class="hist-eixo-linha">
+          <span class="hist-eixo-trilho"></span>
+          <span class="hist-eixo-traco"></span>
+        </div>
+        <ol class="hist-ticks">
+          <li style="--x: 0"><i></i><span>1991</span></li>
+          <li style="--x: 0.217"><i></i><span>2000</span></li>
+          <li style="--x: 0.314"><i></i><span>2004</span></li>
+          <li style="--x: 0.676"><i></i><span>2019</span></li>
+          <li style="--x: 0.772"><i></i><span>2023</span></li>
+          <li style="--x: 0.848"><i></i><span>2025</span></li>
+          <li style="--x: 0.924"><i></i><span>2026</span></li>
+          <li style="--x: 1"><i></i><span>{{aSemog.historia.marcos.9.data}}</span></li>
+        </ol>
+      </div>
+    </div>
+    <div class="hist-cobertura" aria-hidden="true"></div>
+  </div>
+</section>

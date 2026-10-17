@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { isExactEligible } from '@/lib/exact/map-lead'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
@@ -84,6 +84,15 @@ vi.mock('next/headers', () => ({
 }))
 
 const { submitForm } = await import('@/app/(frontend)/_actions/submit-form')
+
+// O formulário antigo só envia Exact e e-mail em produção (R1); a suíte simula produção
+// (o caso de Preview está em `submit-form.int.spec.ts`).
+beforeEach(() => {
+  vi.stubEnv('VERCEL_ENV', 'production')
+})
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 const inscricao = {
   nome: 'Maria Souza',

@@ -1,0 +1,69 @@
+<!-- Condomínios · 650 barras, uma por condomínio sob gestão: o número, a grade do pattern
+     e a barra mais alta que cresce até virar o marinho da cena 03. Sem JS, lê-se o texto. -->
+<section id="condominios" class="cena" data-tema="claro" aria-labelledby="condominios-titulo">
+  <div class="cond-palco">
+    <canvas class="cond-campo" aria-hidden="true"></canvas>
+    <div class="container cond-quadro">
+      <div class="cond-alvo-numero" aria-hidden="true">
+        <div class="cond-alvo-glifo"></div>
+        <!-- TEXTO-NOVO -->
+        <p class="cond-legenda rotulo">
+          <span class="mascara"
+            ><span class="mascara-in">Condomínios sob gestão: cada barra é um deles.</span></span
+          >
+        </p>
+      </div>
+
+      <div class="cond-texto">
+        <!-- TEXTO-NOVO -->
+        <h2 id="condominios-titulo">
+          Cada condomínio, acompanhado <em class="peso">de perto</em>.
+        </h2>
+        <p class="cond-destaque">
+          <span class="mascara"
+            ><span class="mascara-in num"
+              >{{numeros.condominios.prefixo}}{{numeros.condominios.valor}}</span
+            ></span
+          >
+          <span class="mascara"
+            ><span class="mascara-in">{{numeros.condominios.rotulo}}</span></span
+          >
+        </p>
+        <p class="lead">{{condominios.texto}}</p>
+      </div>
+
+      <dl class="cond-dados">
+        <div>
+          <dt class="mascara rotulo">
+            <span class="mascara-in">{{numeros.anos.rotulo}}</span>
+          </dt>
+          <dd class="mascara">
+            <span class="mascara-in num" data-conta="anos">{{numeros.anos.valor}}</span>
+          </dd>
+        </div>
+        <div>
+          <dt class="mascara rotulo">
+            <span class="mascara-in">{{numeros.clientes.rotulo}}</span>
+          </dt>
+          <dd class="mascara">
+            <span class="mascara-in num" data-conta="clientes"
+              >{{numeros.clientes.prefixo}}{{numeros.clientes.valor}}{{numeros.clientes.sufixo}}</span
+            >
+          </dd>
+        </div>
+        <div>
+          <dt class="mascara rotulo">
+            <span class="mascara-in">{{numeros.especialistas.rotulo}}</span>
+          </dt>
+          <dd class="mascara">
+            <span class="mascara-in num" data-conta="especialistas"
+              >{{numeros.especialistas.prefixo}}{{numeros.especialistas.valor}}</span
+            >
+          </dd>
+        </div>
+      </dl>
+
+      <div class="cond-alvo-grade" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>

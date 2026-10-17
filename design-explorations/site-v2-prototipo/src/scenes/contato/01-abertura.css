@@ -1,0 +1,161 @@
+/* Contato · abertura. Título leve com ênfase por peso, a frase, e os quatro atalhos numa
+   fileira de blocos gelo, retos, sem sombra: o título do atalho em Saira, o texto curto e a
+   seta, que corre ao passar o mouse. O atalho sem destino ainda (2ª via) não é link e não
+   tem seta: leva o selo A CONFIRMAR. Entrada só de CSS, da primeira pintura. */
+#contato-abertura {
+  padding-top: calc(var(--cab) + clamp(var(--e5), 9svh, var(--e7)));
+  padding-bottom: clamp(var(--e6), 8vw, var(--e7));
+  background: var(--branco);
+}
+#contato-abertura .ct-titulo {
+  font-size: clamp(3rem, 1.4rem + 5vw, 6.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#contato-abertura .ct-titulo .linha-interna {
+  display: block;
+  animation: ct-subir 0.9s var(--ease-expo) 60ms both;
+}
+#contato-abertura .ct-titulo .peso-fixo::after {
+  animation: ct-peso 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.4s both;
+}
+#contato-abertura .ct-sub {
+  max-width: 46ch;
+  margin-top: var(--e4);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--texto);
+  animation: ct-subir-bloco 0.9s var(--ease-expo) 0.22s backwards;
+}
+
+/* ---- Atalhos --------------------------------------------------------------------- */
+#contato-abertura .ct-atalhos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e2);
+  margin-top: var(--e6);
+}
+#contato-abertura .ct-atalhos li {
+  display: grid;
+  min-width: 0;
+  animation: ct-subir-bloco 0.9s var(--ease-expo) calc(var(--i) * 90ms + 0.4s) backwards;
+}
+#contato-abertura .ct-atalho {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--e2);
+  min-height: 100%;
+  padding: var(--e4) var(--e4) var(--e3);
+  background: var(--gelo);
+  color: var(--texto);
+  text-decoration: none;
+  transition: background-color 320ms var(--ease-expo);
+}
+#contato-abertura a.ct-atalho:hover {
+  background: color-mix(in oklab, var(--gelo) 70%, var(--ceu-claro));
+}
+#contato-abertura .ct-atalho strong {
+  font-family: var(--fonte-titulo);
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--marinho);
+}
+#contato-abertura .ct-atalho > span:not(.a-confirmar) {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+#contato-abertura .ct-atalho .seta {
+  margin-top: var(--e1);
+  color: var(--marinho);
+  transition: transform 320ms var(--ease-expo);
+}
+#contato-abertura a.ct-atalho:hover .seta {
+  transform: translateX(5px);
+}
+/* O atalho para o formulário desta página aponta para baixo. */
+#contato-abertura .ct-atalho .ct-seta-baixo {
+  transform: rotate(90deg);
+  transform-origin: 10px 6.5px;
+}
+#contato-abertura a.ct-atalho:hover .ct-seta-baixo {
+  transform: rotate(90deg) translateX(5px);
+}
+#contato-abertura .ct-atalho--pendente {
+  background: color-mix(in oklab, var(--gelo) 55%, var(--branco));
+}
+#contato-abertura .ct-atalho--pendente .a-confirmar {
+  justify-self: start;
+  margin: var(--e1) 0 0;
+  white-space: normal;
+}
+
+@media (max-width: 1080px) {
+  #contato-abertura .ct-atalhos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  #contato-abertura {
+    padding-top: calc(var(--cab) + var(--e5));
+    padding-bottom: var(--e6);
+  }
+  #contato-abertura .ct-titulo {
+    font-size: min(15vw, 3.5rem);
+  }
+  #contato-abertura .ct-sub {
+    margin-top: var(--e3);
+    font-size: 1.0625rem;
+  }
+  #contato-abertura .ct-atalhos {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e1);
+    margin-top: var(--e5);
+  }
+  /* No celular o atalho é uma linha: título e seta em cima, o texto embaixo. */
+  #contato-abertura .ct-atalho {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    gap: 4px var(--e2);
+    padding: var(--e3);
+  }
+  #contato-abertura .ct-atalho strong {
+    font-size: 1.1875rem;
+  }
+  #contato-abertura .ct-atalho > span,
+  #contato-abertura .ct-atalho--pendente .a-confirmar {
+    grid-column: 1 / -1;
+  }
+  #contato-abertura .ct-atalho .seta {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: center;
+    margin: 0;
+  }
+}
+
+@keyframes ct-subir {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes ct-subir-bloco {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(-21px -21px -21px -21px);
+    transform: none;
+  }
+}
+@keyframes ct-peso {
+  from {
+    font-variation-settings: "wght" var(--peso-enfase-de);
+  }
+}

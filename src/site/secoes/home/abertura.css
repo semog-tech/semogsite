@@ -1,0 +1,173 @@
+/* Cena 01 · abertura "Metades". A foto sangra pela esquerda; a coluna de texto termina
+   exatamente onde termina o header (mesma conta do .cabecalho-faixa), e a legenda da
+   foto começa onde começa o logo. A seção é o container das medidas (cqw). */
+#abertura {
+  container: abertura / inline-size;
+  position: relative;
+  padding-top: var(--cab);
+  background: var(--branco);
+}
+#abertura .abertura-palco {
+  /* Margem lateral do header: max(margem, (largura da página − 1200) / 2). */
+  --g: max(var(--margem), (100cqw - var(--largura)) / 2);
+  --coluna: calc((100cqw - 2 * var(--g)) * 0.44);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--coluna);
+  column-gap: var(--e6);
+  min-height: calc(100svh - var(--cab));
+  padding-right: var(--g);
+}
+
+/* ---- Vitrine ------------------------------------------------------------------ */
+#abertura .vitrine {
+  position: relative;
+  margin: 0;
+  overflow: clip;
+  background: var(--gelo);
+}
+#abertura .vitrine-moldura,
+#abertura .slide {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+/* Folga no alto para o parallax (desce até 6%) nunca descobrir o fundo. */
+#abertura .vitrine-moldura {
+  top: -7%;
+}
+#abertura .slide img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Sem JS, só a primeira foto aparece; com JS, o carrossel controla cada slide. */
+#abertura .slide + .slide {
+  visibility: hidden;
+}
+#abertura .vitrine-legenda {
+  position: absolute;
+  left: var(--g);
+  bottom: var(--e4);
+  display: grid;
+  gap: var(--e1);
+  justify-items: start;
+}
+#abertura .vitrine-cidade {
+  display: block;
+  overflow: clip;
+  padding: var(--e1) var(--e2);
+  background: var(--branco);
+  color: var(--marinho);
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  line-height: 1.4;
+}
+#abertura .vitrine-cidade span {
+  display: inline-block;
+}
+#abertura .vitrine-passos {
+  display: flex;
+  gap: 5px;
+}
+#abertura .vitrine-passos i {
+  display: block;
+  width: 34px;
+  height: 2px;
+  overflow: clip;
+  background: color-mix(in oklab, var(--branco) 45%, transparent);
+}
+#abertura .vitrine-passos i::after {
+  content: "";
+  display: block;
+  height: 100%;
+  background: var(--branco);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--passo, 0));
+}
+
+/* ---- Texto -------------------------------------------------------------------- */
+#abertura .abertura-texto {
+  container: texto / inline-size;
+  align-self: center;
+  padding-block: clamp(var(--e3), 3.5svh, var(--e5));
+}
+/* O tamanho segue a largura da coluna ("Preocupe-se", que nunca quebra, ocupa no máximo
+   ~90% dela, de 390 a 1700) e, em tela baixa, a altura: título e etapa 1 cabem na dobra. */
+#abertura .abertura-titulo {
+  font-size: min(5.25rem, 17.2cqi, 9svh);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: var(--tracking-display);
+  text-wrap: initial;
+}
+#abertura .abertura-inteira {
+  white-space: nowrap;
+}
+#abertura .abertura-sub {
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  max-width: 34ch;
+  color: var(--texto);
+}
+#abertura .abertura-form {
+  margin-top: clamp(var(--e3), 4svh, var(--e5));
+}
+#abertura .fp-par {
+  align-items: start;
+}
+/* O aviso de demonstração não empurra a dobra: fica logo abaixo do formulário. */
+#abertura .abertura-form {
+  position: relative;
+}
+#abertura .fp-status {
+  position: absolute;
+  top: calc(100% + var(--e2));
+  left: 0;
+}
+/* Em tela baixa e no celular o rótulo do formulário fica só para leitor de tela. */
+@media (max-height: 820px), (max-width: 760px) {
+  #abertura .fp-titulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ---- Celular: a foto vira faixa no alto, o texto ocupa a largura --------------- */
+@media (max-width: 760px) {
+  #abertura .abertura-palco {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: clamp(72px, 15svh, 160px) auto;
+    min-height: 0;
+    padding-right: 0;
+  }
+  #abertura .vitrine-legenda {
+    left: var(--margem);
+    bottom: var(--e2);
+  }
+  #abertura .vitrine-cidade {
+    padding: 4px var(--e1);
+    font-size: 0.8125rem;
+  }
+  #abertura .abertura-texto {
+    padding: var(--e2) var(--margem) var(--e5);
+  }
+  /* Em celular baixo (360×640) o título encolhe pela altura para o botão chegar perto da dobra. */
+  #abertura .abertura-titulo {
+    font-size: min(17.2cqi, 7.5svh);
+  }
+  #abertura .abertura-sub {
+    margin-top: var(--e2);
+    font-size: 1.0625rem;
+  }
+  #abertura .abertura-form {
+    margin-top: var(--e3);
+  }
+}

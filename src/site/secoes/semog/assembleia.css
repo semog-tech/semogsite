@@ -1,0 +1,182 @@
+/* Assembleia: a pauta como folha. Papel branco sobre o mundo gelo, faixa marinho no topo,
+   nenhuma sombra. Cada linha: a caixa de ticar, a pergunta (38,2) e a resposta da Semog
+   (61,8) com o dado em destaque. O fio liga as caixas pelo centro. Na saída, o gelo volta
+   ao branco enquanto a coluna lavanda sobe para o convite da proposta. */
+#assembleia {
+  --as-colunas: 21px minmax(0, 0.382fr) minmax(0, 0.618fr);
+  --as-vao: var(--e5);
+  padding-block: var(--respiro-cena) 0;
+  /* Nasce no branco dos depoimentos e assenta no gelo antes de a folha chegar. */
+  background: linear-gradient(in oklab to bottom, var(--branco) 0, var(--gelo) var(--respiro-cena));
+}
+#assembleia .as-folha {
+  position: relative;
+  padding: var(--e6) var(--e6) var(--e5);
+  border-top: 5px solid var(--marinho);
+  background: var(--branco);
+}
+#assembleia .as-cabeca {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  column-gap: var(--e5);
+  row-gap: var(--e3);
+  align-items: end;
+}
+#assembleia .as-rotulo {
+  grid-column: 1 / -1;
+}
+#assembleia .as-titulo {
+  font-size: var(--t-h2);
+  font-weight: 300;
+}
+#assembleia .as-lead {
+  max-width: 34ch;
+  padding-bottom: 0.3em;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+}
+#assembleia .as-colunas {
+  display: grid;
+  grid-template-columns: var(--as-colunas);
+  column-gap: var(--as-vao);
+  margin-top: var(--e6);
+  padding-bottom: var(--e2);
+}
+#assembleia .as-colunas > :first-child {
+  grid-column: 2;
+}
+
+/* ---- Itens ------------------------------------------------------------------------ */
+#assembleia .as-lista {
+  position: relative;
+}
+#assembleia .as-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--as-colunas);
+  column-gap: var(--as-vao);
+  align-items: start;
+  padding-block: var(--e4);
+}
+#assembleia .as-check {
+  position: relative;
+  z-index: 1;
+  width: 21px;
+  height: 21px;
+  margin-top: 0.35em;
+  overflow: visible;
+}
+#assembleia .as-check-caixa {
+  fill: var(--branco);
+  stroke: var(--marinho);
+  stroke-width: 1.5;
+}
+#assembleia .as-check-marca {
+  fill: none;
+  stroke: var(--marinho);
+  stroke-width: 2.25;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+#assembleia .as-pergunta {
+  padding-top: 0.2em;
+  font-size: var(--t-lead);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--tema-texto);
+}
+#assembleia .as-resposta {
+  display: grid;
+  grid-template-columns: minmax(0, 0.382fr) minmax(0, 0.618fr);
+  column-gap: var(--e4);
+  row-gap: var(--e1);
+}
+#assembleia .as-dado {
+  grid-row: 1 / 3;
+  font-size: clamp(2.125rem, 1.3rem + 1.8vw, 3.25rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  color: var(--marinho);
+  text-wrap: balance;
+}
+#assembleia .as-afirmacao {
+  padding-top: 0.2em;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1875rem, 1rem + 0.4vw, 1.4375rem);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--marinho);
+}
+#assembleia .as-apoio {
+  font-size: var(--t-pequeno);
+  line-height: 1.55;
+  color: var(--tema-suave);
+}
+#assembleia .as-fio {
+  position: absolute;
+  left: 10px;
+  top: var(--as-fio-topo, 0);
+  width: 1.5px;
+  height: var(--as-fio, 100%);
+}
+#assembleia .as-fio-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0;
+  background: var(--marinho);
+}
+
+/* ---- Saída: do gelo ao branco, e a coluna lavanda sobe para a proposta -------------- */
+#assembleia .as-saida {
+  position: relative;
+  height: 44svh;
+  background: linear-gradient(in oklab to bottom, var(--gelo) 0%, var(--branco) 70%);
+}
+#assembleia .as-veu {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  transform-origin: 50% 100%;
+}
+
+@media (max-width: 760px) {
+  #assembleia {
+    --as-colunas: 21px minmax(0, 1fr);
+    --as-vao: var(--e3);
+  }
+  #assembleia .container {
+    width: 100%;
+  }
+  #assembleia .as-folha {
+    padding: var(--e5) var(--margem) var(--e4);
+  }
+  #assembleia .as-cabeca {
+    grid-template-columns: 1fr;
+  }
+  #assembleia .as-colunas {
+    display: none;
+  }
+  #assembleia .as-pergunta,
+  #assembleia .as-resposta {
+    grid-column: 2;
+  }
+  #assembleia .as-resposta {
+    grid-template-columns: 1fr;
+    margin-top: var(--e2);
+  }
+  #assembleia .as-dado {
+    grid-row: auto;
+  }
+  #assembleia .as-saida {
+    height: 30svh;
+  }
+  /* No celular o convite da proposta ocupa a largura toda: o véu também. */
+  #assembleia .as-veu {
+    width: 100%;
+  }
+}

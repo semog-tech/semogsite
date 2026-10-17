@@ -1,0 +1,164 @@
+<!-- Unidades · "perto de cada condomínio": as quatro Unidades Semog em grade áurea alternada,
+     ligadas por uma rota contínua, e a voz de quem é atendido por cada uma. -->
+<section id="unidades" class="cena" data-tema="claro" aria-labelledby="unidades-titulo">
+  <div class="container">
+    <header class="unidades-cabeca">
+      <h2 id="unidades-titulo" class="unidades-titulo">{{unidadesSecao.titulo}}</h2>
+      <p class="unidades-lead lead">{{depoimentos.titulo}}</p>
+    </header>
+
+    <div class="unidades-lista">
+      <svg class="unidades-rota" aria-hidden="true" focusable="false">
+        <path class="percurso rota-base"></path>
+        <path class="percurso rota-feita"></path>
+        <g class="rota-marcos"></g>
+      </svg>
+
+      <article class="unidade unidade--foto-esquerda" aria-labelledby="unidade-recife">
+        <figure class="unidade-quadro">
+          <div class="moldura">
+            <img
+              src="{{unidades.0.foto}}"
+              alt="{{unidades.0.alt}}"
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </figure>
+        <div class="unidade-texto">
+          <div class="unidade-cabeca">
+            <h3 id="unidade-recife" class="unidade-cidade">{{unidades.0.cidade}}</h3>
+            <!-- TEXTO-NOVO: "Unidade Semog" -->
+            <p class="unidade-uf">Unidade Semog · {{unidades.0.uf}}</p>
+            <a class="link-seta unidade-link" href="{{unidades.0.url}}"
+              ><!-- TEXTO-NOVO: "Conheça a Unidade" --><span
+                >Conheça a Unidade<span class="sr-only"> {{unidades.0.cidade}}</span></span
+              >
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+            ></a>
+          </div>
+          <figure class="voz voz--curta">
+            <svg class="voz-aspas" viewBox="0 0 34 21" aria-hidden="true">
+              <path d="M7 0h8L8 21H0z M24 0h8l-7 21h-8z"></path>
+            </svg>
+            <blockquote class="voz-texto"><p>{{depoimentos.itens.3.texto}}</p></blockquote>
+            <figcaption class="voz-autor">
+              <span class="voz-nome">{{depoimentos.itens.3.nome}}</span>
+              <span class="voz-fonte">Avaliação no Google · {{depoimentos.itens.3.data}}</span>
+            </figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="unidade unidade--foto-direita" aria-labelledby="unidade-joao-pessoa">
+        <figure class="unidade-quadro">
+          <div class="moldura">
+            <img
+              src="{{unidades.1.foto}}"
+              alt="{{unidades.1.alt}}"
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </figure>
+        <div class="unidade-texto">
+          <div class="unidade-cabeca">
+            <h3 id="unidade-joao-pessoa" class="unidade-cidade">{{unidades.1.cidade}}</h3>
+            <p class="unidade-uf">Unidade Semog · {{unidades.1.uf}}</p>
+            <a class="link-seta unidade-link" href="{{unidades.1.url}}"
+              ><span>Conheça a Unidade<span class="sr-only"> {{unidades.1.cidade}}</span></span>
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+            ></a>
+          </div>
+          <figure class="voz voz--longa">
+            <svg class="voz-aspas" viewBox="0 0 34 21" aria-hidden="true">
+              <path d="M7 0h8L8 21H0z M24 0h8l-7 21h-8z"></path>
+            </svg>
+            <blockquote class="voz-texto"><p>{{depoimentos.itens.0.texto}}</p></blockquote>
+            <figcaption class="voz-autor">
+              <span class="voz-nome">{{depoimentos.itens.0.nome}}</span>
+              <span class="voz-fonte">Avaliação no Google · {{depoimentos.itens.0.data}}</span>
+            </figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="unidade unidade--foto-esquerda" aria-labelledby="unidade-campina-grande">
+        <figure class="unidade-quadro">
+          <div class="moldura">
+            <img
+              src="{{unidades.2.foto}}"
+              alt="{{unidades.2.alt}}"
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </figure>
+        <div class="unidade-texto">
+          <div class="unidade-cabeca">
+            <h3 id="unidade-campina-grande" class="unidade-cidade">{{unidades.2.cidade}}</h3>
+            <p class="unidade-uf">Unidade Semog · {{unidades.2.uf}}</p>
+            <a class="link-seta unidade-link" href="{{unidades.2.url}}"
+              ><span>Conheça a Unidade<span class="sr-only"> {{unidades.2.cidade}}</span></span>
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+            ></a>
+          </div>
+        </div>
+      </article>
+
+      <article
+        class="unidade unidade--foto-direita unidade--duas-vozes"
+        aria-labelledby="unidade-belem"
+      >
+        <figure class="unidade-quadro">
+          <div class="moldura">
+            <img
+              src="{{unidades.3.foto}}"
+              alt="{{unidades.3.alt}}"
+              width="1376"
+              height="768"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </figure>
+        <div class="unidade-texto">
+          <div class="unidade-cabeca">
+            <h3 id="unidade-belem" class="unidade-cidade">{{unidades.3.cidade}}</h3>
+            <p class="unidade-uf">Unidade Semog · {{unidades.3.uf}}</p>
+            <a class="link-seta unidade-link" href="{{unidades.3.url}}"
+              ><span>Conheça a Unidade<span class="sr-only"> {{unidades.3.cidade}}</span></span>
+              <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+            ></a>
+          </div>
+          <figure class="voz voz--curta">
+            <svg class="voz-aspas" viewBox="0 0 34 21" aria-hidden="true">
+              <path d="M7 0h8L8 21H0z M24 0h8l-7 21h-8z"></path>
+            </svg>
+            <blockquote class="voz-texto"><p>{{depoimentos.itens.1.texto}}</p></blockquote>
+            <figcaption class="voz-autor">
+              <span class="voz-nome">{{depoimentos.itens.1.nome}}</span>
+              <span class="voz-fonte">Avaliação no Google · {{depoimentos.itens.1.data}}</span>
+            </figcaption>
+          </figure>
+        </div>
+        <figure class="voz voz--longa voz--extra">
+          <svg class="voz-aspas" viewBox="0 0 34 21" aria-hidden="true">
+            <path d="M7 0h8L8 21H0z M24 0h8l-7 21h-8z"></path>
+          </svg>
+          <blockquote class="voz-texto"><p>{{depoimentos.itens.2.texto}}</p></blockquote>
+          <figcaption class="voz-autor">
+            <span class="voz-nome">{{depoimentos.itens.2.nome}}</span>
+            <span class="voz-fonte">Avaliação no Google · {{depoimentos.itens.2.data}}</span>
+          </figcaption>
+        </figure>
+      </article>
+    </div>
+  </div>
+</section>

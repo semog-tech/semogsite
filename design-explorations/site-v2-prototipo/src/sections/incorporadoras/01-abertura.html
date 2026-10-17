@@ -1,0 +1,104 @@
+<!-- Incorporadoras · abertura. A promessa em Saira leve, com "bem antes das chaves." ganhando
+     peso; ao lado, a obra ao anoitecer (a única foto de obra que há, de origem a confirmar, e
+     dito na legenda). No pé da dobra, os números que sustentam a promessa, contando ao
+     entrar. -->
+<section id="incorporadoras" class="cena" data-tema="claro" aria-labelledby="incorporadoras-titulo">
+  <div class="container ab-quadro">
+    <div class="ab-texto">
+      <h1 id="incorporadoras-titulo" class="ab-titulo entrada">
+        {{incorporadoras.abertura.antes}}
+        <em class="peso">{{incorporadoras.abertura.enfase}}</em>
+      </h1>
+      <p class="ab-lead lead entrada">{{incorporadoras.abertura.lead}}</p>
+      <div class="ab-acoes entrada">
+        <a class="botao" href="#proposta"
+          >{{incorporadoras.abertura.botao}}
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+        <a class="link-seta" href="#percurso"
+          ><span>{{incorporadoras.abertura.percurso}}</span>
+          <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg
+        ></a>
+      </div>
+    </div>
+
+    <figure class="ab-foto">
+      <div class="moldura">
+        <img
+          src="assets/fotos/incorporadoras-obra.webp"
+          alt="{{incorporadoras.abertura.fotoAlt}}"
+          width="2048"
+          height="1152"
+          decoding="async"
+        />
+      </div>
+      <figcaption class="rotulo">
+        {{incorporadoras.abertura.fotoLegenda}}
+        <span class="a-confirmar">{{incorporadoras.abertura.fotoConfirmar}}</span>
+      </figcaption>
+    </figure>
+
+    <dl class="ab-numeros">
+      <div class="ab-numero entrada">
+        <dt class="rotulo">
+          <span class="ab-mascara"
+            ><span class="ab-in">{{incorporadoras.numeros.implantados.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ab-mascara"
+            ><span
+              class="ab-in"
+              data-conta="{{incorporadoras.numeros.implantados.valor}}"
+              data-prefixo="{{incorporadoras.numeros.implantados.prefixo}}"
+              >{{incorporadoras.numeros.implantados.prefixo}}{{incorporadoras.numeros.implantados.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="ab-numero entrada">
+        <dt class="rotulo">
+          <span class="ab-mascara"
+            ><span class="ab-in">{{incorporadoras.numeros.anos.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ab-mascara"
+            ><span class="ab-in" data-conta="{{incorporadoras.numeros.anos.valor}}"
+              >{{incorporadoras.numeros.anos.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="ab-numero entrada">
+        <dt class="rotulo">
+          <span class="ab-mascara"><span class="ab-in">{{numeros.condominios.rotulo}}</span></span>
+        </dt>
+        <dd class="num">
+          <span class="ab-mascara"
+            ><span
+              class="ab-in"
+              data-conta="{{numeros.condominios.valor}}"
+              data-prefixo="{{numeros.condominios.prefixo}}"
+              >{{numeros.condominios.prefixo}}{{numeros.condominios.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+      <div class="ab-numero entrada">
+        <dt class="rotulo">
+          <span class="ab-mascara"
+            ><span class="ab-in">{{incorporadoras.numeros.pracas.rotulo}}</span></span
+          >
+        </dt>
+        <dd class="num">
+          <span class="ab-mascara"
+            ><span class="ab-in" data-conta="{{incorporadoras.numeros.pracas.valor}}"
+              >{{incorporadoras.numeros.pracas.valor}}</span
+            ></span
+          >
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>

@@ -1,0 +1,160 @@
+<!-- Caixa · a cena-assinatura do Garante. Sem JS é a lista dos quatro momentos e o gráfico no
+     estado final: doze meses no patamar da arrecadação prevista, o que ficou em aberto pago pela
+     Semog Garante, as dívidas penduradas na faixa da cobrança e o 1% no topo. Com JS, o palco
+     fica fixo e a rolagem atravessa um ano de caixa: primeiro as barras irregulares, com o que
+     ficou em aberto vazado; depois um traço só, de ponta reta, corre o patamar dos 100% e cada
+     mês se completa quando ele passa; o traço dobra pela direita e volta pela faixa da cobrança,
+     e as dívidas descem até ela, fora da conta do condomínio; por fim o 1% se abre no topo. Cada
+     momento tem um patamar de leitura. No fim, o caixa cheio vira o marinho da cena seguinte.
+     Os valores são ilustrativos e a legenda diz isso. -->
+<section
+  id="caixa-do-condominio"
+  class="cena"
+  data-tema="claro"
+  aria-labelledby="caixa-do-condominio-titulo"
+>
+  <div class="gc-palco">
+    <div class="container gc-grade">
+      <h2 id="caixa-do-condominio-titulo" class="gc-titulo">{{garantePagina.caixa.titulo}}</h2>
+
+      <ol class="gc-momentos">
+        <li class="gc-momento">
+          <h3 class="gc-momento-titulo">
+            <span class="gc-in">{{garantePagina.caixa.momentos.0.titulo}}</span>
+          </h3>
+          <p class="gc-texto">
+            <span class="gc-in">{{garantePagina.caixa.momentos.0.texto}}</span>
+          </p>
+        </li>
+        <li class="gc-momento">
+          <h3 class="gc-momento-titulo">
+            <span class="gc-in">{{garantePagina.caixa.momentos.1.titulo}}</span>
+          </h3>
+          <p class="gc-texto">
+            <span class="gc-in">{{garantePagina.caixa.momentos.1.texto}}</span>
+          </p>
+        </li>
+        <li class="gc-momento">
+          <h3 class="gc-momento-titulo">
+            <span class="gc-in">{{garantePagina.caixa.momentos.2.titulo}}</span>
+          </h3>
+          <p class="gc-texto">
+            <span class="gc-in">{{garantePagina.caixa.momentos.2.texto}}</span>
+          </p>
+        </li>
+        <li class="gc-momento">
+          <h3 class="gc-momento-titulo">
+            <span class="gc-in">{{garantePagina.caixa.momentos.3.titulo}}</span>
+          </h3>
+          <p class="gc-texto">
+            <span class="gc-in">{{garantePagina.caixa.momentos.3.texto}}</span>
+          </p>
+        </li>
+      </ol>
+
+      <figure class="gc-figura">
+        <div class="gc-janela">
+          <svg class="gc-grafico" viewBox="0 0 700 540" aria-hidden="true" focusable="false">
+            <rect class="gc-area" x="0" y="48" width="652" height="260"></rect>
+            <path class="gc-base" d="M0 308.5H652"></path>
+            <path class="gc-previsto" d="M0 48H652C688 48 688 410 652 410H0" pathLength="1"></path>
+            <text class="gc-rotulo" x="0" y="30">{{garantePagina.caixa.previsto}}</text>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="0" y="63.6" width="36" height="244.4"></rect>
+              <rect class="gc-coberto" x="0" y="48" width="36" height="15.6"></rect>
+              <rect class="gc-aberto" x="0.75" y="410.75" width="34.5" height="14.1"></rect>
+              <text class="gc-mes-rotulo" x="18" y="334">{{garantePagina.caixa.meses.0}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="56" y="84.4" width="36" height="223.6"></rect>
+              <rect class="gc-coberto" x="56" y="48" width="36" height="36.4"></rect>
+              <rect class="gc-aberto" x="56.75" y="410.75" width="34.5" height="34.9"></rect>
+              <text class="gc-mes-rotulo" x="74" y="334">{{garantePagina.caixa.meses.1}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="112" y="71.4" width="36" height="236.6"></rect>
+              <rect class="gc-coberto" x="112" y="48" width="36" height="23.4"></rect>
+              <rect class="gc-aberto" x="112.75" y="410.75" width="34.5" height="21.9"></rect>
+              <text class="gc-mes-rotulo" x="130" y="334">{{garantePagina.caixa.meses.2}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="168" y="102.6" width="36" height="205.4"></rect>
+              <rect class="gc-coberto" x="168" y="48" width="36" height="54.6"></rect>
+              <rect class="gc-aberto" x="168.75" y="410.75" width="34.5" height="53.1"></rect>
+              <text class="gc-mes-rotulo" x="186" y="334">{{garantePagina.caixa.meses.3}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="224" y="79.2" width="36" height="228.8"></rect>
+              <rect class="gc-coberto" x="224" y="48" width="36" height="31.2"></rect>
+              <rect class="gc-aberto" x="224.75" y="410.75" width="34.5" height="29.7"></rect>
+              <text class="gc-mes-rotulo" x="242" y="334">{{garantePagina.caixa.meses.4}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="280" y="92.2" width="36" height="215.8"></rect>
+              <rect class="gc-coberto" x="280" y="48" width="36" height="44.2"></rect>
+              <rect class="gc-aberto" x="280.75" y="410.75" width="34.5" height="42.7"></rect>
+              <text class="gc-mes-rotulo" x="298" y="334">{{garantePagina.caixa.meses.5}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="336" y="68.8" width="36" height="239.2"></rect>
+              <rect class="gc-coberto" x="336" y="48" width="36" height="20.8"></rect>
+              <rect class="gc-aberto" x="336.75" y="410.75" width="34.5" height="19.3"></rect>
+              <text class="gc-mes-rotulo" x="354" y="334">{{garantePagina.caixa.meses.6}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="392" y="110.4" width="36" height="197.6"></rect>
+              <rect class="gc-coberto" x="392" y="48" width="36" height="62.4"></rect>
+              <rect class="gc-aberto" x="392.75" y="410.75" width="34.5" height="60.9"></rect>
+              <text class="gc-mes-rotulo" x="410" y="334">{{garantePagina.caixa.meses.7}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="448" y="76.6" width="36" height="231.4"></rect>
+              <rect class="gc-coberto" x="448" y="48" width="36" height="28.6"></rect>
+              <rect class="gc-aberto" x="448.75" y="410.75" width="34.5" height="27.1"></rect>
+              <text class="gc-mes-rotulo" x="466" y="334">{{garantePagina.caixa.meses.8}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="504" y="87" width="36" height="221"></rect>
+              <rect class="gc-coberto" x="504" y="48" width="36" height="39"></rect>
+              <rect class="gc-aberto" x="504.75" y="410.75" width="34.5" height="37.5"></rect>
+              <text class="gc-mes-rotulo" x="522" y="334">{{garantePagina.caixa.meses.9}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="560" y="97.4" width="36" height="210.6"></rect>
+              <rect class="gc-coberto" x="560" y="48" width="36" height="49.4"></rect>
+              <rect class="gc-aberto" x="560.75" y="410.75" width="34.5" height="47.9"></rect>
+              <text class="gc-mes-rotulo" x="578" y="334">{{garantePagina.caixa.meses.10}}</text>
+            </g>
+            <g class="gc-mes">
+              <rect class="gc-pago" x="616" y="74" width="36" height="234"></rect>
+              <rect class="gc-coberto" x="616" y="48" width="36" height="26"></rect>
+              <rect class="gc-aberto" x="616.75" y="410.75" width="34.5" height="24.5"></rect>
+              <text class="gc-mes-rotulo" x="634" y="334">{{garantePagina.caixa.meses.11}}</text>
+            </g>
+            <rect class="gc-custo" x="0" y="49.3" width="652" height="2.6"></rect>
+            <g class="gc-custo-rotulo">
+              <path d="M634 36V46.5"></path>
+              <text x="652" y="30">{{garantePagina.caixa.custo}}</text>
+            </g>
+            <path class="gc-traco" d="M0 48H652C688 48 688 410 652 410H0" pathLength="1"></path>
+            <text class="gc-rotulo gc-rotulo-cobranca" x="0" y="506">
+              {{garantePagina.caixa.cobrancaA}}
+            </text>
+            <text class="gc-rotulo gc-rotulo-cobranca" x="0" y="530">
+              {{garantePagina.caixa.cobrancaB}}
+            </text>
+          </svg>
+        </div>
+        <figcaption class="gc-legenda">
+          <ul class="gc-chaves rotulo">
+            <li class="gc-chave gc-chave--pago"><i></i>{{garantePagina.caixa.pago}}</li>
+            <li class="gc-chave gc-chave--aberto"><i></i>{{garantePagina.caixa.aberto}}</li>
+            <li class="gc-chave gc-chave--coberto"><i></i>{{garantePagina.caixa.coberto}}</li>
+          </ul>
+          <p class="gc-ilustracao rotulo">{{garantePagina.caixa.ilustracao}}</p>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="gc-cobertura" aria-hidden="true"></div>
+  </div>
+</section>

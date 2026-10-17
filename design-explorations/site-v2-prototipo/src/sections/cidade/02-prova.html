@@ -1,0 +1,34 @@
+<!-- Landing de cidade · prova: a posição no ranking como frase, com o G20 ao lado, e os
+     quatro números da Semog numa linha. Sem contador: o número já chega escrito. -->
+<section id="cidade-prova" class="cena cp" data-tema="gelo" aria-labelledby="cidade-prova-titulo">
+  <div class="container cp-quadro">
+    <div class="cp-ranking revelar">
+      <h2 id="cidade-prova-titulo" class="cp-titulo">
+        <span class="linha"><span class="linha-interna">{{ranking.titulo}}</span></span>
+      </h2>
+      <p class="cp-apoio">{{landing.prova.rankingApoio}} {{ranking.g20}}</p>
+    </div>
+    <dl class="cp-numeros revelar">
+      <div class="cp-numero" style="--i: 0">
+        <dt class="rotulo">{{numeros.anos.rotulo}}</dt>
+        <dd class="num">{{numeros.anos.valor}}</dd>
+      </div>
+      <div class="cp-numero" style="--i: 1">
+        <dt class="rotulo">{{numeros.condominios.rotulo}}</dt>
+        <dd class="num">{{numeros.condominios.prefixo}}{{numeros.condominios.valor}}</dd>
+      </div>
+      <div class="cp-numero" style="--i: 2">
+        <dt class="rotulo">{{numeros.clientes.rotulo}}</dt>
+        <dd class="num">
+          {{numeros.clientes.prefixo}}{{numeros.clientes.valor}}<span class="cp-sufixo"
+            >{{numeros.clientes.sufixo}}</span
+          >
+        </dd>
+      </div>
+      <div class="cp-numero" style="--i: 3">
+        <dt class="rotulo">{{numeros.especialistas.rotulo}}</dt>
+        <dd class="num">{{numeros.especialistas.prefixo}}{{numeros.especialistas.valor}}</dd>
+      </div>
+    </dl>
+  </div>
+</section>

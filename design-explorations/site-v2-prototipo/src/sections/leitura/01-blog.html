@@ -1,0 +1,108 @@
+<!-- Blog · índice. O post mais recente em destaque (com a foto dele), os outros em duas
+     colunas. Filtro por categoria sem JS: cada filtro é um link para uma âncora vazia
+     (#categoria-…) e o CSS, com :target e :has, esconde os textos das outras categorias.
+     Navegador sem :has mostra a lista inteira. Os posts que não têm página aqui levam ao
+     post no site atual, com a indicação "no site atual". -->
+<section id="blog-indice" class="cena" data-tema="claro" aria-labelledby="blog-titulo">
+  <div class="container">
+    <header class="bi-topo">
+      <h1 id="blog-titulo" class="bi-titulo titulo-display">{{comunidade.blog.titulo}}</h1>
+      <p class="bi-intro lead">{{comunidade.blog.texto}}</p>
+    </header>
+
+    <span id="todos" class="bi-alvo"></span>
+    {{#cada leitura.categorias}}
+    <span id="categoria-{{item.slug}}" class="bi-alvo bi-alvo--categoria"></span>
+    {{/cada}}
+    <!-- TEXTO-NOVO: "Categorias", "Todos" -->
+    <nav class="bi-filtros" aria-label="Categorias">
+      <a class="bi-filtro bi-filtro--todos" href="#todos"
+        >Todos <span class="num">{{leitura.total}}</span></a
+      >
+      {{#cada leitura.categorias}}
+      <a class="bi-filtro" href="#categoria-{{item.slug}}"
+        >{{item.titulo}} <span class="num">{{item.total}}</span></a
+      >
+      {{/cada}}
+    </nav>
+
+    <ol class="bi-lista">
+      <li class="bi-item bi-item--destaque" data-categoria="{{leitura.destaque.categoria.slug}}">
+        {{#se leitura.destaque.imagem}}
+        <figure class="bi-foto">
+          <img
+            src="{{leitura.destaque.imagem.src}}"
+            alt="{{leitura.destaque.imagem.alt}}"
+            width="{{leitura.destaque.imagem.largura}}"
+            height="{{leitura.destaque.imagem.altura}}"
+            fetchpriority="high"
+          />
+        </figure>
+        {{/se}}
+        <article class="post-cartao">
+          <p class="post-meta">
+            <span class="post-categoria">{{leitura.destaque.categoria.titulo}}</span>
+            <span>{{leitura.destaque.dataTexto}}</span>
+            <span>{{leitura.destaque.minutos}} min de leitura</span>
+          </p>
+          <h2 class="post-cartao-titulo">
+            <a href="{{leitura.destaque.href}}"
+              >{{leitura.destaque.titulo}}{{#sem leitura.destaque.local}}<span class="sr-only">
+                (no site atual)</span
+              >{{/sem}}</a
+            >
+          </h2>
+          <p class="post-resumo">{{leitura.destaque.resumo}}</p>
+          <!-- TEXTO-NOVO: "Ler o texto", "Ler no site atual" -->
+          {{#se leitura.destaque.local}}
+          <p class="post-acao" aria-hidden="true">
+            <span>Ler o texto</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/se}} {{#sem leitura.destaque.local}}
+          <p class="post-acao post-acao--externo" aria-hidden="true">
+            <span>Ler no site atual</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/sem}}
+        </article>
+      </li>
+      {{#cada leitura.demais}}
+      <li class="bi-item" data-categoria="{{item.categoria.slug}}">
+        <article class="post-cartao">
+          <p class="post-meta">
+            <span class="post-categoria">{{item.categoria.titulo}}</span>
+            <span>{{item.dataTexto}}</span>
+            <span>{{item.minutos}} min de leitura</span>
+          </p>
+          <h2 class="post-cartao-titulo">
+            <a href="{{item.href}}"
+              >{{item.titulo}}{{#sem item.local}}<span class="sr-only"> (no site atual)</span
+              >{{/sem}}</a
+            >
+          </h2>
+          <p class="post-resumo">{{item.resumo}}</p>
+          {{#se item.local}}
+          <p class="post-acao" aria-hidden="true">
+            <span>Ler o texto</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/se}} {{#sem item.local}}
+          <p class="post-acao post-acao--externo" aria-hidden="true">
+            <span>Ler no site atual</span>
+            <svg class="seta" aria-hidden="true"><use href="#seta"></use></svg>
+          </p>
+          {{/sem}}
+        </article>
+      </li>
+      {{/cada}}
+    </ol>
+  </div>
+  <!-- Um par de regras por categoria, gerado do mesmo dado que gera os filtros. -->
+  <style>
+    {{#cada leitura.categorias}}
+    #blog-indice:has(#categoria-{{item.slug}}:target) .bi-item:not([data-categoria="{{item.slug}}"]) { display: none; }
+    #blog-indice:has(#categoria-{{item.slug}}:target) .bi-filtro[href="#categoria-{{item.slug}}"] { background: var(--marinho); border-color: var(--marinho); color: var(--branco); }
+    {{/cada}}
+  </style>
+</section>

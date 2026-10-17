@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mapLead } from '@/lib/exact/map-lead'
 import { propostaRapidaSchema } from '@/lib/form-schemas'
 import { FORMATO_DO_PROTOCOLO, gerarProtocolo } from '@/lib/protocolo'
@@ -34,6 +34,15 @@ vi.mock('next/headers', () => ({
 }))
 
 const { submitPropostaRapida } = await import('@/app/(frontend)/_actions/submit-form')
+
+// O formulário antigo só envia Exact e e-mail em produção (R1); a suíte simula produção
+// (o caso de Preview está em `submit-form.int.spec.ts`).
+beforeEach(() => {
+  vi.stubEnv('VERCEL_ENV', 'production')
+})
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 const valida = {
   nome: 'Maria Souza',

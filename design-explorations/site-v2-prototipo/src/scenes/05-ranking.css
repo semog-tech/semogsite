@@ -1,0 +1,285 @@
+/* Cena 05 · ranking. Escopar tudo em #ranking. Cor só por token (--tema-* ou tokens.css).
+   Sem JS: manchete, os três passos, a linha dos ciclos e a foto, em leitura corrida.
+   Com movimento: o palco tem uma tela de altura, fica fixado, e passos e manchete
+   ocupam a mesma célula da grade (o JS mostra um de cada vez, por máscara). */
+
+#ranking {
+  padding-block: var(--e6) var(--respiro-cena);
+}
+
+/* ---- Palco ------------------------------------------------------------------- */
+#ranking .ranking-palco {
+  position: relative;
+}
+#ranking .ranking-campo {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#ranking .ranking-grade {
+  position: relative;
+  display: grid;
+  gap: var(--e5);
+}
+
+/* ---- Chamada: a liderança, grande, antes dos números que a explicam ------------- */
+#ranking .ranking-chamada {
+  max-width: 15ch;
+  font-size: clamp(2.75rem, 1rem + 5.2vw, 6.5rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+}
+
+/* ---- Manchete ---------------------------------------------------------------- */
+#ranking .ranking-manchete {
+  font-family: var(--fonte-titulo);
+  letter-spacing: var(--tracking-titulo);
+  display: grid;
+  justify-items: start;
+  gap: var(--e3);
+  max-width: 13ch;
+  font-size: var(--t-h3);
+  line-height: 1.05;
+}
+/* Recorta só embaixo: o numeral nasce de uma linha (a régua que o campo desenha). */
+#ranking .ranking-posicao-mascara {
+  display: inline-block;
+  clip-path: inset(-40% -12% 0 -6%);
+  font-size: clamp(8rem, 20vw, 18rem);
+  line-height: 0.74;
+}
+#ranking .ranking-posicao {
+  display: inline-block;
+  font-variation-settings: "wght" 550;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+  will-change: transform;
+}
+#ranking .ranking-entre {
+  display: block;
+  font-weight: 300;
+  color: var(--tema-titulo);
+}
+
+/* ---- Passos ------------------------------------------------------------------ */
+#ranking .ranking-passos {
+  display: grid;
+  gap: var(--e5);
+}
+#ranking .ranking-frase {
+  max-width: 16ch;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(2.25rem, 1.2rem + 2.7vw, 3.75rem);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+  text-wrap: balance;
+}
+#ranking .ranking-apoio {
+  max-width: 44ch;
+  margin-block-start: var(--e4);
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--tema-suave);
+}
+
+/* ---- Com movimento: palco fixado ---------------------------------------------- */
+html.motion #ranking.ranking-com-palco {
+  padding-block-start: 0;
+}
+html.motion #ranking.ranking-com-palco .ranking-palco {
+  height: 100vh;
+  height: 100svh;
+  overflow: clip;
+}
+html.motion #ranking.ranking-com-campo .ranking-campo {
+  display: block;
+}
+html.motion #ranking.ranking-com-palco .ranking-grade {
+  height: 100%;
+  padding-block: calc(var(--cab) + var(--e4)) var(--e5);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--e6);
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--e5);
+}
+html.motion #ranking.ranking-com-palco .ranking-manchete,
+html.motion #ranking.ranking-com-palco .ranking-passos {
+  grid-area: 1 / 1;
+  align-self: center;
+}
+html.motion #ranking.ranking-com-palco .ranking-passo {
+  grid-area: 1 / 1;
+  align-self: center;
+}
+/* A chamada mora no alto do palco: entra à vista enquanto a seção ainda sobe. */
+html.motion #ranking.ranking-com-palco .ranking-chamada {
+  grid-area: 1 / 1 / 2 / -1;
+  align-self: start;
+  margin-block-start: var(--e5);
+}
+/* O JS esconde por máscara: antes dele, a primeira frase já está no lugar. */
+html.motion #ranking.ranking-com-palco .ranking-passos {
+  gap: 0;
+}
+
+@media (max-width: 760px) {
+  html.motion #ranking.ranking-com-palco .ranking-grade {
+    grid-template-columns: minmax(0, 1fr);
+    padding-block-end: var(--e6);
+  }
+  html.motion #ranking.ranking-com-palco .ranking-passos {
+    align-self: end;
+  }
+  html.motion #ranking.ranking-com-palco .ranking-passo {
+    align-self: end;
+  }
+  /* A chamada também é .ranking-passo: precisa desfazer o align-self: end dos passos. */
+  html.motion #ranking.ranking-com-palco .ranking-chamada {
+    grid-area: 1 / 1;
+    align-self: start;
+    margin-block-start: var(--e4);
+  }
+  #ranking .ranking-apoio {
+    font-size: 1rem;
+  }
+}
+
+/* ---- Depois do pin: ciclos e foto ---------------------------------------------- */
+#ranking .ranking-depois {
+  display: grid;
+  gap: var(--e6);
+  padding-block-start: var(--e6);
+}
+#ranking .ranking-historico {
+  display: grid;
+  gap: var(--e4);
+}
+#ranking .ranking-historico-titulo {
+  font-size: var(--t-pequeno);
+  font-weight: 500;
+  color: var(--tema-suave);
+}
+#ranking .ranking-linha {
+  position: relative;
+}
+#ranking .ranking-traco {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--tema-trilho);
+  transform-origin: 0 50%;
+}
+#ranking .ranking-ciclos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+#ranking .ranking-ciclos li {
+  position: relative;
+  display: grid;
+  gap: var(--e1);
+  padding-block-start: var(--e4);
+}
+/* Marca do ciclo: um traço vertical que sai da linha, ponta reta. */
+#ranking .ranking-ciclos li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: var(--e3);
+  background: var(--nevoa);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--marca, 1));
+}
+#ranking .ranking-ciclo {
+  font-size: var(--t-pequeno);
+  color: var(--tema-suave);
+}
+#ranking .ranking-ciclo-posicao {
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.125rem, 0.8rem + 1.4vw, 1.75rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-suave);
+}
+#ranking .ranking-ciclo-atual::before {
+  background: var(--marinho);
+}
+#ranking .ranking-ciclo-atual .ranking-ciclo-posicao {
+  font-weight: 500;
+  color: var(--tema-titulo);
+}
+#ranking .ranking-ciclo,
+#ranking .ranking-ciclo-posicao {
+  display: block;
+  overflow: clip;
+}
+#ranking .ranking-ciclo > span,
+#ranking .ranking-ciclo-posicao > span {
+  display: inline-block;
+}
+
+#ranking .ranking-foto {
+  display: grid;
+  gap: var(--e2);
+  min-width: 0;
+}
+#ranking .ranking-foto .moldura {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: clip;
+  background: var(--lavanda);
+}
+#ranking .ranking-foto img {
+  position: absolute;
+  inset: -6% 0 auto;
+  width: 100%;
+  height: 112%;
+  object-fit: cover;
+  object-position: 50% 78%;
+}
+#ranking .ranking-foto figcaption {
+  font-size: var(--t-pequeno);
+  color: var(--tema-suave);
+}
+
+@media (max-width: 760px) {
+  #ranking .ranking-foto .moldura {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ---- Impressão: tudo em leitura corrida, sem o palco ------------------------------ */
+@media print {
+  html.motion #ranking.ranking-com-palco .ranking-palco {
+    height: auto;
+  }
+  #ranking .ranking-campo {
+    display: none !important;
+  }
+  html.motion #ranking.ranking-com-palco .ranking-grade {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 0;
+  }
+  html.motion #ranking.ranking-com-palco .ranking-manchete,
+  html.motion #ranking.ranking-com-palco .ranking-passos,
+  html.motion #ranking.ranking-com-palco .ranking-passo {
+    grid-area: auto;
+  }
+  #ranking .ranking-passos {
+    gap: var(--e4) !important;
+  }
+  #ranking .ranking-palco [style] {
+    transform: none !important;
+    visibility: visible !important;
+  }
+}

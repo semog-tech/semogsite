@@ -83,6 +83,8 @@ export const MENSAGEM_SEM_ACESSO_AO_EMAIL =
 /** 2ª via: a unidade tem cobranças que só a equipe trata (caminho `restrita`). */
 export const MENSAGEM_COBRANCAS_RESTRITAS =
   'Olá! Sou cliente e preciso tratar de cobranças com a equipe.'
+/** "Sou cliente" do site v2: atendimento ao condômino que não é a 2ª via (fase 4). */
+export const MENSAGEM_DE_ATENDIMENTO = 'Olá! Sou cliente e preciso de atendimento.'
 
 export function mensagemDaProposta(protocolo: string): string {
   return `Olá! Acabei de pedir uma proposta pelo site. Protocolo ${protocolo}.`

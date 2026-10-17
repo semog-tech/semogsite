@@ -6,6 +6,7 @@ import {
   type CaminhoDoWhatsApp,
   linkWhatsApp,
   MENSAGEM_COBRANCAS_RESTRITAS,
+  MENSAGEM_DE_ATENDIMENTO,
   MENSAGEM_DO_CLIENTE,
   MENSAGEM_SEM_ACESSO_AO_EMAIL,
 } from '@/lib/triagem'
@@ -53,4 +54,9 @@ export function LinkSemAcessoAoEmail(props: Props) {
 
 export function LinkCobrancasRestritas(props: Props) {
   return <LinkWhatsApp mensagem={MENSAGEM_COBRANCAS_RESTRITAS} caminho="restrita" {...props} />
+}
+
+/** "Sou cliente" do site v2: atendimento ao condômino (caminho `cliente`, fora do Ads). */
+export function LinkDeAtendimento(props: Props) {
+  return <LinkWhatsApp mensagem={MENSAGEM_DE_ATENDIMENTO} caminho="cliente" {...props} />
 }

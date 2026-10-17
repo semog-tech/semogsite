@@ -1,0 +1,234 @@
+/* Proposta · pedido. Duas colunas na razão áurea: o título à esquerda (38,2%), o
+   formulário num painel gelo à direita (61,8%), que começa na altura do título; por baixo
+   das duas, os quatro fatos do porquê numa fileira. Em 1440×900 tudo cabe na dobra. Em tela
+   média os fatos ficam 2×2; no celular: título, formulário, porquê (a etapa 1 inteira na
+   dobra de 390×844).
+   Entrada só de CSS a partir da primeira pintura, como a abertura das landings: o título
+   sobe pela máscara (0,9 s, expo.out, 80 ms entre linhas), "proposta." ganha peso sem mudar
+   a caixa (.peso-fixo, em cidade/00-comum.css), o painel abre de baixo (1,1 s, expo.inOut)
+   e os quatro fatos entram em cascata. Os blocos que abrem por clip-path só o têm durante a
+   animação (backwards): parado, nada recorta foco, aviso nem sublinhado. */
+#proposta.pp {
+  padding-top: calc(var(--cab) + clamp(var(--e4), 6svh, var(--e6)));
+  padding-bottom: var(--respiro-cena);
+  background: var(--branco);
+}
+#proposta.pp .pp-quadro {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  grid-template-areas:
+    "intro painel"
+    "porque porque";
+  gap: var(--e5) var(--e6);
+}
+#proposta.pp .pp-quadro > * {
+  min-width: 0;
+}
+#proposta.pp .pp-intro {
+  grid-area: intro;
+}
+#proposta.pp .pp-painel {
+  grid-area: painel;
+  align-self: start;
+}
+#proposta.pp .pp-porque {
+  grid-area: porque;
+}
+
+/* ---- Título -------------------------------------------------------------------- */
+#proposta.pp .pp-titulo {
+  font-size: clamp(3rem, 1.6rem + 4vw, 5.5rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+#proposta.pp .pp-titulo .linha-interna {
+  display: block;
+  animation: pp-subir 0.9s var(--ease-expo) calc(var(--i) * 80ms + 60ms) both;
+}
+#proposta.pp .pp-titulo .peso-fixo::after {
+  animation: pp-peso 1.3s cubic-bezier(0.45, 0, 0.55, 1) 0.45s both;
+}
+#proposta.pp .pp-sub {
+  max-width: 30ch;
+  margin-top: var(--e3);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.45;
+  color: var(--texto);
+  animation: pp-subir-bloco 0.9s var(--ease-expo) 0.22s backwards;
+}
+
+/* ---- Painel do formulário ---------------------------------------------------------- */
+#proposta.pp .pp-painel {
+  position: relative;
+  padding: var(--e5);
+  background: var(--gelo);
+  animation: pp-abrir 1.1s var(--ease-expo-in-out) 0.1s backwards;
+}
+#proposta.pp .pp-form {
+  position: relative;
+  animation: pp-subir-bloco 0.9s var(--ease-expo) 0.55s backwards;
+}
+#proposta.pp .fp-par {
+  align-items: start;
+}
+#proposta.pp .fp-acoes .fp-indicador {
+  margin: 0;
+}
+/* O aviso de demonstração não empurra nada: fica no rodapé do painel. */
+#proposta.pp .fp-status {
+  position: absolute;
+  top: calc(100% + var(--e2));
+  left: 0;
+}
+
+/* ---- Por que a Semog: quatro fatos, cada um com o quadrado da marca ---------------- */
+#proposta.pp .pp-porque-titulo {
+  font-family: var(--fonte-corpo);
+  font-size: var(--t-pequeno);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--texto-suave);
+  animation: pp-subir-bloco 0.9s var(--ease-expo) 0.5s backwards;
+}
+#proposta.pp .pp-fatos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e3) var(--e4);
+  margin-top: var(--e3);
+}
+#proposta.pp .pp-fatos li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding-left: var(--e3);
+  animation: pp-subir-bloco 0.9s var(--ease-expo) calc(var(--i) * 90ms + 0.6s) backwards;
+}
+#proposta.pp .pp-fatos li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  background: var(--azul-medio);
+}
+#proposta.pp .pp-fatos strong {
+  font-family: var(--fonte-titulo);
+  font-size: 1.1875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--marinho);
+}
+#proposta.pp .pp-fatos span {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+/* Tela baixa: o rótulo do formulário fica só para leitor de tela e o painel respira menos. */
+@media (max-height: 820px) {
+  #proposta.pp .fp-titulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  #proposta.pp .pp-painel {
+    padding: var(--e4) var(--e5);
+  }
+}
+
+@media (max-width: 1180px) {
+  #proposta.pp .pp-fatos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 960px) {
+  #proposta.pp .pp-quadro {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "intro" "painel" "porque";
+    gap: var(--e4);
+  }
+  #proposta.pp .pp-sub {
+    max-width: 40ch;
+  }
+}
+
+/* ---- Celular: título e frase curtos, formulário inteiro na dobra ------------------ */
+@media (max-width: 760px) {
+  #proposta.pp {
+    padding-top: calc(var(--cab) + var(--e3));
+  }
+  #proposta.pp .pp-quadro {
+    gap: var(--e3);
+  }
+  #proposta.pp .pp-titulo {
+    font-size: min(13vw, 3.25rem);
+  }
+  #proposta.pp .pp-sub {
+    margin-top: var(--e2);
+    font-size: 1.0625rem;
+  }
+  #proposta.pp .fp-titulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* O painel encosta nas bordas da tela: mais largura para os campos. */
+  #proposta.pp .pp-painel {
+    margin-inline: calc(-1 * var(--margem));
+    padding: var(--e3) var(--margem) var(--e4);
+  }
+  #proposta.pp .fp-etapa {
+    gap: var(--e2);
+  }
+  #proposta.pp .fp-status {
+    position: static;
+    margin-top: var(--e2);
+  }
+  #proposta.pp .pp-porque {
+    margin-top: var(--e3);
+  }
+  #proposta.pp .pp-fatos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@keyframes pp-subir {
+  from {
+    transform: translateY(110%);
+  }
+}
+@keyframes pp-subir-bloco {
+  from {
+    clip-path: inset(0% 0% 100% 0%);
+    transform: translateY(21px);
+  }
+  to {
+    clip-path: inset(-21px -21px -21px -21px);
+    transform: none;
+  }
+}
+@keyframes pp-peso {
+  from {
+    font-variation-settings: "wght" var(--peso-enfase-de);
+  }
+}
+@keyframes pp-abrir {
+  from {
+    clip-path: inset(100% 0% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}

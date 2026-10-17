@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CONTATO_TO } from '@/lib/leads/destinatarios'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -19,10 +20,14 @@ const verifyTurnstileMock = vi.fn()
 const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
+const captureExceptionMock = vi.fn()
 
 // `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
 // mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
 vi.mock('server-only', () => ({}))
+vi.mock('@sentry/nextjs', () => ({
+  captureException: (...a: unknown[]) => captureExceptionMock(...a),
+}))
 
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
@@ -61,6 +66,15 @@ vi.mock('next/headers', () => ({
 // Import só depois dos `vi.mock` acima (hoisted pelo Vitest, mas mantém aqui
 // pela leitura linear do arquivo).
 const { submitForm } = await import('@/app/(frontend)/_actions/submit-form')
+
+// O formulário antigo só envia Exact e e-mail em produção (R1); a suíte simula produção, e o
+// teste de Preview abaixo troca o ambiente.
+beforeEach(() => {
+  vi.stubEnv('VERCEL_ENV', 'production')
+})
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 /** Fake `ReadonlyHeaders` — só o `get` usado por `getClientIp`. */
 function fakeHeaders(ip: string) {
@@ -329,12 +343,15 @@ describe('submitForm — destino da notificação interna', () => {
     expect(destinoDaNotificacao()).toEqual(['comercial.pb@semog.com.br'])
   })
 
-  it('contato continua indo pro CONTACT_TO', async () => {
+  it('contato vai para ola@ (CONTATO_TO), mesmo com CONTACT_TO no ambiente', async () => {
+    // Desde a fase 4 do site v2 (Leandro, 16/10/2026) o Contato não lê mais CONTACT_TO: a
+    // variável no ambiente (posta no beforeEach) não pode desviar a mensagem.
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.31'))
 
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(destinoDaNotificacao()).toEqual(['caixa-do-contato@example.com'])
+    expect(CONTATO_TO).toBe('ola@semog.com.br')
+    expect(destinoDaNotificacao()).toEqual(['ola@semog.com.br'])
   })
 
   it('proposta continua roteando por cidade', async () => {
@@ -784,18 +801,70 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
     expect(String(notificadoPara()).split(', ')).toEqual(Array.isArray(to) ? to : [to])
   })
 
-  it('contato grava o CONTACT_TO', async () => {
+  it('contato grava ola@ (CONTATO_TO)', async () => {
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(notificadoPara()).toBe('caixa-do-contato@example.com')
+    expect(notificadoPara()).toBe('ola@semog.com.br')
   })
 
-  it('sem CONTACT_TO grava NULL, e não string vazia', async () => {
-    // Coluna vazia é "não avisamos ninguém"; `''` seria um endereço em branco.
+  // O teste "sem CONTACT_TO grava NULL" saiu na fase 4 do site v2: o Contato tem destino fixo
+  // (ola@), então não existe mais Contato sem destino, e o NULL ("não avisamos ninguém") deixou
+  // de acontecer no Contato. O que sobra provar é que a falta da variável não esvazia a coluna.
+  it('sem CONTACT_TO no ambiente o Contato grava ola@ mesmo assim, nunca string vazia', async () => {
     delete process.env.CONTACT_TO
 
     await submitForm('contato', contatoValido, 'test-token')
 
-    expect(notificadoPara()).toBeNull()
+    expect(notificadoPara()).toBe('ola@semog.com.br')
+  })
+})
+
+describe('submitForm — ambiente e Sentry (fase 2 do site v2)', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 1 })
+  })
+
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'João Pessoa e região',
+  }
+
+  it('grava data.ambiente e, em Preview, não chama Exact nem e-mail (R1)', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.201'))
+    const r = await submitForm('proposta', proposta, 'test-token')
+    expect(r.ok).toBe(true)
+    const [, params] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(params[1]).toMatchObject({ ambiente: 'preview' })
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    expect(sendMailMock).not.toHaveBeenCalled()
+  })
+
+  it('em produção segue como sempre: Exact e e-mail na hora', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.202'))
+    await submitForm('proposta', proposta, 'test-token')
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(sendMailMock).toHaveBeenCalled()
+  })
+
+  it('falha de gravação vai ao Sentry do servidor e a resposta segue genérica', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.203'))
+    queryMock.mockRejectedValue(new Error('ECONNREFUSED'))
+    const r = await submitForm('proposta', proposta, 'test-token')
+    expect(r).toEqual({ ok: false, message: 'Erro ao enviar. Tente novamente.' })
+    expect(captureExceptionMock).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        tags: expect.objectContaining({ passo: 'gravacao', origem: 'proposta' }),
+      }),
+    )
   })
 })

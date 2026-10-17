@@ -1,0 +1,365 @@
+/* Formulário de proposta em duas etapas (src/site/formularios/proposta). Porta do protótipo:
+   label pequeno acima, só a linha de baixo, que se desenha no foco a partir da esquerda (ponta
+   reta); opções quadradas; botão marinho reto. Cor pelo tema da seção (--tema-*). */
+.formulario-proposta {
+  --fp-tinta: var(--tema-titulo, var(--marinho));
+  --fp-suave: var(--tema-suave, var(--texto-suave));
+  --fp-linha: var(--nevoa);
+  display: grid;
+  gap: var(--e3);
+}
+.formulario-proposta[hidden] {
+  display: none;
+}
+.fp-moldura {
+  display: grid;
+  gap: var(--e3);
+  min-width: 0;
+}
+.fp-titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--fp-tinta);
+}
+.fp-etapas,
+.fp-etapa {
+  min-width: 0;
+}
+.fp-etapa {
+  display: grid;
+  gap: var(--e3);
+  align-content: start;
+}
+.fp-par {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e3) var(--e4);
+}
+.fp-par--invertido {
+  grid-template-columns: var(--maior) var(--menor);
+}
+/* Com UF de Unidade, a Cidade vira opções (fora do protótipo, que só tem o campo de texto):
+   não cabem na coluna menor, então o par empilha. */
+.fp-par--invertido:has(.fp-grupo) {
+  grid-template-columns: 1fr;
+}
+.fp-etapa > *,
+.fp-par > * {
+  min-width: 0;
+}
+
+/* Com JS, as duas etapas dividem a mesma célula (sem salto de altura) e só a ativa aparece. */
+html.js .fp-etapas {
+  display: grid;
+}
+html.js .fp-etapa {
+  grid-area: 1 / 1;
+}
+html.js .formulario-proposta:not([data-etapa-ativa="2"]) .fp-etapa[data-etapa="2"],
+html.js .formulario-proposta[data-etapa-ativa="2"] .fp-etapa[data-etapa="1"] {
+  visibility: hidden;
+}
+html.js .formulario-proposta[data-transicao] .fp-etapa {
+  visibility: visible;
+}
+/* Sem JS não há como passar pelo Turnstile: aviso com os telefones no lugar do formulário. */
+html:not(.js) .formulario-proposta {
+  display: none;
+}
+html.js .fp-sem-js {
+  display: none;
+}
+
+/* ---- Campo ---------------------------------------------------------------------- */
+.fp-campo {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.fp-campo label,
+.fp-grupo legend {
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--fp-suave);
+}
+.fp-opcional {
+  font-weight: 400;
+}
+.fp-controle {
+  position: relative;
+}
+.fp-controle::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--fp-tinta);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 520ms var(--ease-expo);
+  pointer-events: none;
+}
+.fp-controle:focus-within::after,
+.fp-controle:has([aria-invalid="true"])::after {
+  transform: scaleX(1);
+}
+.fp-controle input,
+.fp-controle select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 6px 0 var(--e1);
+  border: 0;
+  border-bottom: 1px solid var(--fp-linha);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--fonte-corpo);
+  font-size: 1.0625rem;
+  color: var(--fp-tinta);
+  appearance: none;
+}
+.fp-controle input:focus,
+.fp-controle select:focus {
+  outline: none;
+}
+.fp-controle input::placeholder {
+  color: var(--fp-suave);
+  opacity: 0.6;
+}
+.fp-controle--select select {
+  padding-right: var(--e4);
+  cursor: pointer;
+}
+.fp-controle--select::before {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: calc(50% - 6px);
+  width: 13px;
+  height: 8px;
+  background: var(--fp-tinta);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 8'%3E%3Cpath d='M.5.5l6 6 6-6' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 8'%3E%3Cpath d='M.5.5l6 6 6-6' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+.fp-controle select option,
+.fp-controle select optgroup {
+  color: var(--marinho);
+  background: var(--branco);
+}
+
+/* ---- Escolha única: segmentos retos colados; o rádio nativo segue focável ---------- */
+.fp-grupo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.fp-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding: 1px 0 0 1px;
+}
+.fp-opcoes label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin: -1px 0 0 -1px;
+  padding: 0 var(--e2);
+  border: 1px solid var(--fp-linha);
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  color: var(--fp-tinta);
+  cursor: pointer;
+  transition:
+    background-color 240ms var(--ease-expo),
+    color 240ms var(--ease-expo);
+}
+.fp-opcoes label:hover {
+  background: color-mix(in oklab, var(--fp-tinta) 6%, transparent);
+}
+.fp-opcoes label:has(input:checked) {
+  z-index: 1;
+  border-color: var(--fp-tinta);
+  background: var(--fp-tinta);
+  color: var(--tema-fundo, var(--branco));
+}
+.fp-opcoes label:has(input:focus-visible) {
+  z-index: 2;
+  outline: 2px solid var(--tema-foco, var(--marinho));
+  outline-offset: 2px;
+}
+.fp-opcoes input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ---- Erro, status, ações (sem cor de alarme: marinho, com marca e peso) ------------ */
+.fp-erro {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--fp-tinta);
+}
+.fp-erro:empty,
+.fp-status:empty {
+  display: none;
+}
+.fp-erro::before,
+.fp-status::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 10px;
+  margin-right: var(--e1);
+  background: var(--fp-tinta);
+}
+.fp-status::before {
+  background: var(--ceu);
+}
+.fp-status {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fp-tinta);
+}
+.fp-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e2) var(--e4);
+}
+.fp-indicador {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--fp-suave);
+}
+.fp-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--fp-tinta);
+  cursor: pointer;
+}
+.fp-voltar .seta {
+  transform: scaleX(-1);
+  transition: transform 320ms var(--ease-expo);
+}
+.fp-voltar:hover .seta {
+  transform: scaleX(-1) translateX(5px);
+}
+.fp-voltar:hover span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.formulario-proposta .botao .seta {
+  transition: transform 320ms var(--ease-expo);
+}
+.formulario-proposta .botao:hover .seta {
+  transform: translateX(4px);
+}
+
+/* ---- Estados novos: enviando, verificação, falha, sucesso, sem JS ------------------ */
+.formulario-proposta .botao[disabled],
+.fp-voltar[disabled] {
+  cursor: progress;
+  opacity: 0.72;
+}
+.fp-verificacao {
+  min-height: 65px;
+}
+.fp-falha {
+  display: grid;
+  gap: var(--e2);
+  padding: var(--e3);
+  border-left: 5px solid var(--fp-tinta);
+  background: var(--gelo);
+  color: var(--fp-tinta);
+}
+.fp-falha-titulo {
+  font-weight: 600;
+}
+.fp-telefones {
+  display: grid;
+  gap: var(--e1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fp-telefones a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.fp-sucesso {
+  display: grid;
+  gap: var(--e2);
+  padding: var(--e4) var(--e3);
+  border-left: 5px solid var(--ceu);
+  background: var(--gelo);
+  color: var(--marinho);
+  outline: none;
+}
+.fp-sucesso-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h3);
+  font-weight: var(--peso-titulo);
+  letter-spacing: var(--tracking-titulo);
+  line-height: var(--lh-titulo);
+}
+.fp-sem-js {
+  display: grid;
+  gap: var(--e2);
+  color: var(--texto);
+}
+
+@media (max-width: 420px) {
+  .fp-opcoes label {
+    padding: 0 var(--e1);
+  }
+  .fp-etapa {
+    gap: var(--e2);
+  }
+  .fp-par {
+    grid-template-columns: 1fr;
+    gap: var(--e2);
+  }
+}
+
+/* Pendências visuais da fase 2 (verificação 2.7). Em tela estreita, a etapa inativa sai da célula
+   fora da troca: as duas etapas dividiam a mesma altura, e a 390 sobrava um vão entre o
+   "Continuar" e o aviso da verificação. Na troca (data-transicao) as duas voltam para a cortina. */
+@media (max-width: 760px) {
+  html.js .formulario-proposta:not([data-transicao]):not([data-etapa-ativa="2"]) .fp-etapa[data-etapa="2"],
+  html.js .formulario-proposta:not([data-transicao])[data-etapa-ativa="2"] .fp-etapa[data-etapa="1"] {
+    display: none;
+  }
+}
+/* O título da falha recebe o foco (o botão que enviou ficou desativado): anel para quem usa teclado. */
+.fp-falha-titulo:focus-visible {
+  outline: 2px solid var(--fp-tinta);
+  outline-offset: 4px;
+}
