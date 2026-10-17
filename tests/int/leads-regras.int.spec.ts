@@ -15,6 +15,20 @@ describe('roteamento do e-mail interno pela UF (spec 4.3, R3)', () => {
     ['constructor', TRES],
     ['__proto__', TRES],
   ])('%s → %o', (uf, destino) => expect(destinatariosPorUf(uf)).toEqual(destino))
+
+  // A PB tem duas Unidades e a etapa 1 só sabe a UF: a cidade da etapa 2 é o que separa Campina
+  // Grande (marcello@) de João Pessoa (comercial.pb@, que segue sendo o destino da PB sem cidade).
+  it.each([
+    ['PB', 'Campina Grande', ['marcello@semog.com.br']],
+    ['PB', 'João Pessoa', ['comercial.pb@semog.com.br']],
+    ['PB', 'Outra cidade', ['comercial.pb@semog.com.br']],
+    ['PB', 'Patos', ['comercial.pb@semog.com.br']],
+    ['PB', '', ['comercial.pb@semog.com.br']],
+    ['PB', undefined, ['comercial.pb@semog.com.br']],
+    ['PE', 'Campina Grande', ['ivan@semog.com.br']],
+    ['SP', 'Campina Grande', TRES],
+  ])('%s + cidade %o → %o', (uf, cidade, destino) =>
+    expect(destinatariosPorUf(uf, cidade)).toEqual(destino))
 })
 
 describe('ambiente (R1)', () => {

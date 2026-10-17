@@ -107,7 +107,8 @@ existirem — ligar a integração é ação de configuração, não de código.
 
 O que a integração faz: toda submissão de **Proposta** (e de **Contato** com
 `assunto = proposta-comercial`) cria um lead no funil Padrão do Exact, com contato principal, logo
-depois de gravar em `cms.leads`. No formulário de duas etapas do site v2, o envio sai quando a
+depois de gravar em `cms.leads`. Esse assunto saiu do formulário de Contato em 17/10/2026 e só
+chega de aba aberta antes do deploy; o e-mail do Contato vai ao ola@ sem os botões de desfecho. No formulário de duas etapas do site v2, o envio sai quando a
 etapa 2 chega; se a pessoa parar na etapa 1, o cron `/api/cron/push-exact-leads` envia depois de
 45 min (Exact, e-mail interno e conversão do Ads, uma vez cada). Esse cron roda **a cada 15
 minutos** e também retenta por 48 h o que falhou na hora (fica em `cms.leads.exact_error`).

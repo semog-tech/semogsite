@@ -52,6 +52,8 @@ const ASSUNTO_OPTIONS = [
   'alteracao-titularidade',
   'declaracao-quitacao',
   'reserva-areas-comuns',
+  // Saiu do formulário em 17/10/2026 (quem quer proposta vai ao formulário de Proposta), mas
+  // continua aceito: aba aberta antes do deploy ainda o envia, e é lead que vai ao Exact.
   'proposta-comercial',
   // Assuntos do Contato do site v2 (fase 4, resposta do Leandro de 16/10/2026). Os de cima ficam
   // até a fase 7: o formulário antigo e abas abertas antes da virada ainda os enviam.

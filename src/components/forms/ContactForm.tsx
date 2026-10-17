@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Sentry from '@sentry/nextjs'
+import Link from 'next/link'
 import { type ReactNode, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
@@ -13,13 +14,17 @@ import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
 import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
-import { registrarLeadGerado } from '@/lib/medicaoLead'
 
 /**
  * Rótulos das opções de `assunto` — copiados de propósito de
  * `src/seed/forms.ts` (`contatoData.fields`, bloco `assunto`) e dos valores
  * de `ASSUNTO_OPTIONS` em `src/lib/form-schemas.ts`. Se um dos dois mudar,
  * atualizar aqui também (mesmo aviso já documentado nos dois arquivos).
+ *
+ * "Proposta comercial" saiu da lista em 17/10/2026 (Leandro): o Contato vai à
+ * caixa compartilhada ola@, sem Unidade, e quem quer proposta é levado ao
+ * formulário de Proposta, que pergunta a cidade e avisa a Unidade certa. O
+ * schema ainda aceita o valor, para não perder o envio de aba aberta antes.
  */
 const ASSUNTO_OPTIONS: { label: string; value: NonNullable<ContatoValues['assunto']> }[] = [
   { label: 'Dúvida geral', value: 'duvida-geral' },
@@ -29,7 +34,6 @@ const ASSUNTO_OPTIONS: { label: string; value: NonNullable<ContatoValues['assunt
   { label: 'Alteração de titularidade', value: 'alteracao-titularidade' },
   { label: 'Declaração de quitação', value: 'declaracao-quitacao' },
   { label: 'Reserva de áreas comuns', value: 'reserva-areas-comuns' },
-  { label: 'Proposta comercial', value: 'proposta-comercial' },
   { label: 'Outro assunto', value: 'outro' },
 ]
 
@@ -103,11 +107,8 @@ export function ContactForm() {
     }
 
     if (result.ok) {
-      // Só "proposta comercial" é captação: o servidor já manda esse lead ao Google
-      // Ads e ao Exact. Os demais assuntos são atendimento a cliente e NÃO podem
-      // virar `generate_lead` — inflariam a contagem de leads e o custo por lead
-      // (mesmo raciocínio do `ExperienceForm`).
-      if (values.assunto === 'proposta-comercial') registrarLeadGerado('contato')
+      // Sem `generate_lead`: os assuntos que sobraram são atendimento, e o pedido de
+      // proposta é medido no formulário de Proposta (ver `ASSUNTO_OPTIONS`).
       setStatus('success')
       setMessage(result.message ?? 'Recebemos sua mensagem!')
       return
@@ -185,6 +186,13 @@ export function ContactForm() {
         error={errors.assunto?.message}
         {...register('assunto', { setValueAs: (value) => (value === '' ? undefined : value) })}
       />
+      <p className="m-0 -mt-2 text-[0.86rem] text-fg-3">
+        Quer uma proposta para o seu condomínio? Peça pelo{' '}
+        <Link className="text-inherit underline underline-offset-2" href="/proposta">
+          formulário de proposta
+        </Link>
+        .
+      </p>
       <Field
         as="textarea"
         label="Mensagem"

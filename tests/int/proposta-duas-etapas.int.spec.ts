@@ -173,6 +173,8 @@ async function banco(sql: string, p: unknown[] = []) {
       ? { ...semEmail(l.data), ...objeto(p[1]) }
       : { ...l.data, ...objeto(p[1]) }
     if (sql.includes('absorver')) l.notificado_para = texto(p[3])
+    // O `coalesce($3::jsonb ->> (data->>'uf'), notificado_para)` do SQL: o destino da UF da linha.
+    else l.notificado_para = objeto(p[2])[l.data.uf ?? ''] ?? l.notificado_para
     l.etapa = 2
     l.envioEm = new Date()
     return { rows: [visivel(l)], rowCount: 1 }
@@ -361,6 +363,9 @@ describe('etapa 2', () => {
     expect(inserts()).toBe(1)
     const [sql, p] = sqlCom('proposta:concluir-etapa2')[0] ?? ['', []]
     expect(sql).toMatch(/set data = data \|\| \$2::jsonb, etapa = 2, envio_em = now\(\)/)
+    expect(sql).toMatch(
+      /notificado_para = coalesce\(\$3::jsonb ->> \(data->>'uf'\), notificado_para\)/,
+    )
     expect(sql).toMatch(/token_envio = \$1 and etapa = 1 and envio_em is null/)
     expect(sql).toContain("created_at > now() - interval '30 minutes'")
     expect(p[1]).toEqual({
@@ -382,6 +387,34 @@ describe('etapa 2', () => {
       expect.objectContaining({ name: 'proposta_etapa' }),
     )
     expect(tabela).toHaveLength(1)
+  })
+
+  /** Destino do e-mail interno (o que não vai ao próprio lead). */
+  function destinoDoEmailInterno(): unknown {
+    // `as`: o mock recebe o argumento de `sendMail` como unknown; só assunto e destino importam.
+    const envios = sendMailMock.mock.calls.map(([a]) => a as { to: unknown; subject: string })
+    return envios.find((e) => e.subject.startsWith('Novo contato via'))?.to
+  }
+
+  it('PB + Campina Grande na etapa 2: a linha e o e-mail passam a marcello@', async () => {
+    await etapa1Gravada()
+    expect(tabela[0]?.notificado_para).toBe('comercial.pb@semog.com.br')
+    await enviarEtapa2(ETAPA2)
+    expect(tabela[0]?.notificado_para).toBe('marcello@semog.com.br')
+    expect(destinoDoEmailInterno()).toEqual(['marcello@semog.com.br'])
+  })
+
+  it('PB + João Pessoa na etapa 2: continua comercial.pb@', async () => {
+    await etapa1Gravada()
+    await enviarEtapa2({ ...ETAPA2, cidade: 'João Pessoa' })
+    expect(tabela[0]?.notificado_para).toBe('comercial.pb@semog.com.br')
+    expect(destinoDoEmailInterno()).toEqual(['comercial.pb@semog.com.br'])
+  })
+
+  it('PB sem cidade na etapa 2: continua comercial.pb@', async () => {
+    await etapa1Gravada()
+    await enviarEtapa2({ ...ETAPA2, cidade: '' })
+    expect(tabela[0]?.notificado_para).toBe('comercial.pb@semog.com.br')
   })
 
   it('a mesma etapa 2 repetida não envia de novo (uso único)', async () => {
@@ -570,6 +603,25 @@ describe('cookie que falha não desfaz a gravação', () => {
     expect(pushLeadMock).toHaveBeenCalledTimes(1)
     expect(sendMailMock).toHaveBeenCalledTimes(2)
     expect(captureExceptionMock).toHaveBeenCalledWith(expect.any(Error), tagsDoCookie)
+  })
+
+  it('completa com PB + Campina Grande: a linha nova nasce para marcello@', async () => {
+    await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')
+    expect(sqlCom('proposta:inserir-completa')[0]?.[1][4]).toBe('marcello@semog.com.br')
+  })
+
+  it('completa absorvendo a etapa 1 com PB + Campina Grande: a linha passa a marcello@', async () => {
+    await etapa1Gravada()
+    const linha = tabela[0]
+    if (linha) linha.criadaEm = new Date(Date.now() - 35 * 60_000)
+    await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2 }, 'turnstile-novo')
+    expect(sqlCom('proposta:absorver')[0]?.[1][3]).toBe('marcello@semog.com.br')
+    expect(tabela[0]?.notificado_para).toBe('marcello@semog.com.br')
+  })
+
+  it('completa com PB sem cidade: comercial.pb@, como hoje', async () => {
+    await enviarPropostaCompleta({ ...ETAPA1, ...ETAPA2, cidade: '' }, 'turnstile-novo')
+    expect(sqlCom('proposta:inserir-completa')[0]?.[1][4]).toBe('comercial.pb@semog.com.br')
   })
 
   it('no envio completo, idem: a linha absorvida é enviada uma vez', async () => {

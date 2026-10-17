@@ -12,6 +12,7 @@ import { extractLeadColumns } from '@/lib/forms'
 import { AMBIENTE_FIELD, ambienteAtual } from '@/lib/leads/ambiente'
 import { destinatariosPorUf } from '@/lib/leads/destinatarios'
 import { COLUNAS_DA_LINHA, type LinhaDoLead } from '@/lib/leads/linha'
+import { UFS } from '@/lib/propostaDuasEtapas/schema'
 
 /**
  * SQL das duas etapas (spec 4.2, R4 a R6). Uma linha por lead; quem conclui a linha também a
@@ -39,7 +40,15 @@ export async function contextoDoEnvio(): Promise<ContextoDoEnvio> {
 }
 
 function destinoDe(dados: Record<string, string>): string {
-  return destinatariosPorUf(dados.uf).join(', ')
+  return destinatariosPorUf(dados.uf, dados.cidade).join(', ')
+}
+
+/**
+ * A etapa 2 traz a cidade, mas a UF está na linha: o destino de cada UF com esta cidade, para o
+ * SQL escolher pela `data->>'uf'` gravada. Assim a regra fica só em `destinatariosPorUf`.
+ */
+function destinoPorUf(cidade: string | undefined): Record<string, string> {
+  return Object.fromEntries(UFS.map((uf) => [uf, destinatariosPorUf(uf, cidade).join(', ')]))
 }
 
 const TOKEN_DENTRO_DE_30_MIN = "created_at > now() - interval '30 minutes'"
@@ -120,17 +129,22 @@ export async function reaproveitarEtapa1(
   return (rowCount ?? 0) > 0
 }
 
-/** Etapa 2 pelo token: válido 30 min, uso único (etapa = 1), e já reivindica a linha. */
+/**
+ * Etapa 2 pelo token: válido 30 min, uso único (etapa = 1), e já reivindica a linha. O destino é
+ * recalculado com a cidade (PB + Campina Grande vai a outra caixa); UF fora do mapa, impossível
+ * pelo schema da etapa 1, mantém o destino gravado.
+ */
 export async function concluirEtapa2(
   token: string,
   dados: Record<string, string>,
 ): Promise<LinhaDoLead | null> {
   const { rows } = await query<LinhaDoLead>(
     `/* proposta:concluir-etapa2 */
-     update cms.leads set data = data || $2::jsonb, etapa = 2, envio_em = now()
+     update cms.leads set data = data || $2::jsonb, etapa = 2, envio_em = now(),
+            notificado_para = coalesce($3::jsonb ->> (data->>'uf'), notificado_para)
       where token_envio = $1 and etapa = 1 and envio_em is null and ${TOKEN_DENTRO_DE_30_MIN}
       returning ${COLUNAS_DA_LINHA}`,
-    [token, dados],
+    [token, dados, destinoPorUf(dados.cidade)],
   )
   return rows[0] ?? null
 }

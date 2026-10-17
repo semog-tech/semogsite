@@ -49,9 +49,10 @@ alter table cms.leads
   -- avisa os três responsáveis de uma vez.
   --
   -- É o que separa desfecho com autor conhecido de desfecho sem autor, SEM
-  -- perguntar nada a ninguém: `ivan@` e `galvao@` são caixas individuais, então
-  -- o registro que chega por elas tem dono; o que chega por uma caixa
-  -- compartilhada, ou por um e-mail endereçado a três, veio da equipe. Perguntar
+  -- perguntar nada a ninguém: `ivan@`, `galvao@` e `marcello@` são caixas
+  -- individuais, então o registro que chega por elas tem dono; o que chega por
+  -- uma caixa compartilhada, ou por um e-mail endereçado a três, veio da equipe.
+  -- (Por isso o Contato, que vai à caixa ola@, não leva os botões.) Perguntar
   -- quem clicou seria atrito num fluxo cujo valor inteiro está em não ter atrito.
   --
   -- Coluna própria, e não derivada da cidade na hora da consulta, justamente
