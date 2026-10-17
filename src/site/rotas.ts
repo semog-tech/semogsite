@@ -18,6 +18,7 @@ export const PAGINAS_NA_PREVIA: ReadonlySet<string> = new Set([
   '/garante',
   '/incorporadoras',
   '/privacidade',
+  '/proposta',
   '/semog',
   '/solucoes',
   '/tecnologia',
