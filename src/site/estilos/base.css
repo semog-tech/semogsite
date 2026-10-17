@@ -493,7 +493,7 @@ html.js:not(.motion) .entrada {
 }
 .nav {
   display: flex;
-  gap: var(--e4);
+  gap: var(--e3);
   margin-inline-start: auto;
   font-size: 0.9375rem;
   font-weight: 500;
@@ -504,20 +504,32 @@ html.js:not(.motion) .entrada {
   padding-block: var(--e1);
   white-space: nowrap;
 }
-/* Oito itens com "A Semog" e "Incorporadoras": entre 1081 e 1240px o vão encolhe para caber
-   numa linha, e abaixo de 1160px encolhe mais um passo. */
-@media (max-width: 1240px) {
-  .nav {
-    gap: var(--e3);
-  }
-}
-@media (max-width: 1160px) {
-  .nav {
-    gap: var(--e2);
-  }
-}
 .nav a:hover,
 .cab-login:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+}
+/* "Sou cliente" no cabeçalho, no menu e no rodapé (fase 4): link antes de hidratar, botão depois;
+   o mesmo desenho do Login e dos links do rodapé. */
+.cab-cliente,
+.painel-cliente,
+.rodape-cliente {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cab-cliente {
+  padding-block: var(--e1);
+  white-space: nowrap;
+}
+.cab-cliente:hover,
+.rodape-cliente:hover {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 6px;
@@ -566,10 +578,36 @@ html.js:not(.motion) .entrada {
 .painel-menu {
   display: none;
 }
+/* Oito itens com "A Semog" e "Incorporadoras", e o "Sou cliente" ao lado do Login (fase 4): o vão
+   da nav é --e3 na largura cheia; até 1320px, os vãos encolhem um passo; até 1200px, mais um, e
+   o texto do cabeçalho desce a 0.875rem. O celular (até 1080px) não muda. Medido em Chromium e
+   Firefox de 1081 a 1920px: tudo numa linha, dentro da faixa. */
+@media (min-width: 1081px) and (max-width: 1320px) {
+  .cabecalho-faixa {
+    gap: var(--e3);
+  }
+  .nav,
+  .cab-acoes {
+    gap: var(--e2);
+  }
+}
+@media (min-width: 1081px) and (max-width: 1200px) {
+  .cabecalho-faixa {
+    gap: var(--e2);
+  }
+  .nav {
+    gap: var(--e1);
+  }
+  .nav,
+  .cab-acoes {
+    font-size: 0.875rem;
+  }
+}
 @media (max-width: 1080px) {
   .nav,
   .cab-separador,
-  .cab-login {
+  .cab-login,
+  .cab-cliente {
     display: none;
   }
   .cab-acoes {
@@ -599,8 +637,15 @@ html.js:not(.motion) .entrada {
     text-decoration: none;
     padding-block: var(--e1);
   }
-  .painel-menu .painel-login {
+  .painel-menu .painel-cliente {
     margin-top: var(--e3);
+    padding-block: var(--e1);
+    font-family: var(--fonte-corpo);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .painel-menu .painel-login {
     font-family: var(--fonte-corpo);
     font-size: 1rem;
     font-weight: 500;

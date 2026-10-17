@@ -1,4 +1,5 @@
 import type React from 'react'
+import { PainelSouCliente } from '@/site/cliente/PainelSouCliente'
 import { LigarLeitura } from '@/site/leitura/LigarLeitura'
 import { Cabecalho, type IdNav } from './Cabecalho'
 import { Rodape } from './Rodape'
@@ -24,6 +25,7 @@ export function EsqueletoLeitura({ pagina, atual, children }: PropsEsqueleto) {
         {children}
       </main>
       <Rodape destinoProposta="#proposta" />
+      <PainelSouCliente segundaViaAtiva={process.env.SEGUNDA_VIA_ATIVA === 'true'} />
       <LigarLeitura />
     </>
   )

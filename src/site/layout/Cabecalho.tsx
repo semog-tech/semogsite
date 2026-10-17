@@ -1,3 +1,4 @@
+import { GatilhoSouCliente } from '@/site/cliente/GatilhoSouCliente'
 import { conteudo } from '@/site/conteudo/conteudo'
 import { caminhoNoSite } from '@/site/rotas'
 import { LigarMenu } from './LigarMenu'
@@ -65,6 +66,9 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
         </nav>
         <div className="cab-acoes">
           <span className="cab-separador" aria-hidden="true" />
+          <GatilhoSouCliente origem="cabecalho" className="cab-cliente">
+            {conteudo.souCliente.botao}
+          </GatilhoSouCliente>
           <a className="cab-login" href={loginUrl}>
             Login
           </a>
@@ -93,6 +97,9 @@ export function Cabecalho({ atual, destinoProposta }: PropsCabecalho) {
         <Links itens={ANTES_DE_UNIDADES} atual={atual} />
         <a href={caminhoNoSite('/#unidades')}>Unidades</a>
         <Links itens={DEPOIS_DE_UNIDADES} atual={atual} />
+        <GatilhoSouCliente origem="menu" className="painel-cliente">
+          {conteudo.souCliente.botao}
+        </GatilhoSouCliente>
         <a className="painel-login" href={loginUrl}>
           Login · Área do cliente
         </a>

@@ -72,6 +72,9 @@ const MODULOS: ReadonlyArray<readonly [string, () => Promise<unknown>]> = [
   ['leitura: componente', () => import('@/site/leitura/LigarLeitura')],
   ['landing', () => import('@/site/landing/ligar-landing')],
   ['landing: componente', () => import('@/site/landing/LigarLanding')],
+  ['sou cliente: eventos', () => import('@/site/cliente/eventos')],
+  ['sou cliente: painel', () => import('@/site/cliente/PainelSouCliente')],
+  ['sou cliente: gatilho', () => import('@/site/cliente/GatilhoSouCliente')],
 ]
 
 describe('site v2: módulos do cliente carregam no servidor', () => {

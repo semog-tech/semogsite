@@ -77,7 +77,13 @@ function conferirComum({ minimoDeLinks = 1 }: { minimoDeLinks?: number } = {}) {
   expect(document.querySelector('[data-cabecalho]')).not.toBeNull()
   expect(document.querySelector('footer[data-tema="marinho"]')).not.toBeNull()
   expect(document.querySelector('section#proposta form')).not.toBeNull()
-  expect(document.body.innerHTML).not.toContain('wa.me')
+  // Fase 4 (spec 5, DP6): o único WhatsApp é o do "Sou cliente", e todo ele é atendimento.
+  for (const link of document.querySelectorAll('a[href*="wa.me"]')) {
+    expect(link.getAttribute('data-wa-caminho'), link.getAttribute('href') ?? '').toMatch(
+      /^(cliente|restrita)$/,
+    )
+    expect(link.closest('dialog.sou-cliente'), link.getAttribute('href') ?? '').not.toBeNull()
+  }
   expect(procurarTermosVedados(document.body.textContent ?? '')).toEqual([])
   conferirLinks(minimoDeLinks)
   conferirIds()

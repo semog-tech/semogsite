@@ -1,5 +1,6 @@
 import type React from 'react'
 import type { IdPaginaApp } from '@/site/cenas/registro'
+import { PainelSouCliente } from '@/site/cliente/PainelSouCliente'
 import { Cabecalho, type IdNav } from './Cabecalho'
 import { Rodape } from './Rodape'
 import { SimbolosSvg } from './SimbolosSvg'
@@ -29,6 +30,7 @@ export function EsqueletoApp({ pagina, atual, temProposta, cenas, children }: Pr
         {children}
       </main>
       <Rodape destinoProposta={destinoProposta} />
+      <PainelSouCliente segundaViaAtiva={process.env.SEGUNDA_VIA_ATIVA === 'true'} />
       {cenas}
     </>
   )

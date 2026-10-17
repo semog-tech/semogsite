@@ -15,7 +15,7 @@ export function iniciarMenu(): () => void {
   }
   const aoClicarBotao = () => definir(!aberto())
   const aoClicarPainel = (evento: Event) => {
-    if (evento.target instanceof Element && evento.target.closest('a')) definir(false)
+    if (evento.target instanceof Element && evento.target.closest('a, button')) definir(false)
   }
   const aoTeclar = (evento: KeyboardEvent) => {
     if (evento.key !== 'Escape' || !aberto()) return

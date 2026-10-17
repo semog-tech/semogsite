@@ -1,3 +1,4 @@
+import { GatilhoSouCliente } from '@/site/cliente/GatilhoSouCliente'
 import { conteudo } from '@/site/conteudo/conteudo'
 import { caminhoNoSite } from '@/site/rotas'
 import type { DestinoProposta } from './Cabecalho'
@@ -64,6 +65,12 @@ export function Rodape({ destinoProposta }: { destinoProposta: DestinoProposta }
               </li>
               <li>
                 <a href={caminhoNoSite('/contato')}>Telefones e endereços</a>
+              </li>
+              <li>
+                <GatilhoSouCliente origem="rodape" className="rodape-cliente">
+                  {/* TEXTO-NOVO */}
+                  Sou cliente: 2ª via e atendimento
+                </GatilhoSouCliente>
               </li>
               <li>
                 <a href={marca.loginUrl}>Login · Área do cliente</a>

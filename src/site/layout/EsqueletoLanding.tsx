@@ -1,5 +1,6 @@
 import '@/site/secoes/landing/landing.css'
 import type React from 'react'
+import { PainelSouCliente } from '@/site/cliente/PainelSouCliente'
 import { LigarLanding } from '@/site/landing/LigarLanding'
 import { Cabecalho, type IdNav } from './Cabecalho'
 import { Rodape } from './Rodape'
@@ -27,6 +28,7 @@ export function EsqueletoLanding({ pagina, atual, children }: PropsEsqueleto) {
         {children}
       </main>
       <Rodape destinoProposta={destinoProposta} />
+      <PainelSouCliente segundaViaAtiva={process.env.SEGUNDA_VIA_ATIVA === 'true'} />
       <LigarLanding />
     </>
   )
