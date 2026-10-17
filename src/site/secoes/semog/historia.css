@@ -1,0 +1,471 @@
+/* História: palco fixo de uma tela. Grade 38,2/61,8: à esquerda o ano e o marco da vez, à
+   direita o esquema da costa com as Unidades; o eixo do tempo atravessa o pé do palco.
+   Sem JS (sem .hist-pin), lê-se a lista dos marcos, o esquema e a foto, um embaixo do outro. */
+#historia {
+  --hist-trilho: var(--lavanda);
+  --hist-traco: var(--marinho);
+}
+
+/* ---- Leitura sem palco ---------------------------------------------------------- */
+#historia .hist-grade {
+  display: grid;
+  gap: var(--e5);
+}
+#historia .hist-ano,
+#historia .hist-contadores,
+#historia .hist-eixo,
+#historia .hist-cobertura,
+#historia .hist-rota,
+#historia .hist-ramal {
+  display: none;
+}
+#historia .hist-marcos {
+  display: grid;
+  gap: var(--e4);
+  max-width: var(--largura-texto);
+}
+#historia .hist-marco-data {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  color: var(--tema-suave);
+}
+#historia .hist-marco-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#historia .hist-marco-texto {
+  max-width: 36ch;
+  margin-top: var(--e2);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#historia .hist-in {
+  display: block;
+}
+
+/* ---- Esquema da costa ------------------------------------------------------------- */
+#historia .hist-mapa {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+  aspect-ratio: 760 / 460;
+}
+/* A caixa do desenho cabe na área sem distorcer: rótulos HTML e SVG usam a mesma medida. */
+#historia .hist-mapa-caixa {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: min(100cqw, 100cqh * 760 / 460);
+  aspect-ratio: 760 / 460;
+  transform: translateY(-50%);
+}
+#historia .hist-mapa-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+#historia .hist-costa {
+  color: var(--nevoa);
+  stroke-width: 1;
+}
+/* Rota e ramal são medidos em unidades do desenho (tracejado): o traço escala junto. */
+#historia .hist-rota,
+#historia .hist-ramal {
+  color: var(--marinho);
+  stroke-width: 2.5;
+  vector-effect: none;
+}
+#historia .hist-no {
+  fill: var(--marinho);
+}
+#historia .hist-cidade {
+  position: absolute;
+  left: calc(var(--x) / 760 * 100%);
+  top: calc(var(--y) / 460 * 100%);
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--tema-suave);
+}
+#historia .hist-cidade strong {
+  font-weight: 500;
+  color: var(--tema-titulo);
+}
+#historia .hist-cidade--direita {
+  transform: translate(var(--e3), -50%);
+}
+#historia .hist-cidade--esquerda {
+  transform: translate(calc(-100% - var(--e3)), -50%);
+}
+#historia .hist-cidade--abaixo {
+  transform: translate(-50%, var(--e3));
+}
+#historia .hist-cidade-mascara {
+  display: block;
+  overflow: clip;
+}
+#historia .hist-cidade-in {
+  display: block;
+}
+/* No canto de baixo à direita, sob o fim da costa: perto do desenho que ela explica. */
+#historia .hist-esquema {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  overflow: clip;
+  text-align: right;
+}
+#historia .hist-esquema > span {
+  display: block;
+}
+
+/* ---- Foto do G20 -------------------------------------------------------------------- */
+#historia .hist-foto .moldura {
+  position: relative;
+  overflow: clip;
+  aspect-ratio: 16 / 9;
+}
+#historia .hist-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Palco fixo (com JS) ------------------------------------------------------------ */
+#historia.hist-pin {
+  padding-block: 0;
+}
+/* Os princípios sobem por cima do palco nas últimas 1,35 tela do pin: 0,35 enquanto a
+   cobertura marinho termina e 1 de cauda (CAUDA no JS). Nenhuma tela só de cor. */
+@media screen {
+  #historia.hist-pin:not([data-cena-erro]) {
+    margin-block-end: -135svh;
+  }
+}
+#historia.hist-pin .hist-palco {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--tema-fundo);
+}
+#historia.hist-pin .hist-grade {
+  height: 100%;
+  grid-template-columns: var(--menor) var(--maior);
+  /* Contadores | respiro | título | ano | marco | respiro | eixo: título, ano e marco
+     formam um bloco só, no meio da altura livre (sem vão entre o título e o ano); o
+     esquema ocupa a coluna maior do respiro de cima ao de baixo. */
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto minmax(0, 1fr) auto;
+  column-gap: var(--e6);
+  row-gap: var(--e4);
+  padding-block: calc(var(--cab) + var(--e5)) var(--e5);
+}
+#historia.hist-pin .hist-titulo {
+  grid-area: 3 / 1;
+  align-self: end;
+  margin-bottom: var(--e3);
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#historia.hist-pin .hist-contadores {
+  grid-area: 1 / 1 / 2 / 3;
+  justify-self: end;
+  align-self: end;
+  display: flex;
+  gap: var(--e5);
+}
+#historia.hist-pin .hist-ano {
+  grid-area: 4 / 1;
+  align-self: end;
+  display: grid;
+  overflow: clip;
+  padding-block-end: 0.04em;
+  font-size: clamp(5rem, 1.4rem + 7.4vw, 10.5rem);
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--tema-titulo);
+}
+#historia.hist-pin .hist-ano > span {
+  grid-area: 1 / 1;
+  display: block;
+}
+#historia.hist-pin .hist-marcos {
+  grid-area: 5 / 1;
+  display: grid;
+  max-width: none;
+}
+#historia.hist-pin .hist-marco {
+  grid-area: 1 / 1;
+}
+/* O ano grande (aria-hidden) mostra a data; a de cada marco fica para o leitor de tela. */
+#historia.hist-pin .hist-marco-data {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+#historia.hist-pin .hist-marco-titulo,
+#historia.hist-pin .hist-marco-texto {
+  overflow: clip;
+  padding-block-end: 0.1em;
+}
+#historia.hist-pin .hist-marco-titulo {
+  font-size: clamp(1.625rem, 1.1rem + 1.2vw, 2.375rem);
+  line-height: 1.08;
+}
+#historia.hist-pin .hist-marco-texto {
+  max-width: 34ch;
+  margin-top: var(--e2);
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+}
+#historia.hist-pin .hist-mapa {
+  grid-area: 2 / 2 / 7 / 3;
+  aspect-ratio: auto;
+}
+#historia.hist-pin .hist-foto {
+  grid-area: 2 / 2 / 7 / 3;
+  z-index: 1;
+  align-self: center;
+  justify-self: end;
+  width: min(100%, 720px);
+}
+#historia.hist-pin .hist-rota,
+#historia.hist-pin .hist-ramal {
+  display: inline;
+}
+
+/* ---- Contadores (rolos) ------------------------------------------------------------- */
+#historia .hist-contador {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: var(--e2);
+  align-items: baseline;
+}
+#historia .hist-contador dt {
+  grid-column: 1 / -1;
+}
+#historia .hist-contador dd {
+  overflow: clip;
+  height: 1em;
+  line-height: 1;
+}
+#historia .hist-contador dd.num {
+  height: 1em;
+  font-size: 2.75rem;
+  font-weight: 300;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+#historia .hist-rolo {
+  display: block;
+}
+#historia .hist-rolo > span {
+  display: block;
+  height: 1em;
+}
+#historia .hist-ufs {
+  height: 1.3em;
+  font-size: var(--t-pequeno);
+  line-height: 1.3;
+}
+#historia .hist-ufs .hist-rolo > span {
+  height: 1.3em;
+}
+
+/* ---- Eixo do tempo -------------------------------------------------------------------- */
+#historia.hist-pin .hist-eixo {
+  grid-area: 7 / 1 / 8 / 3;
+  display: block;
+  padding-top: var(--e3);
+}
+#historia .hist-eixo-linha {
+  position: relative;
+  height: 2px;
+}
+#historia .hist-eixo-trilho,
+#historia .hist-eixo-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+}
+#historia .hist-eixo-trilho {
+  background: var(--hist-trilho);
+}
+#historia .hist-eixo-traco {
+  background: var(--hist-traco);
+  transform: scaleX(0);
+}
+#historia .hist-ticks {
+  position: relative;
+  height: var(--e5);
+}
+#historia .hist-ticks li {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 100%);
+  display: grid;
+  justify-items: center;
+  gap: var(--e1);
+  transform: translateX(-50%);
+}
+#historia .hist-ticks li:first-child {
+  justify-items: start;
+  transform: none;
+}
+#historia .hist-ticks li:last-child {
+  justify-items: end;
+  transform: translateX(-100%);
+}
+#historia .hist-ticks i {
+  display: block;
+  width: 2px;
+  height: var(--e2);
+  margin-top: calc(var(--e1) * -1);
+  background: var(--marinho);
+  opacity: 0.22;
+}
+#historia .hist-ticks span {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-pequeno);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--tema-titulo);
+  opacity: 0.45;
+}
+
+/* ---- Cobertura: o traço abre e vira o marinho da cena seguinte ------------------------ */
+#historia.hist-pin .hist-cobertura {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--marinho);
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+/* ---- Celular: esquema em cima, ano e marco, eixo no pé ------------------------------- */
+@media (max-width: 760px) {
+  #historia.hist-pin .hist-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+    row-gap: var(--e3);
+    padding-block: calc(var(--cab) + var(--e3)) var(--e4);
+  }
+  #historia.hist-pin .hist-titulo {
+    grid-area: 1 / 1;
+    margin-bottom: 0;
+    font-size: 1.75rem;
+  }
+  #historia.hist-pin .hist-contadores {
+    grid-area: 2 / 1;
+    justify-self: start;
+    gap: var(--e4);
+  }
+  #historia .hist-contador dd.num {
+    font-size: 1.75rem;
+  }
+  #historia.hist-pin .hist-mapa,
+  #historia.hist-pin .hist-foto {
+    grid-area: 3 / 1;
+  }
+  #historia.hist-pin .hist-foto {
+    width: 100%;
+  }
+  #historia.hist-pin .hist-ano {
+    grid-area: 4 / 1;
+    font-size: 4.25rem;
+  }
+  #historia.hist-pin .hist-marcos {
+    grid-area: 5 / 1;
+  }
+  #historia.hist-pin .hist-marco-titulo {
+    font-size: 1.5rem;
+  }
+  #historia.hist-pin .hist-marco-texto {
+    margin-top: var(--e1);
+    font-size: 1rem;
+  }
+  #historia.hist-pin .hist-eixo {
+    grid-area: 6 / 1;
+    padding-top: var(--e2);
+  }
+  #historia .hist-ticks {
+    height: var(--e4);
+  }
+  #historia .hist-ticks li:not(:first-child, :last-child) span {
+    display: none;
+  }
+  #historia .hist-cidade {
+    font-size: 0.75rem;
+  }
+  /* A UF já está no contador; sem ela, João Pessoa cabe à direita do nó. */
+  #historia .hist-uf {
+    display: none;
+  }
+  #historia .hist-cidade--direita {
+    transform: translate(var(--e1), -50%);
+  }
+  #historia .hist-cidade--esquerda {
+    transform: translate(calc(-100% - var(--e1)), -50%);
+  }
+  #historia .hist-cidade--abaixo {
+    transform: translate(-50%, var(--e1));
+  }
+  #historia .hist-esquema {
+    display: none;
+  }
+}
+
+/* Impresso, o palco vira a lista de leitura: todos os marcos, o esquema completo e a foto.
+   As posições animadas (inline) são anuladas aqui. */
+@media print {
+  #historia.hist-pin .hist-palco {
+    height: auto;
+    overflow: visible;
+  }
+  #historia.hist-pin .hist-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    padding-block: var(--e6);
+  }
+  #historia.hist-pin .hist-grade > *,
+  #historia.hist-pin .hist-marco {
+    grid-area: auto;
+  }
+  #historia.hist-pin .hist-marcos {
+    gap: var(--e4);
+  }
+  /* Fora da grade fixa, o esquema volta a ter altura pela proporção do desenho. */
+  #historia.hist-pin .hist-mapa {
+    aspect-ratio: 760 / 460;
+  }
+  #historia.hist-pin .hist-marco-data {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+  #historia .hist-ano,
+  #historia .hist-contadores,
+  #historia .hist-eixo,
+  #historia .hist-cobertura {
+    display: none !important;
+  }
+  #historia .hist-in,
+  #historia .hist-cidade-in,
+  #historia .hist-esquema > span,
+  #historia .hist-no,
+  #historia .hist-foto img {
+    transform: none !important;
+  }
+  #historia .hist-foto .moldura {
+    clip-path: none !important;
+  }
+}
