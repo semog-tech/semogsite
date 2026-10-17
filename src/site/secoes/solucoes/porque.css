@@ -1,0 +1,49 @@
+/* Soluções · porque: cinco fatos em blocos gelo, o número em Saira leve quando há. */
+.sl-porque .sl-porque-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h2);
+  font-weight: var(--peso-titulo);
+  line-height: var(--lh-titulo);
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+.sl-fatos {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--e2);
+  margin: var(--e5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sl-fato {
+  display: grid;
+  align-content: start;
+  gap: var(--e1);
+  padding: var(--e4) var(--e3);
+  background: var(--gelo);
+}
+.sl-fato-valor {
+  min-height: 1lh;
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--marinho);
+}
+.sl-fato-titulo {
+  font-weight: 600;
+  color: var(--marinho);
+}
+@media (max-width: 1080px) {
+  .sl-fatos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 420px) {
+  .sl-fatos {
+    grid-template-columns: 1fr;
+  }
+  /* Um bloco por linha: não há o que alinhar, e a casa vazia viraria só espaço. */
+  .sl-fato-valor:empty {
+    display: none;
+  }
+}

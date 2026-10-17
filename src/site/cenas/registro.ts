@@ -4,6 +4,7 @@ import { CENAS_GESTAO } from './paginas/gestao'
 import { CENAS_HOME } from './paginas/home'
 import { CENAS_INCORPORADORAS } from './paginas/incorporadoras'
 import { CENAS_SEMOG } from './paginas/semog'
+import { CENAS_SOLUCOES } from './paginas/solucoes'
 import { CENAS_TECNOLOGIA } from './paginas/tecnologia'
 
 /** As páginas do pacote app. Cada uma tem a sua lista em src/site/cenas/paginas/<pagina>.tsx. */
@@ -28,6 +29,7 @@ export const CENAS_POR_PAGINA: Partial<Record<IdPaginaApp, ListaCenas>> = {
   garante: CENAS_GARANTE,
   incorporadoras: CENAS_INCORPORADORAS,
   tecnologia: CENAS_TECNOLOGIA,
+  solucoes: CENAS_SOLUCOES,
 }
 
 export type IdPaginaComCenas = IdPaginaApp

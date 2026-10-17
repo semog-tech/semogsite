@@ -8,6 +8,9 @@ const LINKS_SEMOG = [
   { href: '/administracao-de-condominios', rotulo: 'Gestão completa' },
   { href: '/garante', rotulo: 'Semog Garante' },
   { href: '/tecnologia', rotulo: 'Tecnologia' },
+  // Decisão do Leandro de 16/10/2026: a /solucoes fica pelo tráfego do Search Console e precisa
+  // de link interno depois da virada; o menu do cabeçalho não muda.
+  { href: '/solucoes', rotulo: 'Soluções' },
   { href: '/blog', rotulo: 'Blog' },
 ] as const
 

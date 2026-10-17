@@ -1,0 +1,21 @@
+/* Soluções · abertura (sem protótipo, DP11 do plano da fase 4): título leve com a ênfase por
+   peso, o lead e o botão. Mesma escala das aberturas do pacote app. */
+.sl-abertura {
+  padding-top: calc(var(--cab) + clamp(var(--e5), 9svh, var(--e7)));
+}
+.sl-abertura .sl-titulo {
+  max-width: 16ch;
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-display);
+  font-weight: var(--peso-titulo);
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+  color: var(--tema-titulo);
+}
+.sl-abertura .lead {
+  margin-top: var(--e4);
+  max-width: 46ch;
+}
+.sl-abertura .sl-acoes {
+  margin-top: var(--e5);
+}

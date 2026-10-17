@@ -1,0 +1,61 @@
+/* Soluções · bloco: métrica áurea, itens em blocos de ponta reta (gelo no tema claro, branco no
+   gelo). Sem linha fina como divisor: o que separa é o bloco e o espaço. */
+.sl-bloco .sl-bloco-grade {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e4) var(--e6);
+  align-items: start;
+}
+.sl-bloco .sl-bloco-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h3);
+  font-weight: var(--peso-titulo);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+.sl-bloco .sl-bloco-texto {
+  margin-top: var(--e3);
+  max-width: 44ch;
+}
+.sl-bloco .sl-bloco-destaque {
+  margin-top: var(--e3);
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-lead);
+  font-weight: 400;
+  color: var(--marinho);
+}
+.sl-bloco .link-seta {
+  margin-top: var(--e3);
+}
+.sl-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--e2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sl-lista li {
+  display: grid;
+  align-content: start;
+  gap: var(--e1);
+  padding: var(--e3) var(--e4);
+  background: var(--gelo);
+}
+[data-tema="gelo"] .sl-lista li {
+  background: var(--branco);
+}
+.sl-lista h3 {
+  font-family: var(--fonte-titulo);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--marinho);
+}
+@media (max-width: 900px) {
+  .sl-bloco .sl-bloco-grade,
+  .sl-lista {
+    grid-template-columns: 1fr;
+  }
+}

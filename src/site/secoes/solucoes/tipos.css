@@ -1,0 +1,49 @@
+/* Soluções · tipos: cada tipo na métrica áurea (rótulo 38,2, título e texto 61,8), com os itens
+   numa fileira de marcadores quadrados de ponta reta. Separação por espaço, não por linha. */
+.sl-tipos .sl-tipo {
+  display: grid;
+  grid-template-columns: var(--menor) var(--maior);
+  gap: var(--e2) var(--e5);
+}
+.sl-tipos .sl-tipo + .sl-tipo {
+  margin-top: var(--e6);
+}
+.sl-tipo .sl-tipo-titulo {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-h3);
+  font-weight: var(--peso-titulo);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--tema-titulo);
+}
+.sl-tipo .sl-tipo-texto {
+  margin-top: var(--e3);
+  max-width: var(--largura-texto);
+}
+.sl-itens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1) var(--e4);
+  margin: var(--e3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sl-itens li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  font-weight: 500;
+  color: var(--tema-titulo);
+}
+.sl-itens li::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--marinho);
+}
+@media (max-width: 760px) {
+  .sl-tipos .sl-tipo {
+    grid-template-columns: 1fr;
+  }
+}
