@@ -568,6 +568,7 @@ export const conteudo = {
       lead: 'A Semog implanta o condomínio da sua incorporadora da planta à primeira assembleia, protegendo a entrega, o cliente e a sua marca.',
       botao: 'Pedir proposta',
       percurso: 'Ver o percurso',
+      foto: '/site-v2/fotos/incorporadoras-obra.webp',
       fotoAlt:
         'Canteiro de obras ao anoitecer, com edifícios em construção, gruas e um técnico lendo a planta',
     },

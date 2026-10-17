@@ -1,0 +1,327 @@
+/* Percurso: palco fixo de uma tela. Grade 38,2/61,8: à esquerda o passo da vez, à direita a
+   janela do desenho (a câmera anda por uma faixa larga); o eixo dos passos atravessa o pé.
+   Sem JS (sem .pc-pin), lê-se a lista dos passos e o desenho inteiro, um embaixo do outro. */
+#percurso {
+  --pc-projeto: var(--lavanda);
+  --pc-traco: var(--marinho);
+}
+
+/* ---- Leitura sem palco ---------------------------------------------------------- */
+#percurso .pc-grade {
+  display: grid;
+  gap: var(--e5);
+}
+#percurso .pc-eixo,
+#percurso .pc-cobertura {
+  display: none;
+}
+#percurso .pc-passos {
+  display: grid;
+  gap: var(--e5);
+  max-width: var(--largura-texto);
+}
+#percurso .pc-passo-titulo {
+  font-size: var(--t-h3);
+  font-weight: 300;
+  line-height: 1.08;
+}
+#percurso .pc-passo-texto {
+  max-width: 40ch;
+  margin-top: var(--e2);
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-texto);
+}
+#percurso .pc-passo-apoio {
+  margin-top: var(--e3);
+  max-width: 44ch;
+}
+#percurso .pc-in {
+  display: block;
+}
+
+/* ---- Desenho ---------------------------------------------------------------------- */
+#percurso .pc-desenho {
+  position: relative;
+  display: grid;
+  gap: var(--e2);
+  min-width: 0;
+  min-height: 0;
+}
+#percurso .pc-faixa {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+/* Traços medidos em unidades do desenho (tracejado por pathLength): escalam junto. */
+#percurso .pc-trilho,
+#percurso .pc-traco {
+  vector-effect: none;
+}
+#percurso .pc-trilho {
+  color: var(--pc-projeto);
+  stroke-width: 1.6;
+}
+#percurso .pc-traco {
+  color: var(--pc-traco);
+  stroke-width: 2.6;
+}
+/* Anotação do desenho: Saira pequena, em unidades do desenho (escala com ele). */
+#percurso .pc-anotacao {
+  font-family: var(--fonte-titulo);
+  font-size: 16px;
+  fill: var(--texto-suave);
+}
+#percurso .pc-esquema {
+  overflow: clip;
+  text-align: right;
+}
+#percurso .pc-esquema > span {
+  display: block;
+}
+
+/* ---- Palco fixo (com JS) ------------------------------------------------------------ */
+#percurso.pc-pin {
+  padding-block: 0;
+}
+#percurso.pc-pin .pc-palco {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--tema-fundo);
+}
+#percurso.pc-pin .pc-grade {
+  height: 100%;
+  grid-template-columns: var(--menor) var(--maior);
+  /* Título | respiro | passo | respiro | eixo: o passo fica no meio da altura livre e a
+     janela do desenho ocupa do respiro de cima ao de baixo. */
+  grid-template-rows: auto minmax(0, 1fr) auto minmax(0, 0.618fr) auto;
+  column-gap: var(--e6);
+  row-gap: var(--e4);
+  padding-block: calc(var(--cab) + var(--e5)) var(--e5);
+}
+#percurso.pc-pin .pc-titulo {
+  grid-area: 1 / 1 / 2 / 3;
+  align-self: end;
+  font-size: var(--t-h3);
+  font-weight: 300;
+}
+#percurso.pc-pin .pc-passos {
+  grid-area: 3 / 1;
+  display: grid;
+  max-width: none;
+}
+#percurso.pc-pin .pc-passo {
+  grid-area: 1 / 1;
+}
+#percurso.pc-pin .pc-passo-titulo,
+#percurso.pc-pin .pc-passo-texto,
+#percurso.pc-pin .pc-passo-apoio {
+  overflow: clip;
+  padding-block-end: 0.1em;
+}
+#percurso.pc-pin .pc-passo-titulo {
+  font-size: clamp(1.625rem, 1.1rem + 1.2vw, 2.375rem);
+}
+#percurso.pc-pin .pc-passo-texto {
+  max-width: 36ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.35vw, 1.25rem);
+}
+#percurso.pc-pin .pc-desenho {
+  grid-area: 2 / 2 / 5 / 3;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+/* A janela recorta a faixa larga; nas bordas o desenho some aos poucos. A faixa mostra
+   ~600 unidades do desenho na largura (um passo e a ponta dos vizinhos), sem passar da
+   altura da janela. A câmera move a faixa por xPercent (ver a cena). */
+#percurso.pc-pin .pc-janela {
+  position: relative;
+  min-height: 0;
+  overflow: clip;
+  container-type: size;
+  mask-image: linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%);
+}
+#percurso.pc-pin .pc-faixa {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(100cqw * 2600 / 600, 100cqh * 10);
+  max-width: none;
+  aspect-ratio: 2600 / 260;
+  height: auto;
+  will-change: transform;
+}
+
+/* ---- Eixo dos passos -------------------------------------------------------------------- */
+#percurso.pc-pin .pc-eixo {
+  grid-area: 5 / 1 / 6 / 3;
+  display: block;
+  padding-top: var(--e3);
+}
+#percurso .pc-eixo-linha {
+  position: relative;
+  height: 2px;
+}
+#percurso .pc-eixo-trilho,
+#percurso .pc-eixo-traco {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+}
+#percurso .pc-eixo-trilho {
+  background: var(--pc-projeto);
+}
+#percurso .pc-eixo-traco {
+  background: var(--pc-traco);
+  transform: scaleX(0);
+}
+#percurso .pc-ticks {
+  position: relative;
+  height: var(--e5);
+}
+#percurso .pc-ticks li {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 100%);
+  display: grid;
+  justify-items: center;
+  gap: var(--e1);
+  transform: translateX(-50%);
+}
+#percurso .pc-ticks li:first-child {
+  justify-items: start;
+  transform: none;
+}
+#percurso .pc-ticks li:last-child {
+  justify-items: end;
+  transform: translateX(-100%);
+}
+#percurso .pc-ticks i {
+  display: block;
+  width: 2px;
+  height: var(--e2);
+  margin-top: calc(var(--e1) * -1);
+  background: var(--marinho);
+  opacity: 0.22;
+}
+#percurso .pc-ticks span {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-pequeno);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--tema-titulo);
+  opacity: 0.45;
+}
+
+/* ---- Cobertura: a linha do eixo se estende, desce e sobe até virar o marinho seguinte ------------------ */
+#percurso.pc-pin .pc-cobertura {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  clip-path: inset(0% 0% 100% 0%);
+}
+#percurso .pc-cobertura-mare {
+  position: absolute;
+  inset: 0;
+  background: var(--marinho);
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+/* ---- Celular: desenho em cima, o passo embaixo, eixo no pé ------------------------------ */
+@media (max-width: 760px) {
+  #percurso .pc-trilho {
+    stroke-width: 2.6;
+  }
+  #percurso .pc-traco {
+    stroke-width: 4.4;
+  }
+  #percurso .pc-anotacao {
+    font-size: 22px;
+  }
+  #percurso.pc-pin .pc-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    row-gap: var(--e3);
+    padding-block: calc(var(--cab) + var(--e3)) var(--e4);
+  }
+  #percurso.pc-pin .pc-titulo {
+    grid-area: 1 / 1;
+    font-size: 1.75rem;
+  }
+  #percurso.pc-pin .pc-desenho {
+    grid-area: 2 / 1;
+  }
+  #percurso.pc-pin .pc-passos {
+    grid-area: 3 / 1;
+  }
+  #percurso.pc-pin .pc-passo-titulo {
+    font-size: 1.5rem;
+  }
+  #percurso.pc-pin .pc-passo-texto {
+    margin-top: var(--e1);
+    font-size: 1rem;
+  }
+  #percurso.pc-pin .pc-passo-apoio {
+    margin-top: var(--e2);
+    font-size: 0.8125rem;
+  }
+  #percurso.pc-pin .pc-eixo {
+    grid-area: 4 / 1;
+    padding-top: var(--e2);
+  }
+  #percurso .pc-ticks {
+    height: var(--e4);
+  }
+  #percurso .pc-ticks span {
+    font-size: 0.75rem;
+  }
+  /* No celular a janela mostra menos vizinho: um passo quase inteiro. */
+  #percurso.pc-pin .pc-faixa {
+    width: min(100cqw * 2600 / 520, 100cqh * 10);
+  }
+  #percurso .pc-esquema {
+    display: none;
+  }
+}
+
+/* Impresso, o palco vira a lista de leitura e o desenho inteiro. As posições animadas
+   (inline) são anuladas aqui. */
+@media print {
+  #percurso.pc-pin .pc-palco {
+    height: auto;
+    overflow: visible;
+  }
+  #percurso.pc-pin .pc-grade {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    padding-block: var(--e6);
+  }
+  #percurso.pc-pin .pc-grade > *,
+  #percurso.pc-pin .pc-passo {
+    grid-area: auto;
+  }
+  #percurso.pc-pin .pc-passos {
+    gap: var(--e4);
+  }
+  #percurso.pc-pin .pc-janela {
+    mask-image: none;
+    container-type: normal;
+  }
+  #percurso.pc-pin .pc-faixa {
+    position: static;
+    width: 100%;
+    transform: none !important;
+  }
+  #percurso .pc-eixo,
+  #percurso .pc-cobertura {
+    display: none !important;
+  }
+  #percurso .pc-in,
+  #percurso .pc-esquema > span {
+    transform: none !important;
+  }
+}
