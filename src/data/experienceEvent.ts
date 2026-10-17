@@ -199,9 +199,9 @@ export const EXPERIENCE_EVENT = {
    * onde o arquivo mora (este, no repositório) e guarda o alt.
    */
   video: {
-    previousYear: 2026,
-    /** Mesma convenção do `name`: a edição é "Semog Experience 26". */
-    previousEdition: '26',
+    year: 2026,
+    /** Mesma convenção do `name`: a edição é "Semog Experience 26" (a própria, não a anterior). */
+    edition: '26',
     /** Post original, mantido só como crédito/origem — o site não embute o Instagram. */
     reelUrl: 'https://www.instagram.com/reel/Dd4jHaQCso5/',
     file: 'semog-experience-26.mp4',

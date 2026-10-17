@@ -335,4 +335,20 @@ describe('formulário de proposta em duas etapas (site v2)', () => {
     fireEvent.change(campo, { target: { value: '+55 83 99950-1388' } })
     expect(campo.value).toBe('(83) 99950-1388')
   })
+
+  it('etapa 2: Seu nome e Cidade no mesmo par invertido, como no protótipo (verificação 4a, I1)', async () => {
+    const { form } = montar()
+    const par = () => {
+      const pares = form.querySelectorAll('[data-etapa="2"] > .fp-par.fp-par--invertido')
+      expect(pares).toHaveLength(1)
+      return pares[0]
+    }
+    // Sem UF (a abertura da home): o par é o nome e o campo de texto da cidade, nesta ordem.
+    const campos = Array.from(par().querySelectorAll('input')).map((i) => i.name)
+    expect(campos).toEqual(['nome', 'cidadeOutra'])
+    // Com UF de Unidade, a cidade vira opções e continua dentro do mesmo par.
+    await chegarNaEtapa2(form, 'PB')
+    expect(par().querySelector('input[name="nome"]')).not.toBeNull()
+    expect(par().querySelector('fieldset input[name="cidadeEscolha"]')).not.toBeNull()
+  })
 })

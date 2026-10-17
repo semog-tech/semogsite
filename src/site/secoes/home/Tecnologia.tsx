@@ -5,10 +5,18 @@ import { estaPendente, type OuPendente } from '@/site/conteudo/pendencias'
 import { Pendencia } from '@/site/secoes/comum/Pendencia'
 import { fraseDosNumerosDaPrestacao } from '@/site/secoes/tecnologia/numeros'
 
-/** Os números da nova prestação: o selo na prévia enquanto o Leandro não informa, a frase depois. */
+/**
+ * Os números da nova prestação: a frase no contexto quando o Leandro informar. Até lá, o selo fica
+ * fora do contexto, como irmão dele, para sobrepor o palco sem somar altura à legenda (verificação
+ * 4a, I2); o contexto tem máscara de entrada, que cortaria um selo posicionado dentro dele.
+ */
 function NumerosDaPrestacao({ numeros }: { numeros: OuPendente<Numeros> }) {
-  if (estaPendente(numeros)) return <Pendencia item={numeros} />
+  if (estaPendente(numeros)) return null
   return <>{fraseDosNumerosDaPrestacao(numeros)}</>
+}
+
+function SeloDosNumeros({ numeros }: { numeros: OuPendente<Numeros> }) {
+  return estaPendente(numeros) ? <Pendencia item={numeros} /> : null
 }
 
 /**
@@ -36,6 +44,7 @@ export function Tecnologia() {
             <p className="tec-contexto">
               {tecnologia.contexto} <NumerosDaPrestacao numeros={tecnologia.numerosDaPrestacao} />
             </p>
+            <SeloDosNumeros numeros={tecnologia.numerosDaPrestacao} />
 
             <ol className="tec-passos">
               <li className="tec-passo" data-passo="0">

@@ -206,7 +206,10 @@ describe('ExperienceAgenda', () => {
 describe('ExperienceVideo', () => {
   it('mostra o vídeo do Semog Experience 26, sem a nota do formato de 2025', () => {
     render(<ExperienceVideo />)
-    expect(EXPERIENCE_EVENT.video.previousEdition).toBe('26')
+    expect(EXPERIENCE_EVENT.video.edition).toBe('26')
+    // A landing é a do próprio 26: o vídeo não é de uma "edição anterior" (verificação 4a, I3).
+    expect(screen.getByText('Edição 26')).toBeTruthy()
+    expect(screen.queryByText(/Edição anterior/i)).toBeNull()
     expect(screen.getAllByText(/Experience 26/).length).toBeGreaterThan(0)
     expect(screen.queryByText(/beach tennis/i)).toBeNull()
   })

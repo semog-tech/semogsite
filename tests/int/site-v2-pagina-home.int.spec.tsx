@@ -94,6 +94,10 @@ describe('home do site v2 na prévia', () => {
     const contexto = container.querySelector('#tecnologia .tec-contexto')?.textContent ?? ''
     expect(contexto).toContain('Prestação de contas digital desde 2023.')
     expect(contexto).not.toMatch(/670|220/)
-    if (NUMEROS_PENDENTES) expect(contexto).toContain('A CONFIRMAR')
+    // O selo é irmão do contexto (sobreposto no palco, verificação 4a I2), nunca dentro dele.
+    const selo = container.querySelector('#tecnologia .tec-legendas > .a-confirmar')
+    expect(contexto).not.toContain('A CONFIRMAR')
+    if (NUMEROS_PENDENTES) expect(selo?.textContent).toContain('A CONFIRMAR')
+    else expect(selo).toBeNull()
   })
 })

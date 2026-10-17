@@ -252,14 +252,17 @@ export function CamposDaEtapa2(props: PropsEtapa2) {
   const { id, erros } = props
   return (
     <>
-      <CampoTexto
-        id={id}
-        nome="nome"
-        rotulo={{ texto: 'Seu nome' }}
-        erro={erros.nome}
-        entrada={{ type: 'text', autoComplete: 'name', maxLength: 120 }}
-      />
-      <CidadeDaEtapa2 {...props} />
+      {/* Nome e Cidade lado a lado, como no protótipo: a etapa 2 oculta dita a altura do form. */}
+      <div className="fp-par fp-par--invertido">
+        <CampoTexto
+          id={id}
+          nome="nome"
+          rotulo={{ texto: 'Seu nome' }}
+          erro={erros.nome}
+          entrada={{ type: 'text', autoComplete: 'name', maxLength: 120 }}
+        />
+        <CidadeDaEtapa2 {...props} />
+      </div>
       <GrupoDeOpcoes
         id={id}
         grupo={{ nome: 'perfil', legenda: 'Você é', opcoes: OPCOES_DE_PERFIL }}

@@ -25,10 +25,10 @@ export function ExperienceVideo() {
       <div className="wrap">
         <div className="grid">
           <div>
-            <span className="eyebrow">Edição anterior</span>
+            <span className="eyebrow">Edição {E.video.edition}</span>
             <h2 className="sec-title video-title">
               <span className="leve">Assista como foi o</span>
-              Semog <em>Experience {E.video.previousEdition}</em>
+              Semog <em>Experience {E.video.edition}</em>
             </h2>
             <p style={{ marginTop: '1.1rem' }}>
               Reviva os melhores momentos e sinta a energia que nos move.
@@ -50,7 +50,7 @@ export function ExperienceVideo() {
               </video>
             </div>
             <p className="reel-cap">
-              Semog Experience {E.video.previousEdition} · {E.city}
+              Semog Experience {E.video.edition} · {E.city}
             </p>
           </div>
         </div>

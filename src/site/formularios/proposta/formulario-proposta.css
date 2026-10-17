@@ -35,6 +35,14 @@
   grid-template-columns: var(--menor) var(--maior);
   gap: var(--e3) var(--e4);
 }
+.fp-par--invertido {
+  grid-template-columns: var(--maior) var(--menor);
+}
+/* Com UF de Unidade, a Cidade vira opções (fora do protótipo, que só tem o campo de texto):
+   não cabem na coluna menor, então o par empilha. */
+.fp-par--invertido:has(.fp-grupo) {
+  grid-template-columns: 1fr;
+}
 .fp-etapa > *,
 .fp-par > * {
   min-width: 0;
