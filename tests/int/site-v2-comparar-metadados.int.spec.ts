@@ -44,7 +44,13 @@ describe('leitor de <head> do script de comparação', () => {
     )
     expect(destinoNoDepois('/privacidade')).toBe('/previa-v2/privacidade')
     expect(destinoNoDepois('/termos')).toBe('/previa-v2/termos')
-    expect(destinoNoDepois('/semog')).toBe('/semog')
-    expect(destinoNoDepois('/')).toBe('/')
+    expect(destinoNoDepois('/')).toBe('/previa-v2')
+    expect(destinoNoDepois('/semog')).toBe('/previa-v2/semog')
+    expect(destinoNoDepois('/administradora-de-condominios-recife')).toBe(
+      '/administradora-de-condominios-recife',
+    )
+    expect(destinoNoDepois('/prestacao-de-contas-condominio')).toBe(
+      '/prestacao-de-contas-condominio',
+    )
   })
 })

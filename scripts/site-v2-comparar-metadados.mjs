@@ -15,6 +15,9 @@ import { pathToFileURL } from 'node:url'
 
 const PREFIXO_DA_LEITURA = '/previa-v2'
 const LEITURA = /^\/(?:blog(?:\/[a-z0-9-]+)?|privacidade|termos)$/
+/** Páginas institucionais da fase 4 que já estão na prévia (a home é /previa-v2). */
+const INSTITUCIONAL =
+  /^\/(?:semog|administracao-de-condominios|garante|incorporadoras|solucoes|proposta|contato)?$/
 const PAUSA_MS = 700
 const USER_AGENT = 'semog-site-v2-comparar-metadados (verificacao interna; so GET de leitura)'
 const CAMPOS = [
@@ -33,6 +36,10 @@ const CAMPOS = [
 
 /** Diferenças esperadas desta fase, por URL e campo, com o motivo (texto reescrito de propósito). */
 const DIFERENCAS_EXPLICADAS = {
+  '/contato': {
+    motivo: 'título sem o WhatsApp, decisão do Leandro de 16/10 (TITULO_DO_CONTATO)',
+    campos: ['title', 'og:title'],
+  },
   '/blog': {
     motivo:
       'a URL de og:image é a mesma, mas no ar ela dá 404 (não existia rota de OG para o índice); a rota nova a serve com 200 image/png',
@@ -105,9 +112,13 @@ export function lerCabeca(html) {
   }
 }
 
-/** No build local, a página de leitura que vai para a URL real é a da prévia. */
+/** No build local, a página que vai para a URL real na virada 1 é a da prévia. */
 export function destinoNoDepois(caminho) {
-  return LEITURA.test(caminho) ? `${PREFIXO_DA_LEITURA}${caminho}` : caminho
+  if (LEITURA.test(caminho)) return `${PREFIXO_DA_LEITURA}${caminho}`
+  if (INSTITUCIONAL.test(caminho)) {
+    return caminho === '/' ? PREFIXO_DA_LEITURA : `${PREFIXO_DA_LEITURA}${caminho}`
+  }
+  return caminho
 }
 
 function lerArgs(argv) {

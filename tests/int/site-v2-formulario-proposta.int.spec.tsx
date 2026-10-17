@@ -292,7 +292,8 @@ describe('formulário de proposta em duas etapas (site v2)', () => {
     preencherEtapa1()
     fireEvent.click(screen.getByRole('button', { name: /Continuar/ }))
     await screen.findByRole('alert')
-    expect(document.activeElement?.textContent).toBe(TEXTOS.falhaTitulo)
+    // o foco é posto num useEffect, que pode rodar depois de o alerta aparecer
+    await waitFor(() => expect(document.activeElement?.textContent).toBe(TEXTOS.falhaTitulo))
     expect(document.activeElement?.closest('[role="alert"]')).toBeTruthy()
   })
 
