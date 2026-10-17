@@ -1,0 +1,143 @@
+/* Conferência: branco. A frase (61,8) e o lead (38,2); embaixo, a tabela dos pares: o que a
+   plataforma faz em Barlow, a pessoa em Saira marinho, e entre os dois o traço com o visto.
+   Na saída, a coluna lavanda do convite da proposta. */
+#conferencia {
+  padding-block: var(--respiro-cena) 0;
+}
+#conferencia .cf-quadro {
+  display: grid;
+  gap: var(--e7);
+}
+#conferencia .cf-topo {
+  display: grid;
+  grid-template-columns: var(--maior) var(--menor);
+  gap: var(--e5);
+  align-items: end;
+}
+#conferencia .cf-topo > * {
+  min-width: 0;
+}
+#conferencia .cf-titulo {
+  font-size: clamp(2.75rem, 0.9rem + 4.6vw, 6rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-display);
+}
+/* As duas frases, cada uma na sua linha: "A gente confere." não se parte. */
+#conferencia .cf-titulo em {
+  display: block;
+}
+#conferencia .cf-lead {
+  max-width: 32ch;
+  padding-bottom: 0.4em;
+}
+
+/* ---- Pares ------------------------------------------------------------------------- */
+#conferencia .cf-tabela {
+  --cf-colunas: minmax(0, 1fr) var(--e7) minmax(0, 1.25fr);
+  display: grid;
+  gap: var(--e4);
+}
+#conferencia .cf-cabeca,
+#conferencia .cf-par {
+  display: grid;
+  grid-template-columns: var(--cf-colunas);
+  column-gap: var(--e4);
+}
+#conferencia .cf-cabeca > :last-child {
+  grid-column: 3;
+}
+#conferencia .cf-pares {
+  display: grid;
+  gap: var(--e5);
+}
+#conferencia .cf-par {
+  align-items: center;
+}
+#conferencia .cf-maquina {
+  max-width: 36ch;
+  font-size: var(--t-lead);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--tema-suave);
+}
+#conferencia .cf-pessoa {
+  max-width: 24ch;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.5rem, 1.1rem + 1vw, 2.125rem);
+  font-weight: 300;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.15;
+  color: var(--tema-titulo);
+}
+/* O traço vai da plataforma até o visto; o visto é o mesmo das regras da convenção. */
+#conferencia .cf-traco {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+}
+#conferencia .cf-traco i {
+  flex: 1;
+  height: 1.5px;
+  background: var(--marinho);
+  transform-origin: 0 50%;
+}
+#conferencia .cf-visto {
+  width: 21px;
+  height: auto;
+  flex: none;
+  color: var(--marinho);
+  overflow: visible;
+}
+/* Tracejado por pathLength: medido em unidades do desenho (o .percurso do core não escala o
+   traço, e aí o tracejado pararia no meio do visto). */
+#conferencia .cf-visto path {
+  vector-effect: none;
+  stroke-width: 1.4;
+}
+
+/* ---- Saída: a coluna lavanda sobe e vira o véu da proposta ------------------------ */
+#conferencia .cf-saida {
+  position: relative;
+  height: 38svh;
+  margin-top: var(--e7);
+}
+#conferencia .cf-veu {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 38.2%;
+  background: color-mix(in oklab, var(--lavanda) 64%, var(--branco));
+  transform-origin: 50% 100%;
+}
+
+@media (max-width: 760px) {
+  #conferencia .cf-quadro {
+    gap: var(--e6);
+  }
+  #conferencia .cf-topo {
+    grid-template-columns: 1fr;
+    gap: var(--e4);
+  }
+  #conferencia .cf-titulo {
+    font-size: 2.875rem;
+  }
+  #conferencia .cf-cabeca {
+    display: none;
+  }
+  #conferencia .cf-par {
+    grid-template-columns: 1fr;
+    row-gap: var(--e2);
+  }
+  #conferencia .cf-traco {
+    width: var(--e6);
+  }
+  #conferencia .cf-saida {
+    height: 28svh;
+    margin-top: var(--e6);
+  }
+  /* No celular o convite da proposta ocupa a largura toda: o véu também. */
+  #conferencia .cf-veu {
+    width: 100%;
+  }
+}
