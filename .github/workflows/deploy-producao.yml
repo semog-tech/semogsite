@@ -1,0 +1,50 @@
+name: Deploy produção
+
+# Publica a produção chamando o Deploy Hook da Vercel (branch main). Existe porque
+# o evento de push da integração Git da Vercel parou de chegar; ver docs/DEPLOY.md.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-producao
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Disparar deploy na Vercel
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chamar o Deploy Hook
+        env:
+          # A URL do hook é um segredo: nunca ecoar, nem em log de erro.
+          DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_MAIN }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "::error::Secret VERCEL_DEPLOY_HOOK_MAIN vazio ou ausente. Cadastre a URL do Deploy Hook em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          resposta="$(mktemp)"
+          if ! status="$(curl --silent --show-error --fail-with-body \
+            --retry 3 --retry-delay 10 --max-time 30 \
+            --request POST \
+            --output "$resposta" --write-out '%{http_code}' \
+            "$DEPLOY_HOOK_URL")"; then
+            echo "::error::O Deploy Hook recusou ou não respondeu (HTTP ${status:-sem resposta})."
+            # O corpo do erro da Vercel não contém a URL do hook.
+            cat "$resposta" || true
+            exit 1
+          fi
+
+          job_id="$(jq -r '.job.id // empty' "$resposta")"
+          if [ -z "$job_id" ]; then
+            echo "::error::HTTP $status, mas a resposta não trouxe job.id."
+            exit 1
+          fi
+          echo "HTTP $status - deploy enfileirado na Vercel, job.id=$job_id"

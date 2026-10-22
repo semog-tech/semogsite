@@ -8,5 +8,10 @@
       "path": "/api/cron/push-exact-leads",
       "schedule": "15 * * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }

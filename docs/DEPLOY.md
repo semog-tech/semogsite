@@ -192,6 +192,26 @@ pooler — veja `docs/DEV.md` para os comandos.
   em compartilhar, já que ambos os ambientes acessam o mesmo banco), mas prefira valores distintos
   se quiser invalidar sessões de um ambiente sem afetar o outro.
 
+## Como a produção é publicada (Deploy Hook)
+
+Desde 22/10/2026 o evento de push da `main` deixou de chegar à Vercel (a integração Git
+segue conectada e os Previews das PRs funcionam), então a produção é publicada pelo GitHub
+Actions, não pela integração Git.
+
+- **Fluxo:** merge/push na `main` dispara `.github/workflows/deploy-producao.yml`, que faz POST
+  no Deploy Hook `github-actions-main` (Vercel → Project Settings → Git → Deploy Hooks). O log
+  mostra só o status HTTP e o `job.id`; a URL nunca é impressa.
+- **Segredo:** a URL do hook fica no secret `VERCEL_DEPLOY_HOOK_MAIN` do repositório (GitHub →
+  Settings → Secrets and variables → Actions). Quem tem a URL publica o projeto: se vazar,
+  revogue o hook na Vercel, crie outro e atualize o secret.
+- **Sem duplicar:** o `vercel.json` traz `git.deploymentEnabled.main = false`, que desliga o
+  deploy automático da `main` pela integração Git. Branches de PR continuam gerando Preview.
+- **Manual:** GitHub → Actions → "Deploy produção" → Run workflow (branch `main`).
+- **Limite:** a Vercel aceita até 60 disparos de hook por hora por projeto.
+- **Voltar atrás** (quando o push da integração Git voltar a funcionar): remova o bloco `git`
+  do `vercel.json` e apague `.github/workflows/deploy-producao.yml` (e, se quiser, o hook e o
+  secret). Fazer só uma das duas metades deixa a produção sem deploy ou com deploy em dobro.
+
 ## 5. Domínio
 
 - Produção: `semog.com.br` e `www.semog.com.br` — configure ambos em **Project Settings →
