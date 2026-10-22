@@ -124,6 +124,9 @@ describe('submitForm — inscrição do Experience', () => {
       telefone: '+5583999501388',
       condominio: 'Residencial Cabo Branco',
       aceiteImagem: 'true',
+      // Sem cookie nem origem do navegador: a marca explícita, nunca vazio.
+      'origem — Canal (origem)': 'Indisponível (sem cookie nem dados de origem do navegador)',
+      'origem — Origem lida de': 'nenhuma fonte',
     })
   })
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
-import type { FormType } from '@/lib/forms'
+import { DUPLICA_DE_FIELD, type FormType } from '@/lib/forms'
 
 /**
  * Cron (Vercel) — rede de segurança do push pro Exact. O caminho normal é
@@ -46,6 +46,7 @@ export async function GET(req: Request): Promise<Response> {
           and created_at > $1
           and exact_attempts < $2
           and (form = 'proposta' or (form = 'contato' and data->>'assunto' = 'proposta-comercial'))
+          and data->>'${DUPLICA_DE_FIELD}' is null
         order by created_at asc`,
       [cutoff, MAX_ATTEMPTS],
     )

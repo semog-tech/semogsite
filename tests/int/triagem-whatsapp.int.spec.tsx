@@ -347,7 +347,7 @@ describe('proposta curta', () => {
     expect(token).toBe('token-de-teste')
     expect(gtag).toHaveBeenCalledWith('event', 'generate_lead', {
       form: 'proposta',
-      variante: 'contato_rapido',
+      variante: 'contato-rapido',
       currency: 'BRL',
       value: 1,
     })

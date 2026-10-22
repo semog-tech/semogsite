@@ -2,6 +2,7 @@ import { JWT } from 'google-auth-library'
 import { NextResponse } from 'next/server'
 import { paraDataManager } from '@/lib/adsConsent'
 import { query } from '@/lib/db'
+import { TIPO_CLIQUE_FIELD } from '@/lib/forms'
 import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
 
 /**
@@ -66,13 +67,23 @@ const WINDOW_DAYS = 3
 type PendingRow = {
   id: string
   created_at: string | Date
+  /** O click id do Google; apesar do nome da coluna, pode ser gbraid ou wbraid. */
   gclid: string
+  /** `TIPO_CLIQUE_FIELD` do lead; só existe no SELECT de leads. Ausente = gclid. */
+  tipo_de_clique?: string | null
   /**
    * Consentimento de publicidade gravado na captura ('granted' | 'denied').
    * `null` nas linhas anteriores à coluna existir — ver `paraDataManager`,
    * que documenta como elas são tratadas e até quando isso importa.
    */
   ads_consent: string | null
+}
+
+type TipoDeClique = 'gclid' | 'gbraid' | 'wbraid'
+
+/** Tipo gravado em `data` (`TIPO_CLIQUE_FIELD`); ausente ou desconhecido = gclid, o formato de hoje. */
+function tipoDeClique(valor: string | null | undefined): TipoDeClique {
+  return valor === 'gbraid' || valor === 'wbraid' ? valor : 'gclid'
 }
 
 type BatchResult = {
@@ -124,7 +135,8 @@ export async function GET(req: Request): Promise<Response> {
     // `assunto = 'proposta-comercial'` é pedido de proposta, e aí sim conta,
     // na mesma ação `Proposta (servidor) - gclid` (mesma intenção de compra).
     const { rows: leads } = await query<PendingRow>(
-      `select id, created_at, gclid, ads_consent from cms.leads
+      `select id, created_at, gclid, ads_consent, data->>'${TIPO_CLIQUE_FIELD}' as tipo_de_clique
+         from cms.leads
        where gclid is not null
          and (form = 'proposta' or (form = 'contato' and data->>'assunto' = 'proposta-comercial'))
          and created_at > $1 and uploaded_to_ads = false
@@ -176,7 +188,10 @@ export async function GET(req: Request): Promise<Response> {
           },
         ],
         events: rows.map((row) => ({
-          adIdentifiers: { gclid: row.gclid },
+          // gclid, gbraid e wbraid são campos distintos em AdIdentifiers (referência
+          // da Data Manager API). Antes ia tudo como `gclid`, e um clique de iOS
+          // (gbraid/wbraid) chegava ao Google no campo errado.
+          adIdentifiers: { [tipoDeClique(row.tipo_de_clique)]: row.gclid },
           conversionValue: 1,
           currency: 'BRL',
           eventTimestamp: new Date(row.created_at).toISOString(),

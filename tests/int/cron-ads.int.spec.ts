@@ -336,4 +336,29 @@ describe('cron upload-ads-conversions', () => {
     expect(json.error).toContain('conexão caiu no meio do UPDATE')
     expect(queryMock).toHaveBeenCalledTimes(3) // 2 SELECTs + 1 UPDATE (que falhou)
   })
+
+  it('SELECT de leads traz o tipo do clique gravado em data', async () => {
+    selects([])
+
+    await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+
+    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(sql).toContain("data->>'origem — Tipo do clique (Google Ads)' as tipo_de_clique")
+  })
+
+  it.each([
+    ['gbraid', 'gbraid'],
+    ['wbraid', 'wbraid'],
+    [null, 'gclid'],
+    ['desconhecido', 'gclid'],
+  ])('tipo %s sobe no campo %s de AdIdentifiers, e só nele', async (tipo, campo) => {
+    selects([{ ...leadComGclid, tipo_de_clique: tipo }])
+    queryMock.mockResolvedValueOnce({ rows: [] }) // UPDATE leads
+
+    await GET(fakeRequest(ENV_VARS.CRON_SECRET))
+
+    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(options.body as string)
+    expect(body.events[0].adIdentifiers).toEqual({ [campo]: leadComGclid.gclid })
+  })
 })

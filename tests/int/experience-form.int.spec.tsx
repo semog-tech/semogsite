@@ -85,6 +85,8 @@ describe('ExperienceForm', () => {
         aceiteImagem: true,
       }),
       'token-de-teste',
+      // A origem que o navegador conhece, para quando o cookie não chega.
+      expect.stringContaining('"landing":"/"'),
     )
   })
 

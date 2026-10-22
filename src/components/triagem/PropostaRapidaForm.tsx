@@ -11,7 +11,8 @@ import { PhoneField } from '@/components/forms/PhoneField'
 import { Turnstile } from '@/components/forms/Turnstile'
 import type { CidadeDaLanding } from '@/lib/cidadeDaLanding'
 import { type PropostaRapidaValues, propostaRapidaSchema } from '@/lib/form-schemas'
-import type { SubmitFormResult } from '@/lib/forms'
+import { type SubmitFormResult, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
+import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
 import { IconeAviso } from './icones'
 import { registrarPropostaEnviada } from './medicao'
 
@@ -138,12 +139,14 @@ export function PropostaRapidaForm({ cidadeDaPagina, aoEnviar, aoMudarEnvio }: P
 
     let result: SubmitFormResult
     try {
-      result = await submitPropostaRapida(values, token)
+      result = await submitPropostaRapida(values, token, lerOrigemDoNavegador())
     } catch (err) {
       // Mesmo par do `PropostaForm`: console + Sentry (o Sentry só sai do no-op
       // com `NEXT_PUBLIC_SENTRY_DSN`; até lá o console é o único rastro).
       console.error('[PropostaRapidaForm] submitPropostaRapida falhou:', err)
-      Sentry.captureException(err, { tags: { form: 'proposta', variante: 'contato_rapido' } })
+      Sentry.captureException(err, {
+        tags: { form: 'proposta', variante: VARIANTE_CONTATO_RAPIDO },
+      })
       recomecarVerificacao(<FalhaDeEnvio />)
       return
     }

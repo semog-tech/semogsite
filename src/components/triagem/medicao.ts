@@ -10,6 +10,7 @@
  * pelo `LeadClickTracker`, com a seção do caminho.
  */
 
+import { VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 import { registrarLeadGerado } from '@/lib/medicaoLead'
 import type { TelaSegundaVia } from './segunda-via/estado'
 
@@ -26,10 +27,12 @@ export function registrarCaminho(caminho: CaminhoEscolhido) {
 
 /**
  * Conversão da proposta curta: o MESMO `generate_lead` do formulário completo,
- * com a variante ao lado, para não abrir uma série nova de conversão.
+ * com a variante ao lado, para não abrir uma série nova de conversão. A variante
+ * é a mesma constante gravada em `cms.leads.data.variante` (`contato-rapido`);
+ * até 22/10/2026 o GA4 recebia `contato_rapido`, com sublinhado.
  */
 export function registrarPropostaEnviada() {
-  registrarLeadGerado('proposta', { variante: 'contato_rapido' })
+  registrarLeadGerado('proposta', { variante: VARIANTE_CONTATO_RAPIDO })
 }
 
 /** Marcos da 2ª via sem parâmetro: pedido aceito, unidade sem boleto, cobranças restritas. */

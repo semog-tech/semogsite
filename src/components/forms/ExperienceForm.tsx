@@ -14,6 +14,7 @@ import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { EXPERIENCE_EVENT as E } from '@/data/experienceEvent'
 import { type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
+import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
 
 type Status = 'idle' | 'success' | 'error' | 'esgotado'
 
@@ -107,7 +108,7 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
 
     let result: SubmitFormResult
     try {
-      result = await submitForm('experience', values, token)
+      result = await submitForm('experience', values, token, lerOrigemDoNavegador())
     } catch (err) {
       // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
       // não é redundante — o Sentry só sai do no-op quando
