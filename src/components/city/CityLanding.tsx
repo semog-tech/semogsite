@@ -55,7 +55,7 @@ const SOLUCOES: { icon: string; title: string; text: string; span: string; exclu
     {
       icon: IC.doc,
       title: 'Prestação de contas 100% digital',
-      text: 'O balancete que todos os condôminos entendem: documentos anexados, gráficos claros e assinatura com validade jurídica.',
+      text: 'O balancete que todos os condôminos entendem: documentos anexados, gráficos claros e assinatura digital.',
       span: 'lg:col-span-3 lg:row-span-2',
       exclusive: true,
     },
@@ -107,7 +107,7 @@ const DIFERENCIAIS = [
   {
     icon: IC.scale,
     title: 'Transparência de verdade',
-    text: 'Prestação de contas 100% digital, aberta a todos os condôminos e com validade jurídica. Nada de balancete confuso.',
+    text: 'Prestação de contas 100% digital, aberta a todos os condôminos e com assinatura digital. Nada de balancete confuso.',
   },
   {
     icon: IC.chat,
