@@ -236,7 +236,7 @@ export const home: PageData = {
           theme: 'on-white',
           tag: 'Prestação de Contas Digital',
           title: 'O balancete que todos os condôminos entendem.',
-          text: '100% digital, com documentos anexados, gráficos claros e assinatura digital com validade jurídica.',
+          text: '100% digital, com documentos anexados, gráficos claros e assinatura digital.',
           href: '/prestacao-de-contas-condominio',
         },
         {

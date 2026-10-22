@@ -109,7 +109,7 @@ function standardFaq(city: string, uf: string, region: Gendered): CityFaq[] {
   return [
     {
       question: `Qual a melhor administradora de condomínios de ${city}?`,
-      answer: `Com 35 anos de mercado, mais de 650 condomínios e o 3º ciclo consecutivo no G20 da Superlógica, a Semog é referência no Nordeste e Norte, com unidade em ${city}/${uf} e prestação de contas 100% digital: balancete com assinatura de validade jurídica, documentos e gráficos abertos ao condômino.`,
+      answer: `Com 35 anos de mercado, mais de 650 condomínios e o 3º ciclo consecutivo no G20 da Superlógica, a Semog é referência no Nordeste e Norte, com unidade em ${city}/${uf} e prestação de contas 100% digital: balancete com assinatura digital, documentos e gráficos abertos ao condômino.`,
     },
     {
       question: `Quanto custa uma administradora em ${city}?`,
@@ -204,9 +204,9 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     ufGender: 'f',
     image: '/cities/joao-pessoa.jpg',
     meta: {
-      title: 'Administradora de Condomínios em João Pessoa | Semog',
+      title: 'Administradora de Condomínios em João Pessoa | G20 · Semog',
       description:
-        'Na orla — Tambaú, Cabo Branco, Bessa — muito proprietário mora fora: assembleia digital e app resolvem. Unidade em Manaíra: (83) 3224-1228.',
+        'Equipe pessoense em Manaíra, prestação de contas 100% digital e assembleia online para quem mora fora. 5º no G20 Condo da Superlógica.',
     },
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
@@ -314,7 +314,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
     localContext:
-      'No coração da Amazônia, Belém une o charme histórico da Cidade Velha e do Ver-o-Peso à verticalização acelerada de Umarizal, Nazaré e Batista Campos. Levar uma gestão condominial moderna à capital paraense é a missão da Semog no Norte: tecnologia que ainda era rara por aqui, prestação de contas transparente e uma equipe local que entende as particularidades do clima e do mercado amazônico. Do edifício histórico ao lançamento de alto padrão, seu condomínio ganha a estrutura de uma das maiores administradoras do país.',
+      'No coração da Amazônia, Belém une o charme histórico da Cidade Velha e do Ver-o-Peso à verticalização acelerada de Umarizal, Nazaré e Batista Campos. Levar uma gestão condominial moderna à capital paraense é a missão da Semog no Norte: tecnologia que ainda era rara por aqui, prestação de contas transparente e uma equipe local que entende as particularidades do clima e do mercado amazônico. Do edifício histórico ao lançamento de alto padrão, seu condomínio ganha a estrutura de uma administradora com 35 anos de mercado e mais de 650 condomínios.',
     coverageText:
       'De Nazaré a Umarizal, em toda Belém e Região Metropolitana, sua gestão é local e próxima. Presença especialmente forte em:',
     neighborhoods: [

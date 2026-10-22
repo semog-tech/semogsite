@@ -76,7 +76,7 @@ export const softwareDeGestaoCondominial: PageData = {
       steps: [
         {
           title: 'Nova prestação de contas digital',
-          text: 'Entregue em junho/2026: balancete 100% digital, com documentos anexados, gráficos claros e assinatura com validade jurídica.',
+          text: 'Entregue em junho/2026: balancete 100% digital, com documentos anexados, gráficos claros e assinatura digital.',
           status: 'No ar',
           live: true,
         },
@@ -142,7 +142,7 @@ export const softwareDeGestaoCondominial: PageData = {
           iconSvg: '<path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
           title: 'Prestação de contas digital',
           description:
-            'Balancete com documento anexado a cada lançamento e assinatura com validade jurídica.',
+            'Balancete com documento anexado a cada lançamento e assinatura digital.',
         },
         {
           iconSvg: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>',

@@ -8,8 +8,8 @@
  *
  * Regras de redação respeitadas (ver memória de conformidade): a Semog
  * **assessora**, não assume a operação — a administração cabe ao síndico; e
- * "validade jurídica" da assinatura digital continua correto (é o termo do
- * documento, não oferta de serviço jurídico).
+ * "validade jurídica" não aparece, nem para a assinatura digital (vetado no
+ * site inteiro desde 15/10/2026).
  */
 import type { PageData } from '@/types/content'
 import { img } from '../media'
@@ -20,7 +20,7 @@ export const prestacaoDeContasCondominio: PageData = {
   meta: {
     title: 'Prestação de Contas de Condomínio: o que exigir | Semog',
     description:
-      'Balancete com nota e comprovante em cada lançamento, gráficos que o condômino entende e assinatura digital com validade jurídica.',
+      'Balancete com nota e comprovante em cada lançamento, gráficos que o condômino entende e assinatura digital do síndico e do conselho.',
   },
   layout: [
     {
@@ -68,7 +68,7 @@ export const prestacaoDeContasCondominio: PageData = {
         },
         {
           title: 'Assinatura digital',
-          text: 'Aprovação do síndico e do conselho com validade jurídica.',
+          text: 'Aprovação do síndico e do conselho, com data registrada.',
         },
         {
           title: 'Sempre disponível',
@@ -118,7 +118,7 @@ export const prestacaoDeContasCondominio: PageData = {
             '<path d="M20 6 9 17l-5-5"/><path d="M22 12a10 10 0 1 1-5-8.66"/>',
           title: 'Aprovação registrada',
           description:
-            'Assinatura digital do síndico e do conselho, com data e validade jurídica.',
+            'Assinatura digital do síndico e do conselho, com data.',
         },
       ],
     },
@@ -170,7 +170,7 @@ export const prestacaoDeContasCondominio: PageData = {
           { text: 'Balancete visual, com gráficos que o morador entende' },
           { text: 'Nota e comprovante anexados a cada lançamento' },
           { text: 'Conselho confere ao longo do mês, no celular' },
-          { text: 'Assinatura digital com data e validade jurídica' },
+          { text: 'Assinatura digital com data' },
           { text: 'O condômino consulta sozinho, quando quiser' },
         ],
       },
@@ -210,7 +210,7 @@ export const prestacaoDeContasCondominio: PageData = {
         {
           question: 'Quem aprova o balancete?',
           answer:
-            'O síndico e o conselho fiscal, digitalmente, com assinatura de validade jurídica. A prestação de contas anual continua sendo submetida à assembleia, como manda a convenção — o que muda é que ela chega lá já conferida, mês a mês, em vez de ser reconstruída no fim do exercício.',
+            'O síndico e o conselho fiscal, com assinatura digital. A prestação de contas anual continua sendo submetida à assembleia, como manda a convenção — o que muda é que ela chega lá já conferida, mês a mês, em vez de ser reconstruída no fim do exercício.',
         },
         {
           question: 'Qualquer condômino pode ver os documentos?',

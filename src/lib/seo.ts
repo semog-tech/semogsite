@@ -542,8 +542,8 @@ export function getPageJsonLd({
 /**
  * JSON-LD (@graph) da landing de cidade renderizada por COMPONENTE próprio
  * (`CityLanding`, não CMS): BreadcrumbList + LocalBusiness (da `UNITS`, com NAP
- * + geo + areaServed) + FAQPage (as perguntas da própria página). Usado pelas
- * rotas explícitas `/administradora-de-condominios-*`.
+ * + areaServed; sem `geo`, não há coordenadas) + FAQPage (as perguntas da
+ * própria página). Usado pelas rotas explícitas `/administradora-de-condominios-*`.
  */
 export function cityLandingJsonLd(
   slug: string,
