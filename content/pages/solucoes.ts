@@ -136,7 +136,7 @@ export const solucoes: PageData = {
         },
         {
           title: 'Assinatura digital',
-          text: 'Aprovação do síndico e do conselho com validade jurídica.',
+          text: 'Aprovação do síndico e do conselho, com data registrada.',
         },
         {
           title: 'Sempre disponível',
@@ -244,7 +244,7 @@ export const solucoes: PageData = {
       steps: [
         {
           title: 'Nova prestação de contas digital',
-          text: 'Entregue em junho/2026: balancete 100% digital, com documentos anexados, gráficos claros e assinatura com validade jurídica.',
+          text: 'Entregue em junho/2026: balancete 100% digital, com documentos anexados, gráficos claros e assinatura digital.',
           status: 'No ar',
           live: true,
         },
@@ -309,7 +309,7 @@ export const solucoes: PageData = {
         {
           question: 'Como funciona a prestação de contas digital?',
           answer:
-            'É 100% digital: cada lançamento traz documentos e comprovantes anexados, os números viram gráficos fáceis de ler e a aprovação acontece com assinatura digital de validade jurídica. Qualquer condômino consulta a qualquer hora.',
+            'É 100% digital: cada lançamento traz documentos e comprovantes anexados, os números viram gráficos fáceis de ler e a aprovação acontece com assinatura digital. Qualquer condômino consulta a qualquer hora.',
         },
         {
           question: 'Em quais cidades a Semog atua?',

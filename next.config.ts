@@ -276,10 +276,21 @@ const nextConfig: NextConfig = {
         destination: '/blog/areas-lazer-regras-de-uso',
         permanent: true,
       },
+      // Não há post sobre barulho; o de áreas de lazer é o mais próximo (tem a
+      // seção "Horário de silêncio"). 301 explícito, pedido na revisão de SEO
+      // de 22/10/2026 — ainda recebia impressões no GSC.
       {
         source: '/o-vizinho-insiste-no-som-alto-no-fim-de-semana-saiba-o-que-fazer',
         destination: '/blog/areas-lazer-regras-de-uso',
-        permanent: true,
+        statusCode: 301,
+      },
+      // Artigo da antiga central de ajuda (respondia 404 e ainda recebia
+      // impressões). Não há página de portaria; a de software de gestão é a que
+      // descreve o app, onde a portaria aparece. O id casa com ou sem o acento.
+      {
+        source: '/support/solutions/articles/:artigo(43000606769-[^/]+)',
+        destination: '/software-de-gestao-condominial',
+        statusCode: 301,
       },
 
       // Demais posts antigos (sem correspondência direta) → índice do blog
