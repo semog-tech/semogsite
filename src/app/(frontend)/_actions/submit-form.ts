@@ -19,11 +19,7 @@ import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
 import ExperienceAutoReply from '@/emails/ExperienceAutoReply'
 import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
-import {
-  ATTRIBUTION_COOKIE,
-  buildAttributionFields,
-  parseAttributionCookie,
-} from '@/lib/attribution'
+import { ATTRIBUTION_COOKIE } from '@/lib/attribution'
 import { clienteIp } from '@/lib/clienteIp'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { pool, query } from '@/lib/db'
@@ -44,12 +40,15 @@ import {
   propostaSchema,
 } from '@/lib/form-schemas'
 import {
+  DUPLICA_DE_FIELD,
   extractLeadColumns,
   FORMS,
   type FormType,
   type SubmitFormResult,
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
+import { camposDaOrigem, resolverOrigem } from '@/lib/origemDoLead'
+import { propostaRecenteDoMesmoTelefone } from '@/lib/propostaDuplicada'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
@@ -106,10 +105,14 @@ function rotulosDoFormulario(formType: FormType): Record<string, string> {
   return { ...PROPOSTA_LABELS, ...CONTATO_RAPIDO_LABELS }
 }
 
-/** O que a proposta curta grava: os campos dela mais a marca e o protocolo. */
+/**
+ * O que a proposta curta grava: os campos dela mais a marca e o protocolo, e o
+ * id da proposta que ela repete quando é duplicada (ver `@/lib/propostaDuplicada`).
+ */
 type DadosDaPropostaRapida = PropostaRapidaValues & {
   variante: typeof VARIANTE_CONTATO_RAPIDO
   protocolo: string
+  [DUPLICA_DE_FIELD]?: string
 }
 
 type DadosDoEnvio = ContatoValues | PropostaValues | ExperienceValues | DadosDaPropostaRapida
@@ -120,6 +123,14 @@ type Envio = {
   /** Assunto do e-mail interno ("Novo contato via …"). */
   formTitle: string
   data: DadosDoEnvio
+  /**
+   * A origem que o navegador mandou junto com o envio (ver `@/lib/origemDoLead`).
+   * `unknown` de propósito: é argumento da Server Action, qualquer um manda o que
+   * quiser, e só `resolverOrigem` decide o que se aproveita.
+   */
+  origemDoNavegador: unknown
+  /** Só na proposta curta: o telefone pelo qual se procura a proposta que ela repete. */
+  telefoneParaDeduplicar?: string
 }
 
 /**
@@ -579,6 +590,69 @@ async function barrarAbuso(
   return null
 }
 
+/** A linha de `cms.leads` pronta para gravar, e o que o CRM e os e-mails reaproveitam dela. */
+type Preparo = {
+  linha: LinhaDeLead
+  leadData: Record<string, string>
+  attributionFields: { label: string; value: string }[]
+  notifyTo?: readonly string[]
+  email?: string
+}
+
+/**
+ * Lê da requisição a origem e o consentimento e monta a linha do lead.
+ *
+ * A origem vem do cookie de 1ª parte gravado pelo `AttributionTracker`; sem
+ * ele, do que o navegador mandou com o envio; sem nenhum dos dois, uma marca
+ * explícita de "indisponível" — nunca vazio em silêncio (ver `@/lib/origemDoLead`).
+ */
+async function prepararLinha(
+  formType: FormType,
+  data: DadosDoEnvio,
+  origemDoNavegador: unknown,
+): Promise<Preparo> {
+  const jar = await cookies()
+  const origem = resolverOrigem(jar.get(ATTRIBUTION_COOKIE)?.value, origemDoNavegador)
+  const attributionFields = camposDaOrigem(origem)
+
+  const leadData = montarLeadData(data, attributionFields)
+  const { gclid, email } = extractLeadColumns(leadData)
+
+  // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
+  // linha: é o que o cron do Google Ads envia junto com a conversão, no
+  // lugar da constante que havia antes (ver `@/lib/adsConsent`).
+  const adsConsent = consentimentoDeAnuncio(
+    jar.get(CONSENT_COOKIE_NAME)?.value,
+    paisDaRequisicao(await headers()),
+  )
+
+  // Decidido aqui, antes do INSERT, porque vai para a própria linha: é o
+  // registro de a quem este lead foi endereçado, e ele precisa sobreviver a
+  // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
+  const notifyTo = destinatariosDaNotificacao(formType, data)
+
+  const linha: LinhaDeLead = {
+    formType,
+    leadData,
+    gclid: gclid ?? null,
+    email: email ?? null,
+    adsConsent,
+    notificadoPara: notifyTo?.join(', ') ?? null,
+  }
+  return { linha, leadData, attributionFields, notifyTo, email }
+}
+
+/**
+ * Os dados do envio, ligados à proposta anterior do mesmo telefone quando a
+ * proposta curta a repete. Roda depois do rate limit e do Turnstile: a busca é
+ * uma ida ao banco, e não pode ficar ao alcance de quem não passou por eles.
+ */
+async function dadosComDuplicidade(envio: Envio): Promise<DadosDoEnvio> {
+  if (!envio.telefoneParaDeduplicar) return envio.data
+  const duplicaDe = await propostaRecenteDoMesmoTelefone(envio.telefoneParaDeduplicar)
+  return duplicaDe ? { ...envio.data, [DUPLICA_DE_FIELD]: duplicaDe } : envio.data
+}
+
 /**
  * O pipeline comum a todos os formulários, depois da validação: rate limit →
  * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no CRM
@@ -589,44 +663,25 @@ async function barrarAbuso(
  * vez de deixar o erro subir. O `INSERT` em `cms.leads` é o único passo que
  * precisa ter sucesso pra `ok: true` — falha de CRM ou de e-mail depois disso
  * é só registrada (no banco e no log).
+ *
+ * **Proposta curta duplicada** (mesmo telefone de uma proposta das últimas
+ * 24 h) é gravada e responde `ok: true` como qualquer outra, mas para depois do
+ * INSERT: sem card no Exact, porque ele já existe pela anterior, e sem e-mail
+ * interno, porque a regional já recebeu o da anterior, com mais campos — um
+ * segundo aviso da mesma pessoa é o que faria dois consultores ligarem para o
+ * mesmo síndico. A curta não pergunta e-mail, então não há auto-reply a perder.
+ * A ligação fica em `data.duplicaDe`, para quem abrir a linha.
  */
 async function processarEnvio(envio: Envio, turnstileToken: string): Promise<SubmitFormResult> {
-  const { formType, data } = envio
+  const { formType } = envio
   try {
     const ip = await clienteIp()
     const recusa = await barrarAbuso(formType, ip, turnstileToken)
     if (recusa) return recusa
 
-    // Origem do lead (cookie de 1ª parte gravado pelo AttributionTracker no
-    // client). Best-effort: ausente/ilegível → `[]`, e a submissão segue igual.
-    const jar = await cookies()
-    const attributionCookie = jar.get(ATTRIBUTION_COOKIE)?.value
-    const attributionFields = buildAttributionFields(parseAttributionCookie(attributionCookie))
-
-    const leadData = montarLeadData(data, attributionFields)
-    const { gclid, email } = extractLeadColumns(leadData)
-
-    // Consentimento de publicidade deste visitante, decidido AQUI e gravado na
-    // linha: é o que o cron do Google Ads envia junto com a conversão, no
-    // lugar da constante que havia antes (ver `@/lib/adsConsent`).
-    const adsConsent = consentimentoDeAnuncio(
-      jar.get(CONSENT_COOKIE_NAME)?.value,
-      paisDaRequisicao(await headers()),
-    )
-
-    // Decidido aqui, antes do INSERT, porque vai para a própria linha: é o
-    // registro de a quem este lead foi endereçado, e ele precisa sobreviver a
-    // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
-    const notifyTo = destinatariosDaNotificacao(formType, data)
-
-    const gravado = await gravarLead({
-      formType,
-      leadData,
-      gclid: gclid ?? null,
-      email: email ?? null,
-      adsConsent,
-      notificadoPara: notifyTo?.join(', ') ?? null,
-    })
+    const data = await dadosComDuplicidade(envio)
+    const preparo = await prepararLinha(formType, data, envio.origemDoNavegador)
+    const gravado = await gravarLead(preparo.linha)
 
     // Lotou enquanto esta pessoa preenchia. Sai ANTES do CRM e do e-mail: não
     // há lead salvo para empurrar nem inscrição para confirmar, e um e-mail de
@@ -640,10 +695,18 @@ async function processarEnvio(envio: Envio, turnstileToken: string): Promise<Sub
       }
     }
 
-    const leadRowId = gravado.id
-    if (leadRowId) await enviarAoExact(formType, leadData, leadRowId)
+    const duplicaDe = preparo.leadData[DUPLICA_DE_FIELD]
+    if (duplicaDe) {
+      console.info(
+        `[submit-form] proposta curta ${gravado.id ?? '?'} repete o lead ${duplicaDe}: sem card no Exact nem e-mail.`,
+      )
+      return { ok: true, message: 'Recebemos sua mensagem!' }
+    }
 
-    await enviarEmails({ envio, leadData, leadRowId, attributionFields, notifyTo, email })
+    const leadRowId = gravado.id
+    if (leadRowId) await enviarAoExact(formType, preparo.leadData, leadRowId)
+
+    await enviarEmails({ ...preparo, envio: { ...envio, data }, leadRowId })
 
     return { ok: true, message: 'Recebemos sua mensagem!' }
   } catch (err) {
@@ -664,6 +727,7 @@ export async function submitForm(
   formType: FormType,
   values: unknown,
   turnstileToken: string,
+  origemDoNavegador?: unknown,
 ): Promise<SubmitFormResult> {
   const schema = SCHEMAS[formType]
   const parsed = schema.safeParse(values)
@@ -675,7 +739,10 @@ export async function submitForm(
   // `as`: o `safeParse` de um schema escolhido por chave devolve a união dos
   // três tipos sem relação com `formType`; o mapa `SCHEMAS` garante o par.
   const data = parsed.data as ContatoValues | PropostaValues | ExperienceValues
-  return processarEnvio({ formType, formTitle: FORMS[formType].title, data }, turnstileToken)
+  return processarEnvio(
+    { formType, formTitle: FORMS[formType].title, data, origemDoNavegador },
+    turnstileToken,
+  )
 }
 
 /**
@@ -689,10 +756,19 @@ export async function submitForm(
  *
  * O protocolo só volta para a tela no `ok: true`. Se a gravação falhar, a tela
  * mostra a falha e não oferece o WhatsApp com um protocolo que não existe.
+ *
+ * **Duplicada, a tela é a mesma, com o protocolo NOVO.** Ele é gravado na linha
+ * da curta, que aponta para a anterior por `duplicaDe`, então o atendente que
+ * buscar o protocolo chega às duas. Devolver o protocolo da anterior seria pior
+ * por dois motivos: a anterior pode ser a proposta completa, que não tem
+ * protocolo; e entregaria o identificador de um envio anterior a qualquer um que
+ * digitasse aquele telefone. Pelo mesmo motivo a resposta não diz que era
+ * duplicada.
  */
 export async function submitPropostaRapida(
   values: unknown,
   turnstileToken: string,
+  origemDoNavegador?: unknown,
 ): Promise<SubmitFormResult> {
   const parsed = propostaRapidaSchema.safeParse(values)
   if (!parsed.success) {
@@ -705,6 +781,8 @@ export async function submitPropostaRapida(
       formType: 'proposta',
       formTitle: 'Proposta (contato rápido)',
       data: { ...parsed.data, variante: VARIANTE_CONTATO_RAPIDO, protocolo },
+      origemDoNavegador,
+      telefoneParaDeduplicar: parsed.data.telefone,
     },
     turnstileToken,
   )

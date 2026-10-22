@@ -1,5 +1,5 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
-import { type FormType, GCLID_FIELD, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
+import { DUPLICA_DE_FIELD, type FormType, GCLID_FIELD, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 
 /**
  * Tradução do lead do site pro vocabulário do Exact Spotter. Função **pura**:
@@ -77,6 +77,9 @@ export function isExactEligible(formType: FormType, data: Record<string, string>
   // CRM. Explícito de propósito — sem esta linha o comportamento correto
   // dependeria da AUSÊNCIA do campo `assunto`, o que é frágil.
   if (formType === 'experience') return false
+  // Proposta curta que repete outra do mesmo telefone: o card já existe pela
+  // anterior (ver `@/lib/propostaDuplicada`). Vale para a action e para o cron.
+  if (data[DUPLICA_DE_FIELD]) return false
   if (formType === 'proposta') return true
   return data.assunto === 'proposta-comercial'
 }

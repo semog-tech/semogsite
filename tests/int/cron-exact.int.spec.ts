@@ -75,6 +75,15 @@ describe('cron push-exact-leads', () => {
     expect(sql).toMatch(/proposta-comercial/)
   })
 
+  it('a query deixa de fora a proposta curta duplicada (o card já existe pela anterior)', async () => {
+    queryMock.mockResolvedValue({ rows: [] })
+
+    await GET(fakeRequest('segredo-de-teste'))
+
+    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
+    expect(sql).toMatch(/data->>'duplicaDe' is null/)
+  })
+
   it('falha continua contabilizada e não interrompe o lote', async () => {
     queryMock
       .mockResolvedValueOnce({ rows: [pendente, { ...pendente, id: '43' }] })

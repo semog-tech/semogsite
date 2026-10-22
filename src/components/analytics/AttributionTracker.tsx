@@ -1,63 +1,35 @@
 'use client'
 
 import { useEffect } from 'react'
+import { ATTRIBUTION_COOKIE, type Attribution, touchHasSignal } from '@/lib/attribution'
 import {
-  ATTRIBUTION_COOKIE,
-  type Attribution,
-  type AttributionTouch,
-  touchHasSignal,
-} from '@/lib/attribution'
+  guardarNaSessao,
+  lerCookieDeAtribuicao,
+  lerDaSessao,
+  toqueDaUrl,
+} from '@/lib/origemDoNavegador'
 
 const MAX_AGE_DAYS = 90
-
-/** Referrer externo — ignora navegação dentro do próprio site. */
-function externalReferrer(): string | undefined {
-  const ref = document.referrer
-  if (!ref) return undefined
-  try {
-    if (new URL(ref).host === window.location.host) return undefined
-  } catch {
-    return undefined
-  }
-  return ref
-}
-
-function readCookie(name: string): string | undefined {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
-  return match ? decodeURIComponent(match[1]) : undefined
-}
 
 /**
  * Captura a origem do visitante no primeiro carregamento (utm_*, gclid e afins,
  * referrer, página de entrada) e guarda no cookie `semog-attrib` — first-touch
  * preservado, last-touch atualizado quando há novo sinal de campanha/clique.
  * O `submitForm` lê esse cookie no servidor e anexa a origem ao e-mail do lead
- * (ver `@/lib/attribution`). Cookie de 1ª parte (interesse legítimo), não é lido
- * por terceiros. Renderiza `null`.
+ * (ver `@/lib/attribution`); a mesma atribuição fica na `sessionStorage`, de
+ * onde o formulário a reenvia quando o cookie não chega (ver
+ * `@/lib/origemDoLead`). Cookie de 1ª parte (interesse legítimo), não é lido por
+ * terceiros. Renderiza `null`.
  */
 export function AttributionTracker() {
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const pick = (key: string) => params.get(key) || undefined
-
-    const current: AttributionTouch = {
-      source: pick('utm_source'),
-      medium: pick('utm_medium'),
-      campaign: pick('utm_campaign'),
-      term: pick('utm_term'),
-      content: pick('utm_content'),
-      gclid: pick('gclid'),
-      gbraid: pick('gbraid'),
-      wbraid: pick('wbraid'),
-      fbclid: pick('fbclid'),
-      msclkid: pick('msclkid'),
-      referrer: externalReferrer(),
-      landing: window.location.pathname,
-      ts: new Date().toISOString(),
-    }
+    const current = toqueDaUrl()
 
     let existing: Attribution | null = null
-    const raw = readCookie(ATTRIBUTION_COOKIE)
+    // Sem cookie (bloqueado, ou não gravado neste navegador), o primeiro toque
+    // vem da cópia da sessão: sem ela, cada página nova sobrescreveria o toque
+    // de entrada (o que tinha o `fbclid`) pelo da página atual.
+    const raw = lerCookieDeAtribuicao() ?? lerDaSessao()
     if (raw) {
       try {
         existing = JSON.parse(raw) as Attribution
@@ -70,8 +42,13 @@ export function AttributionTracker() {
       ? { first: existing.first, last: touchHasSignal(current) ? current : existing.last }
       : { first: current, last: current }
 
-    // Só reescreve quando algo mudou (1ª visita ou novo sinal de origem).
+    // Cópia na sessão a cada carregamento, mesmo sem mudança: é o que o
+    // formulário manda quando o cookie não chega ao servidor (ver
+    // `@/lib/origemDoNavegador`), e precisa existir mesmo com o cookie bloqueado.
     const serialized = JSON.stringify(next)
+    guardarNaSessao(serialized)
+
+    // O cookie só é reescrito quando algo mudou (1ª visita ou novo sinal de origem).
     if (existing && serialized === JSON.stringify(existing)) return
 
     const maxAge = MAX_AGE_DAYS * 24 * 60 * 60

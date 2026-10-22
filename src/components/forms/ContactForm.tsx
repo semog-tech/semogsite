@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button'
 import { type ContatoValues, contatoSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 import { registrarLeadGerado } from '@/lib/medicaoLead'
+import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
 
 /**
  * Rótulos das opções de `assunto` — copiados de propósito de
@@ -87,7 +88,7 @@ export function ContactForm() {
 
     let result: SubmitFormResult
     try {
-      result = await submitForm('contato', values, token)
+      result = await submitForm('contato', values, token, lerOrigemDoNavegador())
     } catch (err) {
       // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
       // não é redundante — o Sentry só sai do no-op quando

@@ -15,6 +15,7 @@ import { cidadeDaLanding } from '@/lib/cidadeDaLanding'
 import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 import { registrarLeadGerado } from '@/lib/medicaoLead'
+import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
 
 /**
  * Opções de `tipo`/`cargo`/`cidade` — copiadas de propósito de
@@ -150,7 +151,7 @@ export function PropostaForm({
 
     let result: SubmitFormResult
     try {
-      result = await submitForm('proposta', values, token)
+      result = await submitForm('proposta', values, token, lerOrigemDoNavegador())
     } catch (err) {
       // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
       // não é redundante — o Sentry só sai do no-op quando

@@ -46,6 +46,21 @@ export type SubmitFormResult = {
  */
 export const VARIANTE_CONTATO_RAPIDO = 'contato-rapido'
 
+/**
+ * Tipo do clique do Google quando NÃO é gclid (`gbraid`/`wbraid`). O valor continua em
+ * `GCLID_FIELD` (é o que a coluna `gclid`, o `source` Anúncio do Exact e os crons leem); este
+ * campo diz ao envio do Ads em qual campo de `AdIdentifiers` ele vai. Ausente = gclid.
+ */
+export const TIPO_CLIQUE_FIELD = 'origem — Tipo do clique (Google Ads)'
+
+/**
+ * Chave de `cms.leads.data` que liga a proposta curta da triagem à proposta
+ * anterior do mesmo telefone que ela repete (valor: o `id` da anterior). Com
+ * ela a linha não vira card no Exact nem e-mail interno — ver
+ * `@/lib/propostaDuplicada`.
+ */
+export const DUPLICA_DE_FIELD = 'duplicaDe'
+
 export type FormDef<T extends Record<string, unknown>> = {
   title: string
   /** Nomes dos campos do schema Zod correspondente, na ordem do formulário. */
