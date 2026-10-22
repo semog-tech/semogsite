@@ -76,7 +76,15 @@ function bancoFalso(sql: string, params: unknown[] = []) {
       .filter((l) => !soProposta || l.form === 'proposta')
       .filter((l) => !semDuplicadas || !l.data.duplicaDe)
       .filter((l) => /created_at > \$1/.test(sql) && new Date(l.created_at).getTime() > corte)
-      .map((l) => ({ id: l.id, telefone: l.data.telefone ?? null }))
+      .map((l) => ({
+        id: l.id,
+        telefone: l.data.telefone ?? null,
+        // Só devolve as colunas que o SQL pede: sem elas, a comparação falha.
+        ...(/data->>'cidade' as cidade/.test(sql) ? { cidade: l.data.cidade ?? null } : {}),
+        ...(/data->>'nomeCondominio' as nome_condominio/.test(sql)
+          ? { nome_condominio: l.data.nomeCondominio ?? null }
+          : {}),
+      }))
     return { rows, rowCount: rows.length }
   }
   return { rows: [], rowCount: 0 }
@@ -280,7 +288,7 @@ describe('proposta rápida duplicada', () => {
       id: '220',
       created_at: horasAtras(criadaHa),
       form: 'proposta',
-      data: { nome: 'Maria Souza', telefone, ...extra },
+      data: { nome: 'Maria Souza', telefone, cidade: rapida.cidade, ...extra },
     })
   }
 
@@ -298,6 +306,60 @@ describe('proposta rápida duplicada', () => {
     expect(pushLeadMock).not.toHaveBeenCalled()
     expect(sendMailMock).not.toHaveBeenCalled()
     expect(r).not.toHaveProperty('duplicada')
+  })
+
+  it('mesma cidade e condomínio vazio na curta: é duplicada e notificado_para fica nulo', async () => {
+    anterior('+5583999501388', 2, { nomeCondominio: 'Residencial Aurora' })
+
+    await submitPropostaRapida(rapida, 'token')
+
+    expect(dataDoInsert().duplicaDe).toBe('220')
+    // [form, data, gclid, email, ads_consent, notificado_para]: nenhum e-mail saiu.
+    expect(paramsDoInsert()[5]).toBeNull()
+    expect(sendMailMock).not.toHaveBeenCalled()
+  })
+
+  it('lead novo continua gravando a quem foi notificado', async () => {
+    await submitPropostaRapida(rapida, 'token')
+
+    expect(paramsDoInsert()[5]).toBe('comercial.pb@semog.com.br')
+  })
+
+  it('mesmo telefone em OUTRA cidade é pedido novo (síndico com dois condomínios)', async () => {
+    anterior('+5583999501388', 1, { cidade: 'Recife e região' })
+
+    await submitPropostaRapida({ ...rapida, cidade: 'Belém e região' }, 'token')
+
+    expect(dataDoInsert().duplicaDe).toBeUndefined()
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(sendMailMock).toHaveBeenCalled()
+    expect(paramsDoInsert()[5]).toBe('galvao@semog.com.br')
+  })
+
+  it('mesma cidade com condomínio DIFERENTE é pedido novo', async () => {
+    anterior('+5583999501388', 1, { nomeCondominio: 'Residencial Mar Azul' })
+
+    await submitPropostaRapida({ ...rapida, nomeCondominio: 'Edifício Aurora' }, 'token')
+
+    expect(dataDoInsert().duplicaDe).toBeUndefined()
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('mesmo condomínio escrito sem acento e em outra caixa é duplicada', async () => {
+    anterior('+5583999501388', 1, { nomeCondominio: 'Edifício  Aurora' })
+
+    await submitPropostaRapida({ ...rapida, nomeCondominio: 'EDIFICIO aurora' }, 'token')
+
+    expect(dataDoInsert().duplicaDe).toBe('220')
+    expect(pushLeadMock).not.toHaveBeenCalled()
+  })
+
+  it('curta com condomínio e anterior sem condomínio não é duplicada', async () => {
+    anterior('+5583999501388', 1)
+
+    await submitPropostaRapida({ ...rapida, nomeCondominio: 'Edifício Aurora' }, 'token')
+
+    expect(dataDoInsert().duplicaDe).toBeUndefined()
   })
 
   it('fora de 24 h: segue como lead novo, com card e e-mail', async () => {

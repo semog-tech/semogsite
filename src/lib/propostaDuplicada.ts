@@ -15,9 +15,13 @@ import { DUPLICA_DE_FIELD } from '@/lib/forms'
  * existir no banco), mas ligada à anterior por `data.duplicaDe`, sem card novo
  * no Exact e sem e-mail interno (ver `processarEnvio`).
  *
- * "Mesma pessoa" = mesmo telefone normalizado. O nome não entra: muda de grafia
- * entre um formulário e outro ("Maria" × "Maria Souza"), e o telefone é o que a
- * equipe usa para chamar.
+ * "Mesmo pedido" = mesmo telefone normalizado, MESMA cidade e, se a curta
+ * disser o condomínio, o mesmo condomínio (sem acento e sem caixa). Só o
+ * telefone não basta: um síndico profissional pede proposta de dois condomínios
+ * no mesmo dia, e o segundo — de outra praça ou outro prédio — é lead novo, com
+ * card e e-mail para a regional dele. Condomínio vazio na curta (o campo é
+ * opcional) não desfaz o casamento. O nome da pessoa não entra: muda de grafia
+ * entre um formulário e outro ("Maria" × "Maria Souza").
  */
 
 /** Janela em que uma proposta anterior do mesmo telefone conta como a mesma. */
@@ -44,11 +48,37 @@ export function normalizarTelefone(valor: string | undefined | null): string | n
   return digitos.length >= 10 ? digitos : null
 }
 
-type Candidata = { id: string; telefone: string | null }
+/** O que identifica o pedido da proposta curta para compará-lo com os anteriores. */
+export type ChaveDaProposta = { telefone: string; cidade: string; nomeCondominio?: string }
+
+type Candidata = {
+  id: string
+  telefone: string | null
+  cidade: string | null
+  nome_condominio: string | null
+}
+
+/** Nome de condomínio comparável: sem acento, sem caixa, espaços colapsados. */
+export function normalizarCondominio(valor: string | null | undefined): string {
+  return (valor ?? '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/** A anterior é o mesmo pedido: mesma cidade e, se a curta disse, mesmo condomínio. */
+function mesmoPedido(chave: ChaveDaProposta, linha: Candidata): boolean {
+  if (linha.cidade !== chave.cidade) return false
+  const condominio = normalizarCondominio(chave.nomeCondominio)
+  return condominio === '' || condominio === normalizarCondominio(linha.nome_condominio)
+}
 
 /**
- * Id da proposta (completa ou curta) do mesmo telefone gravada nas últimas
- * 24 h, a mais recente; `null` se não houver.
+ * Id da proposta (completa ou curta) do mesmo pedido — telefone, cidade e
+ * condomínio, ver o topo do arquivo — gravada nas últimas 24 h, a mais
+ * recente; `null` se não houver.
  *
  * Só olha linhas que não são, elas mesmas, duplicadas: a ligação aponta sempre
  * para o lead que virou card, e não forma corrente.
@@ -57,16 +87,18 @@ type Candidata = { id: string; telefone: string | null }
  * caminho normal: um card duplicado no Exact é incômodo, um lead perdido é
  * prejuízo. O erro vai ao log sem o telefone.
  */
-export async function propostaRecenteDoMesmoTelefone(
-  telefone: string,
+export async function propostaRecenteDoMesmoPedido(
+  chave: ChaveDaProposta,
   agora: Date = new Date(),
 ): Promise<string | null> {
-  const procurado = normalizarTelefone(telefone)
+  const procurado = normalizarTelefone(chave.telefone)
   if (!procurado) return null
   const corte = new Date(agora.getTime() - JANELA_DE_DUPLICIDADE_MS).toISOString()
   try {
     const { rows } = await query<Candidata>(
-      `select id, data->>'telefone' as telefone from cms.leads
+      `select id, data->>'telefone' as telefone, data->>'cidade' as cidade,
+              data->>'nomeCondominio' as nome_condominio
+         from cms.leads
         where form = 'proposta'
           and created_at > $1
           and data->>'${DUPLICA_DE_FIELD}' is null
@@ -74,7 +106,10 @@ export async function propostaRecenteDoMesmoTelefone(
         limit ${TETO_DE_CANDIDATAS}`,
       [corte],
     )
-    return rows.find((linha) => normalizarTelefone(linha.telefone) === procurado)?.id ?? null
+    const anterior = rows.find(
+      (linha) => normalizarTelefone(linha.telefone) === procurado && mesmoPedido(chave, linha),
+    )
+    return anterior?.id ?? null
   } catch (err) {
     console.error(
       '[proposta-duplicada] busca da proposta anterior falhou; segue sem deduplicar:',

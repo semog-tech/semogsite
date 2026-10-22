@@ -48,7 +48,7 @@ import {
   VARIANTE_CONTATO_RAPIDO,
 } from '@/lib/forms'
 import { camposDaOrigem, resolverOrigem } from '@/lib/origemDoLead'
-import { propostaRecenteDoMesmoTelefone } from '@/lib/propostaDuplicada'
+import { type ChaveDaProposta, propostaRecenteDoMesmoPedido } from '@/lib/propostaDuplicada'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendMail } from '@/lib/sendgrid'
@@ -129,8 +129,8 @@ type Envio = {
    * quiser, e só `resolverOrigem` decide o que se aproveita.
    */
   origemDoNavegador: unknown
-  /** Só na proposta curta: o telefone pelo qual se procura a proposta que ela repete. */
-  telefoneParaDeduplicar?: string
+  /** Só na proposta curta: o pedido pelo qual se procura a proposta que ela repete. */
+  deduplicarPor?: ChaveDaProposta
 }
 
 /**
@@ -629,7 +629,10 @@ async function prepararLinha(
   // Decidido aqui, antes do INSERT, porque vai para a própria linha: é o
   // registro de a quem este lead foi endereçado, e ele precisa sobreviver a
   // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
-  const notifyTo = destinatariosDaNotificacao(formType, data)
+  // A duplicada não notifica ninguém (ver `processarEnvio`), então grava nulo:
+  // a coluna registra a quem o aviso foi, não a quem iria.
+  const duplicada = Boolean(leadData[DUPLICA_DE_FIELD])
+  const notifyTo = duplicada ? undefined : destinatariosDaNotificacao(formType, data)
 
   const linha: LinhaDeLead = {
     formType,
@@ -643,13 +646,13 @@ async function prepararLinha(
 }
 
 /**
- * Os dados do envio, ligados à proposta anterior do mesmo telefone quando a
+ * Os dados do envio, ligados à proposta anterior do mesmo pedido quando a
  * proposta curta a repete. Roda depois do rate limit e do Turnstile: a busca é
  * uma ida ao banco, e não pode ficar ao alcance de quem não passou por eles.
  */
 async function dadosComDuplicidade(envio: Envio): Promise<DadosDoEnvio> {
-  if (!envio.telefoneParaDeduplicar) return envio.data
-  const duplicaDe = await propostaRecenteDoMesmoTelefone(envio.telefoneParaDeduplicar)
+  if (!envio.deduplicarPor) return envio.data
+  const duplicaDe = await propostaRecenteDoMesmoPedido(envio.deduplicarPor)
   return duplicaDe ? { ...envio.data, [DUPLICA_DE_FIELD]: duplicaDe } : envio.data
 }
 
@@ -664,13 +667,17 @@ async function dadosComDuplicidade(envio: Envio): Promise<DadosDoEnvio> {
  * precisa ter sucesso pra `ok: true` — falha de CRM ou de e-mail depois disso
  * é só registrada (no banco e no log).
  *
- * **Proposta curta duplicada** (mesmo telefone de uma proposta das últimas
- * 24 h) é gravada e responde `ok: true` como qualquer outra, mas para depois do
- * INSERT: sem card no Exact, porque ele já existe pela anterior, e sem e-mail
- * interno, porque a regional já recebeu o da anterior, com mais campos — um
- * segundo aviso da mesma pessoa é o que faria dois consultores ligarem para o
- * mesmo síndico. A curta não pergunta e-mail, então não há auto-reply a perder.
- * A ligação fica em `data.duplicaDe`, para quem abrir a linha.
+ * **Proposta curta duplicada** — de uma proposta das últimas 24 h com o mesmo
+ * telefone, a MESMA cidade e, se a curta informou o condomínio, o mesmo
+ * condomínio (sem acento e sem caixa; ver `@/lib/propostaDuplicada`) — é
+ * gravada e responde `ok: true` como qualquer outra, mas para depois do INSERT:
+ * sem card no Exact, porque ele já existe pela anterior, e sem e-mail interno,
+ * porque a regional já recebeu o da anterior, com mais campos — um segundo
+ * aviso do mesmo pedido é o que faria dois consultores ligarem para o mesmo
+ * síndico. Por isso a linha grava `notificado_para` nulo. A curta não pergunta
+ * e-mail, então não há auto-reply a perder. A ligação fica em `data.duplicaDe`.
+ * Mesmo telefone com outra cidade ou outro condomínio é pedido novo (o síndico
+ * profissional com dois prédios) e segue o caminho normal.
  */
 async function processarEnvio(envio: Envio, turnstileToken: string): Promise<SubmitFormResult> {
   const { formType } = envio
@@ -782,7 +789,7 @@ export async function submitPropostaRapida(
       formTitle: 'Proposta (contato rápido)',
       data: { ...parsed.data, variante: VARIANTE_CONTATO_RAPIDO, protocolo },
       origemDoNavegador,
-      telefoneParaDeduplicar: parsed.data.telefone,
+      deduplicarPor: parsed.data,
     },
     turnstileToken,
   )
