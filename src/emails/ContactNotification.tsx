@@ -15,6 +15,9 @@ import {
 import type { BotaoDeDesfecho } from '@/lib/desfecho'
 import { SemogMark } from './SemogMark'
 import {
+  ALERTA_BG,
+  ALERTA_BORDA,
+  ALERTA_TEXTO,
   BORDER,
   bodyPaddingStyle,
   bodyStyle,
@@ -42,6 +45,38 @@ export interface ContactNotificationProps {
    * consegue validar é pior que botão nenhum.
    */
   desfecho?: BotaoDeDesfecho[]
+  /**
+   * Presente quando o envio NÃO foi gravado em `cms.leads` (falha técnica do
+   * banco): o que quem recebe precisa fazer à mão, uma frase por item. O e-mail
+   * passa a ser o único registro do lead, e o alerta vai no topo para não ser
+   * lido como um contato comum.
+   */
+  naoGravado?: string[]
+}
+
+const alertaStyle = {
+  backgroundColor: ALERTA_BG,
+  border: `1px solid ${ALERTA_BORDA}`,
+  borderRadius: '8px',
+  margin: '0 0 24px',
+  padding: '16px 20px',
+}
+const alertaTextoStyle = { color: ALERTA_TEXTO, fontSize: '14px', lineHeight: '20px', margin: 0 }
+
+/** O bloco de alerta do lead não gravado — ver `naoGravado`. */
+function AlertaNaoGravado({ itens }: { itens: string[] }) {
+  return (
+    <Section style={alertaStyle}>
+      <Text style={{ ...alertaTextoStyle, fontSize: '16px', fontWeight: 700, margin: '0 0 8px' }}>
+        NÃO GRAVADO NO BANCO — registrar à mão
+      </Text>
+      {itens.map((item) => (
+        <Text key={item} style={{ ...alertaTextoStyle, margin: '0 0 6px' }}>
+          {item}
+        </Text>
+      ))}
+    </Section>
+  )
 }
 
 const rowStyle = { borderBottom: `1px solid ${BORDER}`, verticalAlign: 'top' as const }
@@ -77,15 +112,20 @@ export default function ContactNotification({
   fields,
   attribution,
   desfecho,
+  naoGravado,
 }: ContactNotificationProps) {
+  const prefixo = naoGravado ? 'NÃO GRAVADO NO BANCO — ' : ''
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>Novo contato via {formTitle}</Preview>
+      <Preview>
+        {prefixo}Novo contato via {formTitle}
+      </Preview>
       <Body style={bodyStyle}>
         <Container style={containerStyle}>
           <SemogMark />
           <Section style={bodyPaddingStyle}>
+            {naoGravado && <AlertaNaoGravado itens={naoGravado} />}
             <Heading as="h1" style={{ fontSize: '20px', color: TEXT_DARK, margin: '0 0 4px' }}>
               Novo contato recebido
             </Heading>

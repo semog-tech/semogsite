@@ -240,14 +240,23 @@ describe('trava de lotação do Experience', () => {
     expect((await submitForm('experience', inscricao, 'test-token')).ok).toBe(true)
   })
 
+  /**
+   * Lotação ilegível é falha técnica, não "esgotado": a inscrição não entra, e
+   * o único e-mail é o de socorro à filial (marcado "NÃO GRAVADO"), para alguém
+   * conferir a vaga à mão. Quem se inscreveu NÃO recebe "Inscrição recebida".
+   */
   it('falha fechada quando a função não devolve lotação válida', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
     const result = await submitForm('experience', inscricao, 'test-token')
     expect(result.ok).toBe(false)
     expect(result.esgotado).toBeUndefined()
     expect(sqlsExecutados().some((s) => /^insert/.test(s))).toBe(false)
     expect(sqlsExecutados()).toContain('rollback')
-    expect(sendMailMock).not.toHaveBeenCalled()
+    expect(sendMailMock).toHaveBeenCalledTimes(1)
+    const [{ to, subject }] = sendMailMock.mock.calls[0] as [{ to: string[]; subject: string }]
+    expect(to).toEqual(['comercial.pb@semog.com.br'])
+    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
   })
 
   /**

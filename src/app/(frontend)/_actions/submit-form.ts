@@ -13,6 +13,7 @@
  * Tipo compartilhado se importa de `@/lib/forms`, que é a fonte única.
  */
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies, headers } from 'next/headers'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
@@ -51,7 +52,7 @@ import { camposDaOrigem, resolverOrigem } from '@/lib/origemDoLead'
 import { type ChaveDaProposta, propostaRecenteDoMesmoPedido } from '@/lib/propostaDuplicada'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
-import { sendMail } from '@/lib/sendgrid'
+import { type SendMailArgs, sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
 
 /** Rótulos pt-BR (iguais ao `label` de cada bloco do seed) pro e-mail de notificação interna. */
@@ -456,6 +457,8 @@ type EmailsDoEnvio = {
   notifyTo?: readonly string[]
   /** E-mail de quem preencheu; ausente na proposta curta, que não o pergunta. */
   email?: string
+  /** Só quando o INSERT falhou: o que fazer à mão (ver `avisosDoLeadNaoGravado`). */
+  naoGravado?: string[]
 }
 
 /**
@@ -475,15 +478,32 @@ type EmailsDoEnvio = {
  * `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai como
  * sempre saiu, sem a seção.
  */
-async function enviarNotificacao(emails: EmailsDoEnvio): Promise<void> {
-  const { envio, leadData, leadRowId, attributionFields, notifyTo } = emails
+async function enviarNotificacao(emails: EmailsDoEnvio): Promise<boolean> {
+  const { notifyTo } = emails
   if (!notifyTo || notifyTo.length === 0) {
     console.info(
       '[submit-form] destinatário da notificação ausente — notificação interna não enviada.',
     )
-    return
+    return false
   }
 
+  const notificationResult = await sendMail(montarNotificacao(emails, notifyTo))
+  if (notificationResult.ok === false) {
+    console.error('[submit-form] sendMail falhou:', notificationResult.error)
+    return false
+  }
+  // `skipped` é o no-op sem `SENDGRID_API_KEY`: nada saiu, e não pode contar
+  // como entregue — é disso que depende o socorro do lead não gravado.
+  return notificationResult.skipped !== true
+}
+
+/**
+ * Assunto e corpo da notificação interna. Com `naoGravado`, o assunto leva a
+ * marca na frente — é o que aparece na caixa de entrada sem abrir o e-mail — e
+ * não há botões de desfecho, porque não existe linha para o desfecho apontar.
+ */
+function montarNotificacao(emails: EmailsDoEnvio, notifyTo: readonly string[]): SendMailArgs {
+  const { envio, leadData, leadRowId, attributionFields, naoGravado } = emails
   const labels = rotulosDoFormulario(envio.formType)
   const fields = Object.entries(envio.data)
     .filter(([, value]) => value !== undefined)
@@ -494,18 +514,17 @@ async function enviarNotificacao(emails: EmailsDoEnvio): Promise<void> {
       ? (botoesDeDesfecho(leadRowId) ?? undefined)
       : undefined
 
-  const notificationResult = await sendMail({
+  const marca = naoGravado ? '[NÃO GRAVADO NO BANCO — registrar à mão] ' : ''
+  return {
     to: [...notifyTo],
-    subject: `Novo contato via ${envio.formTitle}`,
+    subject: `${marca}Novo contato via ${envio.formTitle}`,
     react: ContactNotification({
       formTitle: envio.formTitle,
       fields,
       attribution: attributionFields,
       desfecho,
+      naoGravado,
     }),
-  })
-  if (notificationResult.ok === false) {
-    console.error('[submit-form] sendMail falhou:', notificationResult.error)
   }
 }
 
@@ -656,16 +675,139 @@ async function dadosComDuplicidade(envio: Envio): Promise<DadosDoEnvio> {
   return duplicaDe ? { ...envio.data, [DUPLICA_DE_FIELD]: duplicaDe } : envio.data
 }
 
+const ERRO_AO_ENVIAR: SubmitFormResult = { ok: false, message: 'Erro ao enviar. Tente novamente.' }
+const RECEBIDO: SubmitFormResult = { ok: true, message: 'Recebemos sua mensagem!' }
+
 /**
- * O pipeline comum a todos os formulários, depois da validação: rate limit →
- * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no CRM
- * (Exact, só quando é captação) → e-mail. Os dois últimos são best-effort.
+ * Lotou enquanto esta pessoa preenchia. Sai ANTES do CRM e do e-mail: não há
+ * lead salvo para empurrar nem inscrição para confirmar, e um e-mail de
+ * "inscrição recebida" para quem não entrou seria pior que o erro.
+ */
+const VAGAS_ESGOTADAS: SubmitFormResult = {
+  ok: false,
+  esgotado: true,
+  message:
+    'As vagas foram preenchidas enquanto você preenchia o formulário. Sua inscrição não foi registrada.',
+}
+
+/**
+ * A inscrição não gravada que chegou à filial por e-mail. Não é sucesso: a vaga
+ * não foi contada na lotação, então ninguém pode dizer à pessoa que ela está
+ * inscrita — só que os dados chegaram e que alguém vai confirmar.
+ */
+const VAGA_NAO_CONFIRMADA: SubmitFormResult = {
+  ok: false,
+  message:
+    'Recebemos seus dados, mas não conseguimos confirmar sua vaga agora. A equipe do evento vai entrar em contato para confirmar.',
+}
+
+/** O que `tentarGravar` devolve: a linha (ou a recusa por lotação), ou a falha técnica. */
+type Gravacao = { id?: string; lotado: boolean } | { falha: unknown }
+
+/**
+ * `gravarLead` sem deixar a falha técnica subir — conexão, timeout,
+ * `lock_timeout`, função de lotação que não responde direito. Ela vira
+ * `{ falha }` para o lead ser socorrido por e-mail (`socorrerLeadNaoGravado`).
+ * A recusa por lotação NÃO é falha: volta como `lotado: true`, igual a antes.
+ */
+async function tentarGravar(linha: LinhaDeLead): Promise<Gravacao> {
+  try {
+    return await gravarLead(linha)
+  } catch (falha) {
+    return { falha }
+  }
+}
+
+/**
+ * O que quem recebe o e-mail de socorro precisa fazer à mão. Cada item só
+ * aparece quando se aplica: o Exact e o Google Ads porque os dois crons partem
+ * da linha em `cms.leads`, que não existe; a vaga porque a lotação do
+ * Experience é contada no banco.
+ */
+function avisosDoLeadNaoGravado({ envio, leadData }: EmailsDoEnvio): string[] {
+  const avisos = [
+    'O site não conseguiu salvar este envio no banco (cms.leads) por uma falha técnica. Este e-mail é o único registro dele.',
+  ]
+  if (envio.formType === 'experience') {
+    avisos.push(
+      'A vaga NÃO foi confirmada nem contada na lotação do evento: confira se ainda há vaga e responda à pessoa.',
+    )
+  }
+  if (isExactEligible(envio.formType, leadData)) {
+    avisos.push(
+      'O lead NÃO foi enviado ao Exact e o cron não vai retentar, porque não há linha no banco: cadastre no Exact à mão.',
+    )
+  }
+  if (extractLeadColumns(leadData).gclid) {
+    avisos.push('Veio de anúncio do Google: a conversão também não será enviada ao Google Ads.')
+  }
+  const duplicaDe = leadData[DUPLICA_DE_FIELD]
+  if (duplicaDe) {
+    avisos.push(`Parece repetir o lead ${duplicaDe}, já gravado: confira antes de cadastrar.`)
+  }
+  return avisos
+}
+
+/**
+ * O e-mail de socorro, para os destinatários normais do formulário. Recalcula
+ * o destino porque a proposta curta duplicada grava `notifyTo` vazio — lá a
+ * anterior já avisou; aqui esta não existe em lugar nenhum além deste e-mail.
+ * `true` só quando o provedor aceitou a mensagem.
+ */
+async function avisarLeadNaoGravado(emails: EmailsDoEnvio): Promise<boolean> {
+  const { formType, data } = emails.envio
+  try {
+    return await enviarNotificacao({
+      ...emails,
+      notifyTo: destinatariosDaNotificacao(formType, data),
+      leadRowId: undefined,
+      naoGravado: avisosDoLeadNaoGravado(emails),
+    })
+  } catch (mailErr) {
+    console.error('[submit-form] e-mail de socorro do lead não gravado falhou:', mailErr)
+    return false
+  }
+}
+
+/**
+ * O INSERT falhou por motivo técnico. Antes, a pessoa via "Erro ao enviar" e o
+ * lead sumia — o e-mail interno vinha depois da gravação. Agora a notificação
+ * sai mesmo assim, marcada, e a falha vai ao Sentry.
  *
- * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
- * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
- * vez de deixar o erro subir. O `INSERT` em `cms.leads` é o único passo que
- * precisa ter sucesso pra `ok: true` — falha de CRM ou de e-mail depois disso
- * é só registrada (no banco e no log).
+ * **Sucesso só se o lead chegou a algum lugar durável.** E-mail aceito pelo
+ * SendGrid conta; nenhum e-mail (falhou, sem destinatário, sem chave) não
+ * conta, e a pessoa vê o erro de sempre. A inscrição do Experience nunca vira
+ * sucesso aqui (ver `VAGA_NAO_CONFIRMADA`) e por isso não recebe o auto-reply
+ * de "Inscrição recebida"; Contato e Proposta recebem o deles, que só diz que
+ * a mensagem chegou — e chegou.
+ *
+ * O `flush` é porque, fora do Edge, o Sentry não segura a função viva sozinho:
+ * sem ele o evento pode ficar na fila de uma instância suspensa.
+ */
+async function socorrerLeadNaoGravado(
+  emails: EmailsDoEnvio,
+  falha: unknown,
+): Promise<SubmitFormResult> {
+  const { formType } = emails.envio
+  console.error('[submit-form] lead NÃO gravado no banco; segue o e-mail de socorro:', falha)
+  Sentry.captureException(falha, {
+    tags: { fluxo: 'submit_form', etapa: 'gravar_lead', form: formType },
+  })
+  const avisado = await avisarLeadNaoGravado(emails)
+  await Sentry.flush(2000)
+
+  if (!avisado) return ERRO_AO_ENVIAR
+  if (formType === 'experience') return VAGA_NAO_CONFIRMADA
+  try {
+    await enviarAutoReply(emails.envio, emails.email)
+  } catch (mailErr) {
+    console.error('[submit-form] auto-reply do lead não gravado falhou:', mailErr)
+  }
+  return RECEBIDO
+}
+
+/**
+ * Lead gravado: CRM (só captação) e e-mails, os dois best-effort.
  *
  * **Proposta curta duplicada** — de uma proposta das últimas 24 h com o mesmo
  * telefone, a MESMA cidade e, se a curta informou o condomínio, o mesmo
@@ -679,46 +821,53 @@ async function dadosComDuplicidade(envio: Envio): Promise<DadosDoEnvio> {
  * Mesmo telefone com outra cidade ou outro condomínio é pedido novo (o síndico
  * profissional com dois prédios) e segue o caminho normal.
  */
+async function concluirLeadGravado(
+  emails: EmailsDoEnvio,
+  leadRowId: string | undefined,
+): Promise<SubmitFormResult> {
+  const duplicaDe = emails.leadData[DUPLICA_DE_FIELD]
+  if (duplicaDe) {
+    console.info(
+      `[submit-form] proposta curta ${leadRowId ?? '?'} repete o lead ${duplicaDe}: sem card no Exact nem e-mail.`,
+    )
+    return RECEBIDO
+  }
+
+  if (leadRowId) await enviarAoExact(emails.envio.formType, emails.leadData, leadRowId)
+  await enviarEmails({ ...emails, leadRowId })
+  return RECEBIDO
+}
+
+/**
+ * O pipeline comum a todos os formulários, depois da validação: rate limit →
+ * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no CRM
+ * (Exact, só quando é captação) → e-mail. Os dois últimos são best-effort.
+ *
+ * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
+ * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
+ * vez de deixar o erro subir.
+ *
+ * Três desfechos da gravação: gravou (`concluirLeadGravado`); recusou por
+ * lotação (`VAGAS_ESGOTADAS`); ou falhou por motivo técnico, e o lead é
+ * socorrido por e-mail (`socorrerLeadNaoGravado`).
+ */
 async function processarEnvio(envio: Envio, turnstileToken: string): Promise<SubmitFormResult> {
-  const { formType } = envio
   try {
     const ip = await clienteIp()
-    const recusa = await barrarAbuso(formType, ip, turnstileToken)
+    const recusa = await barrarAbuso(envio.formType, ip, turnstileToken)
     if (recusa) return recusa
 
     const data = await dadosComDuplicidade(envio)
-    const preparo = await prepararLinha(formType, data, envio.origemDoNavegador)
-    const gravado = await gravarLead(preparo.linha)
+    const preparo = await prepararLinha(envio.formType, data, envio.origemDoNavegador)
+    const emails: EmailsDoEnvio = { ...preparo, envio: { ...envio, data } }
+    const gravacao = await tentarGravar(preparo.linha)
 
-    // Lotou enquanto esta pessoa preenchia. Sai ANTES do CRM e do e-mail: não
-    // há lead salvo para empurrar nem inscrição para confirmar, e um e-mail de
-    // "inscrição recebida" para quem não entrou seria pior que o erro.
-    if (gravado.lotado) {
-      return {
-        ok: false,
-        esgotado: true,
-        message:
-          'As vagas foram preenchidas enquanto você preenchia o formulário. Sua inscrição não foi registrada.',
-      }
-    }
-
-    const duplicaDe = preparo.leadData[DUPLICA_DE_FIELD]
-    if (duplicaDe) {
-      console.info(
-        `[submit-form] proposta curta ${gravado.id ?? '?'} repete o lead ${duplicaDe}: sem card no Exact nem e-mail.`,
-      )
-      return { ok: true, message: 'Recebemos sua mensagem!' }
-    }
-
-    const leadRowId = gravado.id
-    if (leadRowId) await enviarAoExact(formType, preparo.leadData, leadRowId)
-
-    await enviarEmails({ ...preparo, envio: { ...envio, data }, leadRowId })
-
-    return { ok: true, message: 'Recebemos sua mensagem!' }
+    if ('falha' in gravacao) return await socorrerLeadNaoGravado(emails, gravacao.falha)
+    if (gravacao.lotado) return VAGAS_ESGOTADAS
+    return await concluirLeadGravado(emails, gravacao.id)
   } catch (err) {
     console.error('[submit-form] erro inesperado:', err)
-    return { ok: false, message: 'Erro ao enviar. Tente novamente.' }
+    return ERRO_AO_ENVIAR
   }
 }
 

@@ -17,6 +17,15 @@ export const TEXT_MUTED = '#5b6478'
 export const BORDER = '#e2e8f4'
 export const BODY_BG = '#f4f6fb'
 
+/**
+ * Alerta do e-mail interno de lead que não chegou ao banco (ver
+ * `ContactNotification` → `naoGravado`). Vermelho porque pede ação: sem ela, o
+ * lead some.
+ */
+export const ALERTA_BG = '#fdecec'
+export const ALERTA_BORDA = '#f1b5b5'
+export const ALERTA_TEXTO = '#8a1c1c'
+
 export const bodyStyle = {
   backgroundColor: BODY_BG,
   fontFamily: 'Helvetica, Arial, sans-serif',

@@ -19,6 +19,14 @@ const verifyTurnstileMock = vi.fn()
 const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
+const captureExceptionMock = vi.fn()
+const sentryFlushMock = vi.fn()
+
+// Só o que o caminho do lead não gravado usa (ver `socorrerLeadNaoGravado`).
+vi.mock('@sentry/nextjs', () => ({
+  captureException: (...args: unknown[]) => captureExceptionMock(...args),
+  flush: (...args: unknown[]) => sentryFlushMock(...args),
+}))
 
 // `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
 // mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
@@ -156,9 +164,10 @@ describe('submitForm — grava lead em cms.leads (sem Payload)', () => {
     expect(queryMock).toHaveBeenCalledTimes(5)
   })
 
-  it('nunca lança — falha no INSERT vira { ok: false } genérico', async () => {
+  it('nunca lança — falha no INSERT sem e-mail de socorro vira { ok: false } genérico', async () => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.14'))
     queryMock.mockRejectedValue(new Error('connection refused'))
+    sendMailMock.mockResolvedValue({ ok: false, error: 'sendgrid fora' })
 
     const result = await submitForm('contato', contatoValido, 'test-token')
 
@@ -797,5 +806,201 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
     await submitForm('contato', contatoValido, 'test-token')
 
     expect(notificadoPara()).toBeNull()
+  })
+})
+
+/**
+ * O INSERT falhou por motivo técnico. Decisão de 30/10/2026: o lead não pode
+ * sumir — a notificação interna sai mesmo assim, marcada "NÃO GRAVADO NO
+ * BANCO", e a falha vai ao Sentry. A pessoa só vê sucesso se o lead chegou a
+ * algum lugar durável; e-mail aceito pelo provedor conta, e-mail que não saiu
+ * (erro, sem chave, sem destinatário) não conta.
+ */
+describe('submitForm — lead não gravado no banco', () => {
+  const proposta = {
+    tipo: 'Condomínio residencial',
+    nome: 'Maria Souza',
+    nomeCondominio: 'Residencial Aurora',
+    email: 'maria@example.com',
+    telefone: '+5583999501388',
+    cidade: 'Recife e região',
+  }
+
+  const inscricao = {
+    nome: 'Ana Lima',
+    email: 'ana@example.com',
+    telefone: '+5583999501388',
+    condominio: 'Residencial Cabo Branco',
+    aceiteImagem: true,
+  }
+
+  const erroDoBanco = new Error('Connection terminated unexpectedly')
+  let ipSeq = 0
+
+  /** Toda query falha — INSERT, transação, dedup e lotação —, como num banco fora. */
+  function bancoFora() {
+    queryMock.mockRejectedValue(erroDoBanco)
+  }
+
+  type EmailEnviado = { to: string | string[]; subject: string; react: ReactElement }
+
+  /** As chamadas ao `sendMail`. `as`: o dublê recebe `unknown[]`; o formato é o de `SendMailArgs`. */
+  function emailsEnviados(): EmailEnviado[] {
+    return sendMailMock.mock.calls.map(([arg]) => arg as EmailEnviado)
+  }
+
+  function textoDoEmail(react: ReactElement): Promise<string> {
+    return render(react, { plainText: true })
+  }
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    ipSeq += 1
+    headersMock.mockResolvedValue(fakeHeaders(`192.0.2.${ipSeq}`))
+    queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '808'))
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
+    pushLeadMock.mockResolvedValue(null)
+    sentryFlushMock.mockResolvedValue(true)
+    process.env.CONTACT_TO = 'caixa-do-contato@example.com'
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('gravação ok: o e-mail sai sem marca e nada vai ao Sentry', async () => {
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result).toEqual({ ok: true, message: 'Recebemos sua mensagem!' })
+    const [notificacao] = emailsEnviados()
+    expect(notificacao.subject).toBe('Novo contato via Contato')
+    expect(await textoDoEmail(notificacao.react)).not.toMatch(/NÃO GRAVADO/)
+    expect(captureExceptionMock).not.toHaveBeenCalled()
+  })
+
+  it('falha + e-mail aceito: notificação marcada, Sentry avisado e a pessoa vê "recebido"', async () => {
+    bancoFora()
+
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result).toEqual({ ok: true, message: 'Recebemos sua mensagem!' })
+    const [notificacao, autoReply] = emailsEnviados()
+    expect(notificacao.to).toEqual(['caixa-do-contato@example.com'])
+    expect(notificacao.subject).toBe(
+      '[NÃO GRAVADO NO BANCO — registrar à mão] Novo contato via Contato',
+    )
+    const corpo = await textoDoEmail(notificacao.react)
+    expect(corpo).toContain('NÃO GRAVADO NO BANCO — registrar à mão')
+    expect(corpo).toContain('único registro')
+    expect(corpo).toContain(contatoValido.mensagem)
+    // O auto-reply só diz que a mensagem chegou — e chegou.
+    expect(autoReply.to).toBe(contatoValido.email)
+
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1)
+    expect(captureExceptionMock).toHaveBeenCalledWith(erroDoBanco, {
+      tags: { fluxo: 'submit_form', etapa: 'gravar_lead', form: 'contato' },
+    })
+    expect(sentryFlushMock).toHaveBeenCalled()
+  })
+
+  it('proposta não gravada: avisa que o Exact precisa ser manual e vai para a praça certa', async () => {
+    bancoFora()
+    vi.stubEnv('LEAD_OUTCOME_SECRET', 'segredo-de-teste-nao-usado-em-producao')
+
+    const result = await submitForm('proposta', proposta, 'test-token')
+
+    expect(result.ok).toBe(true)
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    const [notificacao] = emailsEnviados()
+    expect(notificacao.to).toEqual(['ivan@semog.com.br'])
+    const corpo = await textoDoEmail(notificacao.react)
+    expect(corpo).toMatch(/NÃO foi enviado ao Exact/)
+    expect(corpo).toMatch(/cadastre no Exact à mão/)
+    // Sem linha não há o que assinar: nenhum botão de desfecho, mesmo com o segredo.
+    expect(corpo).not.toMatch(/diga no que deu/)
+  })
+
+  it('falha + e-mail recusado pelo provedor: a pessoa vê o erro e não recebe auto-reply', async () => {
+    bancoFora()
+    sendMailMock.mockResolvedValue({ ok: false, error: 'sendgrid 503' })
+
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result).toEqual({ ok: false, message: 'Erro ao enviar. Tente novamente.' })
+    expect(sendMailMock).toHaveBeenCalledTimes(1)
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('falha + e-mail que lança: erro, sem derrubar a Server Action', async () => {
+    bancoFora()
+    sendMailMock.mockRejectedValue(new Error('render explodiu'))
+
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result).toEqual({ ok: false, message: 'Erro ao enviar. Tente novamente.' })
+  })
+
+  it('falha + SendGrid sem chave (no-op): nada saiu, então é erro e não sucesso', async () => {
+    bancoFora()
+    sendMailMock.mockResolvedValue({ ok: true, skipped: true })
+
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result.ok).toBe(false)
+  })
+
+  it('falha + contato sem CONTACT_TO: sem para quem avisar, é erro', async () => {
+    bancoFora()
+    delete process.env.CONTACT_TO
+
+    const result = await submitForm('contato', contatoValido, 'test-token')
+
+    expect(result.ok).toBe(false)
+    expect(sendMailMock).not.toHaveBeenCalled()
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('Experience com falha técnica: só a filial recebe, e a pessoa NÃO é dada como inscrita', async () => {
+    bancoFora()
+
+    const result = await submitForm('experience', inscricao, 'test-token')
+
+    expect(result.ok).toBe(false)
+    expect(result.esgotado).toBeUndefined()
+    expect(result.message).toMatch(/não conseguimos confirmar sua vaga/)
+    expect(sendMailMock).toHaveBeenCalledTimes(1)
+    const [notificacao] = emailsEnviados()
+    expect(notificacao.to).toEqual(['comercial.pb@semog.com.br'])
+    expect(await textoDoEmail(notificacao.react)).toMatch(/vaga NÃO foi confirmada/)
+    expect(captureExceptionMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('Experience lotado: comportamento de sempre — esgotado, sem e-mail de socorro nem Sentry', async () => {
+    queryMock.mockImplementation(async (sql: string) =>
+      /experience_lotacao/.test(sql)
+        ? {
+            rows: [
+              {
+                evento_id: '65e40d0c-890c-490e-8c7b-b31f45adf6f8',
+                capacidade: 150,
+                inscritos: 151,
+                acompanhantes: 0,
+                pessoas: 151,
+              },
+            ],
+            rowCount: 1,
+          }
+        : { rows: [], rowCount: 0 },
+    )
+
+    const result = await submitForm('experience', inscricao, 'test-token')
+
+    expect(result.ok).toBe(false)
+    expect(result.esgotado).toBe(true)
+    expect(sendMailMock).not.toHaveBeenCalled()
+    expect(captureExceptionMock).not.toHaveBeenCalled()
   })
 })

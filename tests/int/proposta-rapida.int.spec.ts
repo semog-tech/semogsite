@@ -1,7 +1,9 @@
+import { render } from '@react-email/render'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mapLead } from '@/lib/exact/map-lead'
 import { propostaRapidaSchema } from '@/lib/form-schemas'
 import { FORMATO_DO_PROTOCOLO, gerarProtocolo } from '@/lib/protocolo'
+import type { SendMailArgs } from '@/lib/sendgrid'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -183,9 +185,31 @@ describe('submitPropostaRapida', () => {
     expect(queryMock).not.toHaveBeenCalled()
   })
 
-  it('banco fora: falha sem protocolo — a tela nunca confirma o que não foi gravado', async () => {
+  /**
+   * Banco fora, mas o e-mail de socorro foi aceito: o pedido existe em algum
+   * lugar durável, e o protocolo vai nele — o atendente que receber a pessoa
+   * no WhatsApp acha o protocolo no e-mail. A tela pode oferecer o WhatsApp.
+   */
+  it('banco fora com e-mail de socorro aceito: devolve o protocolo, que está no e-mail', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     queryMock.mockRejectedValue(new Error('connection refused'))
+    sendMailMock.mockResolvedValue({ ok: true })
+
+    const result = await submitPropostaRapida(valida, 'token')
+
+    expect(result.ok).toBe(true)
+    expect(result.protocolo).toMatch(FORMATO_DO_PROTOCOLO)
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    // `as`: o dublê do `sendMail` recebe `unknown[]`; o formato é o de `SendMailArgs`.
+    const [{ subject, react }] = sendMailMock.mock.calls[0] as [SendMailArgs]
+    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
+    expect(await render(react, { plainText: true })).toContain(String(result.protocolo))
+  })
+
+  it('banco fora e e-mail fora: falha sem protocolo — a tela nunca confirma o que não chegou a lugar nenhum', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    queryMock.mockRejectedValue(new Error('connection refused'))
+    sendMailMock.mockResolvedValue({ ok: false, error: 'sendgrid 503' })
 
     const result = await submitPropostaRapida(valida, 'token')
 
