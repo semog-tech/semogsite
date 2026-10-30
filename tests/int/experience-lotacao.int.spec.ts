@@ -242,7 +242,7 @@ describe('trava de lotação do Experience', () => {
 
   /**
    * Lotação ilegível é falha técnica, não "esgotado": a inscrição não entra, e
-   * o único e-mail é o de socorro à filial (marcado "NÃO GRAVADO"), para alguém
+   * o único e-mail é o de socorro à filial (marcado "GRAVAÇÃO NÃO CONFIRMADA"), para alguém
    * conferir a vaga à mão. Quem se inscreveu NÃO recebe "Inscrição recebida".
    */
   it('falha fechada quando a função não devolve lotação válida', async () => {
@@ -256,7 +256,7 @@ describe('trava de lotação do Experience', () => {
     expect(sendMailMock).toHaveBeenCalledTimes(1)
     const [{ to, subject }] = sendMailMock.mock.calls[0] as [{ to: string[]; subject: string }]
     expect(to).toEqual(['comercial.pb@semog.com.br'])
-    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
   })
 
   /**
@@ -317,6 +317,50 @@ describe('falha no meio da transação', () => {
     // embora alguém que ainda tinha vaga.
     expect(result.esgotado).toBeUndefined()
     expect(result.message).toBeTruthy()
+  })
+})
+
+/**
+ * Consulta que estoura o `query_timeout` (ver `lib/db.ts`) deixa a conexão com
+ * uma consulta pendurada no servidor e a transação aberta. Ela NÃO pode voltar
+ * ao pool: o próximo envio que a pegasse herdaria a transação (e a trava de
+ * vagas) de outra pessoa. `release(true)` é o que manda o `pg-pool` destruí-la.
+ */
+describe('consulta que estoura o tempo na transação', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    connectMock.mockResolvedValue(clientFalso())
+    sendMailMock.mockResolvedValue({ ok: true })
+    verifyTurnstileMock.mockResolvedValue(true)
+    cookiesMock.mockResolvedValue({ get: () => undefined })
+    headersMock.mockResolvedValue({ get: () => null })
+  })
+
+  it('descarta a conexão em vez de devolvê-la ao pool, e não tenta o rollback', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (/pg_advisory_xact_lock/.test(sql)) throw new Error('Query read timeout')
+      return { rows: [], rowCount: 0 }
+    })
+
+    const result = await submitForm('experience', inscricao, 'test-token')
+
+    expect(releaseMock).toHaveBeenCalledTimes(1)
+    expect(releaseMock).toHaveBeenCalledWith(true)
+    expect(sqlsExecutados()).not.toContain('rollback')
+    expect(result.vagaAConfirmar).toBe(true)
+  })
+
+  it('outra falha (não de tempo) faz rollback e devolve a conexão sã', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (/pg_advisory_xact_lock/.test(sql)) throw new Error('deadlock detected')
+      return { rows: [], rowCount: 0 }
+    })
+
+    await submitForm('experience', inscricao, 'test-token')
+
+    expect(sqlsExecutados()).toContain('rollback')
+    expect(releaseMock).toHaveBeenCalledWith(false)
   })
 })
 

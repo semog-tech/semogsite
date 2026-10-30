@@ -532,7 +532,7 @@ function montarNotificacao(emails: EmailsDoEnvio, notifyTo: readonly string[]): 
       ? (botoesDeDesfecho(leadRowId) ?? undefined)
       : undefined
 
-  const marca = naoGravado ? '[NÃO GRAVADO NO BANCO — registrar à mão] ' : ''
+  const marca = naoGravado ? '[GRAVAÇÃO NÃO CONFIRMADA — conferir no banco] ' : ''
   return {
     to: [...notifyTo],
     subject: `${marca}Novo contato via ${envio.formTitle}`,
@@ -815,7 +815,7 @@ async function socorrerLeadNaoGravado(
   falha: unknown,
 ): Promise<SubmitFormResult> {
   const { formType } = emails.envio
-  console.error('[submit-form] lead NÃO gravado no banco; segue o e-mail de socorro:', falha)
+  console.error('[submit-form] gravação do lead não confirmada; segue o e-mail de socorro:', falha)
   Sentry.captureException(falha, {
     tags: { fluxo: 'submit_form', etapa: 'gravar_lead', form: formType },
   })

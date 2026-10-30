@@ -811,8 +811,8 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
 
 /**
  * O INSERT falhou por motivo técnico. Decisão de 30/10/2026: o lead não pode
- * sumir — a notificação interna sai mesmo assim, marcada "NÃO GRAVADO NO
- * BANCO", e a falha vai ao Sentry. A pessoa só vê sucesso se o lead chegou a
+ * sumir — a notificação interna sai mesmo assim, marcada "GRAVAÇÃO NÃO
+ * CONFIRMADA", e a falha vai ao Sentry. A pessoa só vê sucesso se o lead chegou a
  * algum lugar durável; e-mail aceito pelo provedor conta, e-mail que não saiu
  * (erro, sem chave, sem destinatário) não conta.
  */
@@ -878,7 +878,7 @@ describe('submitForm — lead não gravado no banco', () => {
     expect(result).toEqual({ ok: true, message: 'Recebemos sua mensagem!' })
     const [notificacao] = emailsEnviados()
     expect(notificacao.subject).toBe('Novo contato via Contato')
-    expect(await textoDoEmail(notificacao.react)).not.toMatch(/NÃO GRAVADO/)
+    expect(await textoDoEmail(notificacao.react)).not.toMatch(/NÃO CONFIRMADA/)
     expect(captureExceptionMock).not.toHaveBeenCalled()
   })
 
@@ -891,10 +891,10 @@ describe('submitForm — lead não gravado no banco', () => {
     const [notificacao, autoReply] = emailsEnviados()
     expect(notificacao.to).toEqual(['caixa-do-contato@example.com'])
     expect(notificacao.subject).toBe(
-      '[NÃO GRAVADO NO BANCO — registrar à mão] Novo contato via Contato',
+      '[GRAVAÇÃO NÃO CONFIRMADA — conferir no banco] Novo contato via Contato',
     )
     const corpo = await textoDoEmail(notificacao.react)
-    expect(corpo).toContain('NÃO GRAVADO NO BANCO — registrar à mão')
+    expect(corpo).toContain('GRAVAÇÃO NÃO CONFIRMADA — conferir no banco')
     // A conexão pode cair DEPOIS do commit: o e-mail não afirma que a linha
     // não existe, manda conferir.
     expect(corpo).toContain('FALHOU ou não pôde ser confirmada')

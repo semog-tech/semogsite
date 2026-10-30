@@ -68,7 +68,7 @@ function AlertaNaoGravado({ itens }: { itens: string[] }) {
   return (
     <Section style={alertaStyle}>
       <Text style={{ ...alertaTextoStyle, fontSize: '16px', fontWeight: 700, margin: '0 0 8px' }}>
-        NÃO GRAVADO NO BANCO — registrar à mão
+        GRAVAÇÃO NÃO CONFIRMADA — conferir no banco
       </Text>
       {itens.map((item) => (
         <Text key={item} style={{ ...alertaTextoStyle, margin: '0 0 6px' }}>
@@ -114,7 +114,7 @@ export default function ContactNotification({
   desfecho,
   naoGravado,
 }: ContactNotificationProps) {
-  const prefixo = naoGravado ? 'NÃO GRAVADO NO BANCO — ' : ''
+  const prefixo = naoGravado ? 'GRAVAÇÃO NÃO CONFIRMADA — ' : ''
   return (
     <Html lang="pt-BR">
       <Head />

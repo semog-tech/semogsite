@@ -22,6 +22,9 @@ import { ExperienceForm } from '@/components/forms/ExperienceForm'
  */
 export function ExperienceSignupAberto({ capacidade = null }: { capacidade?: number | null }) {
   const [lotou, setLotou] = useState(false)
+  // Inscrição socorrida por e-mail (ver `vagaAConfirmar` em `SubmitFormResult`):
+  // não há mais envio a verificar, então a nota sobre a verificação sai.
+  const [vagaAConfirmar, setVagaAConfirmar] = useState(false)
 
   return (
     <div className="grid">
@@ -32,12 +35,15 @@ export function ExperienceSignupAberto({ capacidade = null }: { capacidade?: num
       )}
 
       <div className="card">
-        {capacidade === null && (
+        {capacidade === null && !vagaAConfirmar && (
           <p role="status">
             Não foi possível consultar as vagas agora. A disponibilidade será verificada ao enviar.
           </p>
         )}
-        <ExperienceForm onLotacao={() => setLotou(true)} />
+        <ExperienceForm
+          onLotacao={() => setLotou(true)}
+          onVagaAConfirmar={() => setVagaAConfirmar(true)}
+        />
       </div>
     </div>
   )

@@ -120,7 +120,7 @@ describe('banco mudo — o socorro sai dentro do prazo', () => {
     expect(valor.ok).toBe(true)
     expect(captureExceptionMock).toHaveBeenCalledTimes(1)
     const [{ subject }] = sendMailMock.mock.calls[0] as [{ subject: string }]
-    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
     // Quem cortou foi o teto de conexão, não outra coisa: nem antes, nem bem depois.
     expect(ms).toBeGreaterThan(7_500)
     expect(ms).toBeLessThan(11_000)

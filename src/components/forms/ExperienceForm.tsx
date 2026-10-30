@@ -52,8 +52,18 @@ type Status = 'idle' | 'success' | 'error' | 'esgotado' | 'vagaAConfirmar'
  * seguiria dizendo "Garanta a sua vaga" enquanto o card diz que a inscrição não
  * foi registrada — ver `ExperienceSignupAberto`. Opcional porque o formulário
  * também é renderizado fora dessa moldura nos testes.
+ *
+ * `onVagaAConfirmar`, pelo mesmo motivo: a inscrição socorrida por e-mail tira
+ * o formulário de cena, e a nota "a disponibilidade será verificada ao enviar"
+ * que a seção mostra acima dele deixa de fazer sentido.
  */
-export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
+export function ExperienceForm({
+  onLotacao,
+  onVagaAConfirmar,
+}: {
+  onLotacao?: () => void
+  onVagaAConfirmar?: () => void
+} = {}) {
   const id = useId()
   const nomeId = `${id}-nome`
   const emailId = `${id}-email`
@@ -151,6 +161,7 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
     // se o banco voltasse entre as tentativas, contaria a vaga duas vezes.
     if (result.vagaAConfirmar) {
       setStatus('vagaAConfirmar')
+      onVagaAConfirmar?.()
       return
     }
 

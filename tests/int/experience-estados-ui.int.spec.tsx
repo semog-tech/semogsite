@@ -260,6 +260,24 @@ describe('inscrição socorrida por e-mail, na tela', () => {
     expect(container.querySelector('.aviso[role="status"]')).not.toBeNull()
     expect(texto).not.toMatch(/não foi registrada/i)
   })
+
+  /**
+   * Com as vagas sem consulta, a seção avisa "a disponibilidade será verificada
+   * ao enviar". Depois do socorro não há envio a verificar: a nota sai, senão
+   * convida a mandar de novo justamente quando isso duplicaria a inscrição.
+   */
+  it('a nota de "verificada ao enviar" sai quando a vaga fica a confirmar', async () => {
+    vi.mocked(submitForm).mockResolvedValueOnce(socorrida)
+
+    const { container } = render(<ExperienceSignup capacidade={null} estado="aberto" />)
+    expect(container.textContent).toMatch(/será verificada ao enviar/i)
+
+    preencherEEnviar()
+    await screen.findByText(/recebemos seus dados/i)
+
+    expect(container.querySelector('.aviso[role="status"]')).not.toBeNull()
+    expect(container.textContent).not.toMatch(/será verificada ao enviar/i)
+  })
 })
 
 describe('capacidade vinda do banco', () => {

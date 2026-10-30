@@ -202,7 +202,7 @@ describe('submitPropostaRapida', () => {
     expect(pushLeadMock).not.toHaveBeenCalled()
     // `as`: o dublê do `sendMail` recebe `unknown[]`; o formato é o de `SendMailArgs`.
     const [{ subject, react }] = sendMailMock.mock.calls[0] as [SendMailArgs]
-    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
     expect(await render(react, { plainText: true })).toContain(String(result.protocolo))
   })
 
@@ -237,7 +237,7 @@ describe('submitPropostaRapida', () => {
     // `as`: o dublê do `sendMail` recebe `unknown[]`; o formato é o de `SendMailArgs`.
     const [{ to, subject, react }] = sendMailMock.mock.calls[0] as [SendMailArgs]
     expect(to).toEqual(['ivan@semog.com.br'])
-    expect(subject).toMatch(/^\[NÃO GRAVADO NO BANCO/)
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
     const texto = (await render(react, { plainText: true })).replace(/\s+/g, ' ')
     expect(texto).toContain('Parece repetir o lead 4100')
   })
