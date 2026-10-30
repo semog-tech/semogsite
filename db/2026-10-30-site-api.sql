@@ -12,8 +12,31 @@
 --     SQL que ela substitui (filtros, ordenação, colunas). Cada uma diz qual.
 --   * `SECURITY DEFINER`, dono `postgres`, `search_path = ''` e todo nome
 --     qualificado — o padrão de `cms.experience_lotacao`.
---   * `USAGE` no schema e `EXECUTE` nas funções SÓ para `service_role`. O site
---     chama do servidor, com a chave secreta.
+--   * `USAGE` no schema e `EXECUTE` nas funções SÓ para `site_api_runtime`, um
+--     papel próprio, criado aqui. O site chama do servidor com um JWT curto
+--     assinado pelo Vercel KMS (Supabase Third-Party Auth → Custom OIDC), cujo
+--     claim `role` é fixado em `site_api_runtime` na política do emissor.
+--     NÃO é o `service_role`: ele ignora RLS e alcança quase o banco inteiro;
+--     este papel só alcança as 14 funções abaixo.
+--
+-- ============================================================================
+-- O PAPEL `site_api_runtime`
+-- ============================================================================
+--   * `nologin`: ninguém conecta como ele; o PostgREST entra como
+--     `authenticator` e troca para ele (`set local role`) a cada requisição.
+--     Para isso o `authenticator` precisa ser membro — `grant ... with inherit
+--     false`, igual a `anon`/`authenticated`/`service_role` (medido em
+--     30/10/2026: os três com inherit=false, set=true). Com inherit false o
+--     `authenticator` não ganha os privilégios do papel; só pode assumi-lo.
+--   * `noinherit`: o papel não herda de nada que um dia lhe concedam.
+--   * `statement_timeout = 8s`: o PostgREST aplica o setting do papel
+--     personificado. Medido em 30/10/2026: `authenticated` = 8s, `anon` = 3s,
+--     `authenticator` = 8s (com `lock_timeout` = 8s). 8s, e não os 3s do
+--     `anon`, porque a inscrição do Experience espera até 5s pela trava
+--     (`lock_timeout` abaixo) e ainda precisa contar e gravar depois: com 3s o
+--     `statement_timeout` venceria antes do `lock_timeout` e a decisão de
+--     17/09/2026 (esperar 5s) viraria 3s calada. 8s dá a folga de 3s sobre a
+--     espera máxima, e é o mesmo teto que o semogapp já vive.
 --
 -- ============================================================================
 -- COMO RODAR
@@ -46,18 +69,20 @@
 -- granted globally". Mudar o global mexeria em todos os schemas do projeto, e
 -- está fora do escopo. Por isso este arquivo não tem `alter default
 -- privileges`, e a proteção são três camadas:
---   1. `revoke` explícito de `public`, `anon` e `authenticated` em todas as
---      funções do schema (o de `anon`/`public` é defensivo: se alguém um dia
---      acrescentar o default, o revoke continua segurando);
---   2. `USAGE` no schema só para `service_role` — sem USAGE, um EXECUTE que
---      escape numa função futura continua inalcançável;
+--   1. `revoke` explícito, pelo nome, de `public`, `anon`, `authenticated` e
+--      `service_role` em todas as funções do schema (os dois últimos recebem
+--      EXECUTE pelo default global; `anon`/`public` é defensivo: se alguém um
+--      dia acrescentar o default, o revoke continua segurando);
+--   2. `USAGE` no schema só para `site_api_runtime` — sem USAGE, um EXECUTE
+--      que escape numa função futura continua inalcançável;
 --   3. a autoconferência no fim, que aborta a migração se qualquer uma das
 --      duas não valer no catálogo.
 -- Função nova neste schema PRECISA repetir o revoke: ela nasce com
--- `authenticated=X`.
+-- `authenticated=X` e `service_role=X`.
 --
 -- Inverso: `2026-10-30-site-api.down.sql` (tirar `site_api` dos schemas
--- expostos ANTES de rodá-lo).
+-- expostos ANTES de rodá-lo). Ele também tira o papel do `authenticator` e o
+-- apaga.
 
 do $$ begin
   if current_user <> 'postgres' then
@@ -71,9 +96,15 @@ do $$ begin
   end if;
 end $$;
 
+create role site_api_runtime nologin noinherit;
+comment on role site_api_runtime is
+  'Papel do site (semogsite) na Data API: só USAGE em site_api e EXECUTE nas funções dele. Ver db/2026-10-30-site-api.sql no semogsite.';
+grant site_api_runtime to authenticator with inherit false;
+alter role site_api_runtime set statement_timeout = '8s';
+
 create schema site_api;
 comment on schema site_api is
-  'Porta do site (semogsite) pela Data API: só funções SECURITY DEFINER, executáveis só por service_role. Ver db/2026-10-30-site-api.sql no semogsite.';
+  'Porta do site (semogsite) pela Data API: só funções SECURITY DEFINER, executáveis só por site_api_runtime. Ver db/2026-10-30-site-api.sql no semogsite.';
 
 -- ----------------------------------------------------------------------------
 -- Formulários (src/app/(frontend)/_actions/submit-form.ts)
@@ -114,6 +145,7 @@ $fn$;
 -- Substitui `gravarInscricaoDoExperience` inteira — a transação que hoje o app
 -- monta em cinco idas ao banco:
 --   begin
+--   set local idle_in_transaction_session_timeout = '60s'
 --   set local lock_timeout = '5s'
 --   select pg_advisory_xact_lock(26092026)
 --   select * from cms.experience_lotacao($1::jsonb)
@@ -138,11 +170,23 @@ $fn$;
 -- 17/09/2026 registrada em `submit-form.ts`; estourando, a requisição falha
 -- com 55P03 e o app responde o erro genérico, nunca um falso sucesso.
 --
+-- `idle_in_transaction_session_timeout` NÃO é reproduzido, de propósito. No
+-- app ele existe porque a transação é montada pelo cliente em cinco idas ao
+-- banco: se a função da Vercel morre entre duas delas, a sessão fica `idle in
+-- transaction` com a trava na mão. Aqui a transação inteira é uma requisição
+-- do PostgREST, que abre, chama a função e fecha sem devolver o controle a
+-- ninguém no meio — não existe intervalo ocioso para o limite medir. Se o
+-- cliente HTTP cair, a função termina (ou estoura o `statement_timeout` de 8s
+-- do papel) e a trava `xact` sai no fim da transação. E um `set local` dele
+-- aqui dentro só valeria para esta mesma transação, que nunca fica ociosa.
+--
 -- A chave 26092026 é a mesma do app: durante a troca, uma inscrição pela
 -- conexão direta e outra pela Data API serializam uma com a outra.
 --
 -- A validação dos totais repete `validarLotacaoExperience`
--- (src/lib/experienceLotacao.ts): total incoerente é erro, não vaga.
+-- (src/lib/experienceLotacao.ts): total incoerente, ou `evento_id` ausente, é
+-- erro, não vaga. `select ... into strict` falha se a projeção não devolver
+-- exatamente uma linha, como o `rows[0]` indefinido falha no app.
 --
 -- Devolve uma linha: ('inserido', id) ou ('lotado', null). A coluna se chama
 -- `lead_id`, não `id`, porque em PL/pgSQL a coluna de saída vira variável e
@@ -161,6 +205,7 @@ language plpgsql volatile security definer
 set search_path = ''
 as $fn$
 declare
+  v_evento_id uuid;
   v_capacidade int;
   v_inscritos int;
   v_acompanhantes int;
@@ -171,9 +216,13 @@ begin
   perform pg_catalog.pg_advisory_xact_lock(26092026::bigint);
 
   -- A projeção já inclui o candidato: um reenvio não consome outra vaga.
-  select x.capacidade, x.inscritos, x.acompanhantes, x.pessoas
-    into strict v_capacidade, v_inscritos, v_acompanhantes, v_pessoas
+  select x.evento_id, x.capacidade, x.inscritos, x.acompanhantes, x.pessoas
+    into strict v_evento_id, v_capacidade, v_inscritos, v_acompanhantes, v_pessoas
     from cms.experience_lotacao(p_data) x;
+
+  if v_evento_id is null then
+    raise exception 'Contrato da lotação inválido.';
+  end if;
 
   if v_capacidade is null or v_inscritos is null or v_acompanhantes is null
      or v_pessoas is null or v_capacidade <= 0 or v_inscritos < 0
@@ -301,7 +350,9 @@ $fn$;
 --          desfecho_observacao, desfecho_em, notificado_para
 --     from cms.leads where id = $1
 -- O token HMAC continua conferido no app, antes da chamada. Esta função não o
--- confere: quem tem a chave secreta já tem o banco inteiro.
+-- confere: o JWT de `site_api_runtime` só é emitido no servidor do site (KMS,
+-- ambiente de produção), o mesmo perímetro da `DATABASE_URI` de hoje, que lê
+-- `cms.leads` inteira. Conferir o HMAC aqui exigiria o segredo no banco.
 create function site_api.lead_para_desfecho(p_id bigint)
 returns table (
   id bigint,
@@ -458,11 +509,11 @@ $fn$;
 -- Grants
 -- ----------------------------------------------------------------------------
 
-revoke all on schema site_api from public, anon, authenticated;
-grant usage on schema site_api to service_role;
+revoke all on schema site_api from public, anon, authenticated, service_role;
+grant usage on schema site_api to site_api_runtime;
 
-revoke all on all functions in schema site_api from public, anon, authenticated;
-grant execute on all functions in schema site_api to service_role;
+revoke all on all functions in schema site_api from public, anon, authenticated, service_role;
+grant execute on all functions in schema site_api to site_api_runtime;
 
 -- ----------------------------------------------------------------------------
 -- Autoconferência: aborta se o catálogo não disser o que este arquivo promete.
@@ -470,15 +521,31 @@ grant execute on all functions in schema site_api to service_role;
 do $$
 declare
   f record;
+  r text;
   v_total int := 0;
+  -- Quem NÃO pode alcançar o schema. `cms_user` entra porque é a credencial
+  -- de hoje (pg-proxy), que vai ser revogada; `authenticator` porque, com
+  -- inherit true, ele próprio executaria sem trocar de papel.
+  v_barrados text[] := array['public', 'anon', 'authenticated', 'service_role',
+                             'cms_user', 'authenticator'];
 begin
-  if has_schema_privilege('anon', 'site_api', 'USAGE')
-     or has_schema_privilege('authenticated', 'site_api', 'USAGE')
-     or has_schema_privilege('public', 'site_api', 'USAGE') then
-    raise exception 'site_api: USAGE exposto além do service_role';
+  if not pg_has_role('authenticator', 'site_api_runtime', 'MEMBER') then
+    raise exception 'authenticator não é membro de site_api_runtime';
   end if;
-  if not has_schema_privilege('service_role', 'site_api', 'USAGE') then
-    raise exception 'site_api: service_role sem USAGE';
+  if exists (select 1 from pg_auth_members m
+              where m.roleid = 'site_api_runtime'::regrole
+                and m.member = 'authenticator'::regrole
+                and m.inherit_option) then
+    raise exception 'authenticator herda site_api_runtime (esperado inherit false)';
+  end if;
+
+  foreach r in array v_barrados loop
+    if has_schema_privilege(r, 'site_api', 'USAGE') then
+      raise exception 'site_api: % tem USAGE', r;
+    end if;
+  end loop;
+  if not has_schema_privilege('site_api_runtime', 'site_api', 'USAGE') then
+    raise exception 'site_api: site_api_runtime sem USAGE';
   end if;
 
   for f in
@@ -488,13 +555,13 @@ begin
      where p.pronamespace = 'site_api'::regnamespace
   loop
     v_total := v_total + 1;
-    if has_function_privilege('anon', f.oid, 'EXECUTE')
-       or has_function_privilege('authenticated', f.oid, 'EXECUTE')
-       or has_function_privilege('public', f.oid, 'EXECUTE') then
-      raise exception '%: EXECUTE exposto além do service_role', f.nome;
-    end if;
-    if not has_function_privilege('service_role', f.oid, 'EXECUTE') then
-      raise exception '%: service_role sem EXECUTE', f.nome;
+    foreach r in array v_barrados loop
+      if has_function_privilege(r, f.oid, 'EXECUTE') then
+        raise exception '%: % tem EXECUTE', f.nome, r;
+      end if;
+    end loop;
+    if not has_function_privilege('site_api_runtime', f.oid, 'EXECUTE') then
+      raise exception '%: site_api_runtime sem EXECUTE', f.nome;
     end if;
     if not f.prosecdef or f.dono <> 'postgres'
        or f.proconfig is distinct from array['search_path=""'] then
