@@ -127,12 +127,16 @@ describe('trava de lotação do Experience', () => {
 
     const sqls = sqlsExecutados()
     const iBegin = sqls.findIndex((s) => /^begin$/i.test(s))
+    const iOcioso = sqls.findIndex((s) =>
+      /^set local idle_in_transaction_session_timeout\b/i.test(s),
+    )
     const iTimeout = sqls.findIndex((s) => /lock_timeout/i.test(s))
     const iLock = sqls.findIndex((s) => /pg_advisory_xact_lock/i.test(s))
     const iInsert = sqls.findIndex((s) => /^insert into cms\.leads/i.test(s))
     const iCommit = sqls.findIndex((s) => /^commit$/i.test(s))
 
     expect(iBegin).toBeGreaterThanOrEqual(0)
+    expect(iOcioso).toBeGreaterThanOrEqual(0)
     expect(iTimeout).toBeGreaterThanOrEqual(0)
     expect(iLock).toBeGreaterThanOrEqual(0)
     expect(iInsert).toBeGreaterThanOrEqual(0)
@@ -146,10 +150,14 @@ describe('trava de lotação do Experience', () => {
     //   asserção de ordem, os testes continuavam TODOS verdes;
     // - advisory lock numa CTE do próprio INSERT (em vez de comando anterior,
     //   dentro da transação) falhou em 10 de 10 rodadas, porque o snapshot do
-    //   comando é tirado antes de o lock chegar.
+    //   comando é tirado antes de o lock chegar;
+    // - `idle_in_transaction_session_timeout` é `set local`: antes do `begin`
+    //   não vale para esta transação (o Postgres só avisa e ignora), e depois
+    //   do lock deixaria descoberta a janela em que a trava já está na mão.
     //
-    // Conferir só que os SQLs existem não pega nenhum dos dois.
-    expect(iBegin).toBeLessThan(iTimeout)
+    // Conferir só que os SQLs existem não pega nenhum dos três.
+    expect(iBegin).toBeLessThan(iOcioso)
+    expect(iOcioso).toBeLessThan(iTimeout)
     expect(iTimeout).toBeLessThan(iLock)
     expect(iLock).toBeLessThan(iInsert)
     expect(iInsert).toBeLessThan(iCommit)
