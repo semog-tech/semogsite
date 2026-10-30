@@ -1,15 +1,26 @@
--- Inverso de `2026-10-30-site-api.sql`. Rode como `postgres`, numa transação.
+-- Inverso de `2026-10-30-site-api.sql`. Rode como `postgres`, numa transação
+-- só (`psql -1`).
 --
--- ANTES: tirar `site_api` da lista de schemas expostos da Data API, e voltar o
--- site para a conexão direta. Schema exposto que não existe é o que derruba o
--- cache de schema do PostgREST para todo o projeto. A lista está no
--- `pgrst.db_schemas` do papel `authenticator`; a de antes desta migração
--- (medida em 30/10/2026) era:
+-- ANTES: voltar o site para a conexão direta (ou para onde ele for) — depois
+-- deste arquivo, toda chamada a `site_api` falha.
 --
---   alter role authenticator set pgrst.db_schemas =
---     'public,graphql_public,core,erp_cache,app_config,condo_management,task,authz,form,templates,notifications,financeiro,commercial,cobranca';
---   notify pgrst, 'reload config';
---   notify pgrst, 'reload schema';
+-- Este arquivo TIRA `site_api` da lista de schemas expostos da Data API sozinho,
+-- antes de apagar qualquer coisa. Não depende de ninguém lembrar: schema
+-- exposto que não existe derruba o cache de schema do PostgREST, e com ele a
+-- Data API do projeto inteiro, semogapp incluído. A lista está no
+-- `pgrst.db_schemas` do papel `authenticator`. O valor novo é montado a partir
+-- do atual, tirando só o item `site_api` e mantendo os outros na ordem; se o
+-- ajuste não existir, ou se o resultado sair diferente do esperado, o arquivo
+-- aborta antes do primeiro `drop`. Se `site_api` já tiver saído da lista (pelo
+-- painel: Settings → Data API → Exposed schemas), ele só avisa e segue.
+--
+-- Por que os dois `notify` vêm ANTES dos `drop`: numa transação o NOTIFY só é
+-- entregue no commit, junto com tudo o mais, e repetições idênticas são
+-- descartadas mantendo a PRIMEIRA posição. O Supabase tem um gatilho de DDL que
+-- manda `reload schema` a cada `drop`; com os nossos antes, o PostgREST recebe
+-- `reload config` primeiro e recarrega o cache já com a lista nova. Com a ordem
+-- invertida, o `reload schema` chegaria antes e recarregaria com a lista velha,
+-- que ainda aponta para o schema apagado.
 --
 -- E desligar, no Supabase (Authentication → Third-Party Auth), o provedor OIDC
 -- do Vercel KMS, ou trocar o `role` da política dele: com o papel apagado, um
@@ -33,6 +44,51 @@ do $$ begin
   end if;
 end $$;
 
+-- Tira `site_api` de `pgrst.db_schemas`. Por elemento, não por `replace` de
+-- texto: `replace(',site_api', '')` também comeria um `,site_api_x` futuro.
+do $$
+declare
+  v_atual text;
+  v_itens text[];
+  v_resto text[];
+  v_novo text;
+begin
+  select substr(c, length('pgrst.db_schemas=') + 1) into v_atual
+    from pg_roles r, unnest(r.rolconfig) c
+   where r.rolname = 'authenticator' and c like 'pgrst.db_schemas=%';
+  if v_atual is null then
+    raise exception 'authenticator sem pgrst.db_schemas: a lista exposta não está onde este arquivo espera. Confira em Settings → Data API antes de apagar o schema.';
+  end if;
+
+  select array_agg(btrim(i)) into v_itens from unnest(string_to_array(v_atual, ',')) i;
+  select coalesce(array_agg(i order by o), '{}') into v_resto
+    from unnest(v_itens) with ordinality as t(i, o)
+   where i <> 'site_api';
+
+  if cardinality(v_resto) = cardinality(v_itens) then
+    raise notice 'site_api já não está em pgrst.db_schemas (%); segue sem alterar', v_atual;
+    return;
+  end if;
+
+  v_novo := array_to_string(v_resto, ',');
+  if cardinality(v_resto) = 0 or not ('public' = any(v_resto))
+     or cardinality(v_itens) - cardinality(v_resto) <> 1 then
+    raise exception 'pgrst.db_schemas inesperado (atual: %, ficaria: %). Nada foi alterado.', v_atual, v_novo;
+  end if;
+
+  execute format('alter role authenticator set pgrst.db_schemas = %L', v_novo);
+
+  if (select substr(c, length('pgrst.db_schemas=') + 1)
+        from pg_roles r, unnest(r.rolconfig) c
+       where r.rolname = 'authenticator' and c like 'pgrst.db_schemas=%') is distinct from v_novo then
+    raise exception 'pgrst.db_schemas não ficou como esperado (%)', v_novo;
+  end if;
+  raise notice 'pgrst.db_schemas: % -> %', v_atual, v_novo;
+end $$;
+
+notify pgrst, 'reload config';
+notify pgrst, 'reload schema';
+
 drop function site_api.lead_inserir(text, jsonb, text, text, text, text);
 drop function site_api.experience_inscrever(jsonb, text, text, text, text);
 drop function site_api.lead_registrar_exact(bigint, bigint, text);
@@ -55,5 +111,3 @@ drop schema site_api;
 -- `statement_timeout` do papel some junto com ele.
 revoke site_api_runtime from authenticator;
 drop role site_api_runtime;
-
-notify pgrst, 'reload schema';
