@@ -280,8 +280,19 @@ async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; l
  * → projeção → INSERT → `commit`. A projeção lê o snapshot **depois** de
  * já ter o lock, portanto enxerga o que as anteriores gravaram.
  *
- * O lock é `xact`: o Postgres o solta sozinho no `commit` E no `rollback`,
- * inclusive se a conexão cair — não há caminho de saída que o deixe preso.
+ * O lock é `xact`: o Postgres o solta sozinho no `commit`, no `rollback` e
+ * quando a sessão do banco termina. **"Quando a sessão termina" não é "quando
+ * o nosso processo morre":** o site entra pelo Session pooler da Supabase, e
+ * se a função for morta no meio da transação (a Vercel encerra a execução, a
+ * rede cai) o pooler pode manter a sessão do lado do Postgres viva, parada
+ * `idle in transaction`, com a trava na mão — e toda inscrição seguinte
+ * estoura o `lock_timeout` e cai no socorro. Por isso
+ * `idle_in_transaction_session_timeout`: passado o limite sem nenhum comando,
+ * o Postgres encerra a SESSÃO (FATAL, não só a transação) e a trava sai junto.
+ * Vai por `set local` porque o papel `cms_user` não pode receber o valor por
+ * `alter role` (negado, 42501). Os 60s ficam muito acima de qualquer pausa
+ * legítima aqui — os comandos saem em sequência, sem trabalho entre eles; a
+ * espera pela trava conta como sessão ativa, não ociosa.
  *
  * A chave é exclusiva desta operação, então **Contato e Proposta não são
  * serializados**: eles nem passam por aqui (ver `gravarLead`).
@@ -334,6 +345,7 @@ async function gravarInscricaoDoExperience(
 
   try {
     await client.query('begin')
+    await client.query("set local idle_in_transaction_session_timeout = '60s'")
     await client.query("set local lock_timeout = '5s'")
     await client.query('select pg_advisory_xact_lock($1)', [TRAVA_DE_VAGAS])
 
