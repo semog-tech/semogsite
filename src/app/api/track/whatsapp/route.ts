@@ -1,9 +1,14 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
+import {
+  type ConsentimentoDeAnuncio,
+  consentimentoDeAnuncio,
+  paisDaRequisicao,
+} from '@/lib/adsConsent'
 import { ATTRIBUTION_COOKIE, parseAttributionCookie } from '@/lib/attribution'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
+import { chamarRpc, siteApiAtivo } from '@/lib/siteApi'
 import { SECAO_POR_CAMINHO } from '@/lib/triagem'
 
 /**
@@ -24,7 +29,7 @@ import { SECAO_POR_CAMINHO } from '@/lib/triagem'
  * Responde 204 sempre que o pedido é bem-formado (inclusive quando não há
  * gclid) — é um beacon: o `sendBeacon` não lê a resposta e o clique do usuário
  * nunca pode ser prejudicado por uma falha de medição. Erro de banco é logado
- * e engolido pelo mesmo motivo.
+ * e engolido pelo mesmo motivo — vale também para a Data API (`SITE_API_ATIVO`).
  */
 
 export const runtime = 'nodejs'
@@ -50,6 +55,34 @@ const SECTIONS = new Set<string>([
 function sanitizePage(value: unknown): string | null {
   if (typeof value !== 'string' || !value.startsWith('/')) return null
   return value.split(/[?#]/)[0].slice(0, 200)
+}
+
+type Clique = {
+  gclid: string | null
+  page: string | null
+  section: string | null
+  adsConsent: ConsentimentoDeAnuncio
+}
+
+/**
+ * Grava a linha em `cms.whatsapp_clicks`. Com `SITE_API_ATIVO=true` vai pela
+ * Data API (`site_api.whatsapp_clique_inserir`); sem ela, pelo pool, como
+ * antes. O ramo do pool sai quando a Data API estiver confirmada em produção.
+ */
+async function gravaClique(clique: Clique): Promise<void> {
+  if (siteApiAtivo()) {
+    await chamarRpc('whatsapp_clique_inserir', {
+      p_gclid: clique.gclid,
+      p_page: clique.page,
+      p_section: clique.section,
+      p_ads_consent: clique.adsConsent,
+    })
+    return
+  }
+  await query(
+    'insert into cms.whatsapp_clicks (gclid, page, section, ads_consent) values ($1, $2, $3, $4)',
+    [clique.gclid, clique.page, clique.section, clique.adsConsent],
+  )
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -84,10 +117,7 @@ export async function POST(req: Request): Promise<Response> {
       paisDaRequisicao(req.headers),
     )
 
-    await query(
-      'insert into cms.whatsapp_clicks (gclid, page, section, ads_consent) values ($1, $2, $3, $4)',
-      [gclid, page, section, adsConsent],
-    )
+    await gravaClique({ gclid, page, section, adsConsent })
   } catch (err) {
     // Medição nunca derruba a experiência: loga e segue.
     console.error('[api/track/whatsapp] erro ao gravar clique:', err)

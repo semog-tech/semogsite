@@ -15,6 +15,13 @@ const cookieGet = vi.fn()
 vi.mock('server-only', () => ({}))
 
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
+
+// `siteApiAtivo` fica o real (lê `SITE_API_ATIVO`); só a chamada à Data API é falsa.
+const rpcMock = vi.fn()
+vi.mock('@/lib/siteApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/siteApi')>()),
+  chamarRpc: (...args: unknown[]) => rpcMock(...args),
+}))
 vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (name: string) => cookieGet(name) }),
 }))
@@ -128,6 +135,53 @@ describe('POST /api/track/whatsapp', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const res = await POST(req({ page: '/', section: 'conteudo' }))
     expect(res.status).toBe(204)
+  })
+})
+
+describe('POST /api/track/whatsapp — chave SITE_API_ATIVO', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+    queryMock.mockResolvedValue({ rows: [] })
+    rpcMock.mockResolvedValue(null)
+    cookieGet.mockReturnValue(attribCookie({ first: { gclid: 'gclid-do-cookie' } }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('desligada: grava pelo pool, como antes, e não toca a Data API', async () => {
+    vi.stubEnv('SITE_API_ATIVO', '')
+    await POST(req({ page: '/garante', section: 'rodape' }))
+
+    expect(rpcMock).not.toHaveBeenCalled()
+    expect(queryMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('ligada: chama whatsapp_clique_inserir com os parâmetros nomeados, sem o pool', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    const res = await POST(req({ page: '/proposta?x=1', section: 'rodape' }))
+
+    expect(res.status).toBe(204)
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(rpcMock).toHaveBeenCalledTimes(1)
+    expect(rpcMock).toHaveBeenCalledWith('whatsapp_clique_inserir', {
+      p_gclid: 'gclid-do-cookie',
+      p_page: '/proposta',
+      p_section: 'rodape',
+      p_ads_consent: 'granted',
+    })
+  })
+
+  it('ligada: Data API fora ainda responde 204', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    rpcMock.mockRejectedValue(new Error('HTTP 503'))
+    const erro = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const res = await POST(req({ page: '/', section: 'conteudo' }))
+
+    expect(res.status).toBe(204)
+    expect(erro).toHaveBeenCalled()
   })
 })
 

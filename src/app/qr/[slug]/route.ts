@@ -1,6 +1,7 @@
 import { after, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { type Dispositivo, destinoDoQr, dispositivoDoUserAgent, saneiaSlug } from '@/lib/qr'
+import { chamarRpc, siteApiAtivo } from '@/lib/siteApi'
 
 /**
  * Endereço do QR code impresso — `/qr/<peça>` conta o acesso e redireciona.
@@ -38,16 +39,34 @@ type Acesso = {
 }
 
 /**
- * Grava a linha em `cms.qr_scans`. Nunca lança: roda fora do caminho da
- * resposta, então uma exceção aqui não teria quem a tratasse — e medição não
- * pode virar erro de produção.
+ * Insere em `cms.qr_scans`. Com `SITE_API_ATIVO=true` vai pela Data API
+ * (`site_api.qr_acesso_inserir`); sem ela, pelo pool, como antes. O ramo do
+ * pool sai quando a Data API estiver confirmada em produção.
+ */
+async function insereAcesso(acesso: Acesso): Promise<void> {
+  if (siteApiAtivo()) {
+    await chamarRpc('qr_acesso_inserir', {
+      p_slug: acesso.slug,
+      p_conhecido: acesso.conhecido,
+      p_destino: acesso.destino,
+      p_dispositivo: acesso.dispositivo,
+    })
+    return
+  }
+  await query(
+    'insert into cms.qr_scans (slug, conhecido, destino, dispositivo) values ($1, $2, $3, $4)',
+    [acesso.slug, acesso.conhecido, acesso.destino, acesso.dispositivo],
+  )
+}
+
+/**
+ * Grava o acesso. Nunca lança: roda fora do caminho da resposta, então uma
+ * exceção aqui não teria quem a tratasse — e medição não pode virar erro de
+ * produção.
  */
 async function registraAcesso(acesso: Acesso): Promise<void> {
   try {
-    await query(
-      'insert into cms.qr_scans (slug, conhecido, destino, dispositivo) values ($1, $2, $3, $4)',
-      [acesso.slug, acesso.conhecido, acesso.destino, acesso.dispositivo],
-    )
+    await insereAcesso(acesso)
   } catch (err) {
     console.error('[qr] erro ao gravar acesso:', err)
   }

@@ -11,6 +11,9 @@ import { conexaoComTls } from './db-tls'
  * escrevem `cms.*` por aqui. `server-only` garante que este módulo (e a
  * connection string) nunca vá pro bundle do client.
  *
+ * Em transição: com `SITE_API_ATIVO=true`, o rastreio de WhatsApp e de QR
+ * passa pela Data API (`siteApi.ts`) em vez deste pool.
+ *
  * Singleton em nível de módulo: Next.js reusa o módulo entre invocações de
  * uma mesma instância de servidor (dev com HMR é a exceção — ver
  * `globalThis` abaixo), então criar o `Pool` uma vez aqui e reexportar evita

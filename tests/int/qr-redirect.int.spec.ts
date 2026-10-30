@@ -22,6 +22,13 @@ vi.mock('@/lib/db', () => ({
   query: (...args: unknown[]) => queryMock(...args),
 }))
 
+// `siteApiAtivo` fica o real (lê `SITE_API_ATIVO`); só a chamada à Data API é falsa.
+const rpcMock = vi.fn()
+vi.mock('@/lib/siteApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/siteApi')>()),
+  chamarRpc: (...args: unknown[]) => rpcMock(...args),
+}))
+
 /**
  * `after` guarda o trabalho para DEPOIS da resposta. O mock apenas enfileira,
  * sem executar — é isso que permite perguntar "a resposta saiu antes de o
@@ -164,5 +171,52 @@ describe('/qr/[slug] — redirecionamento do QR impresso', () => {
     const { valores } = linhaGravada()
     expect(valores[0]).toBe('folderscriptdrop')
     expect(valores[1]).toBe(false)
+  })
+})
+
+describe('/qr/[slug] — chave SITE_API_ATIVO', () => {
+  beforeEach(() => {
+    rpcMock.mockReset()
+    rpcMock.mockResolvedValue(null)
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('desligada: grava pelo pool, como antes, e não toca a Data API', async () => {
+    vi.stubEnv('SITE_API_ATIVO', '')
+    await escanear('https://www.semog.com.br/qr/folder')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock).not.toHaveBeenCalled()
+    expect(queryMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('ligada: chama qr_acesso_inserir depois da resposta, sem o pool', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    const res = await escanear('https://www.semog.com.br/qr/FOLDER', UA_DESKTOP)
+    expect(rpcMock).not.toHaveBeenCalled()
+    await rodarTrabalhoAdiado()
+
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(rpcMock).toHaveBeenCalledTimes(1)
+    expect(rpcMock).toHaveBeenCalledWith('qr_acesso_inserir', {
+      p_slug: 'folder',
+      p_conhecido: true,
+      p_destino: res.headers.get('location'),
+      p_dispositivo: 'desktop',
+    })
+  })
+
+  it('ligada: Data API fora não quebra o redirecionamento', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    rpcMock.mockRejectedValue(new Error('HTTP 503'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const res = await escanear('https://www.semog.com.br/qr/folder')
+    expect(res.status).toBe(302)
+    await expect(rodarTrabalhoAdiado()).resolves.toBeUndefined()
+    expect(rpcMock).toHaveBeenCalledTimes(1)
   })
 })

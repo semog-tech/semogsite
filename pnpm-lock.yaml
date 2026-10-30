@@ -26,6 +26,9 @@ importers:
       '@vercel/functions':
         specifier: ^3.10.5
         version: 3.10.5(ws@8.21.0)
+      '@vercel/kms':
+        specifier: 0.3.8
+        version: 0.3.8
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1595,6 +1598,10 @@ packages:
         optional: true
       ws:
         optional: true
+
+  '@vercel/kms@0.3.8':
+    resolution: {integrity: sha512-WHdhdyBrnT9/SpIjMD82RFmtvglfx7BvS6VD3e+4yCGTXrEB+KQBPBKZp2E5OBBT4TYqAUPtljWg7so6SY+EHg==}
+    engines: {node: '>= 20'}
 
   '@vercel/oidc@4.0.5':
     resolution: {integrity: sha512-E+duTxv0W8r3qNCGUYxTLt0V0BlLUlrEqxYOu2OoFubIbxwGjwm4wofache+YgU6Sr0MwoAA/vsSrrNrrWjimw==}
@@ -4734,6 +4741,10 @@ snapshots:
       '@vercel/oidc': 4.0.5
     optionalDependencies:
       ws: 8.21.0
+
+  '@vercel/kms@0.3.8':
+    dependencies:
+      '@vercel/oidc': 4.0.5
 
   '@vercel/oidc@4.0.5':
     dependencies:
