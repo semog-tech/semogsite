@@ -75,7 +75,17 @@ conferência depois de ligar é a tabela recebendo linha nova, não a ausência 
 
 Ligar ou desligar pede **deploy novo** (variável de ambiente da Vercel só vale a partir do
 próximo deploy). A ordem é: banco (`site_api` aplicado e exposto) e emissor prontos → variáveis
-criadas → deploy → conferir as linhas novas em `cms.whatsapp_clicks` e `cms.qr_scans`.
+criadas → deploy → conferir.
+
+**A prova de que ligou é linha nova em `cms.qr_scans` e em `cms.whatsapp_clicks`, com o
+PRIMEIRO acesso da instância sendo um QR.** O token do KMS fica em cache por instância (até
+faltar 1 min dos 5): se um clique no WhatsApp assinou antes, o QR seguinte usa esse token e
+parece funcionar mesmo que a assinatura feita a partir do QR esteja quebrada. O QR é o caso
+frágil porque grava no `after`, depois da resposta; por isso as duas rotas leem o token OIDC
+do cabeçalho `x-vercel-oidc-token` no próprio handler e o passam ao KMS
+(`oidcDaRequisicao` em `src/lib/siteApi.ts`), sem depender do contexto da requisição. Para
+garantir instância fria: logo depois do deploy, escanear (ou abrir `/qr/folder`) **antes** de
+qualquer clique no WhatsApp, conferir a linha em `cms.qr_scans` e só então testar o WhatsApp.
 
 ### SEO (opcional)
 

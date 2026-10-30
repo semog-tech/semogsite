@@ -26,6 +26,27 @@ export function siteApiAtivo(): boolean {
   return process.env.SITE_API_ATIVO === 'true'
 }
 
+/**
+ * Cabeçalho em que a Vercel entrega o token OIDC da função, no `Request` de
+ * cada invocação (vercel.com/docs/oidc, "In Vercel Functions"). É com ele que
+ * o KMS autentica o pedido de assinatura.
+ */
+const CABECALHO_OIDC = 'x-vercel-oidc-token'
+
+/**
+ * Lê o token OIDC direto dos cabeçalhos da requisição, de forma síncrona.
+ *
+ * Existe por causa do QR: a gravação roda no `after`, e sem token explícito o
+ * `signJWT` o buscaria no contexto da requisição (`@vercel/oidc`), que não
+ * está provado sobreviver ali. Capturado no handler e passado a `chamarRpc`,
+ * o token não depende desse contexto. Ausente (fora da Vercel), devolve
+ * `undefined` e o `signJWT` faz a busca de sempre — que falha com motivo
+ * `token`. Um valor forjado pelo visitante só faria o KMS recusar a assinatura.
+ */
+export function oidcDaRequisicao(headers: Headers): string | undefined {
+  return headers.get(CABECALHO_OIDC) || undefined
+}
+
 /** Funções de `site_api` que o site chama, com os parâmetros exatos de cada uma. */
 type ParametrosDe = {
   whatsapp_clique_inserir: {
@@ -135,11 +156,16 @@ function expDoToken(token: string): number | null {
   }
 }
 
-async function assinaToken(emissor: string): Promise<TokenEmCache> {
+async function assinaToken(emissor: string, oidcToken?: string): Promise<TokenEmCache> {
   const pedidoEm = Date.now()
   try {
     const { token } = await comPrazo(PRAZO_KMS_MS, 'KMS', () =>
-      signJWT({ issuerId: emissor, claims: { sub: 'semogsite' }, ttl: TTL_TOKEN_S }),
+      signJWT({
+        issuerId: emissor,
+        claims: { sub: 'semogsite' },
+        ttl: TTL_TOKEN_S,
+        ...(oidcToken ? { token: oidcToken } : {}),
+      }),
     )
     // Vale o que vencer primeiro: o `exp` que o KMS gravou (a política pode
     // encurtar o TTL pedido) ou a conta local, medida a partir do pedido.
@@ -153,11 +179,12 @@ async function assinaToken(emissor: string): Promise<TokenEmCache> {
   }
 }
 
-async function tokenValido(emissor: string): Promise<string> {
+/** O token OIDC só é usado quando o cache não serve e é preciso assinar outro. */
+async function tokenValido(emissor: string, oidcToken?: string): Promise<string> {
   if (tokenEmCache && tokenEmCache.venceEm - Date.now() > RENOVAR_ANTES_MS) {
     return tokenEmCache.valor
   }
-  assinando ??= assinaToken(emissor).finally(() => {
+  assinando ??= assinaToken(emissor, oidcToken).finally(() => {
     assinando = null
   })
   tokenEmCache = await assinando
@@ -215,14 +242,16 @@ async function postaRpc(
 /**
  * `POST {SUPABASE_URL}/rest/v1/rpc/<funcao>` no schema `site_api`. Devolve o
  * JSON da resposta, ou `null` quando ela vem vazia (função `returns void`).
- * Toda falha vira `SiteApiErro`.
+ * Toda falha vira `SiteApiErro`. `oidcToken` vem de `oidcDaRequisicao`,
+ * capturado no handler antes de qualquer `after`.
  */
 export async function chamarRpc<F extends FuncaoSiteApi>(
   funcao: F,
   parametros: ParametrosDe[F],
+  oidcToken?: string,
 ): Promise<unknown> {
   const config = configuracao()
-  const token = await tokenValido(config.emissor)
+  const token = await tokenValido(config.emissor, oidcToken)
   const { status, ok, corpo } = await postaRpc(config, token, funcao, parametros)
 
   if (!ok) {

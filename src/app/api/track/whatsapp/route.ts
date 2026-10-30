@@ -8,7 +8,7 @@ import {
 import { ATTRIBUTION_COOKIE, parseAttributionCookie } from '@/lib/attribution'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { query } from '@/lib/db'
-import { chamarRpc, siteApiAtivo } from '@/lib/siteApi'
+import { chamarRpc, oidcDaRequisicao, siteApiAtivo } from '@/lib/siteApi'
 import { SECAO_POR_CAMINHO } from '@/lib/triagem'
 
 /**
@@ -62,6 +62,8 @@ type Clique = {
   page: string | null
   section: string | null
   adsConsent: ConsentimentoDeAnuncio
+  /** Token OIDC da requisição — ver `oidcDaRequisicao`. */
+  oidcToken: string | undefined
 }
 
 /**
@@ -71,12 +73,16 @@ type Clique = {
  */
 async function gravaClique(clique: Clique): Promise<void> {
   if (siteApiAtivo()) {
-    await chamarRpc('whatsapp_clique_inserir', {
-      p_gclid: clique.gclid,
-      p_page: clique.page,
-      p_section: clique.section,
-      p_ads_consent: clique.adsConsent,
-    })
+    await chamarRpc(
+      'whatsapp_clique_inserir',
+      {
+        p_gclid: clique.gclid,
+        p_page: clique.page,
+        p_section: clique.section,
+        p_ads_consent: clique.adsConsent,
+      },
+      clique.oidcToken,
+    )
     return
   }
   await query(
@@ -117,7 +123,13 @@ export async function POST(req: Request): Promise<Response> {
       paisDaRequisicao(req.headers),
     )
 
-    await gravaClique({ gclid, page, section, adsConsent })
+    await gravaClique({
+      gclid,
+      page,
+      section,
+      adsConsent,
+      oidcToken: oidcDaRequisicao(req.headers),
+    })
   } catch (err) {
     // Medição nunca derruba a experiência: loga e segue.
     console.error('[api/track/whatsapp] erro ao gravar clique:', err)

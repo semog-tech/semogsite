@@ -1,7 +1,7 @@
 import { after, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { type Dispositivo, destinoDoQr, dispositivoDoUserAgent, saneiaSlug } from '@/lib/qr'
-import { chamarRpc, siteApiAtivo } from '@/lib/siteApi'
+import { chamarRpc, oidcDaRequisicao, siteApiAtivo } from '@/lib/siteApi'
 
 /**
  * Endereço do QR code impresso — `/qr/<peça>` conta o acesso e redireciona.
@@ -36,6 +36,8 @@ type Acesso = {
   conhecido: boolean
   destino: string
   dispositivo: Dispositivo
+  /** Token OIDC lido no handler, antes do `after` — ver `oidcDaRequisicao`. */
+  oidcToken: string | undefined
 }
 
 /**
@@ -45,12 +47,16 @@ type Acesso = {
  */
 async function insereAcesso(acesso: Acesso): Promise<void> {
   if (siteApiAtivo()) {
-    await chamarRpc('qr_acesso_inserir', {
-      p_slug: acesso.slug,
-      p_conhecido: acesso.conhecido,
-      p_destino: acesso.destino,
-      p_dispositivo: acesso.dispositivo,
-    })
+    await chamarRpc(
+      'qr_acesso_inserir',
+      {
+        p_slug: acesso.slug,
+        p_conhecido: acesso.conhecido,
+        p_destino: acesso.destino,
+        p_dispositivo: acesso.dispositivo,
+      },
+      acesso.oidcToken,
+    )
     return
   }
   await query(
@@ -81,7 +87,11 @@ export async function GET(
   const { destino, conhecido } = destinoDoQr(slug)
   const dispositivo = dispositivoDoUserAgent(req.headers.get('user-agent'))
 
-  after(() => registraAcesso({ slug, conhecido, destino, dispositivo }))
+  // Lido aqui, de forma síncrona: dentro do `after` o contexto da requisição
+  // de onde o `@vercel/oidc` o tiraria pode não existir mais.
+  const oidcToken = oidcDaRequisicao(req.headers)
+
+  after(() => registraAcesso({ slug, conhecido, destino, dispositivo, oidcToken }))
 
   return new NextResponse(null, {
     status: 302,

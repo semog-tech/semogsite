@@ -55,9 +55,9 @@ const DESTINO_FOLDER = '/?utm_source=qr&utm_medium=folder&utm_campaign=experienc
  * redigitado ao lado dele. Slug digitado à mão no teste herdaria a suposição
  * do código sobre o que o Next entrega, e os dois errariam juntos.
  */
-function escanear(url: string, userAgent = UA_IPHONE) {
+function escanear(url: string, userAgent = UA_IPHONE, extras: Record<string, string> = {}) {
   const slug = decodeURIComponent(new URL(url).pathname.split('/')[2] ?? '')
-  return GET(new Request(url, { headers: { 'user-agent': userAgent } }), {
+  return GET(new Request(url, { headers: { 'user-agent': userAgent, ...extras } }), {
     params: Promise.resolve({ slug }),
   })
 }
@@ -195,18 +195,46 @@ describe('/qr/[slug] — chave SITE_API_ATIVO', () => {
 
   it('ligada: chama qr_acesso_inserir depois da resposta, sem o pool', async () => {
     vi.stubEnv('SITE_API_ATIVO', 'true')
-    const res = await escanear('https://www.semog.com.br/qr/FOLDER', UA_DESKTOP)
+    const res = await escanear('https://www.semog.com.br/qr/FOLDER', UA_DESKTOP, {
+      'x-vercel-oidc-token': 'oidc-da-requisicao',
+    })
     expect(rpcMock).not.toHaveBeenCalled()
     await rodarTrabalhoAdiado()
 
     expect(queryMock).not.toHaveBeenCalled()
     expect(rpcMock).toHaveBeenCalledTimes(1)
-    expect(rpcMock).toHaveBeenCalledWith('qr_acesso_inserir', {
-      p_slug: 'folder',
-      p_conhecido: true,
-      p_destino: res.headers.get('location'),
-      p_dispositivo: 'desktop',
+    expect(rpcMock).toHaveBeenCalledWith(
+      'qr_acesso_inserir',
+      {
+        p_slug: 'folder',
+        p_conhecido: true,
+        p_destino: res.headers.get('location'),
+        p_dispositivo: 'desktop',
+      },
+      'oidc-da-requisicao',
+    )
+  })
+
+  it('ligada: o token OIDC é lido no handler, não dentro do `after`', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    const pedido = new Request('https://www.semog.com.br/qr/folder', {
+      headers: { 'user-agent': UA_IPHONE, 'x-vercel-oidc-token': 'oidc-antes-do-after' },
     })
+    await GET(pedido, { params: Promise.resolve({ slug: 'folder' }) })
+    // Some o cabeçalho antes do trabalho adiado rodar, como some o contexto da
+    // requisição: se a rota lesse o token só no `after`, chegaria vazio.
+    pedido.headers.delete('x-vercel-oidc-token')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock.mock.calls[0]?.[2]).toBe('oidc-antes-do-after')
+  })
+
+  it('ligada, fora da Vercel (sem o cabeçalho): segue sem token explícito', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    await escanear('https://www.semog.com.br/qr/folder')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock.mock.calls[0]?.[2]).toBeUndefined()
   })
 
   it('ligada: Data API fora não quebra o redirecionamento', async () => {

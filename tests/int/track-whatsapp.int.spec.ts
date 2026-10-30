@@ -28,8 +28,12 @@ vi.mock('next/headers', () => ({
 
 const { POST } = await import('@/app/api/track/whatsapp/route')
 
-function req(body: unknown, origin = 'https://www.semog.com.br'): Request {
-  const headers = new Headers({ 'content-type': 'application/json' })
+function req(
+  body: unknown,
+  origin = 'https://www.semog.com.br',
+  extras: Record<string, string> = {},
+): Request {
+  const headers = new Headers({ 'content-type': 'application/json', ...extras })
   if (origin) headers.set('origin', origin)
   return new Request('https://www.semog.com.br/api/track/whatsapp', {
     method: 'POST',
@@ -161,17 +165,25 @@ describe('POST /api/track/whatsapp — chave SITE_API_ATIVO', () => {
 
   it('ligada: chama whatsapp_clique_inserir com os parâmetros nomeados, sem o pool', async () => {
     vi.stubEnv('SITE_API_ATIVO', 'true')
-    const res = await POST(req({ page: '/proposta?x=1', section: 'rodape' }))
+    const res = await POST(
+      req({ page: '/proposta?x=1', section: 'rodape' }, 'https://www.semog.com.br', {
+        'x-vercel-oidc-token': 'oidc-da-requisicao',
+      }),
+    )
 
     expect(res.status).toBe(204)
     expect(queryMock).not.toHaveBeenCalled()
     expect(rpcMock).toHaveBeenCalledTimes(1)
-    expect(rpcMock).toHaveBeenCalledWith('whatsapp_clique_inserir', {
-      p_gclid: 'gclid-do-cookie',
-      p_page: '/proposta',
-      p_section: 'rodape',
-      p_ads_consent: 'granted',
-    })
+    expect(rpcMock).toHaveBeenCalledWith(
+      'whatsapp_clique_inserir',
+      {
+        p_gclid: 'gclid-do-cookie',
+        p_page: '/proposta',
+        p_section: 'rodape',
+        p_ads_consent: 'granted',
+      },
+      'oidc-da-requisicao',
+    )
   })
 
   it('ligada: Data API fora ainda responde 204', async () => {

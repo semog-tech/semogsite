@@ -108,6 +108,37 @@ describe('chamarRpc — pedido', () => {
   })
 })
 
+describe('chamarRpc — token OIDC explícito', () => {
+  it('repassa ao signJWT o token OIDC capturado na requisição', async () => {
+    const { chamarRpc } = await cliente()
+    await chamarRpc('whatsapp_clique_inserir', CLIQUE, 'oidc-da-requisicao')
+
+    expect(signMock).toHaveBeenCalledWith(expect.objectContaining({ token: 'oidc-da-requisicao' }))
+  })
+
+  it('sem token OIDC, não manda a opção — o signJWT faz a busca de sempre', async () => {
+    const { chamarRpc } = await cliente()
+    await chamarRpc('whatsapp_clique_inserir', CLIQUE)
+
+    expect(signMock.mock.calls[0]?.[0]).not.toHaveProperty('token')
+  })
+
+  it('com o cache válido, o token OIDC nem é usado', async () => {
+    const { chamarRpc } = await cliente()
+    await chamarRpc('whatsapp_clique_inserir', CLIQUE, 'oidc-1')
+    await chamarRpc('whatsapp_clique_inserir', CLIQUE, 'oidc-2')
+
+    expect(signMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('oidcDaRequisicao lê o cabeçalho, e vazio vira undefined', async () => {
+    const { oidcDaRequisicao } = await cliente()
+    expect(oidcDaRequisicao(new Headers({ 'x-vercel-oidc-token': 'abc' }))).toBe('abc')
+    expect(oidcDaRequisicao(new Headers({ 'x-vercel-oidc-token': '' }))).toBeUndefined()
+    expect(oidcDaRequisicao(new Headers())).toBeUndefined()
+  })
+})
+
 describe('chamarRpc — cache do token', () => {
   it('reaproveita o token entre chamadas', async () => {
     const { chamarRpc } = await cliente()
