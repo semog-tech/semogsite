@@ -54,32 +54,18 @@ direto pela URL pública do Supabase (sem passar pelo Payload).
 
 ```bash
 pnpm install       # instala dependências
-pnpm dev           # sobe o Next + Payload em modo dev (http://localhost:3000, /admin para o painel)
+pnpm dev           # sobe o Next em modo dev (http://localhost:3000)
 pnpm check         # Biome — lint + format (--write)
+pnpm test:int      # Vitest (tests/int), sem banco
 pnpm build         # build de produção
 pnpm start         # roda o build de produção
-
-# Payload / migrations (Task 6)
-pnpm payload            # CLI do Payload
-pnpm migrate:create     # cria uma nova migration a partir do schema atual
-pnpm migrate            # aplica migrations pendentes
-pnpm migrate:status     # lista migrations aplicadas/pendentes
 ```
 
-### Migrations em produção
+### Mudança de schema
 
-Em dev, o schema é sincronizado automaticamente (`push: true`, ver `payload.config.ts`). Em
-produção (`NODE_ENV=production`), o `push` é desligado — o schema só muda via migrations
-versionadas em `src/migrations/`.
-
-Migrations DDL devem rodar pela **conexão direta**, não pelo pooler. Localmente/CI, aponte
-`DATABASE_URI` para o valor de `DATABASE_URI_DIRECT` só para o comando de migration:
-
-```bash
-DATABASE_URI="$DATABASE_URI_DIRECT" pnpm migrate:create init
-DATABASE_URI="$DATABASE_URI_DIRECT" pnpm migrate
-DATABASE_URI="$DATABASE_URI_DIRECT" pnpm migrate:status
-```
+Não há ferramenta de migration (o Payload, que tinha uma, saiu em jul/2026). O schema do que o
+site grava está em `db/*.sql`, aplicado à mão no Supabase antes do deploy do código que depende
+dele — ver a seção 3 de `docs/DEPLOY.md`.
 
 ## `_reference/`
 
