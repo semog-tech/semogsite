@@ -55,6 +55,38 @@ pooler) e fazer deploy.
 `PAYLOAD_SECRET`, `S3_*` e `SUPABASE_STORAGE_PUBLIC_URL` eram do Payload e do upload de mídia
 dele; o código não lê mais nenhuma delas.
 
+### Data API do Supabase — `site_api` (transição; desligada sem `SITE_API_ATIVO=true`)
+
+| Variável | Obrigatório | Client-exposed | Descrição |
+|---|---|---|---|
+| `SITE_API_ATIVO` | Opcional | Não | `true` faz o clique no WhatsApp (`/api/track/whatsapp`) e o acesso por QR (`/qr/*`) gravarem pela Data API, nas funções `site_api.whatsapp_clique_inserir` e `site_api.qr_acesso_inserir`. Qualquer outro valor (ou ausente) mantém o pool de `DATABASE_URI`, exatamente como antes. |
+| `SUPABASE_URL` | Com a flag | Não | `https://qvxlkovrxfqigeaopvui.supabase.co`. Só `https`. |
+| `SUPABASE_PUBLISHABLE_KEY` | Com a flag | Não | Chave publishable (`sb_publishable_...`), exigida pela Data API no cabeçalho `apikey`. Não é segredo, mas só o servidor a usa: **não** criar como `NEXT_PUBLIC_*`. |
+| `KMS_SITE_API_ISSUER_ID` | Com a flag | Não | ID do emissor do Vercel KMS. `src/lib/siteApi.ts` pede a ele um JWT de 5 min (`sub: semogsite`) e o reaproveita até faltar 1 min para vencer. O `role` (`site_api_runtime`) vem da política do emissor, não do código. |
+
+As quatro entram **só em Production**. O emissor de produção não pode aceitar o token OIDC de
+Development nem de Preview: o `vercel env pull` de development entrega um token que assina
+localmente. Sem a flag, os Previews seguem pelo pool.
+
+Com a flag ligada e alguma das outras faltando, cada gravação falha com erro de configuração
+no log (`[api/track/whatsapp]` / `[qr]`), e o visitante não percebe nada: o beacon continua
+respondendo 204 e o QR continua redirecionando. É o mesmo efeito do banco fora, então a
+conferência depois de ligar é a tabela recebendo linha nova, não a ausência de erro na tela.
+
+Ligar ou desligar pede **deploy novo** (variável de ambiente da Vercel só vale a partir do
+próximo deploy). A ordem é: banco (`site_api` aplicado e exposto) e emissor prontos → variáveis
+criadas → deploy → conferir.
+
+**A prova de que ligou é linha nova em `cms.qr_scans` e em `cms.whatsapp_clicks`, com o
+PRIMEIRO acesso da instância sendo um QR.** O token do KMS fica em cache por instância (até
+faltar 1 min dos 5): se um clique no WhatsApp assinou antes, o QR seguinte usa esse token e
+parece funcionar mesmo que a assinatura feita a partir do QR esteja quebrada. O QR é o caso
+frágil porque grava no `after`, depois da resposta; por isso as duas rotas leem o token OIDC
+do cabeçalho `x-vercel-oidc-token` no próprio handler e o passam ao KMS
+(`oidcDaRequisicao` em `src/lib/siteApi.ts`), sem depender do contexto da requisição. Para
+garantir instância fria: logo depois do deploy, escanear (ou abrir `/qr/folder`) **antes** de
+qualquer clique no WhatsApp, conferir a linha em `cms.qr_scans` e só então testar o WhatsApp.
+
 ### SEO (opcional)
 
 | Variável | Obrigatório | Client-exposed | Descrição |

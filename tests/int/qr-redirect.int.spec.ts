@@ -22,6 +22,13 @@ vi.mock('@/lib/db', () => ({
   query: (...args: unknown[]) => queryMock(...args),
 }))
 
+// `siteApiAtivo` fica o real (lê `SITE_API_ATIVO`); só a chamada à Data API é falsa.
+const rpcMock = vi.fn()
+vi.mock('@/lib/siteApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/siteApi')>()),
+  chamarRpc: (...args: unknown[]) => rpcMock(...args),
+}))
+
 /**
  * `after` guarda o trabalho para DEPOIS da resposta. O mock apenas enfileira,
  * sem executar — é isso que permite perguntar "a resposta saiu antes de o
@@ -48,9 +55,9 @@ const DESTINO_FOLDER = '/?utm_source=qr&utm_medium=folder&utm_campaign=experienc
  * redigitado ao lado dele. Slug digitado à mão no teste herdaria a suposição
  * do código sobre o que o Next entrega, e os dois errariam juntos.
  */
-function escanear(url: string, userAgent = UA_IPHONE) {
+function escanear(url: string, userAgent = UA_IPHONE, extras: Record<string, string> = {}) {
   const slug = decodeURIComponent(new URL(url).pathname.split('/')[2] ?? '')
-  return GET(new Request(url, { headers: { 'user-agent': userAgent } }), {
+  return GET(new Request(url, { headers: { 'user-agent': userAgent, ...extras } }), {
     params: Promise.resolve({ slug }),
   })
 }
@@ -164,5 +171,80 @@ describe('/qr/[slug] — redirecionamento do QR impresso', () => {
     const { valores } = linhaGravada()
     expect(valores[0]).toBe('folderscriptdrop')
     expect(valores[1]).toBe(false)
+  })
+})
+
+describe('/qr/[slug] — chave SITE_API_ATIVO', () => {
+  beforeEach(() => {
+    rpcMock.mockReset()
+    rpcMock.mockResolvedValue(null)
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('desligada: grava pelo pool, como antes, e não toca a Data API', async () => {
+    vi.stubEnv('SITE_API_ATIVO', '')
+    await escanear('https://www.semog.com.br/qr/folder')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock).not.toHaveBeenCalled()
+    expect(queryMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('ligada: chama qr_acesso_inserir depois da resposta, sem o pool', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    const res = await escanear('https://www.semog.com.br/qr/FOLDER', UA_DESKTOP, {
+      'x-vercel-oidc-token': 'oidc-da-requisicao',
+    })
+    expect(rpcMock).not.toHaveBeenCalled()
+    await rodarTrabalhoAdiado()
+
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(rpcMock).toHaveBeenCalledTimes(1)
+    expect(rpcMock).toHaveBeenCalledWith(
+      'qr_acesso_inserir',
+      {
+        p_slug: 'folder',
+        p_conhecido: true,
+        p_destino: res.headers.get('location'),
+        p_dispositivo: 'desktop',
+      },
+      'oidc-da-requisicao',
+    )
+  })
+
+  it('ligada: o token OIDC é lido no handler, não dentro do `after`', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    const pedido = new Request('https://www.semog.com.br/qr/folder', {
+      headers: { 'user-agent': UA_IPHONE, 'x-vercel-oidc-token': 'oidc-antes-do-after' },
+    })
+    await GET(pedido, { params: Promise.resolve({ slug: 'folder' }) })
+    // Some o cabeçalho antes do trabalho adiado rodar, como some o contexto da
+    // requisição: se a rota lesse o token só no `after`, chegaria vazio.
+    pedido.headers.delete('x-vercel-oidc-token')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock.mock.calls[0]?.[2]).toBe('oidc-antes-do-after')
+  })
+
+  it('ligada, fora da Vercel (sem o cabeçalho): segue sem token explícito', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    await escanear('https://www.semog.com.br/qr/folder')
+    await rodarTrabalhoAdiado()
+
+    expect(rpcMock.mock.calls[0]?.[2]).toBeUndefined()
+  })
+
+  it('ligada: Data API fora não quebra o redirecionamento', async () => {
+    vi.stubEnv('SITE_API_ATIVO', 'true')
+    rpcMock.mockRejectedValue(new Error('HTTP 503'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const res = await escanear('https://www.semog.com.br/qr/folder')
+    expect(res.status).toBe(302)
+    await expect(rodarTrabalhoAdiado()).resolves.toBeUndefined()
+    expect(rpcMock).toHaveBeenCalledTimes(1)
   })
 })
