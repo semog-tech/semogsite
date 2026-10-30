@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Sentry from '@sentry/nextjs'
 import { AsYouType } from 'libphonenumber-js/min'
-import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
+import { type ReactNode, type RefObject, useEffect, useId, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { ExperienceAgenda } from '@/components/experience/ExperienceAgenda'
@@ -16,7 +16,7 @@ import { type ExperienceValues, experienceSchema } from '@/lib/form-schemas'
 import type { SubmitFormResult } from '@/lib/forms'
 import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
 
-type Status = 'idle' | 'success' | 'error' | 'esgotado'
+type Status = 'idle' | 'success' | 'error' | 'esgotado' | 'vagaAConfirmar'
 
 /**
  * Inscrição no Semog Experience — o `<form>` da seção `#inscricao` da landing.
@@ -52,8 +52,18 @@ type Status = 'idle' | 'success' | 'error' | 'esgotado'
  * seguiria dizendo "Garanta a sua vaga" enquanto o card diz que a inscrição não
  * foi registrada — ver `ExperienceSignupAberto`. Opcional porque o formulário
  * também é renderizado fora dessa moldura nos testes.
+ *
+ * `onVagaAConfirmar`, pelo mesmo motivo: a inscrição socorrida por e-mail tira
+ * o formulário de cena, e a nota "a disponibilidade será verificada ao enviar"
+ * que a seção mostra acima dele deixa de fazer sentido.
  */
-export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
+export function ExperienceForm({
+  onLotacao,
+  onVagaAConfirmar,
+}: {
+  onLotacao?: () => void
+  onVagaAConfirmar?: () => void
+} = {}) {
   const id = useId()
   const nomeId = `${id}-nome`
   const emailId = `${id}-email`
@@ -91,7 +101,9 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
   // jeito — e cuja notícia é ainda mais importante não se perder.
   const doneRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (status === 'success' || status === 'esgotado') doneRef.current?.focus()
+    if (status === 'success' || status === 'esgotado' || status === 'vagaAConfirmar') {
+      doneRef.current?.focus()
+    }
   }, [status])
 
   // O aviso de erro entra acima do botão e o empurra para baixo — em tela curta
@@ -141,6 +153,15 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
     if (result.esgotado) {
       setStatus('esgotado')
       onLotacao?.()
+      return
+    }
+
+    // O banco não gravou, mas os dados chegaram à filial por e-mail. Sai de
+    // cena como o `esgotado`: reenviar mandaria outro e-mail da mesma pessoa e,
+    // se o banco voltasse entre as tentativas, contaria a vaga duas vezes.
+    if (result.vagaAConfirmar) {
+      setStatus('vagaAConfirmar')
+      onVagaAConfirmar?.()
       return
     }
 
@@ -199,6 +220,8 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
       </div>
     )
   }
+
+  if (status === 'vagaAConfirmar') return <VagaAConfirmar doneRef={doneRef} />
 
   if (status === 'success') {
     // Repete data, horário e local porque é o que a pessoa precisa levar daqui
@@ -356,5 +379,38 @@ export function ExperienceForm({ onLotacao }: { onLotacao?: () => void } = {}) {
       </button>
       <p className="formnote">Ao se inscrever você não entra em nenhuma lista comercial.</p>
     </form>
+  )
+}
+
+/**
+ * A inscrição que o banco não gravou e foi socorrida por e-mail à filial (ver
+ * `vagaAConfirmar` em `SubmitFormResult`). Mesmo bloco neutro do `.aviso`, sem
+ * vermelho: nada que a pessoa fez está errado, e não há nada para corrigir.
+ * `role="status"` e não `alert` — não é recusa, é "aguarde o nosso contato".
+ *
+ * Não diz "inscrição recebida" nem mostra a agenda: a vaga não foi contada, e
+ * só a equipe pode dizer se ela existe.
+ */
+function VagaAConfirmar({ doneRef }: { doneRef: RefObject<HTMLDivElement | null> }) {
+  return (
+    <div className="aviso" ref={doneRef} role="status" tabIndex={-1}>
+      <span aria-hidden="true" className="aviso-mark">
+        <InfoIcon />
+      </span>
+      <h3>Recebemos seus dados</h3>
+      <p>
+        Não conseguimos confirmar sua vaga agora. A equipe do evento vai falar com você pelo
+        WhatsApp ou pelo e-mail que você informou para confirmar.
+      </p>
+      {/* biome-ignore lint/a11y/noRedundantRoles: redundante no papel, necessário na prática — com `list-style: none` o Safari/VoiceOver descarta a semântica de lista */}
+      <ul className="facts facts-neutro" role="list">
+        <li>
+          <InfoIcon /> Não precisa enviar de novo: seus dados já chegaram à equipe.
+        </li>
+        <li>
+          <InfoIcon /> A vaga só está garantida depois que a equipe confirmar com você.
+        </li>
+      </ul>
+    </div>
   )
 }

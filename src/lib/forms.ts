@@ -26,14 +26,22 @@ export type FormType = 'contato' | 'proposta' | 'experience'
  * de novo" com o botão ainda lá, e aqui tentar de novo nunca vai funcionar —
  * o formulário sai e dá lugar ao aviso de que as vagas acabaram.
  *
+ * `vagaAConfirmar` é a inscrição do Experience que o banco não gravou mas
+ * chegou à filial pelo e-mail de socorro. Também tira o formulário de cena: um
+ * segundo envio mandaria outro e-mail de socorro da mesma pessoa e, se o banco
+ * voltasse no meio, contaria a vaga duas vezes. A tela diz que os dados chegaram
+ * e que a equipe vai confirmar — sem erro e sem "inscrição recebida".
+ *
  * `protocolo` só vem no `ok: true` da proposta curta (`submitPropostaRapida`):
- * sem lead gravado não há protocolo, e a tela nunca mostra um.
+ * lead gravado, ou socorrido por um e-mail que leva o protocolo. Sem nenhum
+ * dos dois não há protocolo, e a tela nunca mostra um.
  */
 export type SubmitFormResult = {
   ok: boolean
   errors?: Record<string, string>
   message?: string
   esgotado?: boolean
+  vagaAConfirmar?: boolean
   protocolo?: string
 }
 

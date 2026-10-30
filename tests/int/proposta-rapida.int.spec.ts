@@ -1,7 +1,9 @@
+import { render } from '@react-email/render'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mapLead } from '@/lib/exact/map-lead'
 import { propostaRapidaSchema } from '@/lib/form-schemas'
 import { FORMATO_DO_PROTOCOLO, gerarProtocolo } from '@/lib/protocolo'
+import type { SendMailArgs } from '@/lib/sendgrid'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -183,9 +185,67 @@ describe('submitPropostaRapida', () => {
     expect(queryMock).not.toHaveBeenCalled()
   })
 
-  it('banco fora: falha sem protocolo — a tela nunca confirma o que não foi gravado', async () => {
+  /**
+   * Banco fora, mas o e-mail de socorro foi aceito: o pedido existe em algum
+   * lugar durável, e o protocolo vai nele — o atendente que receber a pessoa
+   * no WhatsApp acha o protocolo no e-mail. A tela pode oferecer o WhatsApp.
+   */
+  it('banco fora com e-mail de socorro aceito: devolve o protocolo, que está no e-mail', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     queryMock.mockRejectedValue(new Error('connection refused'))
+    sendMailMock.mockResolvedValue({ ok: true })
+
+    const result = await submitPropostaRapida(valida, 'token')
+
+    expect(result.ok).toBe(true)
+    expect(result.protocolo).toMatch(FORMATO_DO_PROTOCOLO)
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    // `as`: o dublê do `sendMail` recebe `unknown[]`; o formato é o de `SendMailArgs`.
+    const [{ subject, react }] = sendMailMock.mock.calls[0] as [SendMailArgs]
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
+    expect(await render(react, { plainText: true })).toContain(String(result.protocolo))
+  })
+
+  /**
+   * A duplicada gravada não avisa ninguém (`notifyTo` vazio). Se o INSERT dela
+   * falha, porém, ela não existe em lugar nenhum: o socorro recalcula o destino
+   * pela cidade em vez de herdar o vazio — senão o e-mail não sairia e a tela
+   * daria erro com o banco tendo achado a anterior segundos antes.
+   */
+  it('duplicada cujo INSERT falha: o socorro vai para a praça da cidade, citando a anterior', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    queryMock.mockImplementation(async (sql: string) => {
+      if (/insert into cms\.leads/i.test(sql)) throw new Error('connection terminated')
+      return {
+        rows: [
+          {
+            id: '4100',
+            telefone: valida.telefone,
+            cidade: valida.cidade,
+            nome_condominio: valida.nomeCondominio,
+          },
+        ],
+        rowCount: 1,
+      }
+    })
+    sendMailMock.mockResolvedValue({ ok: true })
+
+    const result = await submitPropostaRapida(valida, 'token')
+
+    expect(result.ok).toBe(true)
+    expect(sendMailMock).toHaveBeenCalledTimes(1)
+    // `as`: o dublê do `sendMail` recebe `unknown[]`; o formato é o de `SendMailArgs`.
+    const [{ to, subject, react }] = sendMailMock.mock.calls[0] as [SendMailArgs]
+    expect(to).toEqual(['ivan@semog.com.br'])
+    expect(subject).toMatch(/^\[GRAVAÇÃO NÃO CONFIRMADA/)
+    const texto = (await render(react, { plainText: true })).replace(/\s+/g, ' ')
+    expect(texto).toContain('Parece repetir o lead 4100')
+  })
+
+  it('banco fora e e-mail fora: falha sem protocolo — a tela nunca confirma o que não chegou a lugar nenhum', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    queryMock.mockRejectedValue(new Error('connection refused'))
+    sendMailMock.mockResolvedValue({ ok: false, error: 'sendgrid 503' })
 
     const result = await submitPropostaRapida(valida, 'token')
 

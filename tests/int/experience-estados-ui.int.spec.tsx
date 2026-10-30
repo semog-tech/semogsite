@@ -199,6 +199,87 @@ describe('recusa por lotação, na tela', () => {
   })
 })
 
+/**
+ * O banco não gravou a inscrição, mas o e-mail de socorro chegou à filial
+ * (`vagaAConfirmar`). Achado de verificação: antes isto aparecia como erro
+ * vermelho com o botão ativo, e quem reenviava disparava um segundo e-mail de
+ * socorro — ou, com o banco de volta, gravava e a vaga era contada duas vezes.
+ */
+describe('inscrição socorrida por e-mail, na tela', () => {
+  const socorrida = {
+    ok: false,
+    vagaAConfirmar: true,
+    message: 'Recebemos seus dados, mas não conseguimos confirmar sua vaga agora.',
+  }
+
+  function preencherEEnviar() {
+    fireEvent.change(screen.getByLabelText(/nome completo/i), {
+      target: { value: 'Maria Souza' },
+    })
+    fireEvent.change(screen.getByLabelText(/e-mail/i), {
+      target: { value: 'maria@exemplo.com.br' },
+    })
+    fireEvent.change(screen.getByLabelText(/whatsapp/i), { target: { value: '83999501388' } })
+    fireEvent.click(screen.getByRole('checkbox', { name: /uso da minha imagem/i }))
+    fireEvent.click(screen.getByRole('button', { name: /turnstile/i }))
+    fireEvent.click(screen.getByRole('button', { name: /garantir minha vaga/i }))
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('tira o formulário de cena: não há campo nem botão para reenviar', async () => {
+    vi.mocked(submitForm).mockResolvedValueOnce(socorrida)
+
+    const { container } = render(<ExperienceForm />)
+    preencherEEnviar()
+    await screen.findByText(/recebemos seus dados/i)
+
+    // Positivo antes dos negativos: uma árvore desmontada também "não tem form".
+    expect(container.querySelector('.aviso[role="status"]')).not.toBeNull()
+    expect(container.querySelector('form')).toBeNull()
+    expect(container.querySelector('input, button, textarea, select')).toBeNull()
+    expect(vi.mocked(submitForm)).toHaveBeenCalledTimes(1)
+  })
+
+  it('diz que a equipe vai confirmar, sem erro e sem prometer a vaga', async () => {
+    vi.mocked(submitForm).mockResolvedValueOnce(socorrida)
+
+    const { container } = render(<ExperienceForm />)
+    preencherEEnviar()
+    await screen.findByText(/recebemos seus dados/i)
+
+    const texto = container.textContent ?? ''
+    expect(texto).toMatch(/equipe do evento vai falar com você/i)
+    expect(texto).toMatch(/não precisa enviar de novo/i)
+    expect(texto).not.toMatch(/inscrição recebida/i)
+    expect(container.querySelector('.signup-done')).toBeNull()
+    // Neutro: nem o vermelho do erro (`role="alert"`) nem a recusa por lotação.
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+    expect(container.querySelector('.aviso[role="status"]')).not.toBeNull()
+    expect(texto).not.toMatch(/não foi registrada/i)
+  })
+
+  /**
+   * Com as vagas sem consulta, a seção avisa "a disponibilidade será verificada
+   * ao enviar". Depois do socorro não há envio a verificar: a nota sai, senão
+   * convida a mandar de novo justamente quando isso duplicaria a inscrição.
+   */
+  it('a nota de "verificada ao enviar" sai quando a vaga fica a confirmar', async () => {
+    vi.mocked(submitForm).mockResolvedValueOnce(socorrida)
+
+    const { container } = render(<ExperienceSignup capacidade={null} estado="aberto" />)
+    expect(container.textContent).toMatch(/será verificada ao enviar/i)
+
+    preencherEEnviar()
+    await screen.findByText(/recebemos seus dados/i)
+
+    expect(container.querySelector('.aviso[role="status"]')).not.toBeNull()
+    expect(container.textContent).not.toMatch(/será verificada ao enviar/i)
+  })
+})
+
 describe('capacidade vinda do banco', () => {
   it('acompanha outro limite sem trocar uma constante no frontend', () => {
     const { container } = render(<ExperienceSignup capacidade={73} estado="aberto" />)

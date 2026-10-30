@@ -1,6 +1,7 @@
 # Guia de deploy — Vercel
 
-Site institucional Semog: **Next.js 16 + Payload 3**, Postgres/Storage no **Supabase**. Este guia
+Site institucional Semog: **Next.js 16** (páginas estáticas lidas de `content/`), Postgres no
+**Supabase** só para o que o site grava (leads, cliques, QR). O Payload saiu em jul/2026. Este guia
 cobre o deploy em produção e os preview deployments na Vercel.
 
 ## 1. Importar o repositório
@@ -32,11 +33,15 @@ variantes de teste/staging nos Previews quando existirem.
 
 | Variável | Obrigatório | Client-exposed | Descrição |
 |---|---|---|---|
-| `DATABASE_URI` | Sim | Não | Conexão de runtime — string do **Session pooler** (porta `5432`, `aws-0-<region>.pooler.supabase.com`), usuário `cms_user` (role dedicada, least-privilege, restrita ao schema `cms` — não usar o `postgres` superuser aqui). Suporta *prepared statements*, exigido pelo adapter Postgres do Payload (Drizzle). |
-| `DATABASE_URI_DIRECT` | Sim | Não | Conexão **Direct** (`db.<project-ref>.supabase.co:5432`), usada **apenas** para rodar migrations (`pnpm migrate`), nunca pela aplicação em runtime. |
+| `DATABASE_URI` | Sim | Não | Conexão de runtime, lida só por `src/lib/db.ts`. Aponta para o HAProxy da VPS, que repassa ao **Session pooler** da Supabase (ver `src/lib/db-tls.ts`), com o usuário `cms_user` (role dedicada, restrita ao schema `cms` — não usar o `postgres` superuser aqui). |
 
-**O Transaction pooler (porta `6543`) é proibido** em ambas — não suporta prepared statements e
-quebra o adapter Postgres do Payload.
+O app não lê nenhuma outra string de conexão: `DATABASE_URI_DIRECT`, que existia para as
+migrations do Payload, não é mais usada pelo código.
+
+**Pool e Fluid compute:** o `Pool` de `src/lib/db.ts` é registrado com `attachDatabasePool`
+(`@vercel/functions`), que segura a função viva pelo `idleTimeoutMillis` do pool depois de cada
+uso, para o `pg` fechar a conexão ociosa antes de a Vercel suspender a instância. Sem isso a
+conexão ficava aberta no HAProxy até o timeout dele (~1h). O mecanismo é o de Fluid compute.
 
 **TLS do banco:** a URI **não deve** ter `sslmode` (nem `sslrootcert`/`sslcert`/`sslkey`/`ssl`) — com
 eles o `pg` descartaria a configuração de TLS do código; `src/lib/db-tls.ts` os remove por
@@ -47,22 +52,8 @@ passar a apontar para fora de `*.pooler.supabase.com`, a conexão falha com erro
 SSL Configuration, conferir o SHA-256, acrescentar em `SUPABASE_ROOT_CAS` (ou ajustar o nome do
 pooler) e fazer deploy.
 
-### Payload (obrigatório)
-
-| Variável | Obrigatório | Client-exposed | Descrição |
-|---|---|---|---|
-| `PAYLOAD_SECRET` | Sim | Não | Segredo usado pelo Payload para assinar sessões/tokens. Gere com `openssl rand -base64 32`. Um valor **por ambiente** (não reuse entre preview e produção). |
-
-### Storage S3 — Supabase Storage (obrigatório)
-
-| Variável | Obrigatório | Client-exposed | Descrição |
-|---|---|---|---|
-| `S3_BUCKET` | Sim | Não | Nome do bucket dedicado a uploads (`media`). |
-| `S3_REGION` | Sim | Não | Região do projeto Supabase (`us-east-2`). |
-| `S3_ENDPOINT` | Sim | Não | Endpoint S3-compatible do Supabase Storage (`https://<ref>.supabase.co/storage/v1/s3`). |
-| `S3_ACCESS_KEY_ID` | Sim | Não | Gerada em Storage → S3 Access Keys, no dashboard do Supabase. |
-| `S3_SECRET_ACCESS_KEY` | Sim | Não | Idem — trate como segredo (chave vale para o projeto Supabase inteiro). |
-| `SUPABASE_STORAGE_PUBLIC_URL` | Sim | Não | Base da URL pública usada por `payload.config.ts` para montar a URL de cada arquivo (`generateFileURL`). |
+`PAYLOAD_SECRET`, `S3_*` e `SUPABASE_STORAGE_PUBLIC_URL` eram do Payload e do upload de mídia
+dele; o código não lê mais nenhuma delas.
 
 ### SEO (opcional)
 
@@ -143,54 +134,28 @@ se algum dia o upload de source maps via `SENTRY_AUTH_TOKEN` precisar do binári
 `pnpm approve-builds` localmente e adicione `@sentry/cli` a `onlyBuiltDependencies` antes do
 deploy — a Vercel usa o mesmo lockfile/config, então o comportamento é idêntico ao CI.
 
-## 3. Migrations — estado atual e pendência
+## 3. Migrations — SQL manual em `db/`
 
-**Realidade atual:** em dev, o schema do Payload é sincronizado automaticamente
-(`push: process.env.NODE_ENV !== 'production'` em `src/payload.config.ts`) — ou seja, todo o
-desenvolvimento até agora usou `push` direto no schema `cms` do Supabase, **não** migrations
-versionadas. A migration commitada em `src/migrations/20260712_220559_init.ts` captura um
-snapshot antigo do schema (12/07) e **está desatualizada** em relação ao schema atual (não inclui
-tabelas adicionadas depois, como as do `form-builder` plugin, campos do SEO plugin, etc.).
+Não há ferramenta de migration nem script `pnpm migrate`: o schema do que o site grava
+(`cms.leads` e colunas de Exact/desfecho, `cms.whatsapp_clicks`, `cms.qr_scans`, consentimento de
+Ads) vive em arquivos SQL em `db/*.sql`, aplicados **à mão** no Supabase (SQL Editor ou MCP) por
+quem faz a mudança, antes do deploy do código que depende dela. Os arquivos são escritos para
+rodar de novo sem estrago (`create ... if not exists`, `add column if not exists`).
 
-**Para este primeiro deploy:** o banco de produção é o **mesmo projeto/schema Supabase (`cms`)**
-já usado em dev — já está em sincronia com o código via `push`, então **não é necessário rodar a
-migration `init`** para este deploy. Configurar `NODE_ENV=production` na Vercel desliga o `push`
-automaticamente (comportamento do Payload/Next), então o app sobe apontando para um schema que já
-bate com o código.
-
-**Pendência (antes de tratar migrations como fonte da verdade, ou de provisionar um banco
-novo/limpo):** regenerar uma migration `init` limpa e completa a partir do schema atual —
-
-```bash
-DATABASE_URI="$DATABASE_URI_DIRECT" pnpm migrate:create init
-```
-
-— descartando o arquivo antigo (`20260712_220559_init.ts`) antes de rodar o comando, e validar
-com `pnpm migrate:status` contra um banco vazio. Só depois disso o pipeline `pnpm migrate` deve
-ser considerado confiável para provisionar um Supabase novo do zero ou para rodar em CI/CD como
-step de deploy. Até lá, qualquer mudança de schema em produção é feita manualmente/via `push`
-controlado, com cuidado.
-
-Migrations DDL devem sempre rodar pela **conexão direta** (`DATABASE_URI_DIRECT`), nunca pelo
-pooler — veja `docs/DEV.md` para os comandos.
+Depois de aplicar, confira no catálogo (`information_schema.columns`) que a mudança existe — a
+saída do comando não é prova. O build e o deploy não tocam no banco.
 
 ## 4. Preview deployments
 
 - Todo branch/PR aberto no repositório gera automaticamente um **preview deployment** na Vercel
   (URL única por deploy).
-- Os previews usam o **mesmo projeto Supabase** (mesmo schema `cms`, mesmo bucket `media`) que
-  produção — não há banco/projeto isolado por preview. Tenha cuidado ao testar fluxos que
-  escrevem dados (formulários, admin do Payload) em previews: eles gravam nos mesmos dados de
-  produção.
-- O **draft/live preview do Payload** (rotas de preview do CMS, versionamento de páginas/posts)
-  funciona normalmente nos previews, já que aponta para o mesmo Postgres.
+- Os previews usam o **mesmo projeto Supabase** (mesmo schema `cms`) que produção — não há
+  banco isolado por preview. Tenha cuidado ao testar formulários em previews: eles gravam nos
+  mesmos dados de produção.
 - Variáveis de ambiente marcadas para o environment **Preview** no Project Settings se aplicam a
   todos os previews. Se algum dia for necessário isolar dados de preview, provisionar um schema
   Supabase separado (`cms_preview` ou similar) e usar Vercel's per-branch env vars — não é o
   caso hoje.
-- `PAYLOAD_SECRET` pode ser o mesmo valor entre previews e produção (não há problema de segurança
-  em compartilhar, já que ambos os ambientes acessam o mesmo banco), mas prefira valores distintos
-  se quiser invalidar sessões de um ambiente sem afetar o outro.
 
 ## Como a produção é publicada (Deploy Hook)
 
@@ -239,10 +204,8 @@ disponíveis no ambiente de trabalho):
 
 - [ ] Repo importado, framework Next.js, build `pnpm build`, install `pnpm install`, Node 20.
 - [ ] Todas as env vars da seção 2 preenchidas em Production (e as relevantes em Preview).
-- [ ] `NODE_ENV=production` (definido automaticamente pela Vercel em builds de produção) →
-      `push` desligado no Payload.
+- [ ] Mudança de schema do deploy, se houver, aplicada antes a partir de `db/*.sql` e conferida
+      no catálogo.
 - [ ] Domínio `semog.com.br` + `www.semog.com.br` configurados.
-- [ ] Deploy de produção concluído e `/admin` acessível com as credenciais do Payload.
+- [ ] Deploy de produção concluído e um envio de formulário de teste gravado em `cms.leads`.
 - [ ] Pós-deploy: Search Console (sitemap), GTM (atrás do consent gate), Google Ads.
-- [ ] Pendência registrada: regenerar a migration `init` limpa antes de depender dela como fonte
-      da verdade do schema.

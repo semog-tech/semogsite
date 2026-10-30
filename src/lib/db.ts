@@ -1,22 +1,55 @@
 import 'server-only'
 
+import { attachDatabasePool } from '@vercel/functions'
 import { Pool, type QueryResultRow } from 'pg'
 import { conexaoComTls } from './db-tls'
 
 /**
- * Pool `pg` sobre o `DATABASE_URI` (mesmo Postgres do Supabase que o Payload
- * usa via `postgresAdapter`, ver `src/payload.config.ts`) — usado por
- * `submit-form.ts`/cron do Ads (Fase 3) pra ler/escrever `cms.leads` direto,
- * sem passar pelo Payload. `server-only` garante que este módulo (e a
+ * Pool `pg` sobre o `DATABASE_URI` (o Postgres do Supabase, atrás do HAProxy
+ * da VPS) — o único caminho do site até o banco: `submit-form.ts`, os crons do
+ * Ads e do Exact, o desfecho do lead, o rastreio de WhatsApp e de QR leem e
+ * escrevem `cms.*` por aqui. `server-only` garante que este módulo (e a
  * connection string) nunca vá pro bundle do client.
  *
  * Singleton em nível de módulo: Next.js reusa o módulo entre invocações de
  * uma mesma instância de servidor (dev com HMR é a exceção — ver
  * `globalThis` abaixo), então criar o `Pool` uma vez aqui e reexportar evita
- * abrir uma conexão nova por request, o que esgotaria rápido o pool pequeno
- * do Supabase (compartilhado com o Payload, que já reserva `max: 5`).
+ * abrir uma conexão nova por request, o que esgotaria rápido as conexões do
+ * Supabase.
  */
 const globalForPool = globalThis as unknown as { __cmsLeadsPool?: Pool }
+
+/**
+ * Quanto um client devolvido ao pool fica aberto esperando reuso antes de o
+ * `pg` fechá-lo. É o default do `pg-pool`, escrito aqui porque passou a ter um
+ * segundo efeito: o `attachDatabasePool` lê este valor e mantém a função viva
+ * por ele (+100ms) depois de cada `release` — ver `createPool`.
+ */
+const OCIOSO_MS = 10_000
+
+/**
+ * Teto para conseguir uma conexão pronta: esperar um client livre no pool E
+ * abrir uma nova (TCP, TLS, autenticação). Sem ele, um backend que aceita a
+ * conexão e não responde pendura o `connect` até o limite da função na Vercel —
+ * e o e-mail de socorro do lead (`submit-form.ts`) nunca chega a sair.
+ *
+ * **Acima dos 5s do `lock_timeout` do Experience, de propósito.** Enquanto
+ * inscrições disputam a trava de vagas elas seguram conexões, e um Contato pode
+ * esperar ~4s por um client livre (medido, ver `gravarInscricaoDoExperience`).
+ * Um teto abaixo disso trocaria essa espera rara por um lead "não gravado".
+ */
+const CONEXAO_MS = 8_000
+
+/**
+ * Teto de cada consulta, medido do lado do cliente (`query_timeout` do `pg`:
+ * a promise rejeita com `Query read timeout`). Cobre o "conectou e o servidor
+ * parou de responder". Precisa ser maior que o `lock_timeout` de 5s da
+ * transação do Experience, senão cortaria a espera legítima pela trava antes
+ * do próprio Postgres. `statement_timeout` (do lado do servidor) não entra:
+ * vai como parâmetro de inicialização, e o pooler da Supabase atrás do HAProxy
+ * não foi testado com ele.
+ */
+const CONSULTA_MS = 12_000
 
 function createPool(): Pool {
   const newPool = new Pool({
@@ -24,9 +57,12 @@ function createPool(): Pool {
     // `db-tls.ts`, que também tira da URI qualquer `sslmode` — com ele o `pg`
     // descartaria o objeto `ssl` em silêncio.
     ...conexaoComTls(process.env.DATABASE_URI),
-    // Pool pequeno: mesma instância Supabase compartilhada com o Payload
-    // (`max: 5` lá) — não competir por conexões do plano free/pequeno.
+    // Pool pequeno: cada instância da função tem o seu, e o Supabase atrás do
+    // HAProxy tem poucas conexões para dividir entre todas elas.
     max: 5,
+    idleTimeoutMillis: OCIOSO_MS,
+    connectionTimeoutMillis: CONEXAO_MS,
+    query_timeout: CONSULTA_MS,
   })
 
   // A conexão passa pelo proxy HAProxy da VPS, que derruba conexões ociosas
@@ -40,6 +76,16 @@ function createPool(): Pool {
   newPool.on('error', (err) => {
     console.error('[db] erro em client ocioso do pool', err)
   })
+
+  // **Sem isto, a conexão fica presa por ~1h.** A Vercel suspende a função
+  // assim que a resposta sai, e com ela o timer de `idleTimeoutMillis` do
+  // `pg-pool`: o client ocioso nunca é fechado, o socket fica aberto do lado
+  // do HAProxy até o timeout dele derrubar (sessão `cD` no log). A cada
+  // `release`, `attachDatabasePool` pede à Vercel (`waitUntil`) que mantenha a
+  // instância viva o tempo do ocioso, para o `pg` fechar o client ele mesmo.
+  // Fora da Vercel (dev, testes, build — sem `VERCEL_URL`/`VERCEL_REGION`) ele
+  // só registra o ouvinte de `release`, que não faz nada.
+  attachDatabasePool(newPool)
 
   return newPool
 }
@@ -58,9 +104,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Helper fino sobre `pool.query` — ponto único de acesso ao Postgres pra
- * quem for ler/escrever `cms.leads` (submit-form, cron do Ads). Sempre
- * qualificar as tabelas como `cms.<tabela>` nas queries (schema privado do
- * Payload, não exposto pelo PostgREST do Supabase — ver `db/leads.sql`).
+ * quem for ler/escrever `cms.*` (submit-form, crons do Ads e do Exact).
+ * Sempre qualificar as tabelas como `cms.<tabela>` nas queries (schema
+ * privado, não exposto pelo PostgREST do Supabase — ver `db/leads.sql`).
  */
 export function query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[]) {
   return pool.query<T>(text, params)
