@@ -27,6 +27,30 @@ const globalForPool = globalThis as unknown as { __cmsLeadsPool?: Pool }
  */
 const OCIOSO_MS = 10_000
 
+/**
+ * Teto para conseguir uma conexão pronta: esperar um client livre no pool E
+ * abrir uma nova (TCP, TLS, autenticação). Sem ele, um backend que aceita a
+ * conexão e não responde pendura o `connect` até o limite da função na Vercel —
+ * e o e-mail de socorro do lead (`submit-form.ts`) nunca chega a sair.
+ *
+ * **Acima dos 5s do `lock_timeout` do Experience, de propósito.** Enquanto
+ * inscrições disputam a trava de vagas elas seguram conexões, e um Contato pode
+ * esperar ~4s por um client livre (medido, ver `gravarInscricaoDoExperience`).
+ * Um teto abaixo disso trocaria essa espera rara por um lead "não gravado".
+ */
+const CONEXAO_MS = 8_000
+
+/**
+ * Teto de cada consulta, medido do lado do cliente (`query_timeout` do `pg`:
+ * a promise rejeita com `Query read timeout`). Cobre o "conectou e o servidor
+ * parou de responder". Precisa ser maior que o `lock_timeout` de 5s da
+ * transação do Experience, senão cortaria a espera legítima pela trava antes
+ * do próprio Postgres. `statement_timeout` (do lado do servidor) não entra:
+ * vai como parâmetro de inicialização, e o pooler da Supabase atrás do HAProxy
+ * não foi testado com ele.
+ */
+const CONSULTA_MS = 12_000
+
 function createPool(): Pool {
   const newPool = new Pool({
     // TLS verificado (cadeia e nome) contra as raízes da Supabase embutidas em
@@ -37,6 +61,8 @@ function createPool(): Pool {
     // HAProxy tem poucas conexões para dividir entre todas elas.
     max: 5,
     idleTimeoutMillis: OCIOSO_MS,
+    connectionTimeoutMillis: CONEXAO_MS,
+    query_timeout: CONSULTA_MS,
   })
 
   // A conexão passa pelo proxy HAProxy da VPS, que derruba conexões ociosas

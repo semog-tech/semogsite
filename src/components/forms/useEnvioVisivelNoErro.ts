@@ -55,9 +55,10 @@ const JANELA_DE_ASSENTAMENTO = 2500
  *
  * `'esgotado'` é exclusivo da inscrição do Experience (a vaga acabou durante o
  * preenchimento): como ele SUBSTITUI o formulário por um aviso, não há botão a
- * trazer de volta para a tela — o `<form>` inteiro já saiu do DOM.
+ * trazer de volta para a tela — o `<form>` inteiro já saiu do DOM. O mesmo vale
+ * para `'vagaAConfirmar'` (inscrição socorrida por e-mail, ver `SubmitFormResult`).
  */
-export type StatusDeEnvio = 'idle' | 'success' | 'error' | 'esgotado'
+export type StatusDeEnvio = 'idle' | 'success' | 'error' | 'esgotado' | 'vagaAConfirmar'
 
 export function useEnvioVisivelNoErro(
   status: StatusDeEnvio,

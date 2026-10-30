@@ -46,10 +46,10 @@ export interface ContactNotificationProps {
    */
   desfecho?: BotaoDeDesfecho[]
   /**
-   * Presente quando o envio NÃO foi gravado em `cms.leads` (falha técnica do
-   * banco): o que quem recebe precisa fazer à mão, uma frase por item. O e-mail
-   * passa a ser o único registro do lead, e o alerta vai no topo para não ser
-   * lido como um contato comum.
+   * Presente quando a gravação em `cms.leads` falhou ou não pôde ser
+   * confirmada (falha técnica do banco): o que quem recebe precisa fazer à mão,
+   * uma frase por item. O e-mail pode ser o único registro do lead, e o alerta
+   * vai no topo para não ser lido como um contato comum.
    */
   naoGravado?: string[]
 }

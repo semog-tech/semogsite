@@ -288,7 +288,8 @@ async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; l
  *
  * `lock_timeout` existe para o modo de falha oposto: sem ele, uma espera
  * anômala penduraria a Server Action indefinidamente. Estourando, o erro sobe
- * e vira o `{ ok: false }` genérico de `submitForm` — nunca um falso sucesso.
+ * como falha técnica e a inscrição vai para o e-mail de socorro
+ * (`socorrerLeadNaoGravado`) — nunca um falso sucesso.
  * **Ele precisa vir ANTES do `pg_advisory_xact_lock`**: depois, não limita a
  * espera que existe para limitar, e a submissão pendura (medido: >15s).
  *
@@ -355,6 +356,14 @@ async function gravarInscricaoDoExperience(
 
     return { id: rows[0].id, lotado: false }
   } catch (err) {
+    // Consulta que estourou o `query_timeout` (ver `lib/db.ts`): o servidor não
+    // está respondendo, e um rollback ficaria esperando outro teto inteiro antes
+    // do socorro. Descartar a conexão basta — o Postgres desfaz a transação e
+    // solta a trava `xact` quando ela cai.
+    if (consultaEstourouOTempo(err)) {
+      conexaoSuspeita = true
+      throw err
+    }
     try {
       await client.query('rollback')
     } catch (rollbackErr) {
@@ -370,6 +379,15 @@ async function gravarInscricaoDoExperience(
     client.removeListener('error', aoFalharConexao)
     client.release(conexaoSuspeita)
   }
+}
+
+/**
+ * O erro que o `pg` 8.22 lança quando estoura o `query_timeout`
+ * (`lib/client.js`: `new Error('Query read timeout')`). Comparado pela mensagem
+ * porque o `pg` não dá código a ele.
+ */
+function consultaEstourouOTempo(err: unknown): boolean {
+  return err instanceof Error && err.message === 'Query read timeout'
 }
 
 /**
@@ -697,6 +715,7 @@ const VAGAS_ESGOTADAS: SubmitFormResult = {
  */
 const VAGA_NAO_CONFIRMADA: SubmitFormResult = {
   ok: false,
+  vagaAConfirmar: true,
   message:
     'Recebemos seus dados, mas não conseguimos confirmar sua vaga agora. A equipe do evento vai entrar em contato para confirmar.',
 }
@@ -721,25 +740,32 @@ async function tentarGravar(linha: LinhaDeLead): Promise<Gravacao> {
 /**
  * O que quem recebe o e-mail de socorro precisa fazer à mão. Cada item só
  * aparece quando se aplica: o Exact e o Google Ads porque os dois crons partem
- * da linha em `cms.leads`, que não existe; a vaga porque a lotação do
- * Experience é contada no banco.
+ * da linha em `cms.leads`; a vaga porque a lotação do Experience é contada no
+ * banco.
+ *
+ * **"Falhou ou não pôde ser confirmada", e não "não foi gravado".** Se a
+ * conexão cai depois do COMMIT e antes da resposta, a linha existe e o site
+ * recebe erro mesmo assim. O e-mail não pode afirmar que é o único registro:
+ * manda conferir no banco antes de cadastrar, para não duplicar no Exact.
  */
 function avisosDoLeadNaoGravado({ envio, leadData }: EmailsDoEnvio): string[] {
   const avisos = [
-    'O site não conseguiu salvar este envio no banco (cms.leads) por uma falha técnica. Este e-mail é o único registro dele.',
+    'A gravação deste envio no banco (cms.leads) FALHOU ou não pôde ser confirmada, por uma falha técnica. Confira no banco antes de registrar à mão: se a linha não estiver lá, este e-mail é o único registro.',
   ]
   if (envio.formType === 'experience') {
     avisos.push(
-      'A vaga NÃO foi confirmada nem contada na lotação do evento: confira se ainda há vaga e responda à pessoa.',
+      'A vaga NÃO foi confirmada: confira no banco se a inscrição entrou e se ainda há vaga, e responda à pessoa.',
     )
   }
   if (isExactEligible(envio.formType, leadData)) {
     avisos.push(
-      'O lead NÃO foi enviado ao Exact e o cron não vai retentar, porque não há linha no banco: cadastre no Exact à mão.',
+      'O site não enviou este lead ao Exact, e o cron só retenta o que está no banco: confira no banco antes de cadastrar no Exact à mão, para não duplicar.',
     )
   }
   if (extractLeadColumns(leadData).gclid) {
-    avisos.push('Veio de anúncio do Google: a conversão também não será enviada ao Google Ads.')
+    avisos.push(
+      'Veio de anúncio do Google: se a linha não estiver no banco, a conversão também não será enviada ao Google Ads.',
+    )
   }
   const duplicaDe = leadData[DUPLICA_DE_FIELD]
   if (duplicaDe) {

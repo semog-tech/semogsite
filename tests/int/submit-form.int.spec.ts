@@ -849,8 +849,9 @@ describe('submitForm — lead não gravado no banco', () => {
     return sendMailMock.mock.calls.map(([arg]) => arg as EmailEnviado)
   }
 
-  function textoDoEmail(react: ReactElement): Promise<string> {
-    return render(react, { plainText: true })
+  /** Texto puro do e-mail, com espaços normalizados — o texto puro quebra linha em 80 colunas. */
+  async function textoDoEmail(react: ReactElement): Promise<string> {
+    return (await render(react, { plainText: true })).replace(/\s+/g, ' ')
   }
 
   beforeEach(() => {
@@ -894,7 +895,10 @@ describe('submitForm — lead não gravado no banco', () => {
     )
     const corpo = await textoDoEmail(notificacao.react)
     expect(corpo).toContain('NÃO GRAVADO NO BANCO — registrar à mão')
-    expect(corpo).toContain('único registro')
+    // A conexão pode cair DEPOIS do commit: o e-mail não afirma que a linha
+    // não existe, manda conferir.
+    expect(corpo).toContain('FALHOU ou não pôde ser confirmada')
+    expect(corpo).toContain('Confira no banco antes de registrar à mão')
     expect(corpo).toContain(contatoValido.mensagem)
     // O auto-reply só diz que a mensagem chegou — e chegou.
     expect(autoReply.to).toBe(contatoValido.email)
@@ -917,8 +921,9 @@ describe('submitForm — lead não gravado no banco', () => {
     const [notificacao] = emailsEnviados()
     expect(notificacao.to).toEqual(['ivan@semog.com.br'])
     const corpo = await textoDoEmail(notificacao.react)
-    expect(corpo).toMatch(/NÃO foi enviado ao Exact/)
-    expect(corpo).toMatch(/cadastre no Exact à mão/)
+    expect(corpo).toMatch(/não enviou este lead ao Exact/)
+    expect(corpo).toMatch(/confira no banco antes de cadastrar no Exact à mão, para não duplicar/)
+    expect(corpo).not.toMatch(/único registro dele/)
     // Sem linha não há o que assinar: nenhum botão de desfecho, mesmo com o segredo.
     expect(corpo).not.toMatch(/diga no que deu/)
   })
@@ -974,7 +979,9 @@ describe('submitForm — lead não gravado no banco', () => {
     expect(sendMailMock).toHaveBeenCalledTimes(1)
     const [notificacao] = emailsEnviados()
     expect(notificacao.to).toEqual(['comercial.pb@semog.com.br'])
-    expect(await textoDoEmail(notificacao.react)).toMatch(/vaga NÃO foi confirmada/)
+    expect(await textoDoEmail(notificacao.react)).toMatch(
+      /vaga NÃO foi confirmada: confira no banco se a inscrição entrou/,
+    )
     expect(captureExceptionMock).toHaveBeenCalledTimes(1)
   })
 
