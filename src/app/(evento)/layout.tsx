@@ -1,7 +1,9 @@
+import type { Metadata } from 'next'
 import type React from 'react'
 import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
 import { Clarity } from '@/components/analytics/Clarity'
+import { siteUrl } from '@/lib/seo'
 import { ConsentProvider } from '@/providers/ConsentProvider'
 import { clash, satoshi } from '../../fonts'
 import '../../styles/theme.css'
@@ -30,6 +32,11 @@ import '../../styles/theme.css'
  * Os três ficam DENTRO do `ConsentProvider`, como em `(frontend)/layout.tsx`:
  * `Analytics` e `Clarity` chamam `useConsent()`, que lança fora do provider.
  */
+// Ver `(frontend)/layout.tsx`: root layouts não herdam a base um do outro.
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
+}
+
 export default function EventoLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">

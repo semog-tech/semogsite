@@ -87,19 +87,29 @@ const nextConfig: NextConfig = {
     // o navegador oferece — o `ccm/s/collect` apareceu bloqueado das duas formas
     // na mesma carga (`fmt=8` em connect, `fmt=3` em img), e é justamente essa
     // assimetria que deixou o bloqueio passar despercebido por duas semanas.
+    //
+    // Terceira rodada (observada no Chromium no fim de outubro/2026): o gtag do
+    // Google Ads chama `https://www.googleadservices.com/pagead/set_partitioned_cookie`
+    // por fetch e por pixel, e o host só estava em `script-src`. A doc oficial
+    // (developers.google.com/tag-platform/security/guides/csp, seção Google Ads)
+    // pede `www.googleadservices.com` em `script-src`, `img-src` e `connect-src`.
+    // Na mesma revisão entraram as outras duas lacunas que a doc aponta:
+    // `www.google.com.br` em `connect-src` (o `www.google.<TLD>` do Ads) e
+    // `www.googletagmanager.com` em `frame-src` (pedido nas seções Google
+    // Analytics, Google Ads e User Data).
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
-      "frame-src 'self' https://challenges.cloudflare.com https://td.doubleclick.net https://bid.g.doubleclick.net",
+      "frame-src 'self' https://challenges.cloudflare.com https://td.doubleclick.net https://bid.g.doubleclick.net https://www.googletagmanager.com",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
+      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
       "media-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co blob:",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
+      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
     ].join('; ')
 
     // Indexação DESLIGADA por padrão (ambiente de teste): emite
