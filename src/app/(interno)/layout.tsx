@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type React from 'react'
+import { siteUrl } from '@/lib/seo'
 import { clash, satoshi } from '../../fonts'
 import '../../styles/theme.css'
 
@@ -23,6 +24,8 @@ import '../../styles/theme.css'
  * dentro do grupo.
  */
 export const metadata: Metadata = {
+  // Ver `(frontend)/layout.tsx`: root layouts não herdam a base um do outro.
+  metadataBase: new URL(siteUrl()),
   title: 'Semog — uso interno',
   robots: { index: false, follow: false },
 }

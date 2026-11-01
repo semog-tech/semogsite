@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   title: 'Styleguide — Semog Design System',
   description:
     'Vitrine viva dos tokens, componentes e da camada de motion do site institucional Semog.',
+  // Ferramenta interna exposta em produção: sem noindex ela é indexável (o
+  // `X-Robots-Tag` do `next.config.ts` some quando `SITE_ALLOW_INDEX=true`).
+  // Também não entra no sitemap (`(frontend)/sitemap.ts` não a lista).
+  robots: { index: false, follow: false },
 }
 
 /**
