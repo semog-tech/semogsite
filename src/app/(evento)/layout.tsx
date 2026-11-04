@@ -3,6 +3,7 @@ import type React from 'react'
 import { Analytics } from '@/components/analytics/Analytics'
 import { AttributionTracker } from '@/components/analytics/AttributionTracker'
 import { Clarity } from '@/components/analytics/Clarity'
+import { RDStation } from '@/components/analytics/RDStation'
 import { siteUrl } from '@/lib/seo'
 import { ConsentProvider } from '@/providers/ConsentProvider'
 import { clash, satoshi } from '../../fonts'
@@ -44,6 +45,7 @@ export default function EventoLayout({ children }: { children: React.ReactNode }
         <ConsentProvider>
           <Analytics />
           <Clarity />
+          <RDStation />
           <AttributionTracker />
           {children}
         </ConsentProvider>

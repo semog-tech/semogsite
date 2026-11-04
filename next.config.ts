@@ -97,6 +97,8 @@ const nextConfig: NextConfig = {
     // `www.google.com.br` em `connect-src` (o `www.google.<TLD>` do Ads) e
     // `www.googletagmanager.com` em `frame-src` (pedido nas seções Google
     // Analytics, Google Ads e User Data).
+    // RD: bibliotecas do loader e os coletores de navegação; fontes e limites em docs/rd-station.md.
+    // event-api.rdstation.com.br NÃO é liberado: os formulários não convertem pelo navegador.
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -104,12 +106,12 @@ const nextConfig: NextConfig = {
       "frame-ancestors 'self'",
       "frame-src 'self' https://challenges.cloudflare.com https://td.doubleclick.net https://bid.g.doubleclick.net https://www.googletagmanager.com",
       "object-src 'none'",
-      "img-src 'self' data: blob: https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
+      "img-src 'self' data: blob: https://pageview-notify.rdstation.com.br https://qvxlkovrxfqigeaopvui.supabase.co https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
       "media-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co blob:",
       "font-src 'self'",
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
-      "connect-src 'self' https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://d335luupugsy2.cloudfront.net https://d1sag09wwfbul8.cloudfront.net https://challenges.cloudflare.com https://www.googletagmanager.com https://*.clarity.ms https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com",
+      "connect-src 'self' https://popups.rdstation.com.br https://pageview-notify.rdstation.com.br https://event-harbor.rdstation.com https://qvxlkovrxfqigeaopvui.supabase.co https://challenges.cloudflare.com https://*.sentry.io https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.clarity.ms https://c.bing.com https://www.google.com https://www.google.com.br https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ad.doubleclick.net https://pagead2.googlesyndication.com",
     ].join('; ')
 
     // Indexação DESLIGADA por padrão (ambiente de teste): emite

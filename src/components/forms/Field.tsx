@@ -63,6 +63,7 @@ export const Field = forwardRef<
     const { label, error, hint, className, as, id: _id, ...rest } = props
     control = (
       <textarea
+        data-sensitive="true"
         id={id}
         ref={ref as Ref<HTMLTextAreaElement>}
         className={controlClass}
@@ -75,6 +76,7 @@ export const Field = forwardRef<
     const { label, error, hint, className, as, id: _id, options, placeholder, ...rest } = props
     control = (
       <select
+        data-sensitive="true"
         id={id}
         ref={ref as Ref<HTMLSelectElement>}
         className={controlClass}
@@ -94,6 +96,7 @@ export const Field = forwardRef<
     const { label, error, hint, className, as, id: _id, ...rest } = props
     control = (
       <input
+        data-sensitive="true"
         id={id}
         ref={ref as Ref<HTMLInputElement>}
         className={controlClass}

@@ -370,6 +370,16 @@ Ligar ou desligar pede **deploy novo**: as páginas são estáticas e o botão s
 build com o valor da flag daquele momento. As actions conferem a flag a cada chamada, então
 desligar no meio de uma consulta leva a pessoa ao WhatsApp.
 
+### RD Station Marketing — monitoramento e conversões (opcional)
+
+| Variável | Onde | Efeito |
+| --- | --- | --- |
+| `NEXT_PUBLIC_RD_TRACKING_SCRIPT_URL` | build (público, não é segredo) | URL completa do loader da conta. Ausente ou fora do formato `https://d335luupugsy2.cloudfront.net/js/loader-scripts/<id>-loader.js` não carrega nada. Só mede em `semog.com.br`/`www`. |
+| `RD_MARKETING_API_KEY` | servidor, só Production | Conversão de proposta/contato comercial pela API. Vazia = nada é enviado e o pedido não guarda snapshot (sem backfill depois). Nunca `NEXT_PUBLIC`. |
+
+Ligar a chave só depois da migração `rd-marketing` e de conferir o painel. Detalhes, CSP e
+regras do painel em `docs/rd-station.md`.
+
 ### Sentry (opcional)
 
 | Variável | Obrigatório | Client-exposed | Descrição |
@@ -395,6 +405,46 @@ rodar de novo sem estrago (`create ... if not exists`, `add column if not exists
 
 Depois de aplicar, confira no catálogo (`information_schema.columns`) que a mudança existe — a
 saída do comando não é prova. O build e o deploy não tocam no banco.
+
+### Ordem das migrações de novembro/2026 (CRM RD + RD Marketing)
+
+As três migrações do site são aditivas e independentes entre si, mas **todas** entram antes do
+deploy do código que as usa — o INSERT de `cms.leads` passa a gravar `rd_marketing_payload`
+mesmo com `RD_MARKETING_API_KEY` vazia, e o cron do CRM lê as colunas `crm_*`. Nenhuma foi
+aplicada. Ordem:
+
+1. Migrações do semogapp que criam `commercial.crm_rdstation_token_obter` e a tabela/função de
+   configuração RD (`2026-11-04-crm-rdstation-config.sql`).
+2. `db/2026-11-04-crm-provider.sql` — colunas `crm_*` e índice em `cms.leads`, mais a fachada
+   `cms.crm_rdstation_token_obter` (dono `postgres`).
+3. `db/2026-11-04-crm-config-site.sql` — fachada `cms.crm_rdstation_config_obter` (dono `postgres`).
+4. `db/2026-11-04-rd-marketing.sql` — colunas `rd_marketing_*` e índice parcial em `cms.leads`.
+   **Conectado como `cms_user`**: a guarda aborta com outro `current_user`.
+5. Deploy do código. Depois, `RD_MARKETING_API_KEY` só após conferir no painel que nenhuma
+   automação cria negociação (ver `docs/rd-station.md`).
+
+**[A CONFIRMAR] papel da `crm-provider.sql` — como está, ela não roda inteira com papel
+nenhum.** `cms.leads` tem dono `cms_user`, e `postgres` e `cms_user` não são membros um do outro
+(medido em 30/10/2026, ver `db/2026-10-30-site-api-0-cms-user.sql`). O arquivo, numa transação
+só, altera a tabela (exige `cms_user`) e cria a fachada com `owner to postgres` sobre
+`commercial` (exige `postgres`). Reproduzido em PostgreSQL 17 local com essa topologia
+(`postgres` e `cms_user` sem superusuário e sem pertencer um ao outro): como `postgres`,
+`must be owner of table leads`; como `cms_user`, `permission denied for schema commercial`.
+A transação aborta inteira, então tentar não deixa estado parcial. Na mesma simulação a ordem
+abaixo funcionou, com as fachadas de dono `postgres`, `EXECUTE` só para `cms_user` e nenhum
+para `anon`/`authenticated`:
+
+- `crm-provider.sql` em duas partes: do início até antes de `-- Fachada privada`, com
+  `commit`, **como `cms_user`**; dali até o fim, aberto com `begin`, **como `postgres`**.
+- `crm-config-site.sql` como `postgres` (não toca `cms.leads`).
+- `rd-marketing.sql` como `cms_user`.
+
+O `crm-provider.down.sql` tem o mesmo problema: o `drop function` como `postgres` e o resto
+(índice e colunas) como `cms_user`. Antes de aplicar, conferir no catálogo de produção se a
+pertinência entre os papéis continua a de 30/10.
+
+Rollback: código antigo primeiro; depois os `.down.sql` na ordem inversa (4 → 3 → 2), cada um
+com o mesmo papel da subida.
 
 ## 4. Preview deployments
 

@@ -10,6 +10,7 @@ import {
 import { enviarLeadAoCrm, erroEstruturaCrm, relatarErroCrm } from '@/lib/crm/send-lead'
 import { query } from '@/lib/db'
 import { DUPLICA_DE_FIELD, type FormType } from '@/lib/forms'
+import { agendarRetryMarketing } from '@/lib/rdMarketing/fila'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,6 +24,8 @@ export async function GET(req: Request): Promise<Response> {
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
+  // Retry Marketing é independente do CRM: agenda antes e não depende do resultado abaixo.
+  agendarRetryMarketing()
   try {
     const provider = crmProvider()
     const { rows } = await query<Pendente>(

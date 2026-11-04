@@ -137,6 +137,7 @@ export function PhoneField<TFieldValues extends FieldValues>({
                 label="País"
               />
               <input
+                data-sensitive="true"
                 id={inputId}
                 ref={field.ref}
                 name={field.name}

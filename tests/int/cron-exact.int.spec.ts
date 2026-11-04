@@ -4,6 +4,9 @@ vi.mock('server-only', () => ({}))
 const queryMock = vi.fn()
 const enviarMock = vi.fn()
 const relatarMock = vi.fn()
+
+vi.mock('@/lib/rdMarketing/fila', () => ({ agendarRetryMarketing: vi.fn() }))
+
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
 vi.mock('@/lib/crm/send-lead', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/crm/send-lead')>()),

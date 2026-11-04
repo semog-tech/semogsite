@@ -53,6 +53,8 @@ import { camposDaOrigem, resolverOrigem } from '@/lib/origemDoLead'
 import { type ChaveDaProposta, propostaRecenteDoMesmoPedido } from '@/lib/propostaDuplicada'
 import { gerarProtocolo } from '@/lib/protocolo'
 import { rateLimit } from '@/lib/rate-limit'
+import { agendarConversaoMarketing } from '@/lib/rdMarketing/fila'
+import { type ConversaoMarketing, montarConversaoMarketing } from '@/lib/rdMarketing/payload'
 import { type SendMailArgs, sendMail } from '@/lib/sendgrid'
 import { verifyTurnstile } from '@/lib/turnstile'
 
@@ -233,9 +235,11 @@ type LinhaDeLead = {
   email: string | null
   adsConsent: string
   notificadoPara: string | null
+  rdMarketing: ConversaoMarketing | null
 }
 
-const COLUNAS_DO_LEAD = 'form, data, gclid, email, ads_consent, notificado_para'
+const COLUNAS_DO_LEAD =
+  'form, data, gclid, email, ads_consent, notificado_para, rd_marketing_payload'
 
 /**
  * Chave da trava de vagas do Experience. É um número arbitrário e fixo — o que
@@ -250,7 +254,7 @@ const TRAVA_DE_VAGAS = 26092026
 async function gravarLeadSemLimite(valores: unknown[]): Promise<{ id?: string; lotado: false }> {
   const { rows } = await query<{ id: string }>(
     `insert into cms.leads (${COLUNAS_DO_LEAD})
-     values ($1, $2, $3, $4, $5, $6) returning id`,
+     values ($1, $2, $3, $4, $5, $6, $7) returning id`,
     valores,
   )
   return { id: rows[0]?.id, lotado: false }
@@ -361,7 +365,7 @@ async function gravarInscricaoDoExperience(
       return { lotado: true }
     }
     const { rows } = await client.query<{ id: string }>(
-      `insert into cms.leads (${COLUNAS_DO_LEAD}) values ($1, $2, $3, $4, $5, $6) returning id`,
+      `insert into cms.leads (${COLUNAS_DO_LEAD}) values ($1, $2, $3, $4, $5, $6, $7) returning id`,
       valores,
     )
     if (!rows[0]?.id) throw new Error('Inscrição não retornou identificação após gravar.')
@@ -421,6 +425,7 @@ async function gravarLead(linha: LinhaDeLead): Promise<{ id?: string; lotado: bo
     linha.email,
     linha.adsConsent,
     linha.notificadoPara,
+    linha.rdMarketing,
   ]
 
   return linha.formType === 'experience'
@@ -669,6 +674,13 @@ async function prepararLinha(
     email: email ?? null,
     adsConsent,
     notificadoPara: notifyTo?.join(', ') ?? null,
+    rdMarketing: process.env.RD_MARKETING_API_KEY?.trim()
+      ? montarConversaoMarketing(formType, leadData, {
+          cookies: jar,
+          atribuicao: origem.atribuicao,
+          permitido: adsConsent === 'granted',
+        })
+      : null,
   }
   return { linha, leadData, attributionFields, notifyTo, email }
 }
@@ -865,13 +877,15 @@ async function concluirLeadGravado(
       await relatarErroCrm(err, leadRowId)
     }
   }
+  agendarConversaoMarketing(leadRowId)
   return RECEBIDO
 }
 
 /**
  * O pipeline comum a todos os formulários, depois da validação: rate limit →
  * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → e-mail
- * → agenda CRM após a resposta (só captação). Os dois últimos são best-effort.
+ * → agenda CRM (só captação) e conversão Marketing após a resposta. Os três
+ * últimos são best-effort.
  *
  * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em
