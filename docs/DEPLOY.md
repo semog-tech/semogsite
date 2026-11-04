@@ -130,9 +130,228 @@ existirem — ligar a integração é ação de configuração, não de código.
 O que a integração faz: toda submissão de **Proposta** (e de **Contato** com
 `assunto = proposta-comercial`) cria um lead no funil Padrão do Exact, com contato principal, logo
 depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fica em
-`cms.leads.exact_error` e o cron `/api/cron/push-exact-leads` (diário, 07:00) retenta por 48 h.
+`cms.leads.exact_error` e `crm_error`; o cron `/api/cron/push-crm-leads` retenta por 48 h,
+no minuto 15 de cada hora (`15 * * * *`, UTC), até 5 tentativas de envio.
+O endpoint antigo `/api/cron/push-exact-leads` é um alias que também respeita `CRM_PROVIDER`.
 Detalhes do contrato da API — que diverge do PDF oficial da Exact — em
 `scripts/probe-exact-create-lead.ts`.
+
+### Provedor de CRM: Exact → RD Station CRM v2
+
+`CRM_PROVIDER=exact|rdstation` seleciona o único destino. Ausente mantém Exact; valor inválido
+falha fechado e aparece no Sentry. A API do Exact e seu mapeamento continuam intactos. O
+CRM segue pelo pool `pg` como `cms_user`; `SITE_API_ATIVO` só altera WhatsApp/QR, portanto
+esta integração não usa nem expõe funções de token em `site_api`/PostgREST.
+
+A configuração principal vem do banco, editada pelo admin no semogapp. As variáveis a
+seguir permanecem como fallback legado, **somente servidor**, no ambiente Production;
+não é preciso duplicar nelas os valores já salvos pelo admin:
+
+| Variável | Uso no RD |
+|---|---|
+| `RD_CRM_PIPELINE_ID` / `RD_CRM_STAGE_ID` | Funil e etapa inicial; o site verifica a associação com `GET /pipelines/{pipeline}/stages/{stage}`. `pipeline_id` é read-only na criação da v2: envia `stage_id`. |
+| `RD_CRM_SOURCE_SITE_ID` / `RD_CRM_SOURCE_ANUNCIO_ID` | Fontes Site e Anúncio. Clique Google ou canal classificado como tráfego pago selecionam Anúncio. |
+| `RD_CRM_CAMPAIGN_SITE_ID` / `RD_CRM_CAMPAIGN_ANUNCIO_ID` | Campanhas cadastradas correspondentes aos dois canais. O nome da campanha UTM também vai em campo personalizado, sem criar cadastros. |
+| `RD_CRM_DISTRIBUTION_RULE` | JSON de `distribution_settings.rule`: `type` igual a `user`, `team`, `all`, `all_users`, `all_admins` ou `owner`; `user`/`team` exigem `id`. Sem responsável por e-mail cravado. |
+| `RD_CRM_UNIDADES_POR_CIDADE` | JSON cidade do formulário → valor da opção Unidade Semog. `Outra cidade` e contato sem cidade deixam Unidade Semog ausente; cidade regional sem mapeamento é erro de configuração. |
+| `RD_CRM_CUSTOM_FIELDS` | JSON alias → ID de 24 hex ou slug no RD: `id_lead_site`, `unidade_semog`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `tipo_clique`, `pagina_entrada`, `dados_proposta`; opcionais: `quantidade_unidades`, `tipo_condominio`, `participacao`. Referências distintas; exemplos reais comentados em `.env.example`. |
+| `RD_CRM_OPCOES_CAMPOS` | JSON opcional `{tipo_condominio:{valor-form:opção-RD},participacao:{valor-form:opção-RD}}`. Ausência de participacao usa o mapa padrão abaixo; mapa explícito o substitui inteiro, inclusive `{participacao:{}}` para desativá-lo. Sem equivalência, deixa o campo vazio e preserva o valor em dados_proposta. |
+
+O site lê `cms.crm_rdstation_config_obter()`, fachada privada SECURITY DEFINER de dono
+postgres e search_path vazio para `commercial.crm_rdstation_config_obter()`. Só cms_user
+recebe EXECUTE na fachada; não há USAGE em commercial. O contrato é JSON plano:
+schema_version=1, version como contador de edição, pipeline_id, entry_stage_id,
+source_site_id/source_anuncio_id, campaign_site_id/campaign_anuncio_id, distribution_rule,
+unidades_por_cidade, custom_fields e metadados updated_by/updated_at. Os aliases canônicos
+de custom_fields são os nomes do site listados acima; id_lead_site é obrigatório.
+`opcoes_campos` é opcional e usa o mesmo formato de RD_CRM_OPCOES_CAMPOS; aliases
+novos e mapas são extensões opcionais do schema_version 1, alinhadas com o semogapp.
+Padrão de participação no banco/env sem mapa explícito: `Conselheiro(a)` → `Conselheiro`,
+`Morador(a)` → `Condômino`, `Incorporador(a) / Construtora` → `Construtora` (decisão
+comercial do dono), `Outro` → `Outros`. `Síndico(a)` não diferencia morador/profissional:
+fica sem opção no RD e preservado no texto. Cargo desconhecido também não vira Outros.
+O editor pode gravar string vazia para uma resposta (`{"participacao":{"Síndico(a)":""}}`):
+significa "Não preencher". O site aceita esse valor no banco/env, omite o campo do payload
+e mantém a resposta em dados_proposta, sem procurar um default para aquela chave.
+`tipo_condominio` não recebe mapa padrão. As sete opções reais de participação são
+`Sindico Morador`, `Sindico Profissional`, `Sub - Síndico`, `Conselheiro`, `Condômino`,
+`Construtora`, `Outros`, exatamente com esses acentos e espaços. `tipo_condominio`
+aceita `Vertical`/`Horizontal`; `taxa_extra` e `ja_cliente` aceitam `Sim`/`Não`.
+Fonte/campanha/distribuição NULL são omitidas do POST (distribuição padrão do RD).
+
+Cache por instância por 60s, com uma leitura compartilhada entre chamadas concorrentes.
+Mudança salva pelo admin pode levar até 60s para aparecer em cada instância, sem deploy.
+Tabela vazia (RPC retorna NULL) usa as envs legadas. Erro da RPC usa a última configuração
+boa, mesmo expirada, ou as envs se a instância ainda não tiver cache; registra Sentry com
+a origem do fallback e evita repetir a leitura por mais 60s. Instância fria sem banco e
+sem envs válidas falha e deixa o lead na fila, sem inventar configuração.
+
+JSON inválido/incompleto ou schema_version desconhecida gera erro explícito e não usa
+cache/env para encobrir a configuração incorreta. pipeline_id, entry_stage_id e alias
+id_lead_site precisam existir; version não é versão de schema e pode aumentar normalmente.
+O fluxo de envio registra o erro no Sentry e no lead para retry pelo cron.
+
+`dados_proposta` preserva formulário, mensagem e os valores sem campo próprio ou sem
+correspondência configurada; dados enviados em campos próprios não se repetem. O número
+de unidades vira inteiro positivo seguro; número inválido fica no texto. Cargo usa o mapa
+de participação. O tipo atual do form (residencial/comercial/associação/incorporadora)
+não informa Vertical/Horizontal: sem equivalência comprovada, fica no texto. A atribuição
+sem alias e os dados legados continuam preservados em
+texto longo. `gclid` guarda também gbraid/wbraid, com o tipo em `tipo_clique`. UTMs do primeiro
+toque passam a ser gravadas individualmente em `cms.leads.data`; histórico anterior continua
+legível em `dados_proposta`, sem inventar UTMs separando o texto antigo.
+
+O contato é procurado primeiro por e-mail normalizado e depois por telefone E.164, criando
+somente quando ambos não retornam registro. Duplicados de contato não bloqueiam a negociação:
+listar todas as páginas, ordenar por `created_at` (ID como desempate), usar o mais antigo e
+emitir Sentry warning "contato duplicado no RD", sem excluir nenhum registro. A negociação recebe `contact_ids`, status
+`ongoing`, fonte/campanha, Unidade Semog e os campos personalizados. Nenhum POST usa a API
+v1 nem cria um lead do RD: a entidade é negociação (`/crm/v2/deals`, envelope `{data: …}`).
+
+### Conferir os campos da conta no primeiro ensaio autorizado
+
+A UI do RD mostra IDs, não slugs. A documentação e o OpenAPI oficial da
+[listagem de campos v2](https://developers.rdstation.com/reference/crm-v2-list-custom-fields)
+expõem ambos (`id` e `slug`); o schema CustomFields usa slug como chave do payload e o
+[filtro RDQL](https://developers.rdstation.com/reference/crm-v2-rdql-filtering) exige `@slug`.
+O site aceita ID ou slug na configuração e resolve IDs usando GET
+`/crm/v2/custom_fields?filter=entity:deal`, com paginação e cache de 60s por instância.
+Não deriva slug do nome, não tenta `@ID` e não passa para POST se faltar o slug.
+Falha do catálogo deixa o lead na fila com erro visível à operação; não usa slug presumido.
+
+No primeiro ensaio, usando o token vigente sem registrar seu conteúdo:
+
+1. Listar todas as páginas de custom_fields de deal e conferir os 14 pares ID/slug
+   dos exemplos comentados em `.env.example`, os tipos e as opções reais.
+2. Confirmar quantidade_unidades como number; enviar um inteiro (ex.: 48) e uma
+   escolha válida do catálogo, reler o card e conferir a apresentação no RD.
+   O schema genérico CustomFields do OpenAPI descreve valores como string, embora
+   o catálogo tenha tipo number: a aceitação de número JSON e a representação de
+   multiple_choice precisam ser confirmadas nessa conta antes da virada.
+3. Participação: conferir o mapa padrão aprovado acima ou as equivalências explícitas
+   do admin; síndico genérico fica no texto. Não inferir geometria
+   Vertical/Horizontal de um tipo residencial/comercial do formulário atual.
+4. Confirmar a busca `/deals?filter=@<slug real id_lead_site>:"<id do lead>"`
+   retorna o mesmo card. Repetir o processamento do mesmo lead e verificar que
+   não há um segundo POST/card, inclusive após timeout simulado no ambiente de teste.
+5. Conferir que dados_proposta contém mensagem e valores sem campo/equivalência,
+   sem repetir contato, nome do condomínio, unidades e atribuição já estruturados.
+
+[A CONFIRMAR com token] pares ID/slug da conta, opções e serialização dos campos
+number/multiple_choice. Os testes locais usam fetch estrito dublado, sem alegar
+que um valor observado somente na UI foi aceito pela API.
+
+Token: `obterTokenRd()` chama a fachada privada `cms.crm_rdstation_token_obter()` com retorno
+`TABLE(access_token text, expires_at timestamptz)`. A fachada do site (dono postgres, `SECURITY DEFINER`, `search_path` vazio)
+chama a função de mesmo nome em `commercial`, criada pela frente do semogapp; ambas são
+somente leitura e não retornam refresh token. O site não renova OAuth nem guarda
+cache de token. Ausente, inválido ou com validade ≤60s é erro persistido/Sentry, mantendo a
+resposta de sucesso para quem preencheu o formulário.
+
+Ordem de preparação, ainda sem virar a flag:
+
+1. Aplicar, com autorização, a migração do semogapp que cria a função de leitura.
+2. **Aplicar a migração ANTES do deploy**, com autorização: `db/2026-11-04-crm-provider.sql` (inverso já preparado em
+   `db/2026-11-04-crm-provider.down.sql`). Ela concede a `cms_user` somente `EXECUTE`
+   na fachada em `cms`, sem `USAGE commercial`, sem `EXECUTE` direto nas funções de
+   commercial e sem SELECT na tabela de tokens. A asserção varre funções, relações, colunas
+   e sequences de commercial e aborta se houver acesso inesperado direto/PUBLIC/herdado.
+   Sem USAGE, até função futura que receba EXECUTE de PUBLIC fica inacessível pelo schema. A migração não foi aplicada por
+   esta implementação. A migração é aditiva e pode entrar com o código antigo/Exact ainda ativo.
+   Se a estrutura faltar, o código emite erro explícito "estrutura ausente; aplicar ... ANTES
+   do deploy", reporta Sentry e o cron retorna 500; não apresenta sucesso silencioso.
+3. Publicar e validar com `CRM_PROVIDER=exact`; preencher e conferir os cadastros reais do RD.
+4. Fazer ensaio autorizado e só então configurar `CRM_PROVIDER=rdstation` e publicar.
+
+Para a configuração administrativa, aplicar também a migração
+`2026-11-04-crm-rdstation-config.sql` do semogapp e depois
+`db/2026-11-04-crm-config-site.sql` do site, antes do deploy deste código.
+O inverso é `db/2026-11-04-crm-config-site.down.sql`, preparado antes do avanço.
+A migração da fachada repete a varredura de funções/relações/colunas/sequences e aborta
+se cms_user tiver acesso direto a commercial. Essas migrações não foram aplicadas nesta
+implementação. A tabela pode continuar vazia enquanto as envs legadas sustentam a operação.
+
+O provedor é fixado na primeira tentativa. Linhas com histórico `exact_*` são atribuídas ao
+Exact pela migração; não migram automaticamente. O cron só envia ao provedor ativo e deixa
+pendências do outro intactas. Reversão da flag também preserva pendências do RD. Para migrar
+qualquer linha manualmente, reconciliar os CRMs antes; não limpar IDs para forçar reenvio.
+
+A fila usa reserva atômica de 5 minutos (`crm_travado_ate`, `FOR UPDATE SKIP LOCKED`), sem
+conexão presa durante HTTP. Seleção e reserva compartilham o mesmo predicado: provedor, lease,
+próxima tentativa e teto; conciliação já agendada é exceção à janela de 48h e ao teto de
+consultas, sem autorizar novos POSTs depois do teto de 5 tentativas de envio.
+`crm_post_iniciado_em` é gravado antes do POST de negociação e `crm_status='incerto'` torna
+um término abrupto visível. Falhas verificáveis antes de enviar HTTP (DNS, conexão recusada,
+timeout de conexão/TLS) liberam o marcador para retry; reset de socket, timeout de resposta,
+5xx e JSON ilegível continuam incertos. Cada retry procura `@<slug id_lead_site>:"<id>"`. Dentro dos primeiros
+30 minutos, "aguardando conciliação" é espera normal: não gera Sentry error, não conta como
+falha/502 nem consome nova tentativa. `crm_proxima_tentativa_em` agenda a próxima execução;
+falha real usa backoff de 15min, 1h, 4h, 16h e 24h. A fila é ordenada pela próxima tentativa,
+sem dar prioridade recorrente ao mesmo payload inválido só por ser mais antigo.
+
+Esse backoff também vale para o Exact: o comportamento anterior retentava de hora em hora
+e consumia as 5 tentativas em cerca de 5h; agora a quinta tentativa fica em torno de 21h,
+mais o arredondamento para o cron horário. A janela comum continua em 48h. É uma mudança
+intencional para espaçar falhas determinísticas. `personError` é Sentry **warning**:
+o card do Exact existe, apesar da falha ao complementar o contato.
+
+Janela de conciliação, teto, lease e backoff têm fonte única em `src/lib/crm/queue.ts`.
+Os valores entram como parâmetros SQL em milissegundos, inclusive o resultado de
+`backoffCrm(tentativas)`. Reservar o lease não consome tentativa; uma conciliação que só
+encontra o card não muda `crm_attempts`. Envio real e falha anterior ao envio são contados.
+
+**Política decidida pelo coordenador:** se o POST foi incerto e a busca continuar vazia por
+30 minutos, recriar automaticamente com o mesmo id_lead_site. Isso prioriza receber o lead
+sobre evitar todo duplicado: RDQL não garante unicidade no servidor. Uma recriação confirmada
+gera Sentry **warning**: "recriado após incerteza; conferir duplicado", e agenda nova
+reconciliação em 30 minutos (`crm_reconciliar_em`), inclusive com `crm_deal_id` preenchido.
+Na próxima execução horária elegível, mesmo se ultrapassar 48h do lead, se houver dois cards, emitir Sentry **error** com os
+IDs, preservar os dois e gravar o estado terminal `crm_status='duplicado'`. A SDR decide
+qual card manter; nenhum é excluído automaticamente. O alerta fica também em `crm_error`.
+A reconciliação agendada não é impedida pelo teto de 5 envios nem pela janela de 48h.
+Se a tentativa de recriação receber 401/429, a marca e o horário do POST incerto anterior
+são preservados; uma rejeição atual não prova que a chamada anterior não foi processada.
+
+Se o teto já foi atingido e a última consulta não encontra o card, gravar o estado terminal
+`crm_status='esgotado'`. Ambos os estados saem da fila, inclusive de conciliações agendadas.
+O Sentry error é emitido somente por quem grava a primeira transição terminal, usando
+UPDATE condicional; chamadas seguintes não repetem o alerta. Nenhum registro é apagado.
+
+Resolução manual, por operador autorizado, antes de reativar qualquer envio:
+
+1. Localizar o lead pelo ID do site e conferir no RD todos os cards com o mesmo id_lead_site.
+   Em `duplicado`, usar os IDs registrados em `crm_error` para escolher com a SDR o card
+   que será mantido como referência; o sistema não exclui o outro automaticamente.
+2. Se o card correto existir, registrar seu `crm_deal_id`/contato confirmado, marcar
+   `crm_status='enviado'` e limpar o erro, o lease e a conciliação pendente. Preservar o
+   contador de tentativas e o provedor; não forçar novo POST.
+3. Em `esgotado` sem card, corrigir a causa (token, configuração ou payload), confirmar a
+   ausência no CRM e só então autorizar nova rodada: zerar `crm_attempts`, limpar os
+   marcadores de POST incerto/lease/conciliação, marcar `pendente` e colocar a próxima
+   tentativa no horário atual. Preservar `crm_provider`; no Exact, conferir também seu
+   contador histórico antes de qualquer liberação manual. Registrar a decisão operacional.
+
+O CRM roda em `after()` do Next 16.2.6, após a resposta: os e-mails internos são enviados
+antes de agendar esse trabalho, e quem preenche não espera o CRM. O callback captura erros
+e o cron cobre interrupção/falha de agendamento. Cada chamada HTTP ao RD tem prazo de 8s,
+igual ao Exact. Falha de envio é invisível para o visitante: proposta já gravada.
+A operação vê `crm_provider`, `crm_deal_id`, `crm_contact_id`, `crm_error`, `crm_status`,
+`crm_attempts`, `crm_enviado_em` e os marcadores no banco. O cron processa até 25 propostas (mesmo limite para Exact/RD, com orçamento de tempo)
+por chamada, retorna **502 se alguma falhar**, 500 para falha de configuração/banco e 401
+sem CRON_SECRET válido. Verificar o monitoramento de cron da Vercel e o DSN do Sentry ativos.
+
+[A CONFIRMAR na conta real] IDs e slugs, tipos/opções dos campos, etapa inicial, distribuição,
+permissões OAuth e validade/renovação pelo app, cadastros de fontes/campanhas e recebimento
+real dos alertas. O catálogo de 04/11 confirmou que `cms_user` não tinha acesso direto às
+7 relações então presentes em commercial e não havia sequences; a asserção da migração
+verifica novamente o estado efetivo, incluindo funções e futura tabela de tokens, antes de liberar.
+As linhas `utm_*` novas também aparecem na descrição do Exact, preservando os dados
+individuais sem mudar o contrato de sua API.
+
+Fontes primárias: [criar negociação](https://developers.rdstation.com/reference/crm-v2-create-deal),
+[contatos](https://developers.rdstation.com/reference/crm-v2-list-contacts),
+[RDQL](https://developers.rdstation.com/reference/crm-v2-rdql-filtering) e
+[casos de uso](https://developers.rdstation.com/reference/crm-v2-use-cases).
 
 ### 2ª via de boleto na triagem (opcional; desligada sem `SEGUNDA_VIA_ATIVA=true`)
 

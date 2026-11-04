@@ -1,5 +1,12 @@
 /** Resposta padrão do banco para testes de formulários que não investigam a lotação. */
 export function respostaComLotacao(sql: string, id: string) {
+  if (sql.startsWith('with candidato'))
+    return {
+      rows: [
+        { id, crm_attempts: 0, pode_criar: true, crm_contact_id: null, crm_post_iniciado_em: null },
+      ],
+      rowCount: 1,
+    }
   if (/experience_lotacao/.test(sql)) {
     return {
       rows: [

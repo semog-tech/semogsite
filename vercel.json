@@ -5,7 +5,7 @@
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/push-exact-leads",
+      "path": "/api/cron/push-crm-leads",
       "schedule": "15 * * * *"
     }
   ],

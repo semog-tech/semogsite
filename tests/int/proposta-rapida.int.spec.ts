@@ -4,6 +4,7 @@ import { mapLead } from '@/lib/exact/map-lead'
 import { propostaRapidaSchema } from '@/lib/form-schemas'
 import { FORMATO_DO_PROTOCOLO, gerarProtocolo } from '@/lib/protocolo'
 import type { SendMailArgs } from '@/lib/sendgrid'
+import { limparAfterCrm, rodarAfterCrm } from './helpers/afterCrm'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -22,8 +23,13 @@ const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
 
 vi.mock('server-only', () => ({}))
-vi.mock('@/lib/exact/push-lead', () => ({
-  pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (await import('./helpers/afterCrm')).agendarAfterCrm,
+}))
+
+vi.mock('@/lib/crm/send-lead', () => ({
+  enviarLeadAoCrm: (...args: unknown[]) => pushLeadMock(...args),
 }))
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
 vi.mock('@/lib/sendgrid', () => ({ sendMail: (...args: unknown[]) => sendMailMock(...args) }))
@@ -35,7 +41,14 @@ vi.mock('next/headers', () => ({
   cookies: (...args: unknown[]) => cookiesMock(...args),
 }))
 
-const { submitPropostaRapida } = await import('@/app/(frontend)/_actions/submit-form')
+const { submitPropostaRapida: submitPropostaRapidaReal } = await import(
+  '@/app/(frontend)/_actions/submit-form'
+)
+async function submitPropostaRapida(...args: Parameters<typeof submitPropostaRapidaReal>) {
+  const result = await submitPropostaRapidaReal(...args)
+  await rodarAfterCrm()
+  return result
+}
 
 const valida = {
   nome: 'Maria Souza',
@@ -115,6 +128,7 @@ describe('gerarProtocolo', () => {
 describe('submitPropostaRapida', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '321'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)

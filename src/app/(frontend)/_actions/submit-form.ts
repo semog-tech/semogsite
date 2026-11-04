@@ -15,6 +15,7 @@
 
 import * as Sentry from '@sentry/nextjs'
 import { cookies, headers } from 'next/headers'
+import { after } from 'next/server'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import ContactAutoReply from '@/emails/ContactAutoReply'
 import ContactNotification from '@/emails/ContactNotification'
@@ -23,10 +24,10 @@ import { consentimentoDeAnuncio, paisDaRequisicao } from '@/lib/adsConsent'
 import { ATTRIBUTION_COOKIE } from '@/lib/attribution'
 import { clienteIp } from '@/lib/clienteIp'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
+import { enviarLeadAoCrm, relatarErroCrm } from '@/lib/crm/send-lead'
 import { pool, query } from '@/lib/db'
 import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { isExactEligible } from '@/lib/exact/map-lead'
-import { pushLeadToExact } from '@/lib/exact/push-lead'
 import { validarLotacaoExperience } from '@/lib/experienceLotacao'
 import type {
   ContatoValues,
@@ -447,35 +448,13 @@ function montarLeadData(
   return leadData
 }
 
-/**
- * CRM (Exact) é best-effort, igual aos e-mails: o lead já está salvo. Um CRM
- * fora do ar — ou um payload que ele recuse — não pode virar erro pra quem
- * preencheu o formulário; o cron `push-exact-leads` retenta depois. Só passa
- * por aqui quem é captação de verdade (o próprio `pushLeadToExact` devolve
- * `null` pro resto e pra integração desligada).
- */
-async function enviarAoExact(
+/** CRM é best-effort: falha registrada/Sentry, sem erro para quem preencheu. */
+async function enviarAoCrm(
   formType: FormType,
   leadData: Record<string, string>,
   leadRowId: string,
 ): Promise<void> {
-  try {
-    const push = await pushLeadToExact(formType, leadData)
-    if (push) {
-      await query(
-        `update cms.leads
-            set exact_lead_id = $1, exact_error = $2, exact_attempts = exact_attempts + 1
-          where id = $3`,
-        [
-          push.ok ? push.exactLeadId : null,
-          push.ok ? (push.personError ?? null) : push.error,
-          leadRowId,
-        ],
-      )
-    }
-  } catch (exactErr) {
-    console.error('[submit-form] push pro Exact falhou (lead já salvo):', exactErr)
-  }
+  await enviarLeadAoCrm(formType, leadData, leadRowId)
 }
 
 /** O que os e-mails de uma submissão precisam saber, já decidido antes do INSERT. */
@@ -871,15 +850,28 @@ async function concluirLeadGravado(
     return RECEBIDO
   }
 
-  if (leadRowId) await enviarAoExact(emails.envio.formType, emails.leadData, leadRowId)
   await enviarEmails({ ...emails, leadRowId })
+  if (leadRowId && isExactEligible(emails.envio.formType, emails.leadData)) {
+    try {
+      after(async () => {
+        try {
+          await enviarAoCrm(emails.envio.formType, emails.leadData, leadRowId)
+        } catch (err) {
+          await relatarErroCrm(err, leadRowId)
+        }
+      })
+    } catch (err) {
+      // Falha de agendamento não invalida proposta salva/e-mail; cron assume o envio.
+      await relatarErroCrm(err, leadRowId)
+    }
+  }
   return RECEBIDO
 }
 
 /**
  * O pipeline comum a todos os formulários, depois da validação: rate limit →
- * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → cria o lead no CRM
- * (Exact, só quando é captação) → e-mail. Os dois últimos são best-effort.
+ * Turnstile → grava em `cms.leads` (via `pg`, `@/lib/db`) → e-mail
+ * → agenda CRM após a resposta (só captação). Os dois últimos são best-effort.
  *
  * **Nunca lança** — cada etapa arriscada (Turnstile, DB, Exact, SendGrid) fica
  * atrás de um `try/catch` que devolve um `{ ok: false, message }` genérico em

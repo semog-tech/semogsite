@@ -6,9 +6,9 @@
  * que traduzem isso em rótulos legíveis pro e-mail de notificação do lead e pro
  * registro em `form-submissions`.
  *
- * Base legal: interesse legítimo — dado de 1ª parte, sem compartilhamento com
- * terceiros, usado só pra entender/rotear de onde veio cada lead (mesma pegada
- * do analytics). Ver `@/components/analytics/AttributionTracker`.
+ * A origem acompanha a proposta no CRM contratado (Exact ou RD Station) e,
+ * quando aplicável e consentido, a medição de conversões do Google Ads.
+ * Ver `@/components/analytics/AttributionTracker` e a política de privacidade.
  */
 
 export const ATTRIBUTION_COOKIE = 'semog-attrib'

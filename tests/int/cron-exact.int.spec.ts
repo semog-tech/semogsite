@@ -1,115 +1,134 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-/**
- * Cron `push-exact-leads`: varre leads recentes que ainda não entraram no CRM e
- * reenvia. Rede de segurança — o caminho normal é síncrono na Server Action do
- * formulário. `@/lib/db` e `@/lib/exact/push-lead` mockados.
- */
-
+vi.mock('server-only', () => ({}))
 const queryMock = vi.fn()
-const pushLeadMock = vi.fn()
-
+const enviarMock = vi.fn()
+const relatarMock = vi.fn()
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
-vi.mock('@/lib/exact/push-lead', () => ({
-  pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
+vi.mock('@/lib/crm/send-lead', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/crm/send-lead')>()),
+  enviarLeadAoCrm: (...args: unknown[]) => enviarMock(...args),
+  relatarErroCrm: (...args: unknown[]) => relatarMock(...args),
 }))
-
-const { GET } = await import('@/app/api/cron/push-exact-leads/route')
-
-function fakeRequest(bearer?: string): Request {
-  const headers = new Headers()
-  if (bearer !== undefined) headers.set('authorization', `Bearer ${bearer}`)
-  return new Request('http://localhost/api/cron/push-exact-leads', { headers })
-}
-
+const { GET } = await import('@/app/api/cron/push-crm-leads/route')
+const { GET: GETLegado } = await import('@/app/api/cron/push-exact-leads/route')
 const pendente = {
   id: '42',
   form: 'proposta',
-  data: { nome: 'Maria', nomeCondominio: 'Aurora', email: 'm@x.com', telefone: '+5583999501388' },
+  data: { nome: 'Maria' },
+  crm_provider: null,
+  crm_status: 'pendente',
+  crm_deal_id: null,
+  exact_lead_id: null,
+  crm_attempts: 0,
+  exact_attempts: 0,
+  created_at: new Date(),
+  crm_travado_ate: null,
+  crm_reconciliar_em: null,
+  crm_proxima_tentativa_em: new Date(0),
 }
-
-/** O `update cms.leads` que grava o resultado do push. */
-function updates() {
-  return queryMock.mock.calls.filter(([sql]) => /update cms\.leads/i.test(sql as string)) as Array<
-    [string, unknown[]]
-  >
+function request(segredo = 'segredo') {
+  return new Request('http://localhost/api/cron/push-crm-leads', {
+    headers: { authorization: `Bearer ${segredo}` },
+  })
 }
 
 beforeEach(() => {
   vi.resetAllMocks()
-  vi.stubEnv('CRON_SECRET', 'segredo-de-teste')
+  vi.stubEnv('CRON_SECRET', 'segredo')
+  vi.stubEnv('CRM_PROVIDER', 'exact')
 })
+afterEach(() => vi.unstubAllEnvs())
 
-afterEach(() => {
-  vi.unstubAllEnvs()
-})
-
-describe('cron push-exact-leads', () => {
-  it('sem bearer correto devolve 401 e não consulta o banco', async () => {
-    const res = await GET(fakeRequest('errado'))
-    expect(res.status).toBe(401)
+describe('cron CRM e compatibilidade do caminho Exact', () => {
+  it('autentica antes de acessar banco ou CRM', async () => {
+    expect((await GET(request('errado'))).status).toBe(401)
     expect(queryMock).not.toHaveBeenCalled()
   })
-
-  it('reenvia pendente e grava o id', async () => {
-    queryMock.mockResolvedValueOnce({ rows: [pendente] }).mockResolvedValue({ rows: [] })
-    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 777 })
-
-    const res = await GET(fakeRequest('segredo-de-teste'))
-    const body = (await res.json()) as { ok: boolean; enviados: number; falhas: number }
-
+  it.each([
+    'exact',
+    'rdstation',
+  ])('seleciona somente fila %s e pendentes sem provedor', async (provider) => {
+    vi.stubEnv('CRM_PROVIDER', provider)
+    queryMock.mockResolvedValue({ rows: [pendente] })
+    enviarMock.mockResolvedValue({ ok: true })
+    const res = await GET(request())
     expect(res.status).toBe(200)
-    expect(body).toMatchObject({ ok: true, enviados: 1, falhas: 0 })
-    expect(pushLeadMock).toHaveBeenCalledWith('proposta', pendente.data)
-    expect(updates()[0][1]).toEqual([777, null, '42'])
+    expect(await res.json()).toMatchObject({ enviados: 1, falhas: 0 })
+    const [sql, params] = queryMock.mock.calls[0]
+    expect(sql).toContain('(crm_provider is null or crm_provider = $1)')
+    expect(sql).toContain('crm_deal_id is null and exact_lead_id is null')
+    expect(sql).toContain('crm_attempts < $2')
+    expect(sql).toContain('exact_attempts < $2')
+    expect(sql).toContain("data->>'duplicaDe' is null")
+    expect(sql).toContain('proposta-comercial')
+    expect(params[0]).toBe(provider)
+    expect(sql).toContain("created_at > now() - interval '48 hours'")
+    expect(sql).toContain('crm_travado_ate < now()')
+    expect(sql).toContain('order by crm_proxima_tentativa_em asc, id asc limit 25')
+    expect(enviarMock).toHaveBeenCalledWith('proposta', pendente.data, '42')
   })
-
-  it('a query só busca captação pendente e recente', async () => {
+  it('falha parcial responde 502 e continua o lote', async () => {
+    queryMock.mockResolvedValue({ rows: [pendente, { ...pendente, id: '43' }] })
+    enviarMock.mockResolvedValueOnce({ ok: false }).mockResolvedValueOnce({ ok: true })
+    const res = await GET(request())
+    expect(res.status).toBe(502)
+    expect(await res.json()).toMatchObject({ ok: false, enviados: 1, falhas: 1 })
+  })
+  it('aguardar conciliação não conta como enviado nem falha e não retorna502', async () => {
+    queryMock.mockResolvedValue({ rows: [pendente] })
+    enviarMock.mockResolvedValue({ ok: true, aguardando: true })
+    const res = await GET(request())
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ enviados: 0, falhas: 0 })
+  })
+  it('processa lote de25 sem a limitação antiga de3', async () => {
+    queryMock.mockResolvedValue({
+      rows: Array.from({ length: 25 }, (_, id) => ({ ...pendente, id: String(id) })),
+    })
+    enviarMock.mockResolvedValue({ ok: true })
+    expect((await GET(request())).status).toBe(200)
+    expect(enviarMock).toHaveBeenCalledTimes(25)
+  })
+  it('conciliação marcada perto48h continua sendo processada depois48h', async () => {
+    vi.stubEnv('CRM_PROVIDER', 'rdstation')
+    queryMock.mockResolvedValue({
+      rows: [
+        {
+          ...pendente,
+          crm_deal_id: 'card',
+          crm_attempts: 5,
+          created_at: new Date(Date.now() - 49 * 3600_000),
+          crm_reconciliar_em: new Date(0),
+        },
+      ],
+    })
+    enviarMock.mockResolvedValue({ ok: true })
+    expect((await GET(request())).status).toBe(200)
+    expect(enviarMock).toHaveBeenCalledOnce()
+  })
+  it('o consumidor não envia lease ocupado mesmo se o banco devolver uma linha obsoleta', async () => {
+    queryMock.mockResolvedValue({
+      rows: [{ ...pendente, crm_travado_ate: new Date(Date.now() + 60_000) }],
+    })
+    expect((await GET(request())).status).toBe(200)
+    expect(enviarMock).not.toHaveBeenCalled()
+  })
+  it('endpoint antigo usa RD quando RD é ativo', async () => {
+    vi.stubEnv('CRM_PROVIDER', 'rdstation')
     queryMock.mockResolvedValue({ rows: [] })
-
-    await GET(fakeRequest('segredo-de-teste'))
-
-    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
-    expect(sql).toMatch(/exact_lead_id is null/i)
-    expect(sql).toMatch(/exact_attempts </i)
-    expect(sql).toMatch(/proposta-comercial/)
+    expect((await GETLegado(request())).status).toBe(200)
+    expect(queryMock.mock.calls[0][1][0]).toBe('rdstation')
   })
-
-  it('a query deixa de fora a proposta curta duplicada (o card já existe pela anterior)', async () => {
-    queryMock.mockResolvedValue({ rows: [] })
-
-    await GET(fakeRequest('segredo-de-teste'))
-
-    const [sql] = queryMock.mock.calls[0] as [string, unknown[]]
-    expect(sql).toMatch(/data->>'duplicaDe' is null/)
+  it('flag inválida falha fechado e avisa Sentry', async () => {
+    vi.stubEnv('CRM_PROVIDER', 'rdsation')
+    expect((await GET(request())).status).toBe(500)
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(relatarMock).toHaveBeenCalledOnce()
   })
-
-  it('falha continua contabilizada e não interrompe o lote', async () => {
-    queryMock
-      .mockResolvedValueOnce({ rows: [pendente, { ...pendente, id: '43' }] })
-      .mockResolvedValue({ rows: [] })
-    pushLeadMock
-      .mockResolvedValueOnce({ ok: false, error: 'Exact fora do ar' })
-      .mockResolvedValueOnce({ ok: true, exactLeadId: 778 })
-
-    const res = await GET(fakeRequest('segredo-de-teste'))
-    const body = (await res.json()) as { ok: boolean; enviados: number; falhas: number }
-
-    expect(body).toMatchObject({ ok: false, enviados: 1, falhas: 1 })
-    expect(pushLeadMock).toHaveBeenCalledTimes(2)
-    expect(updates()).toHaveLength(2)
-  })
-
-  it('nada pendente não chama a API', async () => {
-    queryMock.mockResolvedValueOnce({ rows: [] })
-    const res = await GET(fakeRequest('segredo-de-teste'))
-    expect((await res.json()).enviados).toBe(0)
-    expect(pushLeadMock).not.toHaveBeenCalled()
-  })
-
-  it('erro no banco vira 500, não exceção', async () => {
+  it('erro de banco vira 500 e é reportado', async () => {
     queryMock.mockRejectedValue(new Error('connection refused'))
-    const res = await GET(fakeRequest('segredo-de-teste'))
-    expect(res.status).toBe(500)
+    expect((await GET(request())).status).toBe(500)
+    expect(relatarMock).toHaveBeenCalledOnce()
   })
 })

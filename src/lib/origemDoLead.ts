@@ -139,5 +139,10 @@ export function resolverOrigem(cookie: string | undefined, campo: unknown): Orig
 export function camposDaOrigem(origem: OrigemDoLead): AttributionField[] {
   const fonte = { label: FONTE_DA_ORIGEM_LABEL, value: DESCRICAO_DA_FONTE[origem.fonte] }
   if (!origem.atribuicao) return [{ label: 'Canal (origem)', value: CANAL_INDISPONIVEL }, fonte]
-  return [...buildAttributionFields(origem.atribuicao), fonte]
+  const primeiro = origem.atribuicao.first
+  const utms: AttributionField[] = []
+  for (const chave of ['source', 'medium', 'campaign', 'term', 'content'] as const) {
+    if (primeiro[chave]) utms.push({ label: `utm_${chave}`, value: primeiro[chave] })
+  }
+  return [...buildAttributionFields(origem.atribuicao), ...utms, fonte]
 }

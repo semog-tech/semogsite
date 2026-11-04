@@ -3,6 +3,7 @@ import { isExactEligible } from '@/lib/exact/map-lead'
 import { GCLID_FIELD, TIPO_CLIQUE_FIELD } from '@/lib/forms'
 import { CANAL_INDISPONIVEL, resolverOrigem } from '@/lib/origemDoLead'
 import { FORMATO_DO_PROTOCOLO } from '@/lib/protocolo'
+import { limparAfterCrm, rodarAfterCrm } from './helpers/afterCrm'
 
 /**
  * As duas correções de 22/10/2026 no pipeline de `submit-form.ts`:
@@ -27,8 +28,13 @@ const cookiesMock = vi.fn()
 const pushLeadMock = vi.fn()
 
 vi.mock('server-only', () => ({}))
-vi.mock('@/lib/exact/push-lead', () => ({
-  pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (await import('./helpers/afterCrm')).agendarAfterCrm,
+}))
+
+vi.mock('@/lib/crm/send-lead', () => ({
+  enviarLeadAoCrm: (...args: unknown[]) => pushLeadMock(...args),
 }))
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
 vi.mock('@/lib/sendgrid', () => ({ sendMail: (...args: unknown[]) => sendMailMock(...args) }))
@@ -40,7 +46,19 @@ vi.mock('next/headers', () => ({
   cookies: (...args: unknown[]) => cookiesMock(...args),
 }))
 
-const { submitForm, submitPropostaRapida } = await import('@/app/(frontend)/_actions/submit-form')
+const { submitForm: submitFormReal, submitPropostaRapida: submitPropostaRapidaReal } = await import(
+  '@/app/(frontend)/_actions/submit-form'
+)
+async function submitForm(...args: Parameters<typeof submitFormReal>) {
+  const result = await submitFormReal(...args)
+  await rodarAfterCrm()
+  return result
+}
+async function submitPropostaRapida(...args: Parameters<typeof submitPropostaRapidaReal>) {
+  const result = await submitPropostaRapidaReal(...args)
+  await rodarAfterCrm()
+  return result
+}
 
 const FONTE = 'origem — Origem lida de'
 const CANAL = 'origem — Canal (origem)'
@@ -134,6 +152,7 @@ const doInstagram = JSON.stringify({
 
 beforeEach(() => {
   vi.resetAllMocks()
+  limparAfterCrm()
   tabela = []
   queryMock.mockImplementation(async (sql: string, params?: unknown[]) => bancoFalso(sql, params))
   sendMailMock.mockResolvedValue({ ok: true })
