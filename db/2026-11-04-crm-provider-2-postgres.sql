@@ -1,41 +1,22 @@
--- NÃO aplicado. Executar após a migração do semogapp que cria a função de token.
--- CRM ainda usa pool pg / cms_user (db.ts); SITE_API_ATIVO só migrou WhatsApp/QR.
--- Por isso não se expõe token nem funções novas em site_api/PostgREST.
--- Inverso: 2026-11-04-crm-provider.down.sql.
+-- NÃO aplicado. Fachada de token do RD CRM para o site.
+--
+-- ============================================================================
+-- PARTE 2 de 2 — conectado como `postgres` (MCP ou SQL Editor). `cms_user` não
+-- tem USAGE em `commercial` e não pode ser dono da fachada. Pré-requisitos:
+--   1. a migração do semogapp que cria `commercial.crm_rdstation_token_obter()`
+--      (sem ela o `create function` falha: o corpo SQL é validado na criação);
+--   2. `2026-11-04-crm-provider-1-cms-user.sql` e `2026-11-04-rd-marketing.sql`,
+--      ambas como `cms_user`. Ordem completa em docs/DEPLOY.md.
+-- ============================================================================
+--
+-- Inverso: 2026-11-04-crm-provider-2-postgres.down.sql, também como `postgres`,
+-- ANTES dos `.down` da parte `cms_user`.
 begin;
-alter table cms.leads
-  add column crm_provider text check (crm_provider in ('exact', 'rdstation')),
-  add column crm_deal_id text,
-  add column crm_contact_id text,
-  add column crm_error text,
-  add column crm_status text not null default 'pendente'
-    check (crm_status in ('pendente', 'enviando', 'enviado', 'erro', 'incerto', 'duplicado', 'esgotado')),
-  add column crm_attempts smallint not null default 0 check (crm_attempts >= 0),
-  add column crm_enviado_em timestamptz,
-  add column crm_travado_ate timestamptz,
-  add column crm_post_iniciado_em timestamptz,
-  add column crm_reconciliar_em timestamptz,
-  add column crm_proxima_tentativa_em timestamptz not null default now();
-
--- Tentativas antigas pertencem ao Exact, mesmo quando falharam: a virada não
--- reaproveita automaticamente a fila de outro provedor. exact_* não é alterado.
-update cms.leads
-set crm_provider = 'exact', crm_deal_id = exact_lead_id::text,
-    crm_error = exact_error, crm_attempts = exact_attempts,
-    crm_status = case when exact_lead_id is not null then 'enviado' else 'erro' end
-where exact_attempts > 0 or exact_lead_id is not null;
-
-comment on column cms.leads.crm_provider is
-  'Provedor fixado na primeira tentativa; NULL ainda não foi atribuído. Nunca reenviar a outro CRM automaticamente.';
-comment on column cms.leads.crm_post_iniciado_em is
-  'Gravado ANTES de POST /deals. Sem confirmação, consultar @id_lead_site; após 30 min sem resultado, recriar e alertar Sentry (decisão do coordenador).';
-comment on column cms.leads.crm_reconciliar_em is
-  'Após recriação por incerteza, agenda busca de duplicados em 30 min mesmo com crm_deal_id preenchido.';
-comment on column cms.leads.crm_travado_ate is
-  'Lease atômico de 5 min; evita corrida entre action/cron sem prender conexão durante HTTP.';
-
-create index leads_crm_pendentes_idx on cms.leads (crm_proxima_tentativa_em)
-  where crm_deal_id is null and exact_lead_id is null;
+do $$ begin
+  if current_user <> 'postgres' then
+    raise exception 'Rode como postgres (conectado: %)', current_user;
+  end if;
+end $$;
 
 -- Fachada privada: o site não recebe USAGE em commercial nem EXECUTE direto.
 -- Deve ser criada pelo postgres, após a função de leitura da frente semogapp.

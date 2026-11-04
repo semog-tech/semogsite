@@ -25,8 +25,8 @@ confirmado com o coordenador antes de codificar:
   search_path vazio e EXECUTE apenas para cms_user entre os roles de runtime.
   O site continua sem USAGE ou EXECUTE direto em commercial. A migração repete a
   varredura de funções, relações, colunas e sequences contra privilégios inesperados.
-- Inverso escrito antes do avanço: db/2026-11-04-crm-config-site.down.sql; avanço
-  em db/2026-11-04-crm-config-site.sql. Nenhum foi aplicado.
+- Inverso escrito antes do avanço: db/2026-11-04-crm-config-site-postgres.down.sql; avanço
+  em db/2026-11-04-crm-config-site-postgres.sql (antes `crm-config-site.sql`). Nenhum foi aplicado.
 - src/lib/crm/rdstation/load-config.ts lê a fachada pelo pool, valida o contrato e
   mantém cache por instância durante 60s. Leituras concorrentes compartilham a promise.
 - NULL usa envs legadas. Erro de RPC usa última configuração boa, mesmo expirada,

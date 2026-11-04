@@ -251,8 +251,10 @@ resposta de sucesso para quem preencheu o formulário.
 Ordem de preparação, ainda sem virar a flag:
 
 1. Aplicar, com autorização, a migração do semogapp que cria a função de leitura.
-2. **Aplicar a migração ANTES do deploy**, com autorização: `db/2026-11-04-crm-provider.sql` (inverso já preparado em
-   `db/2026-11-04-crm-provider.down.sql`). Ela concede a `cms_user` somente `EXECUTE`
+2. **Aplicar as migrações ANTES do deploy**, com autorização, na ordem e com os papéis da
+   seção "Ordem das migrações de novembro/2026" abaixo: `db/2026-11-04-crm-provider-1-cms-user.sql`
+   (colunas, como `cms_user`) e `db/2026-11-04-crm-provider-2-postgres.sql` (fachada, como
+   `postgres`), cada uma com o `.down.sql` já preparado. A parte 2 concede a `cms_user` somente `EXECUTE`
    na fachada em `cms`, sem `USAGE commercial`, sem `EXECUTE` direto nas funções de
    commercial e sem SELECT na tabela de tokens. A asserção varre funções, relações, colunas
    e sequences de commercial e aborta se houver acesso inesperado direto/PUBLIC/herdado.
@@ -265,8 +267,8 @@ Ordem de preparação, ainda sem virar a flag:
 
 Para a configuração administrativa, aplicar também a migração
 `2026-11-04-crm-rdstation-config.sql` do semogapp e depois
-`db/2026-11-04-crm-config-site.sql` do site, antes do deploy deste código.
-O inverso é `db/2026-11-04-crm-config-site.down.sql`, preparado antes do avanço.
+`db/2026-11-04-crm-config-site-postgres.sql` do site (como `postgres`), antes do deploy deste código.
+O inverso é `db/2026-11-04-crm-config-site-postgres.down.sql`, preparado antes do avanço.
 A migração da fachada repete a varredura de funções/relações/colunas/sequences e aborta
 se cms_user tiver acesso direto a commercial. Essas migrações não foram aplicadas nesta
 implementação. A tabela pode continuar vazia enquanto as envs legadas sustentam a operação.
@@ -408,43 +410,60 @@ saída do comando não é prova. O build e o deploy não tocam no banco.
 
 ### Ordem das migrações de novembro/2026 (CRM RD + RD Marketing)
 
-As três migrações do site são aditivas e independentes entre si, mas **todas** entram antes do
-deploy do código que as usa — o INSERT de `cms.leads` passa a gravar `rd_marketing_payload`
-mesmo com `RD_MARKETING_API_KEY` vazia, e o cron do CRM lê as colunas `crm_*`. Nenhuma foi
-aplicada. Ordem:
+Todas entram antes do deploy do código que as usa — o INSERT de `cms.leads` passa a gravar
+`rd_marketing_payload` mesmo com `RD_MARKETING_API_KEY` vazia, e o cron do CRM lê as colunas
+`crm_*`. Nenhuma foi aplicada.
 
-1. Migrações do semogapp que criam `commercial.crm_rdstation_token_obter` e a tabela/função de
-   configuração RD (`2026-11-04-crm-rdstation-config.sql`).
-2. `db/2026-11-04-crm-provider.sql` — colunas `crm_*` e índice em `cms.leads`, mais a fachada
-   `cms.crm_rdstation_token_obter` (dono `postgres`).
-3. `db/2026-11-04-crm-config-site.sql` — fachada `cms.crm_rdstation_config_obter` (dono `postgres`).
-4. `db/2026-11-04-rd-marketing.sql` — colunas `rd_marketing_*` e índice parcial em `cms.leads`.
-   **Conectado como `cms_user`**: a guarda aborta com outro `current_user`.
-5. Deploy do código. Depois, `RD_MARKETING_API_KEY` só após conferir no painel que nenhuma
-   automação cria negociação (ver `docs/rd-station.md`).
+**Por que os arquivos são separados por papel.** `cms.leads` tem dono `cms_user`; as fachadas
+`cms.crm_rdstation_*_obter` precisam de dono `postgres`, porque leem `commercial`, onde `cms_user`
+não tem `USAGE`. E `postgres` e `cms_user` não são membros um do outro (`pg_auth_members`,
+medido no catálogo de produção em 30/10 e conferido de novo em 04/11). Nenhum papel consegue
+aplicar as duas coisas: como `postgres`, `must be owner of table leads`; como `cms_user`,
+`permission denied for schema commercial`. Por isso cada arquivo abre com uma guarda que aborta
+com `Rode como <papel> (conectado: ...)` se `current_user` for outro — a transação aborta
+inteira, sem estado parcial.
 
-**[A CONFIRMAR] papel da `crm-provider.sql` — como está, ela não roda inteira com papel
-nenhum.** `cms.leads` tem dono `cms_user`, e `postgres` e `cms_user` não são membros um do outro
-(medido em 30/10/2026, ver `db/2026-10-30-site-api-0-cms-user.sql`). O arquivo, numa transação
-só, altera a tabela (exige `cms_user`) e cria a fachada com `owner to postgres` sobre
-`commercial` (exige `postgres`). Reproduzido em PostgreSQL 17 local com essa topologia
-(`postgres` e `cms_user` sem superusuário e sem pertencer um ao outro): como `postgres`,
-`must be owner of table leads`; como `cms_user`, `permission denied for schema commercial`.
-A transação aborta inteira, então tentar não deixa estado parcial. Na mesma simulação a ordem
-abaixo funcionou, com as fachadas de dono `postgres`, `EXECUTE` só para `cms_user` e nenhum
-para `anon`/`authenticated`:
+**Subida:**
 
-- `crm-provider.sql` em duas partes: do início até antes de `-- Fachada privada`, com
-  `commit`, **como `cms_user`**; dali até o fim, aberto com `begin`, **como `postgres`**.
-- `crm-config-site.sql` como `postgres` (não toca `cms.leads`).
-- `rd-marketing.sql` como `cms_user`.
+| # | Repositório | Arquivo | Papel |
+| --- | --- | --- | --- |
+| 1 | semogapp | migrações que criam `commercial.crm_rdstation_token_obter()` e a tabela/função de configuração (`commercial.crm_rdstation_config_obter()`, em `2026-11-04-crm-rdstation-config.sql`) | o que o semogapp indicar |
+| 2 | site | `db/2026-11-04-crm-provider-1-cms-user.sql` — colunas `crm_*`, backfill do Exact, índice | `cms_user` |
+| 3 | site | `db/2026-11-04-rd-marketing.sql` — colunas `rd_marketing_*`, índice parcial | `cms_user` |
+| 4 | site | `db/2026-11-04-crm-provider-2-postgres.sql` — fachada `cms.crm_rdstation_token_obter` + varredura | `postgres` |
+| 5 | site | `db/2026-11-04-crm-config-site-postgres.sql` — fachada `cms.crm_rdstation_config_obter` + varredura | `postgres` |
+| 6 | site | deploy do código, ainda com `CRM_PROVIDER=exact` | — |
 
-O `crm-provider.down.sql` tem o mesmo problema: o `drop function` como `postgres` e o resto
-(índice e colunas) como `cms_user`. Antes de aplicar, conferir no catálogo de produção se a
-pertinência entre os papéis continua a de 30/10.
+O passo 1 tem que vir **antes** dos passos 4 e 5: o corpo das fachadas é SQL, validado na
+criação, e o `create function` falha com `function commercial.crm_rdstation_..._obter() does not
+exist` se a função do semogapp ainda não existir. Os passos 2 e 3 não dependem dele, mas ficam
+depois para a ordem ser uma só. Os passos 4 e 5 terminam com a varredura que aborta se
+`cms_user` tiver qualquer acesso a `commercial` (USAGE no schema, EXECUTE em função, privilégio em
+relação, coluna ou sequence).
 
-Rollback: código antigo primeiro; depois os `.down.sql` na ordem inversa (4 → 3 → 2), cada um
-com o mesmo papel da subida.
+`cms_user` é a `DATABASE_URI` do site; os passos 2 e 3 não rodam pelo MCP nem pelo SQL Editor,
+que conectam como `postgres`. Os passos 4 e 5 rodam por eles.
+
+Depois de cada passo, conferir no catálogo (`information_schema.columns` para 2 e 3;
+`pg_proc.proowner` e `proacl` das fachadas para 4 e 5 — dono `postgres`, `EXECUTE` só para
+`cms_user`, nada para `anon`/`authenticated`/`service_role`).
+
+`RD_MARKETING_API_KEY` só depois de conferir no painel que nenhuma automação cria negociação (ver
+`docs/rd-station.md`).
+
+**Descida** — código antigo primeiro, depois a ordem inversa, cada `.down.sql` com o papel da subida:
+
+| # | Arquivo | Papel |
+| --- | --- | --- |
+| 1 | reverter o deploy do site (código que não lê `crm_*`, `rd_marketing_*` nem as fachadas) | — |
+| 2 | `db/2026-11-04-crm-config-site-postgres.down.sql` | `postgres` |
+| 3 | `db/2026-11-04-crm-provider-2-postgres.down.sql` | `postgres` |
+| 4 | `db/2026-11-04-rd-marketing.down.sql` | `cms_user` |
+| 5 | `db/2026-11-04-crm-provider-1-cms-user.down.sql` | `cms_user` |
+| 6 | `.down` das migrações do semogapp, só depois das fachadas removidas | o que o semogapp indicar |
+
+Antes de aplicar, conferir no catálogo de produção se a pertinência entre os papéis e a ACL dos
+schemas continuam as descritas acima.
 
 ## 4. Preview deployments
 

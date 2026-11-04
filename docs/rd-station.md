@@ -201,8 +201,9 @@ se `current_user` for outro usuário. A guarda segue o padrão das migrações l
 predicado `data->>'duplicaDe' is null`, independentemente do snapshot.
 
 Ordem recomendada: migrações da frente semogapp necessárias ao CRM →
-`2026-11-04-crm-provider.sql` → `2026-11-04-crm-config-site.sql` da worktree CRM →
-`2026-11-04-rd-marketing.sql` desta worktree → deploy do código integrado →
+`2026-11-04-crm-provider-1-cms-user.sql` → `2026-11-04-rd-marketing.sql` (ambas como `cms_user`) →
+`2026-11-04-crm-provider-2-postgres.sql` → `2026-11-04-crm-config-site-postgres.sql` (ambas como
+`postgres`) → deploy do código integrado →
 configurar a API Key após conferir o painel. O SQL Marketing não depende das
 colunas CRM, mas essa sequência facilita a revisão conjunta. **A migração vem
 antes do código mesmo com a chave vazia**, pois o INSERT passa a usar a coluna

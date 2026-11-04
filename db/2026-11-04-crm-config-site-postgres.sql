@@ -1,7 +1,18 @@
--- NÃO aplicado. Após migrações crm-provider e crm-rdstation-config do semogapp,
--- e 2026-11-04-crm-provider.sql do site; antes do deploy do site.
--- Só leitura, sem token; inverso: 2026-11-04-crm-config-site.down.sql.
+-- NÃO aplicado. Após migrações crm-provider e crm-rdstation-config do semogapp
+-- (sem `commercial.crm_rdstation_config_obter()` o `create function` falha) e
+-- após a parte `cms_user` do site; antes do deploy do site.
+-- Só leitura, sem token; inverso: 2026-11-04-crm-config-site-postgres.down.sql.
+--
+-- Conectado como `postgres` (MCP ou SQL Editor), junto com
+-- `2026-11-04-crm-provider-2-postgres.sql`. Não toca `cms.leads`. Ordem completa
+-- em docs/DEPLOY.md.
 begin;
+do $$ begin
+  if current_user <> 'postgres' then
+    raise exception 'Rode como postgres (conectado: %)', current_user;
+  end if;
+end $$;
+
 create function cms.crm_rdstation_config_obter() returns jsonb
 language sql stable security definer set search_path = ''
 as $$ select commercial.crm_rdstation_config_obter() $$;

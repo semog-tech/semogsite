@@ -250,7 +250,7 @@ export function erroEstruturaCrm(err: unknown): unknown {
     ['42703', '42883'].includes(String(err.code))
   ) {
     return new Error(
-      'CRM: estrutura ausente; aplicar db/2026-11-04-crm-provider.sql ANTES do deploy',
+      'CRM: estrutura ausente; aplicar db/2026-11-04-crm-provider-1-cms-user.sql ANTES do deploy',
     )
   }
   return err

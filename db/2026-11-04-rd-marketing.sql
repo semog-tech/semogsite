@@ -1,4 +1,5 @@
--- NÃO APLICADO. Após crm-provider/crm-config-site, antes do deploy das conversões.
+-- NÃO APLICADO. Conectado como cms_user, após 2026-11-04-crm-provider-1-cms-user.sql
+-- e antes da parte postgres (fachadas) e do deploy. Ordem completa em docs/DEPLOY.md.
 -- Colunas exclusivas; não altera crm_*, exact_* nem cria negociações.
 begin;
 do $$

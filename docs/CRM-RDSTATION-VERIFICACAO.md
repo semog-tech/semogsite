@@ -86,7 +86,7 @@ metadataBase e Turnstile. Sem nova dependência adicionada.
 
 - src/lib/crm/{queue,send-lead}.ts; src/lib/crm/rdstation/push-lead.ts.
 - src/app/api/cron/push-crm-leads/route.ts.
-- db/2026-11-04-crm-provider.sql; db/tests/crm-fila.select.sql.
+- db/2026-11-04-crm-provider.sql (depois dividida em `-1-cms-user` e `-2-postgres`); db/tests/crm-fila.select.sql.
 - tests/int/{crm-provider,crm-queue,cron-exact,rdstation}.int.spec.ts;
   tests/int/helpers/lotacaoExperience.ts.
 - scripts/test-crm-mutations.mjs; docs/DEPLOY.md e este relatório.
