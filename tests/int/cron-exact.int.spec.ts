@@ -9,6 +9,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const queryMock = vi.fn()
 const pushLeadMock = vi.fn()
 
+vi.mock('@/lib/rdMarketing/fila', () => ({ agendarRetryMarketing: vi.fn() }))
+
 vi.mock('@/lib/db', () => ({ query: (...args: unknown[]) => queryMock(...args) }))
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),

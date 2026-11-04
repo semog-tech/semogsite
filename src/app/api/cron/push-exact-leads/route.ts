@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { pushLeadToExact } from '@/lib/exact/push-lead'
 import { DUPLICA_DE_FIELD, type FormType } from '@/lib/forms'
+import { agendarRetryMarketing } from '@/lib/rdMarketing/fila'
 
 /**
  * Cron (Vercel) — rede de segurança do push pro Exact. O caminho normal é
@@ -35,6 +36,7 @@ export async function GET(req: Request): Promise<Response> {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
+  agendarRetryMarketing()
   try {
     const cutoff = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000).toISOString()
 

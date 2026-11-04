@@ -401,7 +401,7 @@ describe('os outros formulários não ganharam limite', () => {
     const sqls = sqlsExecutados()
     expect(sqls.some((s) => /pg_advisory_xact_lock/i.test(s))).toBe(false)
     expect(sqls.some((s) => /^begin$/i.test(s))).toBe(false)
-    expect(sqlDoInsert()).toContain('values ($1, $2, $3, $4, $5, $6)')
+    expect(sqlDoInsert()).toContain('values ($1, $2, $3, $4, $5, $6, $7)')
     expect(sqlDoInsert()).not.toMatch(/count\(\*\)/i)
   })
 

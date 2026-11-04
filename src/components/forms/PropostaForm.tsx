@@ -282,6 +282,7 @@ export function PropostaForm({
           autoComplete="email"
           placeholder="voce@exemplo.com.br"
           error={errors.email?.message}
+          data-sensitive="true"
           {...register('email')}
         />
         <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
@@ -351,6 +352,7 @@ export function PropostaForm({
           autoComplete="email"
           placeholder="voce@exemplo.com.br"
           error={errors.email?.message}
+          data-sensitive="true"
           {...register('email')}
         />
         <PhoneField

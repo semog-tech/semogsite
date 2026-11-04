@@ -6,9 +6,13 @@
 // e o SDK vira um no-op completo — não erro, não crash, não envia nada. Ver
 // `.env.example` para a variável.
 import * as Sentry from '@sentry/nextjs'
+import { ocultarChaveMarketing } from '@/lib/rdMarketing/sentry'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   enabled: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
   tracesSampleRate: 0.1,
+  beforeSend: ocultarChaveMarketing,
+  beforeSendTransaction: ocultarChaveMarketing,
+  beforeSendSpan: ocultarChaveMarketing,
 })

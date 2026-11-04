@@ -27,4 +27,5 @@
  * Subdomínio novo de produção não é medido até ser acrescentado aqui. É o modo
  * de falha desejado: ausência de dado aparece no relatório, dado sujo não.
  */
-export const IS_MEASURABLE_HOST_JS = `/^(www\\.)?semog\\.com\\.br$/.test(location.hostname)`
+export const MEASURABLE_HOST = /^(www\.)?semog\.com\.br$/
+export const IS_MEASURABLE_HOST_JS = `${MEASURABLE_HOST}.test(location.hostname)`

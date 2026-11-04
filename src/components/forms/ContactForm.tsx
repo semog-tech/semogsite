@@ -169,6 +169,7 @@ export function ContactForm() {
           autoComplete="email"
           placeholder="voce@exemplo.com.br"
           error={errors.email?.message}
+          data-sensitive="true"
           {...register('email')}
         />
         <PhoneField
