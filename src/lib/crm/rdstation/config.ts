@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
 const id = z.string().regex(/^[0-9a-f]{24}$/)
-const slug = z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/)
+// Slug do RD CRM v2 pode ter hífen (ex.: `e-ou-ja-foi-cliente-semog`).
+export const slugRd = /^[a-zA-Z0-9_][a-zA-Z0-9_-]*$/
+const slug = z.string().regex(slugRd)
 const referenciaCampo = z.union([id, slug])
 const camposSchema = z
   .object({
