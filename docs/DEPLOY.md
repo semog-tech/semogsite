@@ -133,6 +133,10 @@ depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fic
 `cms.leads.exact_error` e `crm_error`; o cron `/api/cron/push-crm-leads` retenta por 48 h,
 no minuto 15 de cada hora (`15 * * * *`, UTC), até 5 tentativas de envio.
 O endpoint antigo `/api/cron/push-exact-leads` é um alias que também respeita `CRM_PROVIDER`.
+
+**Desde 05/11/2026 (virada para o RD) o cron não chama mais o Exact.** Com `CRM_PROVIDER`
+em `exact` (ou ausente, que cai em `exact`), ele responde 200 com `exact: 'desligado'` sem
+consultar a fila. O envio no submit continua respeitando a flag; só o retry agendado parou.
 Detalhes do contrato da API — que diverge do PDF oficial da Exact — em
 `scripts/probe-exact-create-lead.ts`.
 
@@ -277,8 +281,8 @@ se cms_user tiver acesso direto a commercial. Essas migrações não foram aplic
 implementação. A tabela pode continuar vazia enquanto as envs legadas sustentam a operação.
 
 O provedor é fixado na primeira tentativa. Linhas com histórico `exact_*` são atribuídas ao
-Exact pela migração; não migram automaticamente. O cron só envia ao provedor ativo e deixa
-pendências do outro intactas. Reversão da flag também preserva pendências do RD. Para migrar
+Exact pela migração; não migram automaticamente. O cron só envia ao provedor ativo (e nunca
+ao Exact, desde 05/11/2026) e deixa pendências do outro intactas. Reversão da flag também preserva pendências do RD. Para migrar
 qualquer linha manualmente, reconciliar os CRMs antes; não limpar IDs para forçar reenvio.
 
 A fila usa reserva atômica de 5 minutos (`crm_travado_ate`, `FOR UPDATE SKIP LOCKED`), sem

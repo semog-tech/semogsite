@@ -12,6 +12,8 @@ const { GET } = await import('@/app/api/cron/push-exact-leads/route')
 beforeEach(() => {
   vi.resetAllMocks()
   vi.stubEnv('CRON_SECRET', 'cron-teste')
+  // Com `exact` o cron não consulta mais a fila (Exact desligado em 05/11/2026).
+  vi.stubEnv('CRM_PROVIDER', 'rdstation')
   mocks.query.mockResolvedValue({ rows: [] })
 })
 afterEach(() => vi.unstubAllEnvs())

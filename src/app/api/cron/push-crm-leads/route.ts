@@ -28,6 +28,18 @@ export async function GET(req: Request): Promise<Response> {
   agendarRetryMarketing()
   try {
     const provider = crmProvider()
+    // Desde a virada para o RD (05/11/2026) nada chama o Exact periodicamente,
+    // nem com a flag de volta em `exact` (ou ausente, que cai em `exact`).
+    // O envio no submit continua; o retry agendado, não.
+    if (provider === 'exact') {
+      return NextResponse.json({
+        ok: true,
+        considerados: 0,
+        enviados: 0,
+        falhas: 0,
+        exact: 'desligado',
+      })
+    }
     const { rows } = await query<Pendente>(
       `select id, form, data, crm_provider, crm_status, crm_deal_id, exact_lead_id, crm_attempts,
          exact_attempts, created_at, crm_travado_ate, crm_reconciliar_em, crm_proxima_tentativa_em
