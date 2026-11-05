@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { render } from '@react-email/render'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { limparAfterCrm, rodarAfterCrm } from './helpers/afterCrm'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 /**
@@ -31,6 +32,10 @@ vi.mock('@sentry/nextjs', () => ({
 // `@/lib/adsConsent` importa `server-only`, que lança no jsdom do vitest —
 // mesma neutralização já usada em `exact-push-lead`/`experience-exact-guard`.
 vi.mock('server-only', () => ({}))
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (await import('./helpers/afterCrm')).agendarAfterCrm,
+}))
 
 vi.mock('@/lib/exact/push-lead', () => ({
   pushLeadToExact: (...args: unknown[]) => pushLeadMock(...args),
@@ -68,7 +73,15 @@ vi.mock('next/headers', () => ({
 
 // Import só depois dos `vi.mock` acima (hoisted pelo Vitest, mas mantém aqui
 // pela leitura linear do arquivo).
-const { submitForm } = await import('@/app/(frontend)/_actions/submit-form')
+beforeEach(() => vi.stubEnv('EXACT_SPOTTER_TOKEN', 'token-teste'))
+afterEach(() => vi.unstubAllEnvs())
+
+const { submitForm: submitFormReal } = await import('@/app/(frontend)/_actions/submit-form')
+async function submitForm(...args: Parameters<typeof submitFormReal>) {
+  const result = await submitFormReal(...args)
+  await rodarAfterCrm()
+  return result
+}
 
 /** Fake `ReadonlyHeaders` — só o `get` usado por `getClientIp`. */
 function fakeHeaders(ip: string) {
@@ -89,6 +102,7 @@ const contatoValido = {
 describe('submitForm — grava lead em cms.leads (sem Payload)', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     // O INSERT usa `returning id` — o id é o que liga a linha ao push do Exact.
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
@@ -193,13 +207,14 @@ describe('submitForm — push pro Exact', () => {
 
   /** O `update cms.leads` que grava o resultado do push (2ª chamada de query). */
   function updateDoExact() {
-    return queryMock.mock.calls.find(([sql]) => /update cms\.leads/i.test(sql as string)) as
+    return queryMock.mock.calls.find(([sql]) => /set exact_lead_id/i.test(sql as string)) as
       | [string, unknown[]]
       | undefined
   }
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -223,6 +238,16 @@ describe('submitForm — push pro Exact', () => {
     const update = updateDoExact()
     expect(update).toBeDefined()
     expect((update as [string, unknown[]])[1]).toEqual([51199001, null, '99'])
+  })
+  it('responde e envia e-mails antes do CRM; o callback só executa após a resposta', async () => {
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.29'))
+    pushLeadMock.mockResolvedValue({ ok: true, exactLeadId: 123 })
+    const result = await submitFormReal('proposta', proposta, 'test-token')
+    expect(result.ok).toBe(true)
+    expect(sendMailMock).toHaveBeenCalled()
+    expect(pushLeadMock).not.toHaveBeenCalled()
+    await rodarAfterCrm()
+    expect(pushLeadMock).toHaveBeenCalledOnce()
   })
 
   it('falha no Exact não derruba a submissão e grava o erro', async () => {
@@ -316,6 +341,7 @@ describe('submitForm — destino da notificação interna', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -491,6 +517,7 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '4242'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -650,6 +677,7 @@ describe('submitForm — cidade obrigatória na proposta', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -757,6 +785,7 @@ describe('submitForm — grava a quem o lead foi endereçado', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '99'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -856,6 +885,7 @@ describe('submitForm — lead não gravado no banco', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     ipSeq += 1
     headersMock.mockResolvedValue(fakeHeaders(`192.0.2.${ipSeq}`))

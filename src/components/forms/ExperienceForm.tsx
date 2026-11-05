@@ -244,6 +244,7 @@ export function ExperienceForm({
       <div className="field">
         <label htmlFor={nomeId}>Nome completo</label>
         <input
+          data-sensitive="true"
           autoComplete="name"
           id={nomeId}
           placeholder="Como quer ser chamado no evento"
@@ -264,6 +265,7 @@ export function ExperienceForm({
         <div className="field">
           <label htmlFor={emailId}>E-mail</label>
           <input
+            data-sensitive="true"
             autoComplete="email"
             id={emailId}
             placeholder="voce@exemplo.com.br"
@@ -287,6 +289,7 @@ export function ExperienceForm({
             name="telefone"
             render={({ field }) => (
               <input
+                data-sensitive="true"
                 aria-describedby={errors.telefone ? `${telefoneId}-erro` : undefined}
                 aria-invalid={!!errors.telefone}
                 autoComplete="tel-national"
@@ -328,6 +331,7 @@ export function ExperienceForm({
           Condomínio <span className="opt">(opcional)</span>
         </label>
         <input
+          data-sensitive="true"
           id={condominioId}
           placeholder="Nome do seu condomínio"
           type="text"
@@ -338,6 +342,7 @@ export function ExperienceForm({
       <div className="checkwrap">
         <label className="check" htmlFor={aceiteId}>
           <input
+            data-sensitive="true"
             id={aceiteId}
             required
             type="checkbox"

@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EXPERIENCE_EVENT } from '@/data/experienceEvent'
 import { isExactEligible } from '@/lib/exact/map-lead'
+import { limparAfterCrm, rodarAfterCrm } from './helpers/afterCrm'
 import { respostaComLotacao } from './helpers/lotacaoExperience'
 
 describe('isExactEligible', () => {
@@ -50,6 +51,10 @@ const headersMock = vi.fn()
 const cookiesMock = vi.fn()
 
 vi.mock('server-only', () => ({}))
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  after: (await import('./helpers/afterCrm')).agendarAfterCrm,
+}))
 vi.mock('@/lib/exact/client', () => ({
   exactEnabled: () => true,
   createLead: (...args: unknown[]) => createLeadMock(...args),
@@ -96,6 +101,7 @@ const inscricao = {
 describe('submitForm — inscrição do Experience', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    limparAfterCrm()
     queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '77'))
     sendMailMock.mockResolvedValue({ ok: true })
     verifyTurnstileMock.mockResolvedValue(true)
@@ -166,6 +172,8 @@ describe('submitForm — inscrição do Experience', () => {
     )
 
     expect(result.ok).toBe(true)
+    expect(createLeadMock).not.toHaveBeenCalled()
+    await rodarAfterCrm()
     expect(createLeadMock).toHaveBeenCalledTimes(1)
   })
 
