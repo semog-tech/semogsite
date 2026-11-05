@@ -1,16 +1,18 @@
 import 'server-only'
 import { z } from 'zod'
 import { requisitarRd } from './client'
-import type { ConfigRd } from './config'
+import { type ConfigRd, slugRd } from './config'
 
 const hash = /^[0-9a-f]{24}$/
+// O RD gera slug com hífen (`qual-a-quantidades-de-unidades`); a doc só o tipa como string.
 const campo = z.object({
   id: z.string().regex(hash),
-  slug: z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/),
+  slug: z.string().regex(slugRd),
   entity: z.literal('deal'),
 })
+// Itens validados um a um: um campo estranho do catálogo não pode derrubar todos os leads.
 const paginaSchema = z.object({
-  data: z.array(campo),
+  data: z.array(z.unknown()),
   links: z.object({ next: z.string().nullable().optional() }).optional(),
 })
 let cache: { campos: z.infer<typeof campo>[]; venceEm: number } | undefined
@@ -41,6 +43,7 @@ export async function resolverCamposRd(token: string, config: ConfigRd): Promise
 async function obterCatalogo(token: string): Promise<z.infer<typeof campo>[]> {
   if (cache && Date.now() < cache.venceEm) return cache.campos
   const campos: z.infer<typeof campo>[] = []
+  let ignorados = 0
   for (let pagina = 1; pagina <= 20; pagina++) {
     const params = new URLSearchParams({
       filter: 'entity:deal',
@@ -49,11 +52,27 @@ async function obterCatalogo(token: string): Promise<z.infer<typeof campo>[]> {
     })
     const res = paginaSchema.safeParse(await requisitarRd(token, `custom_fields?${params}`))
     if (!res.success) throw new Error('RD Station: catálogo de campos sem contrato ID/slug válido')
-    campos.push(...res.data.data)
+    ignorados += acumularValidos(res.data.data, campos)
     if (!res.data.links?.next && res.data.data.length < 100) {
+      if (ignorados > 0) {
+        console.warn(
+          `[crm] RD Station: ${ignorados} campo(s) do catálogo fora do contrato ignorado(s)`,
+        )
+      }
       cache = { campos, venceEm: Date.now() + 60_000 }
       return campos
     }
   }
   throw new Error('RD Station: catálogo de campos excedeu 2000 registros')
+}
+
+/** Campo ignorado só vira erro se a config o referenciar ("sem slug único" em resolverCamposRd). */
+function acumularValidos(itens: unknown[], campos: z.infer<typeof campo>[]): number {
+  let ignorados = 0
+  for (const item of itens) {
+    const res = campo.safeParse(item)
+    if (res.success) campos.push(res.data)
+    else ignorados++
+  }
+  return ignorados
 }

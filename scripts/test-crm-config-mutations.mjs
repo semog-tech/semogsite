@@ -3,11 +3,16 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const vitest = resolve('node_modules/vitest/vitest.mjs')
-const specs = ['tests/int/rdstation-config.int.spec.ts', 'tests/int/rdstation.int.spec.ts']
+const specs = [
+  'tests/int/rdstation-config.int.spec.ts',
+  'tests/int/rdstation.int.spec.ts',
+  'tests/int/rdstation-fields.int.spec.ts',
+]
 const testes = ['run', '--config', './vitest.config.mts', ...specs]
 const loadConfig = 'src/lib/crm/rdstation/load-config.ts'
 const config = 'src/lib/crm/rdstation/config.ts'
 const mapLead = 'src/lib/crm/rdstation/map-lead.ts'
+const resolveFields = 'src/lib/crm/rdstation/resolve-fields.ts'
 // Alvos comparados com quebras normalizadas para LF: no Windows o disco tem CRLF.
 const mutacoes = [
   [
@@ -64,6 +69,24 @@ const mutacoes = [
     '  return config.regra\n}',
     "  const primeira = Object.values(config.equipesPorUnidade)[0]\n  return primeira ? { type: 'team', id: primeira } : config.regra\n}",
   ],
+  [
+    config,
+    'slug do RD sem hífen',
+    'export const slugRd = /^[a-zA-Z0-9_][a-zA-Z0-9_-]*$/',
+    'export const slugRd = /^[a-zA-Z_][a-zA-Z0-9_]*$/',
+  ],
+  [
+    resolveFields,
+    'item inválido derruba o catálogo inteiro',
+    '  data: z.array(z.unknown()),',
+    '  data: z.array(campo),',
+  ],
+  [
+    resolveFields,
+    'item ignorado sem contagem no aviso',
+    '    else ignorados++',
+    '    else ignorados += 0',
+  ],
 ]
 
 function testar() {
@@ -79,7 +102,7 @@ function testar() {
 }
 
 const originais = new Map(
-  [loadConfig, config, mapLead].map((caminho) => [
+  [loadConfig, config, mapLead, resolveFields].map((caminho) => [
     resolve(caminho),
     readFileSync(resolve(caminho), 'utf8'),
   ]),

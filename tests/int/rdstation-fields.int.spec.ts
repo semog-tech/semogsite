@@ -451,3 +451,108 @@ it.each([
   await expect(resolverCamposRd('token-teste', config)).rejects.toThrow(/slug/)
   http.conferir()
 })
+
+it('catálogo real: slug com hífen resolve e itens fora do contrato são ignorados com aviso', async () => {
+  const cfg = await configuracao()
+  cfg.campos.id_lead_site = idSite
+  cfg.campos.quantidade_unidades = idUnidades
+  const aviso = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const http = fetchRdEstrito([
+    {
+      method: 'GET',
+      path: 'custom_fields',
+      filtro: 'entity:deal',
+      resposta: {
+        data: [
+          { id: '6aeb7fd511accf0024561700', slug: null, entity: 'deal' },
+          { id: idUnidades, slug: 'qual-a-quantidades-de-unidades', entity: 'deal' },
+          { id: '6aeb7fd511accf0024561701', slug: 'tem espaço', entity: 'deal' },
+          'lixo',
+          { id: '6aeb7fd511accf0024561702', slug: 42, entity: 'deal' },
+          { id: idSite, slug: 'id-lead-site', entity: 'deal' },
+          { id: '6aeb7fd511accf0024561703', slug: 'e-ou-ja-foi-cliente-semog', entity: 'deal' },
+        ],
+      },
+    },
+  ])
+  const { resolverCamposRd } = await import('@/lib/crm/rdstation/resolve-fields')
+  const { negocioRd } = await import('@/lib/crm/rdstation/map-lead')
+  const resolvida = await resolverCamposRd('token-teste', cfg)
+  expect(resolvida.campos.id_lead_site).toBe('id-lead-site')
+  expect(resolvida.campos.quantidade_unidades).toBe('qual-a-quantidades-de-unidades')
+  expect(
+    negocioRd('proposta', { ...propostaRd, unidades: '30' }, '42', resolvida).custom_fields[
+      'qual-a-quantidades-de-unidades'
+    ],
+  ).toBe(30)
+  expect(aviso).toHaveBeenCalledWith(expect.stringContaining('4 campo(s)'))
+  http.conferir()
+})
+
+it('idempotência com slug de hífen usa @slug no RDQL, mesmo com item inválido no catálogo', async () => {
+  const { configRd } = await import('@/lib/crm/rdstation/config')
+  vi.stubEnv('RD_CRM_CUSTOM_FIELDS', JSON.stringify({ ...configRd().campos, id_lead_site: idSite }))
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const http = fetchRdEstrito([
+    {
+      method: 'GET',
+      path: 'custom_fields',
+      filtro: 'entity:deal',
+      resposta: {
+        data: [
+          { id: idUnidades, slug: null, entity: 'deal' },
+          { id: idSite, slug: 'id-lead-site', entity: 'deal' },
+        ],
+      },
+    },
+    {
+      method: 'GET',
+      path: 'deals',
+      filtro: '@id-lead-site:"42"',
+      resposta: { data: [{ id: rdIds.deal }] },
+    },
+  ])
+  const { pushLeadToRd } = await import('@/lib/crm/rdstation/push-lead')
+  expect(
+    await pushLeadToRd('proposta', propostaRd, '42', {
+      contactId: null,
+      postIniciado: false,
+      antesDoPost: vi.fn(async () => {}),
+      rejeitado: vi.fn(async () => {}),
+    }),
+  ).toEqual({ dealId: rdIds.deal, contactId: null })
+  http.conferir()
+})
+
+it('campo referenciado com slug nulo no catálogo continua bloqueando o envio', async () => {
+  const cfg = await configuracao()
+  cfg.campos.quantidade_unidades = idUnidades
+  const http = fetchRdEstrito([
+    {
+      method: 'GET',
+      path: 'custom_fields',
+      filtro: 'entity:deal',
+      resposta: {
+        data: [
+          { id: idUnidades, slug: null, entity: 'deal' },
+          { id: idSite, slug: 'id-lead-site', entity: 'deal' },
+        ],
+      },
+    },
+  ])
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const { resolverCamposRd } = await import('@/lib/crm/rdstation/resolve-fields')
+  await expect(resolverCamposRd('token-teste', cfg)).rejects.toThrow(
+    'quantidade_unidades sem slug único',
+  )
+  http.conferir()
+})
+
+it('config aceita slug com hífen escrito direto, sem passar pelo catálogo', async () => {
+  const { configRd } = await import('@/lib/crm/rdstation/config')
+  vi.stubEnv(
+    'RD_CRM_CUSTOM_FIELDS',
+    JSON.stringify({ ...configRd().campos, ja_cliente: 'e-ou-ja-foi-cliente-semog' }),
+  )
+  expect(configRd().campos.ja_cliente).toBe('e-ou-ja-foi-cliente-semog')
+})
