@@ -39,20 +39,28 @@ function request(segredo = 'segredo') {
 beforeEach(() => {
   vi.resetAllMocks()
   vi.stubEnv('CRON_SECRET', 'segredo')
-  vi.stubEnv('CRM_PROVIDER', 'exact')
+  vi.stubEnv('CRM_PROVIDER', 'rdstation')
 })
 afterEach(() => vi.unstubAllEnvs())
 
-describe('cron CRM e compatibilidade do caminho Exact', () => {
+describe('cron CRM: só RD, Exact desligado', () => {
   it('autentica antes de acessar banco ou CRM', async () => {
     expect((await GET(request('errado'))).status).toBe(401)
     expect(queryMock).not.toHaveBeenCalled()
   })
   it.each([
+    undefined,
     'exact',
-    'rdstation',
-  ])('seleciona somente fila %s e pendentes sem provedor', async (provider) => {
+  ])('com a flag %s o cron não consulta a fila nem chama o Exact', async (provider) => {
     vi.stubEnv('CRM_PROVIDER', provider)
+    const res = await GET(request())
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ considerados: 0, exact: 'desligado' })
+    expect(queryMock).not.toHaveBeenCalled()
+    expect(enviarMock).not.toHaveBeenCalled()
+  })
+  it('seleciona somente fila rdstation e pendentes sem provedor', async () => {
+    const provider = 'rdstation'
     queryMock.mockResolvedValue({ rows: [pendente] })
     enviarMock.mockResolvedValue({ ok: true })
     const res = await GET(request())
