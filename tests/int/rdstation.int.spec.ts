@@ -381,8 +381,9 @@ describe('bordas de retry e contato duplicado', () => {
       ...busca,
       resposta: {
         data: [
-          { id: 'novo', created_at: '2026-11-01T00:00:00Z' },
-          { id: rdIds.contact, created_at: '2025-01-01T00:00:00Z' },
+          // Formato real do RD v2: com fuso (-03:00), não "Z".
+          { id: 'novo', created_at: '2026-11-01T00:00:00.000-03:00' },
+          { id: rdIds.contact, created_at: '2025-01-01T00:00:00.000-03:00' },
         ],
       },
     })
@@ -393,7 +394,7 @@ describe('bordas de retry e contato duplicado', () => {
         ...negocioRd('proposta', propostaRd, '42', configRd()),
         contact_ids: [rdIds.contact],
       },
-      resposta: { data: { id: rdIds.deal } },
+      resposta: { data: { id: rdIds.deal, created_at: '2026-11-05T17:30:56.062-03:00' } },
     })
     const http = fetchRdEstrito(passos)
     expect(await pushLeadToRd('proposta', propostaRd, '42', estado())).toMatchObject({
