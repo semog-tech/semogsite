@@ -6,7 +6,8 @@ const BASE = 'https://api.rd.services/crm/v2/'
 const recurso = z.object({
   id: z.string().min(1),
   contact_ids: z.array(z.string()).optional(),
-  created_at: z.string().datetime().optional(),
+  // O RD v2 devolve datas com fuso (ex.: 2026-11-05T17:30:56.062-03:00), não "Z".
+  created_at: z.string().datetime({ offset: true }).optional(),
 })
 const lista = z.object({
   data: z.array(recurso),
