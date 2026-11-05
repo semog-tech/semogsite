@@ -1,6 +1,6 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
 import { type FormType, GCLID_FIELD, TIPO_CLIQUE_FIELD } from '@/lib/forms'
-import type { ConfigRd } from './config'
+import type { ConfigRd, RegraRd } from './config'
 
 export function contatoRd(data: Record<string, string>) {
   const telefone = parsePhoneNumberFromString(data.telefone ?? '', 'BR')?.number
@@ -16,12 +16,23 @@ export function contatoRd(data: Record<string, string>) {
 
 type ValoresRd = Partial<Record<keyof ConfigRd['campos'], string | number>>
 
+function unidadeDoLead(data: Record<string, string>, config: ConfigRd): string | undefined {
+  return data.cidade && data.cidade !== 'Outra cidade' ? config.unidades[data.cidade] : undefined
+}
+
+/** Equipe da Unidade do lead quando mapeada; senão a regra padrão (que pode não existir). */
+function regraDoLead(data: Record<string, string>, config: ConfigRd): RegraRd | undefined {
+  const unidade = unidadeDoLead(data, config)
+  if (unidade && Object.hasOwn(config.equipesPorUnidade, unidade))
+    return { type: 'team', id: config.equipesPorUnidade[unidade] }
+  return config.regra
+}
+
 function valoresDoLead(data: Record<string, string>, leadId: string, config: ConfigRd): ValoresRd {
   const quantidade = Number(data.unidades)
   return {
     id_lead_site: leadId,
-    unidade_semog:
-      data.cidade && data.cidade !== 'Outra cidade' ? config.unidades[data.cidade] : undefined,
+    unidade_semog: unidadeDoLead(data, config),
     utm_source: data['origem — utm_source'],
     utm_medium: data['origem — utm_medium'],
     utm_campaign: data['origem — utm_campaign'],
@@ -108,6 +119,7 @@ export function negocioRd(
   const pago =
     Boolean(data[GCLID_FIELD]?.trim()) ||
     /tráfego pago/i.test(data['origem — Canal (origem)'] ?? '')
+  const regra = regraDoLead(data, config)
   return {
     name: data.nomeCondominio?.trim() || data.nome?.trim() || 'Proposta do site',
     status: 'ongoing',
@@ -115,9 +127,7 @@ export function negocioRd(
     stage_id: config.stageId,
     source_id: pago ? config.sourceAnuncio : config.sourceSite,
     campaign_id: pago ? config.campaignAnuncio : config.campaignSite,
-    distribution_settings: config.regra
-      ? { stage_id: config.stageId, rule: config.regra }
-      : undefined,
+    distribution_settings: regra ? { stage_id: config.stageId, rule: regra } : undefined,
     custom_fields: camposDoLead(form, data, leadId, config),
   }
 }

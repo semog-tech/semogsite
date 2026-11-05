@@ -47,6 +47,8 @@ const mapaOpcoes = z.record(z.string().min(1).max(120), z.string().max(120))
 const opcoesSchema = z
   .object({ tipo_condominio: mapaOpcoes.optional(), participacao: mapaOpcoes.optional() })
   .strict()
+// Rótulo da Unidade (valor de unidades_por_cidade) → equipe RD que recebe o lead.
+const equipesSchema = z.record(z.string().min(1).max(120), id)
 
 function opcoesComPadrao(opcoes: z.infer<typeof opcoesSchema> = {}) {
   return {
@@ -73,6 +75,7 @@ const configBancoSchema = z
     campaign_anuncio_id: id.nullable(),
     distribution_rule: regraSchema.nullable(),
     unidades_por_cidade: z.record(z.string().min(1).max(120), z.string().min(1).max(120)),
+    equipes_por_unidade: equipesSchema.default({}),
     custom_fields: camposBancoSchema,
     opcoes_campos: opcoesSchema.optional(),
     updated_by: z.string().uuid().nullable(),
@@ -89,6 +92,7 @@ export type ConfigRd = {
   campaignAnuncio: string | undefined
   regra: RegraRd | undefined
   unidades: Record<string, string>
+  equipesPorUnidade: Record<string, string>
   campos: z.infer<typeof camposBancoSchema>
   opcoes: z.infer<typeof opcoesSchema>
 }
@@ -116,6 +120,7 @@ export function configRdDoBanco(raw: unknown): ConfigRd {
     campaignAnuncio: cfg.campaign_anuncio_id ?? undefined,
     regra: cfg.distribution_rule ?? undefined,
     unidades: cfg.unidades_por_cidade,
+    equipesPorUnidade: cfg.equipes_por_unidade,
     campos: cfg.custom_fields,
     opcoes: opcoesComPadrao(cfg.opcoes_campos),
   }
@@ -142,6 +147,9 @@ export function configRd(): ConfigRd {
     unidades: z
       .record(z.string(), z.string().min(1))
       .parse(JSON.parse(variavel('RD_CRM_UNIDADES_POR_CIDADE'))),
+    equipesPorUnidade: equipesSchema.parse(
+      JSON.parse(process.env.RD_CRM_EQUIPES_POR_UNIDADE || '{}'),
+    ),
     campos,
     opcoes: opcoesComPadrao(
       opcoesSchema.parse(JSON.parse(process.env.RD_CRM_OPCOES_CAMPOS || '{}')),

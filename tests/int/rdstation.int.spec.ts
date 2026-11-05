@@ -122,6 +122,31 @@ describe('payload RD v2', () => {
     vi.stubEnv('RD_CRM_STAGE_ID', '')
     expect(() => configRd()).toThrow('configuração ausente')
   })
+  it('env sem RD_CRM_EQUIPES_POR_UNIDADE mantém a regra padrão e o mapa vazio', () => {
+    expect(configRd().equipesPorUnidade).toEqual({})
+    expect(negocioRd('proposta', propostaRd, '42', configRd())).toHaveProperty(
+      'distribution_settings',
+      { stage_id: rdIds.stage, rule: { type: 'all_users' } },
+    )
+  })
+  it('env com equipe da Unidade distribui para o time; Outra cidade segue a regra padrão', () => {
+    const equipe = 'abcdef0123456789abcdef01'
+    vi.stubEnv('RD_CRM_EQUIPES_POR_UNIDADE', JSON.stringify({ Recife: equipe }))
+    expect(negocioRd('proposta', propostaRd, '42', configRd())).toHaveProperty(
+      'distribution_settings',
+      { stage_id: rdIds.stage, rule: { type: 'team', id: equipe } },
+    )
+    expect(
+      negocioRd('proposta', { ...propostaRd, cidade: 'Outra cidade' }, '42', configRd()),
+    ).toHaveProperty('distribution_settings', {
+      stage_id: rdIds.stage,
+      rule: { type: 'all_users' },
+    })
+  })
+  it('env com id de equipe inválido é erro de validação', () => {
+    vi.stubEnv('RD_CRM_EQUIPES_POR_UNIDADE', '{"Recife":"ABCDEF0123456789ABCDEF01"}')
+    expect(() => configRd()).toThrow()
+  })
   it('persiste UTMs separadas a partir da origem validada, sem desmontar texto combinado', () => {
     const first = {
       source: 'google',
