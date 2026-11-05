@@ -227,3 +227,119 @@ describe('configuração RD do banco com cache e fallback explícito', () => {
     http.conferir()
   })
 })
+
+describe('distribuição por equipe da Unidade Semog (equipes_por_unidade)', () => {
+  const equipeRecife = 'abcdef0123456789abcdef01'
+  const equipeJoaoPessoa = '0123456789abcdef01234567'
+  const unidades = { 'Recife e região': 'Recife', 'João Pessoa e região': 'João Pessoa' }
+
+  async function negocioDoBanco(raw: unknown, data: Record<string, string> = propostaRd) {
+    queryMock.mockResolvedValue({ rows: [{ config: raw }] })
+    const { obterConfigRd } = await import('@/lib/crm/rdstation/load-config')
+    const { negocioRd } = await import('@/lib/crm/rdstation/map-lead')
+    const config = await obterConfigRd()
+    return { config, negocio: negocioRd('proposta', data, '42', config) }
+  }
+
+  it('config sem a chave mantém o comportamento atual: mapa vazio e regra padrão', async () => {
+    const cfg = await fixture()
+    expect(cfg).not.toHaveProperty('equipes_por_unidade')
+    const { config, negocio } = await negocioDoBanco(cfg)
+    expect(config.equipesPorUnidade).toEqual({})
+    expect(negocio.distribution_settings).toEqual({
+      stage_id: rdIds.stage,
+      rule: { type: 'all_users' },
+    })
+  })
+  it('config com a chave expõe o mapa e envia a equipe da Unidade do lead', async () => {
+    const equipes = { Recife: equipeRecife, 'João Pessoa': equipeJoaoPessoa }
+    const cfg = {
+      ...(await fixture()),
+      unidades_por_cidade: unidades,
+      equipes_por_unidade: equipes,
+    }
+    const { config, negocio } = await negocioDoBanco(cfg, {
+      ...propostaRd,
+      cidade: 'João Pessoa e região',
+    })
+    expect(config.equipesPorUnidade).toEqual(equipes)
+    expect(negocio.distribution_settings).toEqual({
+      stage_id: rdIds.stage,
+      rule: { type: 'team', id: equipeJoaoPessoa },
+    })
+  })
+  it('equipe da Unidade vale mesmo com distribution_rule NULL', async () => {
+    const cfg = {
+      ...(await fixture()),
+      distribution_rule: null,
+      equipes_por_unidade: { Recife: equipeRecife },
+    }
+    const { negocio } = await negocioDoBanco(cfg)
+    expect(negocio.distribution_settings).toEqual({
+      stage_id: rdIds.stage,
+      rule: { type: 'team', id: equipeRecife },
+    })
+  })
+  it('Unidade sem equipe usa a regra padrão', async () => {
+    const cfg = {
+      ...(await fixture()),
+      unidades_por_cidade: unidades,
+      equipes_por_unidade: { 'João Pessoa': equipeJoaoPessoa },
+    }
+    const { negocio } = await negocioDoBanco(cfg)
+    expect(negocio.distribution_settings).toEqual({
+      stage_id: rdIds.stage,
+      rule: { type: 'all_users' },
+    })
+  })
+  it('Unidade sem equipe e regra padrão NULL omite distribution_settings, como hoje', async () => {
+    const cfg = {
+      ...(await fixture()),
+      distribution_rule: null,
+      unidades_por_cidade: unidades,
+      equipes_por_unidade: { 'João Pessoa': equipeJoaoPessoa },
+    }
+    const { negocio } = await negocioDoBanco(cfg)
+    expect(JSON.parse(JSON.stringify(negocio))).not.toHaveProperty('distribution_settings')
+  })
+  it.each([
+    'Outra cidade',
+    '',
+  ])('lead sem Unidade (cidade %j) usa a regra padrão', async (cidade) => {
+    const cfg = { ...(await fixture()), equipes_por_unidade: { Recife: equipeRecife } }
+    const { negocio } = await negocioDoBanco(cfg, { ...propostaRd, cidade })
+    expect(negocio.distribution_settings).toEqual({
+      stage_id: rdIds.stage,
+      rule: { type: 'all_users' },
+    })
+  })
+  it.each([
+    ['maiúsculas', 'ABCDEF0123456789ABCDEF01'],
+    ['23 caracteres', 'abcdef0123456789abcdef0'],
+    ['não hex', 'zzzzzz0123456789abcdef01'],
+    ['número', 123],
+    ['null', null],
+  ])('id de equipe inválido (%s) é erro de validação, sem fallback', async (_caso, idEquipe) => {
+    const cfg = { ...(await fixture()), equipes_por_unidade: { Recife: idEquipe } }
+    queryMock.mockResolvedValue({ rows: [{ config: cfg }] })
+    const { obterConfigRd } = await import('@/lib/crm/rdstation/load-config')
+    await expect(obterConfigRd()).rejects.toThrow('incompleta ou inválida')
+    expect(sentryMock).not.toHaveBeenCalled()
+  })
+  it('equipes_por_unidade que não é objeto é erro de validação', async () => {
+    const cfg = { ...(await fixture()), equipes_por_unidade: [equipeRecife] }
+    queryMock.mockResolvedValue({ rows: [{ config: cfg }] })
+    const { obterConfigRd } = await import('@/lib/crm/rdstation/load-config')
+    await expect(obterConfigRd()).rejects.toThrow('incompleta ou inválida')
+  })
+  it('outra chave desconhecida continua rejeitada mesmo ao lado de equipes_por_unidade', async () => {
+    const cfg = {
+      ...(await fixture()),
+      equipes_por_unidade: { Recife: equipeRecife },
+      equipes_por_cidade: { 'Recife e região': equipeRecife },
+    }
+    queryMock.mockResolvedValue({ rows: [{ config: cfg }] })
+    const { obterConfigRd } = await import('@/lib/crm/rdstation/load-config')
+    await expect(obterConfigRd()).rejects.toThrow('incompleta ou inválida')
+  })
+})

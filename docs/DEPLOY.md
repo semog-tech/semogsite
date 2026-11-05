@@ -154,6 +154,7 @@ não é preciso duplicar nelas os valores já salvos pelo admin:
 | `RD_CRM_CAMPAIGN_SITE_ID` / `RD_CRM_CAMPAIGN_ANUNCIO_ID` | Campanhas cadastradas correspondentes aos dois canais. O nome da campanha UTM também vai em campo personalizado, sem criar cadastros. |
 | `RD_CRM_DISTRIBUTION_RULE` | JSON de `distribution_settings.rule`: `type` igual a `user`, `team`, `all`, `all_users`, `all_admins` ou `owner`; `user`/`team` exigem `id`. Sem responsável por e-mail cravado. |
 | `RD_CRM_UNIDADES_POR_CIDADE` | JSON cidade do formulário → valor da opção Unidade Semog. `Outra cidade` e contato sem cidade deixam Unidade Semog ausente; cidade regional sem mapeamento é erro de configuração. |
+| `RD_CRM_EQUIPES_POR_UNIDADE` | JSON opcional rótulo da Unidade (valor de `RD_CRM_UNIDADES_POR_CIDADE`, ex. `João Pessoa`) → ID de equipe RD (24 hex). Lead cuja Unidade tem equipe é distribuído com `{type:"team",id}`; `Outra cidade`, lead sem cidade e Unidade sem equipe seguem `RD_CRM_DISTRIBUTION_RULE`. Ausente equivale a `{}`. |
 | `RD_CRM_CUSTOM_FIELDS` | JSON alias → ID de 24 hex ou slug no RD: `id_lead_site`, `unidade_semog`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `tipo_clique`, `pagina_entrada`, `dados_proposta`; opcionais: `quantidade_unidades`, `tipo_condominio`, `participacao`. Referências distintas; exemplos reais comentados em `.env.example`. |
 | `RD_CRM_OPCOES_CAMPOS` | JSON opcional `{tipo_condominio:{valor-form:opção-RD},participacao:{valor-form:opção-RD}}`. Ausência de participacao usa o mapa padrão abaixo; mapa explícito o substitui inteiro, inclusive `{participacao:{}}` para desativá-lo. Sem equivalência, deixa o campo vazio e preserva o valor em dados_proposta. |
 
@@ -164,6 +165,8 @@ schema_version=1, version como contador de edição, pipeline_id, entry_stage_id
 source_site_id/source_anuncio_id, campaign_site_id/campaign_anuncio_id, distribution_rule,
 unidades_por_cidade, custom_fields e metadados updated_by/updated_at. Os aliases canônicos
 de custom_fields são os nomes do site listados acima; id_lead_site é obrigatório.
+`equipes_por_unidade` é opcional (ausente = `{}`) e usa o mesmo formato de
+RD_CRM_EQUIPES_POR_UNIDADE; ID fora de 24 hex é erro de validação, sem fallback.
 `opcoes_campos` é opcional e usa o mesmo formato de RD_CRM_OPCOES_CAMPOS; aliases
 novos e mapas são extensões opcionais do schema_version 1, alinhadas com o semogapp.
 Padrão de participação no banco/env sem mapa explícito: `Conselheiro(a)` → `Conselheiro`,
