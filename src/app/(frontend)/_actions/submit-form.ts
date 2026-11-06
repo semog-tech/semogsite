@@ -138,10 +138,17 @@ type Envio = {
 }
 
 /**
- * Responsáveis da Paraíba (João Pessoa e Campina Grande) — a mesma caixa da
- * filial que já recebe a inscrição do Experience.
+ * Responsáveis da Paraíba — a mesma caixa da filial que já recebe a inscrição
+ * do Experience. Desde 17/10/2026 cobre só João Pessoa (e a PB em "Outra
+ * cidade"): Campina Grande tem caixa própria, `CAMPINA_GRANDE_TO`.
  */
 const PB_TO = 'comercial.pb@semog.com.br'
+
+/**
+ * Campina Grande (Leandro, 17/10/2026). Só quando a cidade é "Campina Grande e
+ * região": "Outra cidade" não o inclui e continua indo aos três de sempre.
+ */
+const CAMPINA_GRANDE_TO = 'marcello@semog.com.br'
 
 /**
  * Roteamento da notificação interna de **Proposta** por região, a partir do
@@ -151,9 +158,10 @@ const PB_TO = 'comercial.pb@semog.com.br'
  *
  * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026. Ele é uma lista de
  * distribuição, e lista não responde: com os botões de desfecho no e-mail, um
- * registro que chega por caixa individual (`ivan@`, `galvao@`) tem autor
- * conhecido, e um que chega por grupo não tem. Trocar o grupo pela caixa da
- * filial da Paraíba mantém o endereçamento concreto.
+ * registro que chega por caixa individual (`ivan@`, `galvao@`, `marcello@`) tem
+ * autor conhecido, e um que chega por grupo não tem. Trocar o grupo pela caixa da
+ * filial da Paraíba mantém o endereçamento concreto. Campina Grande ganhou caixa
+ * própria em 17/10/2026 (Leandro); João Pessoa segue na da Paraíba.
  *
  * **"Outra cidade" vai para os três de uma vez.** Não dá para saber de que
  * praça é um condomínio que não está na lista, então todo mundo recebe e quem
@@ -164,7 +172,7 @@ const PB_TO = 'comercial.pb@semog.com.br'
 const PROPOSTA_CIDADE_TO: Record<PropostaValues['cidade'], readonly string[]> = {
   'Recife e região': ['ivan@semog.com.br'],
   'João Pessoa e região': [PB_TO],
-  'Campina Grande e região': [PB_TO],
+  'Campina Grande e região': [CAMPINA_GRANDE_TO],
   'Belém e região': ['galvao@semog.com.br'],
   'Outra cidade': ['ivan@semog.com.br', 'galvao@semog.com.br', PB_TO],
 }
@@ -476,17 +484,17 @@ type EmailsDoEnvio = {
 }
 
 /**
- * Notificação interna, com os botões de desfecho quando é captação.
+ * Notificação interna, com os botões de desfecho quando é captação fora do Contato.
  *
- * O critério dos botões (Em negociação / Fechou / Não evoluiu / Não é lead) é
- * `isExactEligible` — a MESMA função que decide o que vira card no CRM —, e não
- * `formType === 'proposta'`. Perguntar "isto é captação?" e "vale perguntar o
- * desfecho disto?" é perguntar a mesma coisa, e duplicar a regra faria as duas
- * respostas divergirem com o tempo. Na prática isso inclui o Contato com
- * assunto `proposta-comercial`, que é pedido de proposta escrito no formulário
- * errado: ele já entra no CRM como lead e agora também tem desfecho. O resto do
- * Contato (2ª via, CND, acordo) é atendimento a quem já é cliente, e "fechou"
- * não faz sentido ali.
+ * O critério dos botões (Em negociação / Fechou / Não evoluiu / Não é lead) parte
+ * de `isExactEligible` — a MESMA função que decide o que vira card no CRM —, e
+ * não de `formType === 'proposta'`, para as duas respostas não divergirem com o
+ * tempo. **O Contato nunca leva botões** (Leandro, 17/10/2026): ele vai à caixa
+ * do `CONTACT_TO`, e não à de um responsável comercial, e desfecho clicado de lá
+ * não tem autor conhecido.
+ * Isso vale também para o envio legado com assunto `proposta-comercial` (o
+ * assunto saiu do formulário, mas aba aberta antes do deploy ainda o manda): ele
+ * continua indo ao CRM como lead, só sem a pergunta do desfecho no e-mail.
  *
  * `leadRowId` ausente = sem o que assinar. `botoesDeDesfecho` devolve
  * `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai como
@@ -524,7 +532,7 @@ function montarNotificacao(emails: EmailsDoEnvio, notifyTo: readonly string[]): 
     .map(([field, value]) => ({ label: labels[field] ?? field, value: String(value) }))
 
   const desfecho =
-    leadRowId && isExactEligible(envio.formType, leadData)
+    leadRowId && envio.formType !== 'contato' && isExactEligible(envio.formType, leadData)
       ? (botoesDeDesfecho(leadRowId) ?? undefined)
       : undefined
 

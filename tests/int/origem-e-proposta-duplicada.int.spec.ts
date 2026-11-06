@@ -344,6 +344,17 @@ describe('proposta rápida duplicada', () => {
     expect(paramsDoInsert()[5]).toBe('comercial.pb@semog.com.br')
   })
 
+  it('proposta rápida de Campina Grande avisa marcello@, não a caixa da Paraíba', async () => {
+    // Leandro, 17/10/2026: a triagem usa o mesmo mapa de cidade da Proposta completa.
+    await submitPropostaRapida({ ...rapida, cidade: 'Campina Grande e região' }, 'token')
+
+    expect(paramsDoInsert()[5]).toBe('marcello@semog.com.br')
+    const notificacao = sendMailMock.mock.calls
+      .map(([arg]) => arg as { to: string[]; subject: string })
+      .find((arg) => /^Novo contato via /.test(arg.subject))
+    expect(notificacao?.to).toEqual(['marcello@semog.com.br'])
+  })
+
   it('mesmo telefone em OUTRA cidade é pedido novo (síndico com dois condomínios)', async () => {
     anterior('+5583999501388', 1, { cidade: 'Recife e região' })
 

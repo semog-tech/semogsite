@@ -52,6 +52,8 @@ const ASSUNTO_OPTIONS = [
   'alteracao-titularidade',
   'declaracao-quitacao',
   'reserva-areas-comuns',
+  // Saiu do formulário em 17/10/2026 (quem quer proposta vai ao formulário de Proposta), mas
+  // continua aceito: aba aberta antes do deploy ainda o envia, e é lead que vai ao CRM.
   'proposta-comercial',
   'outro',
 ] as const
