@@ -52,7 +52,7 @@ alter table cms.leads
   -- perguntar nada a ninguém: `ivan@`, `galvao@` e `marcello@` são caixas
   -- individuais, então o registro que chega por elas tem dono; o que chega por
   -- uma caixa compartilhada, ou por um e-mail endereçado a três, veio da equipe.
-  -- (Por isso o Contato não leva os botões, desde 17/10/2026.) Perguntar
+  -- (Por isso o Contato não leva os botões: decisão de 17/10/2026, no ar em nov/2026.) Perguntar
   -- quem clicou seria atrito num fluxo cujo valor inteiro está em não ter atrito.
   --
   -- Coluna própria, e não derivada da cidade na hora da consulta, justamente

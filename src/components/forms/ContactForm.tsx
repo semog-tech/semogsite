@@ -20,7 +20,7 @@ import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
  * Rótulos das opções de `assunto`, com os valores de `ASSUNTO_OPTIONS` em
  * `src/lib/form-schemas.ts`. Se a lista de lá mudar, atualizar aqui também.
  *
- * "Proposta comercial" saiu da lista em 17/10/2026 (Leandro): o Contato não
+ * "Proposta comercial" saiu da lista (Leandro, decisão de 17/10/2026, no ar em novembro/2026): o Contato não
  * chega a uma Unidade, e quem quer proposta é levado ao formulário de Proposta,
  * que pergunta a cidade e avisa a Unidade certa. O schema ainda aceita o valor,
  * para não perder o envio de aba aberta antes do deploy.

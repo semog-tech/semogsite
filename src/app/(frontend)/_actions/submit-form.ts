@@ -139,7 +139,7 @@ type Envio = {
 
 /**
  * Responsáveis da Paraíba — a mesma caixa da filial que já recebe a inscrição
- * do Experience. Desde 17/10/2026 cobre só João Pessoa (e a PB em "Outra
+ * do Experience. Desde novembro/2026 cobre só João Pessoa (e a PB em "Outra
  * cidade"): Campina Grande tem caixa própria, `CAMPINA_GRANDE_TO`.
  */
 const PB_TO = 'comercial.pb@semog.com.br'
@@ -161,7 +161,7 @@ const CAMPINA_GRANDE_TO = 'marcello@semog.com.br'
  * registro que chega por caixa individual (`ivan@`, `galvao@`, `marcello@`) tem
  * autor conhecido, e um que chega por grupo não tem. Trocar o grupo pela caixa da
  * filial da Paraíba mantém o endereçamento concreto. Campina Grande ganhou caixa
- * própria em 17/10/2026 (Leandro); João Pessoa segue na da Paraíba.
+ * própria por decisão de 17/10/2026 (Leandro), no ar em novembro/2026; João Pessoa segue na da Paraíba.
  *
  * **"Outra cidade" vai para os três de uma vez.** Não dá para saber de que
  * praça é um condomínio que não está na lista, então todo mundo recebe e quem
