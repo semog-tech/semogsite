@@ -2,10 +2,11 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
- * O GA4 subcontava lead porque o /contato nunca disparava `generate_lead`, mesmo
- * com o lead de "proposta comercial" indo ao Google Ads e ao Exact pelo servidor.
- * Aqui se defende os dois lados: dispara só em proposta comercial com sucesso, e
- * nunca em atendimento a cliente nem em falha (que inflariam o custo por lead).
+ * O /contato disparava `generate_lead` no assunto "Proposta comercial". O assunto saiu do
+ * formulário em 17/10/2026 (Leandro): quem quer proposta é levado ao formulário de Proposta, que
+ * mede o lead por conta própria. Aqui se defende que o assunto sumiu, que o caminho para a
+ * Proposta está na tela e que o Contato não dispara `generate_lead` em caso nenhum (atendimento
+ * a cliente inflaria a contagem e o custo por lead).
  */
 
 vi.mock('@/app/(frontend)/_actions/submit-form', () => ({
@@ -59,15 +60,18 @@ describe('ContactForm — generate_lead', () => {
     window.gtag = undefined
   })
 
-  it('dispara uma vez, com o formato padrão, em proposta comercial com sucesso', async () => {
+  it('"Proposta comercial" não é mais assunto; a tela aponta o formulário de Proposta', () => {
     render(<ContactForm />)
-    preencher('proposta-comercial')
-    enviar()
-    await screen.findByRole('status')
+    // `as`: o rótulo "Assunto" pertence ao <select> renderizado pelo `Field as="select"`.
+    const assunto = screen.getByLabelText(/assunto/i) as HTMLSelectElement
+    const valores = Array.from(assunto.options).map((o) => o.value)
+    const rotulos = Array.from(assunto.options).map((o) => o.textContent)
 
-    expect(eventosGenerateLead()).toEqual([
-      ['event', 'generate_lead', { form: 'contato', currency: 'BRL', value: 1 }],
-    ])
+    expect(valores).not.toContain('proposta-comercial')
+    expect(rotulos).not.toContain('Proposta comercial')
+    expect(valores).toContain('outro')
+    const link = screen.getByRole('link', { name: /formulário de proposta/i })
+    expect(link.getAttribute('href')).toBe('/proposta')
   })
 
   it('não dispara em atendimento a cliente', async () => {
@@ -83,7 +87,7 @@ describe('ContactForm — generate_lead', () => {
   it('não dispara quando o envio falha (resposta de erro)', async () => {
     vi.mocked(submitForm).mockResolvedValueOnce({ ok: false, message: 'Falhou.' })
     render(<ContactForm />)
-    preencher('proposta-comercial')
+    preencher('outro')
     enviar()
     await screen.findByRole('alert')
 
@@ -94,7 +98,7 @@ describe('ContactForm — generate_lead', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.mocked(submitForm).mockRejectedValueOnce(new Error('rede'))
     render(<ContactForm />)
-    preencher('proposta-comercial')
+    preencher('outro')
     enviar()
     await screen.findByRole('alert')
 
