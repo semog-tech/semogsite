@@ -183,6 +183,12 @@ const nextConfig: NextConfig = {
         source: '/email/semog-logo-azul.png',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
       },
+      // HTML do e-mail da Black Friday 2026, publicado só para o RD Station importar.
+      // Fora do Google: é peça de campanha, não página do site.
+      {
+        source: '/email/black-friday-2026.html',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
     ]
   },
   async redirects() {
