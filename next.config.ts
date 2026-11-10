@@ -177,6 +177,12 @@ const nextConfig: NextConfig = {
           headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
         }),
       ),
+      // Logo azul dos e-mails marketing (RD Station). Mesma regra do logo acima:
+      // caminho exato, cache de um dia, arquivo trocável no lugar.
+      {
+        source: '/email/semog-logo-azul.png',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
+      },
     ]
   },
   async redirects() {
