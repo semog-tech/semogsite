@@ -154,3 +154,32 @@ describe('PropostaForm — cidade nas páginas sem contexto de cidade', () => {
     expect(submitForm).not.toHaveBeenCalled()
   })
 })
+
+describe('PropostaForm — campanha', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('com `campanha`, o lead chega à Server Action marcado na mensagem', async () => {
+    render(<PropostaForm compact campanha="Black Friday 2026" />)
+    fireEvent.change(screen.getByLabelText(/cidade do condomínio/i), {
+      target: { value: 'Recife e região' },
+    })
+    preencherCompacto()
+    fireEvent.submit(formularioDoBotao(/quero minha proposta/i))
+
+    await waitFor(() => expect(submitForm).toHaveBeenCalled())
+    const [, valores] = vi.mocked(submitForm).mock.calls[0]
+    expect((valores as { mensagem?: string }).mensagem).toBe('Campanha: Black Friday 2026')
+  })
+
+  it('sem `campanha`, a mensagem segue vazia como antes', async () => {
+    render(<PropostaForm compact cidade="Recife e região" />)
+    preencherCompacto()
+    fireEvent.submit(formularioDoBotao(/quero minha proposta/i))
+
+    await waitFor(() => expect(submitForm).toHaveBeenCalled())
+    const [, valores] = vi.mocked(submitForm).mock.calls[0]
+    expect((valores as { mensagem?: string }).mensagem ?? '').toBe('')
+  })
+})

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { pages } from '@/../content/pages'
 import { CITY_LANDINGS } from '@/data/cityLandings'
+import { BLACK_FRIDAY_SLUG } from '@/lib/blackFriday'
 import { getAllPosts } from '@/lib/blog'
 import { absoluteUrl } from '@/lib/seo'
 
@@ -59,5 +60,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  return [...pageEntries, ...cityEntries, ...experienceEntry, ...postEntries]
+  /**
+   * Landing da Black Friday 2026: rota explícita, fora de `content/pages`, no
+   * mesmo ponto cego das anteriores. Peça de campanha com prazo — sai daqui
+   * quando a campanha encerrar.
+   */
+  const blackFridayEntry: MetadataRoute.Sitemap = [
+    {
+      url: absoluteUrl(BLACK_FRIDAY_SLUG),
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+  ]
+
+  return [...pageEntries, ...cityEntries, ...experienceEntry, ...blackFridayEntry, ...postEntries]
 }

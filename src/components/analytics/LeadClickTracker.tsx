@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { BLACK_FRIDAY_SLUG, MENSAGEM_BLACK_FRIDAY } from '@/lib/blackFriday'
 import { cidadeDaLanding } from '@/lib/cidadeDaLanding'
 import {
   ATRIBUTO_CAMINHO,
@@ -29,9 +30,11 @@ function sectionOf(anchor: Element): string {
  * Mensagem que já vai escrita na conversa. Sem ela, quem atende recebe um "oi"
  * sem contexto nenhum — não sabe a cidade nem que a pessoa veio do site.
  * Cidade nova sem entrada em `@/lib/cidadeDaLanding` não quebra nada — cai na
- * mensagem genérica.
+ * mensagem genérica. A landing de Black Friday tem mensagem própria, que já diz
+ * a quem atende que a pessoa quer uma das vagas da campanha.
  */
 export function mensagemWhatsApp(pathname: string): string {
+  if (pathname.replace(/^\/+|\/+$/g, '') === BLACK_FRIDAY_SLUG) return MENSAGEM_BLACK_FRIDAY
   const cidade = cidadeDaLanding(pathname)?.nome
   const fim = cidade ? ` do meu condomínio em ${cidade}.` : ' do meu condomínio.'
   return `Olá! Vim pelo site da Semog e gostaria de falar sobre a administração${fim}`

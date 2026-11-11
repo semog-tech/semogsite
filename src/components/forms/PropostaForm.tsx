@@ -78,6 +78,7 @@ export function PropostaForm({
   compact = false,
   withCityField = false,
   cidade,
+  campanha,
 }: {
   compact?: boolean
   withCityField?: boolean
@@ -94,6 +95,13 @@ export function PropostaForm({
    * enviar, então não existe cenário em que ele seja submetido antes disso.)
    */
   cidade?: PropostaValues['cidade']
+  /**
+   * Campanha de origem (ex.: a landing de Black Friday). Vai como texto da
+   * `mensagem`, num hidden da variante compacta, para o lead chegar ao CRM e ao
+   * e-mail da equipe já dizendo de que oferta veio — a atribuição por cookie
+   * guarda só o primeiro toque, que pode ser outra página.
+   */
+  campanha?: string
 } = {}) {
   const {
     register,
@@ -106,7 +114,14 @@ export function PropostaForm({
   } = useForm<PropostaInput, unknown, PropostaValues>({
     resolver: zodResolver(propostaSchema),
     mode: 'onTouched',
-    defaultValues: { nome: '', nomeCondominio: '', email: '', telefone: '', mensagem: '', cidade },
+    defaultValues: {
+      nome: '',
+      nomeCondominio: '',
+      email: '',
+      telefone: '',
+      mensagem: campanha ? `Campanha: ${campanha}` : '',
+      cidade,
+    },
   })
 
   const isIncorporadora = watch('tipo') === 'Incorporadora'
@@ -230,6 +245,7 @@ export function PropostaForm({
           recusa o envio sem dizer por quê. Assim, uma página nova que esqueça
           de passar a cidade mostra o select em vez de travar em silêncio.
         */}
+        {campanha && <input type="hidden" {...register('mensagem')} />}
         {cidade && !withCityField ? (
           <input type="hidden" {...register('cidade')} />
         ) : (
