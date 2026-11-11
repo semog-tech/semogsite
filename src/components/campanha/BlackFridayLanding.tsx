@@ -1,4 +1,3 @@
-import { site } from '@/../content/site'
 import { PropostaForm } from '@/components/forms/PropostaForm'
 import { CAMPANHA_BLACK_FRIDAY, MENSAGEM_BLACK_FRIDAY } from '@/lib/blackFriday'
 import { Reveal, Stagger } from '@/motion/reveal'
@@ -11,14 +10,19 @@ import { Reveal, Stagger } from '@/motion/reveal'
  * (`public/email/black-friday-2026.html`), aqui sem o recorte de ex-clientes.
  *
  * Captação pelo formulário real de proposta (`PropostaForm` compacto), que
- * marca o lead com a campanha, e pelos canais diretos: WhatsApp central e
- * e-mail comercial. Nada de contador de vagas: a página não sabe quantas
+ * marca o lead com a campanha, e pelos canais diretos: o WhatsApp comercial da
+ * campanha e o e-mail. Nada de contador de vagas: a página não sabe quantas
  * restam, e mostrar um número inventado seria dado falso na tela.
  */
 
 const EMAIL = 'ola@semog.com.br'
-const WHATSAPP_DISPLAY = '+55 11 3003-4506'
-const WHATSAPP_HREF = `https://wa.me/${site.company.whatsapp}?text=${encodeURIComponent(MENSAGEM_BLACK_FRIDAY)}`
+/**
+ * WhatsApp comercial da campanha — o mesmo do e-mail (`black-friday-2026.html`),
+ * não o central do site: quem atende as vagas é o comercial. O botão flutuante
+ * do layout continua no central.
+ */
+const WHATSAPP_DISPLAY = '(83) 99914-7878'
+const WHATSAPP_HREF = `https://wa.me/5583999147878?text=${encodeURIComponent(MENSAGEM_BLACK_FRIDAY)}`
 
 const LINHA_DO_TEMPO = [
   { marco: 'Hoje', texto: 'Você garante a vaga e a Semog assume a gestão do condomínio.' },
