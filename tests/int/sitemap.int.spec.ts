@@ -53,6 +53,11 @@ describe('sitemap.xml', () => {
     expect(entries.map((e) => e.url)).toContain(absoluteUrl('experience'))
   })
 
+  it('inclui a landing da Black Friday', async () => {
+    const entries = await sitemap()
+    expect(entries.map((e) => e.url)).toContain(absoluteUrl('black-friday'))
+  })
+
   it('nunca lista as URLs legadas /locais/ (elas só redirecionam)', async () => {
     const entries = await sitemap()
     expect(entries.every((e) => !e.url.includes('/locais/'))).toBe(true)

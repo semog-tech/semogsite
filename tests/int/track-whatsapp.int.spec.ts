@@ -218,4 +218,9 @@ describe('mensagemWhatsApp', () => {
   it('tolera barra no fim (o pathname pode vir normalizado ou não)', () => {
     expect(mensagemWhatsApp('/administradora-de-condominios-recife/')).toContain('em Recife.')
   })
+
+  it('na landing de Black Friday, a mensagem já diz que a pessoa quer uma das vagas', () => {
+    expect(mensagemWhatsApp('/black-friday')).toContain('Black Friday')
+    expect(mensagemWhatsApp('/black-friday/')).toContain('10 vagas')
+  })
 })
