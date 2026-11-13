@@ -129,7 +129,9 @@ existirem — ligar a integração é ação de configuração, não de código.
 
 O que a integração faz: toda submissão de **Proposta** (e de **Contato** com
 `assunto = proposta-comercial`) cria um lead no funil Padrão do Exact, com contato principal, logo
-depois de gravar em `cms.leads`. Falha do CRM não derruba o formulário — fica em
+depois de gravar em `cms.leads`. Esse assunto saiu do formulário de Contato (decisão de 17/10/2026, no ar em novembro/2026) e só
+chega de aba aberta antes do deploy; o e-mail do Contato sai sem os botões de desfecho. Falha do
+CRM não derruba o formulário — fica em
 `cms.leads.exact_error` e `crm_error`; o cron `/api/cron/push-crm-leads` retenta por 48 h,
 no minuto 15 de cada hora (`15 * * * *`, UTC), até 5 tentativas de envio.
 O endpoint antigo `/api/cron/push-exact-leads` é um alias que também respeita `CRM_PROVIDER`.

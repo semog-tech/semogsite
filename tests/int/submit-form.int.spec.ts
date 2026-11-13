@@ -372,6 +372,24 @@ describe('submitForm — destino da notificação interna', () => {
     expect(destinoDaNotificacao()).toEqual(['caixa-do-contato@example.com'])
   })
 
+  it('contato legado com assunto "proposta-comercial" vai pro CONTACT_TO e continua indo ao CRM', async () => {
+    // O assunto saiu do formulário em 17/10/2026, mas aba aberta antes do deploy ainda o envia.
+    // O destino não muda por ele (não há Unidade no Contato), e o lead não pode se perder: o
+    // schema ainda aceita o valor e o CRM continua recebendo, como antes.
+    headersMock.mockResolvedValue(fakeHeaders('203.0.113.34'))
+
+    const resultado = await submitForm(
+      'contato',
+      { ...contatoValido, assunto: 'proposta-comercial' },
+      'test-token',
+    )
+
+    expect(resultado.ok).toBe(true)
+    expect(destinoDaNotificacao()).toEqual(['caixa-do-contato@example.com'])
+    expect(pushLeadMock).toHaveBeenCalledTimes(1)
+    expect(pushLeadMock.mock.calls[0]?.[0]).toBe('contato')
+  })
+
   it('proposta continua roteando por cidade', async () => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.32'))
 
@@ -406,7 +424,7 @@ describe('submitForm — destino da notificação interna', () => {
   it.each([
     ['Recife e região', ['ivan@semog.com.br']],
     ['João Pessoa e região', ['comercial.pb@semog.com.br']],
-    ['Campina Grande e região', ['comercial.pb@semog.com.br']],
+    ['Campina Grande e região', ['marcello@semog.com.br']],
     ['Belém e região', ['galvao@semog.com.br']],
   ] as const)('proposta de %s vai para %s', async (cidade, esperado) => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.50'))
@@ -455,6 +473,9 @@ describe('submitForm — destino da notificação interna', () => {
       'ivan@semog.com.br',
     ])
     expect(quantasNotificacoes()).toBe(1)
+    // Campina Grande tem caixa própria desde 17/10/2026, mas só quando a cidade é ela: sem saber
+    // a praça, a PB continua representada pela caixa da filial.
+    expect(destinoDaNotificacao()).not.toContain('marcello@semog.com.br')
   })
 
   it('o auto-reply da inscrição vai pra quem se inscreveu, não pra filial', async () => {
@@ -475,11 +496,10 @@ describe('submitForm — destino da notificação interna', () => {
  * ele importa (já neutralizado no topo do arquivo).
  *
  * O critério é `isExactEligible` — a mesma função que decide o que vira card no
- * CRM. Isso abrange a Proposta E o Contato com assunto `proposta-comercial`,
- * que é pedido de proposta escrito no formulário errado e já entra no CRM como
- * lead. Fica de fora o resto do Contato (2ª via, CND, acordo), que é
- * atendimento a quem já é cliente, e a inscrição no Experience, que não é lead
- * nenhum — "fechou" nesses dois é pergunta sem resposta possível.
+ * CRM —, fora do Contato. O Contato vai à caixa do `CONTACT_TO`, onde o desfecho
+ * clicado não tem autor conhecido (Leandro, 17/10/2026): nem o legado com assunto
+ * `proposta-comercial`, que continua indo ao CRM, leva botões. Fica de fora
+ * também a inscrição no Experience, que não é lead nenhum.
  */
 describe('submitForm — botões de desfecho no e-mail interno', () => {
   const SEGREDO_ORIGINAL = process.env.LEAD_OUTCOME_SECRET
@@ -571,27 +591,20 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
     expect(await linksDaNotificacao()).toEqual([])
   })
 
-  it('contato com assunto "proposta-comercial" LEVA os botões', async () => {
-    // É pedido de proposta escrito no formulário errado: já entra no CRM como
-    // lead pela mesma regra, e por isso também tem desfecho a registrar.
+  it('contato legado com assunto "proposta-comercial" NÃO leva os botões', async () => {
+    // Até 17/10/2026 levava: é captação e vai ao CRM. Mas o Contato vai à caixa do
+    // CONTACT_TO, e desfecho clicado de lá não tem autor (Leandro, 17/10/2026). O lead
+    // continua no CRM; só a pergunta do desfecho sai do e-mail.
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.46'))
 
     await submitForm('contato', { ...contatoValido, assunto: 'proposta-comercial' }, 'test-token')
 
-    const links = await linksDaNotificacao()
-    expect(links).toHaveLength(4)
-    expect(links.map((url) => new URL(url).searchParams.get('s'))).toEqual([
-      'negociando',
-      'fechou',
-      'nao_evoluiu',
-      'nao_e_lead',
-    ])
+    expect(await linksDaNotificacao()).toEqual([])
   })
 
-  it('a regra dos botões é a MESMA que manda o lead pro CRM', async () => {
-    // Trava contra as duas regras divergirem: se `isExactEligible` passar a
-    // aceitar (ou recusar) um caso, os botões acompanham por construção. Um
-    // ramo próprio no `submit-form` reprovaria aqui.
+  it('botões = captação (`isExactEligible`) E fora do Contato', async () => {
+    // Trava contra as regras divergirem: a Proposta acompanha `isExactEligible` por construção,
+    // e nenhum assunto do Contato leva botão, nem o que vai ao CRM.
     const { isExactEligible } = await import('@/lib/exact/map-lead')
 
     const casos = [
@@ -613,7 +626,7 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
 
       const temBotoes = (await linksDaNotificacao()).length > 0
       const dados = Object.fromEntries(Object.entries(caso.valores).map(([k, v]) => [k, String(v)]))
-      expect(temBotoes).toBe(isExactEligible(caso.form, dados))
+      expect(temBotoes).toBe(caso.form !== 'contato' && isExactEligible(caso.form, dados))
     }
   })
 
