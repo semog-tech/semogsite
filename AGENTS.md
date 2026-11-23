@@ -23,6 +23,8 @@ pnpm build
 A CI (`.github/workflows/ci.yml`) roda os cinco portões acima, menos o e2e. Rode o
 `pnpm test:e2e` na máquina quando mexer em página, formulário, hero ou 2ª via. Localmente ele usa
 no máximo 2 workers de propósito: com mais, o teste de orçamento de bytes do vídeo do hero falha.
+A CI roda em Node 24; o `.nvmrc` e o `docs/DEV.md` ainda dizem 20, então diferença que só
+aparece num dos lados pode ser a versão do Node.
 
 ## Armadilhas
 
@@ -45,8 +47,13 @@ no máximo 2 workers de propósito: com mais, o teste de orçamento de bytes do 
 - **Conteúdo**: páginas em `content/pages/*.ts`, globais (menu, rodapé, contatos) em
   `content/site.ts`, blog em `content/blog/*.mdx`, textos legais em `content/legal/`. O Payload
   saiu em jul/2026; README, `docs/DEV.md` e `.env.example` ainda o citam (`pnpm migrate`, S3,
-  `DATABASE_URI_DIRECT`), e essas partes estão obsoletas.
-- `_reference/` é o site estático original, congelado como referência. Não edite.
+  `DATABASE_URI_DIRECT`), e essas partes estão obsoletas: não restaure CMS, seed, geração de
+  tipos nem comando de migração por causa delas.
+- `_reference/` é o site estático original, congelado como referência de visual e conteúdo
+  (`_reference/guia.html` traz as decisões de design). Não edite.
+- O site tem identidade visual própria (Clash Display e Satoshi em `src/fonts`) e não usa o
+  design system Tahoe/Caju, que nem está no `package.json`; as regras de token e shell do
+  backoffice não valem aqui.
 
 ## Banco
 
@@ -73,14 +80,15 @@ papel de cada arquivo: `docs/DEPLOY.md`, seção 3.
 
 ## Ferramentas de agente deste repositório
 
-- **Plugin `claude-seo`** (terceiro, MIT), habilitado em `.claude/settings.json` pelo marketplace
-  git do autor. Só instala depois de confiar na pasta e aceitar a instalação. Use para auditoria
-  de SEO, schema e Core Web Vitals do site publicado. Ele acrescenta um hook que, a cada edição de
-  `.tsx`, roda um validador local de JSON-LD em Python; `/seo setup` cria um venv e baixa o
-  Chromium fora do repositório. Extensões pagas (DataForSEO, Ahrefs etc.) não estão configuradas.
-- **Skills da Vercel** em `.claude/skills/vercel-*` (ponteiros para o Codex em `.agents/skills/`):
-  cópia sem alteração do upstream, registrada em `.claude/skills/UPSTREAM.md`. Não edite; para
-  atualizar, copie de novo.
+- **SEO e Core Web Vitals**: skills `seo` e `core-web-vitals` (addyosmani/web-quality-skills),
+  para metadados, `robots`, sitemap, JSON-LD e LCP/INP/CLS. Medem pelo site renderizado
+  (Lighthouse, trace do navegador, CrUX) e não prometem ranking; sem medição de campo, não afirme
+  que uma métrica está ruim. Conselho genérico delas sobre `robots` cede às regras de indexação
+  acima.
+- **React e Next.js**: skills `vercel-react-best-practices` e `vercel-composition-patterns`.
+- As quatro estão em `.claude/skills/`, com ponteiros para o Codex em `.agents/skills/`. São cópias
+  sem alteração do upstream, registradas em `.claude/skills/UPSTREAM.md`; não edite, para
+  atualizar copie de novo.
 
 ## Ao mexer em X, leia Y
 
