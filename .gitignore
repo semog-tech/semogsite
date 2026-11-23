@@ -67,5 +67,8 @@ next-env.d.ts
 
 .vercel
 
-.claude/
+# Claude Code: versiona só as skills do projeto; o resto (settings.local.json,
+# worktrees, estado local) continua fora.
+.claude/*
+!.claude/skills/
 db/backup-*.json
