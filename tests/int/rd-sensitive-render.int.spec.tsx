@@ -1,9 +1,11 @@
 import { cleanup, render } from '@testing-library/react'
 import { useForm } from 'react-hook-form'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ContactForm } from '@/components/forms/ContactForm'
 import { ExperienceForm } from '@/components/forms/ExperienceForm'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
+import { PropostaForm } from '@/components/forms/PropostaForm'
 
 vi.mock('@/app/(frontend)/_actions/submit-form', () => ({ submitForm: vi.fn() }))
 vi.mock('@/components/forms/Turnstile', () => ({ Turnstile: () => null }))
@@ -33,6 +35,29 @@ describe('exclusão da captura RD no DOM renderizado', () => {
     const input = container.querySelector('input[type="tel"]')
     expect(input).not.toBeNull()
     expect(input?.getAttribute('data-sensitive')).toBe('true')
+  })
+
+  it('ContactForm mantém todos os campos fora da captura', () => {
+    const { container } = render(<ContactForm />)
+    const controls = container.querySelectorAll('input, select, textarea')
+    expect(controls.length).toBeGreaterThan(0)
+    for (const control of controls) expect(control.getAttribute('data-sensitive')).toBe('true')
+  })
+
+  it.each([
+    false,
+    true,
+  ])('PropostaForm compact=%s libera apenas os dados de captação', (compact) => {
+    const { container } = render(<PropostaForm compact={compact} cidade="Recife e região" />)
+    const form = container.querySelector('form')
+    expect(form).not.toBeNull()
+    expect(form?.closest('iframe')).toBeNull()
+    expect(form?.querySelector('input[name="email"][type="email"]')).not.toBeNull()
+    expect(form?.querySelector('button[type="submit"]')).not.toBeNull()
+    const controls = form?.querySelectorAll('input, select, textarea')
+    expect(controls?.length).toBeGreaterThan(0)
+    for (const control of controls ?? []) expect(control.hasAttribute('data-sensitive')).toBe(false)
+    expect(form?.checkValidity()).toBe(false)
   })
 
   it('ExperienceForm protege todos os cinco controles próprios', () => {

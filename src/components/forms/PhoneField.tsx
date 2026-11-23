@@ -1,6 +1,6 @@
 'use client'
 
-import { AsYouType, type CountryCode } from 'libphonenumber-js/min'
+import { AsYouType, type CountryCode, isValidPhoneNumber } from 'libphonenumber-js/min'
 import { useId, useState } from 'react'
 import {
   type Control,
@@ -56,6 +56,7 @@ type PhoneFieldProps<TFieldValues extends FieldValues> = {
   error?: string
   hint?: string
   className?: string
+  permitirCapturaRd?: boolean
 }
 
 /**
@@ -86,6 +87,7 @@ export function PhoneField<TFieldValues extends FieldValues>({
   error,
   hint,
   className,
+  permitirCapturaRd = false,
 }: PhoneFieldProps<TFieldValues>) {
   const autoId = useId()
   const inputId = `${autoId}-number`
@@ -137,11 +139,20 @@ export function PhoneField<TFieldValues extends FieldValues>({
                 label="País"
               />
               <input
-                data-sensitive="true"
+                data-sensitive={permitirCapturaRd ? undefined : 'true'}
                 id={inputId}
-                ref={field.ref}
+                ref={(input) => {
+                  field.ref(input)
+                  // O RD usa checkValidity; o telefone deve seguir a mesma regra do schema.
+                  const invalido =
+                    permitirCapturaRd &&
+                    nationalText !== '' &&
+                    (typeof field.value !== 'string' || !isValidPhoneNumber(field.value))
+                  input?.setCustomValidity(invalido ? 'Informe um telefone válido.' : '')
+                }}
                 name={field.name}
                 type="tel"
+                required={required}
                 inputMode="tel"
                 autoComplete="tel-national"
                 placeholder={PLACEHOLDER_BY_COUNTRY[country] ?? DEFAULT_PLACEHOLDER}

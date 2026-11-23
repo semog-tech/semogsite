@@ -2,6 +2,7 @@
 import { readFile } from 'node:fs/promises'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 import { montarConversaoMarketing } from '@/lib/rdMarketing/payload'
 
 vi.mock('server-only', () => ({}))
@@ -17,7 +18,7 @@ const fetchMock = vi.fn<typeof fetch>()
 const uuid = '43b00843-09af-4fae-bf9d-a0697640b808'
 const payload = montarConversaoMarketing(
   'proposta',
-  { nome: 'Teste', email: 'teste@example.invalid' },
+  { nome: 'Teste', email: 'teste@example.invalid', variante: VARIANTE_CONTATO_RAPIDO },
   { cookies: { get: () => undefined }, atribuicao: null, permitido: true },
 )
 
