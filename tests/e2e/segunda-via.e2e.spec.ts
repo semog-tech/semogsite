@@ -73,10 +73,20 @@ async function abrirSegundaVia(page: Page) {
 /** CPF + Turnstile de teste (chave que sempre passa) + Continuar. */
 async function pedirCodigo(page: Page, cpf: string) {
   await page.locator('dialog').getByRole('textbox', { name: 'CPF' }).fill(cpf)
-  // O widget de teste devolve o token sozinho; o input escondido o recebe.
-  await expect(page.locator('dialog input[name="cf-turnstile-response"]')).not.toHaveValue('', {
-    timeout: 15_000,
-  })
+  // O token vai pelo callback, sem input oculto capturável pelo RD.
+  await page.waitForFunction(
+    () => {
+      const widget = window.turnstile
+      if (!widget || !('getResponse' in widget) || typeof widget.getResponse !== 'function')
+        return false
+      const container = document.querySelector('dialog div[class="min-h-[65px]"]')
+      if (!container) return false
+      const token: unknown = widget.getResponse(container)
+      return typeof token === 'string' && token.length > 0
+    },
+    undefined,
+    { timeout: 15_000 },
+  )
   await page.getByRole('button', { name: 'Continuar' }).click()
 }
 
