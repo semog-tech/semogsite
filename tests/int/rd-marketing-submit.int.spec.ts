@@ -35,11 +35,19 @@ const proposta = {
   email: 'maria@example.invalid',
   cidade: 'Recife e região',
 }
+const contatoComercial = {
+  nome: proposta.nome,
+  email: proposta.email,
+  telefone: proposta.telefone,
+  assunto: 'proposta-comercial',
+  mensagem: 'Gostaria de uma proposta para meu condomínio.',
+}
 
 beforeEach(() => {
   vi.resetAllMocks()
   mocks.callbacks.length = 0
   vi.stubEnv('RD_MARKETING_API_KEY', 'teste-servidor')
+  vi.stubEnv('CONTACT_TO', 'comercial@example.invalid')
   vi.stubGlobal('fetch', mocks.fetch)
   mocks.cookie.mockResolvedValue({ get: () => undefined })
   mocks.mail.mockResolvedValue({ ok: true })
@@ -56,9 +64,20 @@ afterEach(() => {
 })
 
 describe('Marketing no pipeline do formulário', () => {
+  it('proposta convencional grava snapshot NULL e preserva um envio ao CRM e os e-mails', async () => {
+    expect(await submitForm('proposta', proposta, 'token')).toMatchObject({ ok: true })
+    const insert = mocks.query.mock.calls.find(([sql]) => sql.includes('insert into cms.leads'))
+    expect(insert?.[1]?.[6]).toBeNull()
+    // O callback Marketing consulta a fila, mas o snapshot NULL não reserva conversão.
+    for (const callback of mocks.callbacks) await callback()
+    expect(mocks.fetch).not.toHaveBeenCalled()
+    expect(mocks.crm).toHaveBeenCalledOnce()
+    expect(mocks.mail).toHaveBeenCalledTimes(2)
+  })
+
   it('sem chave persiste snapshot NULL e não permite backfill ao configurar depois', async () => {
     vi.stubEnv('RD_MARKETING_API_KEY', '  ')
-    expect(await submitForm('proposta', proposta, 'token')).toMatchObject({ ok: true })
+    expect(await submitForm('contato', contatoComercial, 'token')).toMatchObject({ ok: true })
     const insert = mocks.query.mock.calls.find(([sql]) => sql.includes('insert into cms.leads'))
     expect(insert?.[1]?.[6]).toBeNull()
     // Só o after() do CRM: sem chave, a conversão Marketing nem é agendada.
@@ -69,7 +88,7 @@ describe('Marketing no pipeline do formulário', () => {
   })
 
   it('persiste snapshot no INSERT e só envia depois da resposta; falha não afeta CRM/e-mails', async () => {
-    expect(await submitForm('proposta', proposta, 'token')).toMatchObject({ ok: true })
+    expect(await submitForm('contato', contatoComercial, 'token')).toMatchObject({ ok: true })
     expect(mocks.crm).not.toHaveBeenCalled()
     expect(mocks.mail).toHaveBeenCalledTimes(2)
     expect(mocks.fetch).not.toHaveBeenCalled()
@@ -82,7 +101,7 @@ describe('Marketing no pipeline do formulário', () => {
     expect(insert?.[0]).toContain('rd_marketing_payload')
     const params: unknown[] = insert?.[1] ?? []
     expect(params[6]).toMatchObject({
-      payload: { conversion_identifier: 'pedido-proposta-site', name: 'Maria' },
+      payload: { conversion_identifier: 'contato-site', name: 'Maria' },
     })
     mocks.query
       .mockResolvedValueOnce({
@@ -95,6 +114,23 @@ describe('Marketing no pipeline do formulário', () => {
     expect(mocks.warning).toHaveBeenCalled()
     expect(mocks.mail).toHaveBeenCalledTimes(2)
     expect(mocks.crm).toHaveBeenCalledOnce()
+  })
+
+  it('proposta rápida preserva conversão por API, CRM e notificação interna', async () => {
+    expect(
+      await submitPropostaRapida(
+        { nome: 'Maria', telefone: '+5581999999999', cidade: 'Recife e região' },
+        'token',
+      ),
+    ).toMatchObject({ ok: true })
+    const insert = mocks.query.mock.calls.find(([sql]) => sql.includes('insert into cms.leads'))
+    expect(insert?.[1]?.[6]).toMatchObject({
+      payload: { conversion_identifier: 'pedido-proposta-site', phone: '+5581999999999' },
+    })
+    expect(mocks.callbacks).toHaveLength(2)
+    await mocks.callbacks[0]?.()
+    expect(mocks.crm).toHaveBeenCalledOnce()
+    expect(mocks.mail).toHaveBeenCalledOnce()
   })
 
   it('proposta rápida repetida não cria snapshot nem agenda conversão', async () => {

@@ -48,6 +48,8 @@ async function prepare(browser, rejected = false) {
   page.on('pageerror', (error) => errors.push(error.message))
   await page.route('**/*', async (route) => {
     const request = route.request()
+    if (request.url().includes('event-api.rdstation.com.br/v2/form_integrations'))
+      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
     // A biblioteca só grava rdtrk após 200; UUID sintético, nunca coleta remota.
     if (/pageview-notify/.test(request.url()))
       return route.fulfill({
@@ -72,7 +74,7 @@ async function prepare(browser, rejected = false) {
       if (real) return route.continue()
       return route.fulfill({
         contentType: 'application/javascript',
-        body: `${integration};window.__rdTestLoaded=true;RdstationFormsIntegration.Integration.integrateAll('00000000000000000000000000000000',{});`,
+        body: `window.RDCookieControl={configuration:null};${integration};window.__rdTestLoaded=true;RdstationFormsIntegration.Integration.integrateAll('00000000000000000000000000000000',{});`,
       })
     }
     if (
@@ -139,25 +141,91 @@ async function verifySensitiveControl(browser) {
     await page.setContent(
       `<form onsubmit="event.preventDefault()"><input name="email" type="email" value="teste@example.invalid" ${sensitive ? 'data-sensitive="true"' : ''}><button type="submit">Enviar</button></form>`,
     )
-    await page.addScriptTag({ content: integration })
+    await page.addScriptTag({
+      content: `window.RDCookieControl={configuration:null};${integration}`,
+    })
     await page.evaluate(() =>
       RdstationFormsIntegration.Integration.integrateAll('00000000000000000000000000000000', {}),
     )
     await page.click('button')
     await page.waitForTimeout(1200)
     const captured = await page.evaluate(() => localStorage.getItem('RdIntegrationFormData'))
-    assert.equal(captured !== null, !sensitive, 'controle da captura real da RD')
+    assert.equal(
+      hits.some((url) => url.includes('/v2/form_integrations')),
+      !sensitive,
+      'controle do envio real da biblioteca RD',
+    )
+    assert.equal(
+      captured,
+      null,
+      'coleta aceita localmente ou campo protegido, sem captura pendente',
+    )
     if (sensitive) assert.deepEqual(hits, [])
     await page.unrouteAll({ behavior: 'ignoreErrors' })
     await page.close()
   }
 }
 
+async function verifyProposal(page, requests) {
+  const form = page
+    .locator('form')
+    .filter({ has: page.locator('input[name="email"]') })
+    .first()
+  const conversions = () =>
+    requests.filter(
+      (request) =>
+        request.method === 'POST' &&
+        request.url.includes('event-api.rdstation.com.br/v2/form_integrations'),
+    )
+  await form.locator('button[type="submit"]').click()
+  await page.waitForTimeout(500)
+  assert.equal(conversions().length, 0, 'formulário vazio não deve ser capturado')
+  await form.locator('input[name="nome"]').fill('Captação local RD')
+  await form.locator('input[name="email"]').fill('captacao-rd@example.invalid')
+  await form.locator('input[name="telefone"]').fill('81')
+  await form.locator('select[name="tipo"]').selectOption('Condomínio residencial')
+  const city = form.locator('select[name="cidade"]')
+  if (await city.count()) await city.selectOption('Recife e região')
+  await form.locator('input[name="nomeCondominio"]').fill('Condomínio de teste local')
+  await form.locator('button[type="submit"]').click()
+  await page.waitForTimeout(500)
+  assert.equal(conversions().length, 0, 'telefone parcial não deve ser capturado')
+  await form.locator('input[name="telefone"]').fill('81987654321')
+  assert.equal(await form.evaluate((element) => element.checkValidity()), true)
+  await form.locator('button[type="submit"]').click()
+  await page.waitForTimeout(1000)
+  assert.equal(
+    conversions().length,
+    1,
+    `uma captura RD no clique válido; diagnóstico: ${JSON.stringify(await page.evaluate(() => ({ captured: localStorage.getItem('RdIntegrationFormData'), csp: window.__rdCspViolations })))}`,
+  )
+  const payload = conversions()[0].body
+  assert.ok(payload.includes('captacao-rd@example.invalid'))
+  assert.ok(payload.includes('Captação local RD'))
+  assert.ok(payload.includes('Condomínio de teste local'))
+  assert.ok(!payload.includes('cf-turnstile') && !payload.includes('test-token'))
+  assert.deepEqual(await page.evaluate(() => window.__rdCspViolations), [])
+  console.log(
+    `captação ${new URL(page.url()).pathname}: campos enviados ao coletor interceptado, sem token`,
+  )
+}
+
 for (const [name, browserType] of Object.entries({ chromium, firefox })) {
   const browser = await browserType.launch()
   try {
     if (!real) await verifySensitiveControl(browser)
-    for (const path of ['/', '/contato', '/experience', '/privacidade']) {
+    for (const path of [
+      '/',
+      '/contato',
+      '/experience',
+      '/privacidade',
+      '/proposta',
+      '/administradora-de-condominios-recife',
+      '/administradora-de-condominios-joao-pessoa',
+      '/administradora-de-condominios-campina-grande',
+      '/administradora-de-condominios-belem',
+    ]) {
+      if (process.env.RD_TEST_PATH && path !== process.env.RD_TEST_PATH) continue
       const { context, page, requests, responses, errors } = await prepare(browser)
       const loaded = page.waitForResponse(
         (response) => response.url() === loader && response.status() === 200,
@@ -178,6 +246,8 @@ for (const [name, browserType] of Object.entries({ chromium, firefox })) {
         await page.waitForTimeout(450)
       }
       if (path === '/contato') await verifyForm(page, requests)
+      if (path === '/proposta' || path.startsWith('/administradora-'))
+        await verifyProposal(page, requests)
       if (path === '/privacidade') {
         assert.ok((await page.locator('body').innerText()).includes('grupo TOTVS'))
         await page.getByRole('switch', { name: 'Cookies de marketing' }).click()

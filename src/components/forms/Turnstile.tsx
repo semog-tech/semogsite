@@ -11,6 +11,7 @@ declare global {
         options: {
           sitekey: string
           callback: (token: string) => void
+          'response-field'?: boolean
           theme?: 'light' | 'dark' | 'auto'
           size?: 'normal' | 'compact'
           'error-callback'?: () => void
@@ -76,6 +77,8 @@ export function Turnstile({ onToken, className, theme }: TurnstileProps) {
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: SITE_KEY,
       callback: (token) => onToken(token),
+      // O token segue pelo callback; não deve virar campo capturável pelo RD.
+      'response-field': false,
       ...(theme ? { theme } : {}),
       ...(size ? { size } : {}),
       'error-callback': () => {

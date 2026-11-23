@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * `cidade` virou obrigatória na Proposta em 16/09/2026. O servidor recusando
@@ -31,6 +31,25 @@ vi.mock('@/components/forms/Turnstile', () => ({
 
 import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { PropostaForm } from '@/components/forms/PropostaForm'
+
+// jsdom não implementa a rolagem usada pelo seletor de país.
+const scrollIntoViewOriginal = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  'scrollIntoView',
+)
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: vi.fn(),
+  })
+})
+afterAll(() => {
+  if (scrollIntoViewOriginal) {
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', scrollIntoViewOriginal)
+  } else {
+    Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+  }
+})
 
 /**
  * O `<form>` a que um botão pertence. `getByRole` devolve `HTMLElement`, que
@@ -82,11 +101,50 @@ describe('PropostaForm — cidade nas landings de unidade', () => {
   it('a cidade informada chega à Server Action no envio', async () => {
     render(<PropostaForm compact cidade="Campina Grande e região" />)
     preencherCompacto()
+    expect(formularioDoBotao(/quero minha proposta/i).checkValidity()).toBe(true)
     fireEvent.submit(formularioDoBotao(/quero minha proposta/i))
 
     await waitFor(() => expect(submitForm).toHaveBeenCalled())
     const [, valores] = vi.mocked(submitForm).mock.calls[0]
     expect((valores as { cidade?: string }).cidade).toBe('Campina Grande e região')
+  })
+
+  it('a validação HTML usada pelo RD recusa telefone vazio e aceita o número formatado', () => {
+    render(<PropostaForm compact cidade="Recife e região" />)
+    preencherCompacto()
+    const form = formularioDoBotao(/quero minha proposta/i)
+    const telefone = screen.getByLabelText(/whatsapp/i)
+    expect(form.checkValidity()).toBe(true)
+
+    fireEvent.change(telefone, { target: { value: '' } })
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.change(telefone, { target: { value: '83999' } })
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.change(telefone, { target: { value: '(83) 99950-1388' } })
+    expect(form.checkValidity()).toBe(true)
+  })
+
+  it('revalida o telefone ao trocar o país e limpa o erro ao corrigir ou apagar', () => {
+    render(<PropostaForm compact cidade="Recife e região" />)
+    preencherCompacto()
+    const form = formularioDoBotao(/quero minha proposta/i)
+    const telefone = screen.getByLabelText(/whatsapp/i)
+
+    fireEvent.click(screen.getByRole('button', { name: /país/i }))
+    fireEvent.click(screen.getByRole('option', { name: /portugal/i }))
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.change(telefone, { target: { value: '912345678' } })
+    expect(form.checkValidity()).toBe(true)
+
+    fireEvent.change(telefone, { target: { value: '912' } })
+    fireEvent.change(telefone, { target: { value: '' } })
+    expect(telefone).toBeInstanceOf(HTMLInputElement)
+    if (!(telefone instanceof HTMLInputElement)) throw new Error('Campo de telefone ausente')
+    expect(telefone.validity.customError).toBe(false)
+    expect(telefone.validity.valueMissing).toBe(true)
   })
 
   it('SEM cidade informada o select aparece — campo obrigatório nunca fica invisível', () => {

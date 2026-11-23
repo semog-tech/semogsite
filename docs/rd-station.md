@@ -1,5 +1,65 @@
 # RD Station Marketing no site
 
+## Captura comercial pelo navegador — 17/11/2026
+
+Por decisão de produto, `PropostaForm` (completo em `/proposta` e compacto nas
+landings de cidades e demais blocos comerciais) permite a leitura dos campos
+pelo código de monitoramento RD. `Field` e `PhoneField` continuam protegidos por
+padrão; somente essas instâncias recebem `permitirCapturaRd`. Contato geral,
+Experience e proposta rápida da triagem continuam sem captura nativa. O e-mail
+obrigatório identifica o lead; o telefone visível mantém sua máscara, e a nossa
+API continua recebendo E.164. Não se renomeia telefone mascarado para `phone`.
+
+O Turnstile entrega o token pelo callback existente, sem criar um campo hidden
+de resposta que a biblioteca RD poderia capturar. Os controles obrigatórios
+mantêm a validação HTML, além da validação existente do formulário.
+
+A CSP permite apenas `https://event-api.rdstation.com.br/v2/form_integrations`
+para essa captura. O endpoint vem da biblioteca pública oficial
+`https://d335luupugsy2.cloudfront.net/js/integration/2.0.0/rd-js-integration.min.js`,
+inspecionada nesta data. O gateway de diagnóstico e `/v2/conversions` continuam
+fora da allowlist. O loader público da conta, consultado na mesma data, já inclui
+`RdstationFormsIntegration.Integration.integrateAll`.
+
+**Um caminho por conversão nova:** propostas convencionais deixam de gerar
+snapshot Marketing no servidor. Contato comercial e proposta rápida mantêm o
+caminho por API; a fila de conversões já persistidas não é apagada. A integração
+própria de criação de negociação no CRM, e-mails e persistência do pedido não
+mudam. Segundo o usuário, a automação interna Marketing → Vendas está desativada;
+essa configuração do painel deve permanecer assim para não criar negociações por
+dois caminhos. Não foi alterada nem verificada nesta implementação.
+
+A captura nativa observa cliques e validade HTML antes da resposta da nossa
+Server Action: não é comprovação de gravação do pedido ou de aprovação do
+Turnstile. A biblioteca também observa botões auxiliares dentro do formulário.
+Bloqueadores de scripts e opt-out podem impedir a captura; não há fallback por
+API para essas propostas, pois isso duplicaria conversões quando o script atua.
+
+O smoke `scripts/verify-rd-tracking.mjs` verifica propostas nas quatro cidades e
+na página própria, ausência de captura com campos vazios, payload sem token,
+Contato protegido, consentimento e CSP. Executa as bibliotecas reais com coleta
+interceptada localmente; isso não comprova recebimento na conta RD.
+
+Verificação local concluída: Biome, TypeScript, gate de Server Actions e build
+passaram. Suíte integral: 998 testes passaram; cinco testes dependentes do
+PostgreSQL isolado foram ignorados. A primeira rodada teve um timeout no teste
+de cache RD, durante o build paralelo; a repetição integral passou. Revisão
+independente executou 42 testes focados e registrou a ressalva de clique no país.
+O smoke passou nas nove rotas em Chromium e Firefox: requisição de captura nas
+cinco páginas comerciais, sem captura com telefone parcial ou campos vazios,
+sem token, sem violação CSP RD e com opt-out preservado. Usou biblioteca oficial
+de integração com loader simulado e respostas locais; o teste positivo agora
+exige POST interceptado e limpeza da captura pendente, não só localStorage.
+Nenhum lead foi enviado à conta RD nesses ensaios. Essa rodada inicial foi local,
+antes da publicação, sem mudança de banco. O histórico da PR registra a entrega.
+
+## Registro histórico da implementação anterior
+
+O restante deste documento registra a opção anterior (bloqueio de todos os
+campos e conversões pelo servidor). Suas orientações de desativar captura e sua
+lista de pendências não descrevem o estado desta alteração; o contrato atual
+está na seção acima.
+
 Implementação sobre `origin/main` em `c7a492a2f67b25604f415fadb26f9180d7d83e45`,
 confirmado com `git fetch origin main`, `git log` e `git ls-remote` em 04/11/2026.
 Sem commit, push, deploy ou alteração de banco.

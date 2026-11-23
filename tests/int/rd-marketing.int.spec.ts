@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 import { converterNoMarketing } from '@/lib/rdMarketing/client'
 import { montarConversaoMarketing } from '@/lib/rdMarketing/payload'
 import { ocultarChaveMarketing } from '@/lib/rdMarketing/sentry'
@@ -23,6 +24,7 @@ const { enviarConversaoMarketing, retentarConversoesMarketing, agendarConversaoM
 
 const uuid = '43b00843-09af-4fae-bf9d-a0697640b808'
 const lead = {
+  variante: VARIANTE_CONTATO_RAPIDO,
   nome: 'Maria',
   email: 'maria@example.invalid',
   telefone: '+5581999999999',
@@ -47,6 +49,14 @@ afterEach(() => {
 })
 
 describe('payload Marketing', () => {
+  it('deixa propostas convencionais exclusivamente com a captura nativa', () => {
+    const { variante: _variante, ...proposta } = lead
+    expect(montarConversaoMarketing('proposta', proposta, contexto)).toBeNull()
+    expect(
+      montarConversaoMarketing('proposta', { ...proposta, variante: 'full' }, contexto),
+    ).toBeNull()
+  })
+
   it('mapeia campos reais, origem e UUID, sem oportunidade ou negociação', async () => {
     const payload = montarConversaoMarketing('proposta', lead, {
       ...contexto,
@@ -115,7 +125,7 @@ describe('payload Marketing', () => {
     expect(conversao.payload.client_tracking_id).toBeUndefined()
     const curto = montarConversaoMarketing(
       'proposta',
-      { nome: 'Maria', telefone: '+5581999999999' },
+      { nome: 'Maria', telefone: '+5581999999999', variante: VARIANTE_CONTATO_RAPIDO },
       contexto,
     )
     expect(curto?.payload.email).toBeUndefined()

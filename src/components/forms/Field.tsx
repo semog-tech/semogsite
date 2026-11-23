@@ -16,6 +16,8 @@ type SharedProps = {
   error?: string
   hint?: string
   className?: string
+  /** Apenas formulários de captação comercial autorizam a leitura pelo RD. */
+  permitirCapturaRd?: boolean
 }
 
 type InputVariant = SharedProps &
@@ -60,10 +62,10 @@ export const Field = forwardRef<
 
   let control: ReactNode
   if (props.as === 'textarea') {
-    const { label, error, hint, className, as, id: _id, ...rest } = props
+    const { label, error, hint, className, as, id: _id, permitirCapturaRd, ...rest } = props
     control = (
       <textarea
-        data-sensitive="true"
+        data-sensitive={permitirCapturaRd ? undefined : 'true'}
         id={id}
         ref={ref as Ref<HTMLTextAreaElement>}
         className={controlClass}
@@ -73,10 +75,21 @@ export const Field = forwardRef<
       />
     )
   } else if (props.as === 'select') {
-    const { label, error, hint, className, as, id: _id, options, placeholder, ...rest } = props
+    const {
+      label,
+      error,
+      hint,
+      className,
+      as,
+      id: _id,
+      options,
+      placeholder,
+      permitirCapturaRd,
+      ...rest
+    } = props
     control = (
       <select
-        data-sensitive="true"
+        data-sensitive={permitirCapturaRd ? undefined : 'true'}
         id={id}
         ref={ref as Ref<HTMLSelectElement>}
         className={controlClass}
@@ -93,10 +106,10 @@ export const Field = forwardRef<
       </select>
     )
   } else {
-    const { label, error, hint, className, as, id: _id, ...rest } = props
+    const { label, error, hint, className, as, id: _id, permitirCapturaRd, ...rest } = props
     control = (
       <input
-        data-sensitive="true"
+        data-sensitive={permitirCapturaRd ? undefined : 'true'}
         id={id}
         ref={ref as Ref<HTMLInputElement>}
         className={controlClass}

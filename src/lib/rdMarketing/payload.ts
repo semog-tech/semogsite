@@ -1,7 +1,7 @@
 import type { Attribution } from '@/lib/attribution'
 import { parseConsentCookie } from '@/lib/consent'
 import { isExactEligible } from '@/lib/exact/map-lead'
-import type { FormType } from '@/lib/forms'
+import { type FormType, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
 
 export type ConversaoMarketing = {
   event_type: 'CONVERSION'
@@ -85,6 +85,8 @@ export function montarConversaoMarketing(
   data: Record<string, string>,
   contexto: ContextoMarketing,
 ): ConversaoMarketing | null {
+  // Propostas das páginas usam a captura nativa; só o contato rápido continua pela API.
+  if (form === 'proposta' && data.variante !== VARIANTE_CONTATO_RAPIDO) return null
   const permitido = consentimentoSalvo(contexto.cookies)?.marketing ?? contexto.permitido
   if (!permitido || !isExactEligible(form, data)) return null
   const contato = camposDoContato(data)

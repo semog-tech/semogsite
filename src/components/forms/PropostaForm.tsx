@@ -250,6 +250,7 @@ export function PropostaForm({
           <input type="hidden" {...register('cidade')} />
         ) : (
           <Field
+            permitirCapturaRd
             as="select"
             label="Cidade do condomínio"
             required
@@ -260,6 +261,7 @@ export function PropostaForm({
           />
         )}
         <Field
+          permitirCapturaRd
           label="Seu nome"
           required
           autoComplete="name"
@@ -268,6 +270,7 @@ export function PropostaForm({
           {...register('nome')}
         />
         <Field
+          permitirCapturaRd
           label="Nome do condomínio"
           placeholder="Ex.: Ed. Atlântico (opcional)"
           error={errors.nomeCondominio?.message}
@@ -275,6 +278,7 @@ export function PropostaForm({
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <PhoneField
+            permitirCapturaRd
             control={control}
             name="telefone"
             label="WhatsApp"
@@ -282,6 +286,7 @@ export function PropostaForm({
             error={errors.telefone?.message}
           />
           <Field
+            permitirCapturaRd
             as="select"
             label="Tipo de condomínio"
             required
@@ -292,13 +297,13 @@ export function PropostaForm({
           />
         </div>
         <Field
+          permitirCapturaRd
           label="E-mail"
           type="email"
           required
           autoComplete="email"
           placeholder="voce@exemplo.com.br"
           error={errors.email?.message}
-          data-sensitive="true"
           {...register('email')}
         />
         <Turnstile key={turnstileKey} onToken={setToken} theme="dark" className="min-h-[65px]" />
@@ -324,6 +329,7 @@ export function PropostaForm({
   return (
     <form ref={formRef} onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <Field
+        permitirCapturaRd
         as="select"
         label="O que você representa?"
         required
@@ -334,6 +340,7 @@ export function PropostaForm({
       />
       <div className={`grid grid-cols-1 gap-5 ${isIncorporadora ? '' : 'sm:grid-cols-2'}`}>
         <Field
+          permitirCapturaRd
           label="Seu nome"
           required
           autoComplete="name"
@@ -343,6 +350,7 @@ export function PropostaForm({
         />
         {!isIncorporadora && (
           <Field
+            permitirCapturaRd
             as="select"
             label="Seu papel"
             placeholder="Selecione uma opção (opcional)"
@@ -353,6 +361,7 @@ export function PropostaForm({
         )}
       </div>
       <Field
+        permitirCapturaRd
         label="Nome do condomínio"
         hint="Opcional — se ainda não tiver um nome definido, pode deixar em branco"
         autoComplete="off"
@@ -362,16 +371,17 @@ export function PropostaForm({
       />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
+          permitirCapturaRd
           label="E-mail"
           type="email"
           required
           autoComplete="email"
           placeholder="voce@exemplo.com.br"
           error={errors.email?.message}
-          data-sensitive="true"
           {...register('email')}
         />
         <PhoneField
+          permitirCapturaRd
           control={control}
           name="telefone"
           label="WhatsApp"
@@ -381,6 +391,7 @@ export function PropostaForm({
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field
+          permitirCapturaRd
           as="select"
           label="Cidade do condomínio"
           required
@@ -390,6 +401,7 @@ export function PropostaForm({
           {...register('cidade')}
         />
         <Field
+          permitirCapturaRd
           label="Número de unidades"
           type="number"
           min={1}
@@ -400,6 +412,7 @@ export function PropostaForm({
         />
       </div>
       <Field
+        permitirCapturaRd
         as="textarea"
         label="Conte um pouco do momento do condomínio"
         hint="Opcional"
