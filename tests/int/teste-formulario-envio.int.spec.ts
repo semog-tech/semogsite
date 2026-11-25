@@ -44,6 +44,7 @@ const { configRd } = await import('@/lib/crm/rdstation/config')
 const { contatoRd, negocioRd } = await import('@/lib/crm/rdstation/map-lead')
 const { mapLead } = await import('@/lib/exact/map-lead')
 const { propostaRapidaSchema, propostaSchema } = await import('@/lib/form-schemas')
+const { CITY_LANDINGS } = await import('@/data/cityLandings')
 
 /** O que o `PropostaCurtaForm` manda numa landing de Recife. */
 const envioB = {
@@ -118,9 +119,39 @@ describe('envio do braço b', () => {
     })
   })
 
-  it('chega ao mapa do RD com nome, telefone e unidade_semog da cidade da landing', async () => {
+  /**
+   * As quatro landings, com a cidade que cada uma põe no hidden
+   * (`CITY_LANDINGS[…].cidadeNoFormulario`), a Unidade que o RD deve receber
+   * (o mapa de `.env.example`, o mesmo de produção) e o comercial que recebe o
+   * e-mail (`PROPOSTA_CIDADE_TO` em `submit-form.ts`).
+   */
+  const PRACAS = [
+    { landing: 'recife', unidade: 'Recife', para: ['ivan@semog.com.br'] },
+    { landing: 'joao-pessoa', unidade: 'João Pessoa', para: ['comercial.pb@semog.com.br'] },
+    { landing: 'campina-grande', unidade: 'Campina Grande', para: ['comercial.pb@semog.com.br'] },
+    { landing: 'belem', unidade: 'Belém', para: ['galvao@semog.com.br'] },
+  ] as const
+
+  it('cobre as quatro landings de cidade', () => {
+    expect(Object.keys(CITY_LANDINGS).sort()).toEqual(PRACAS.map((p) => p.landing).sort())
+  })
+
+  it.each(PRACAS)('$landing: chega ao RD com nome, telefone e unidade_semog $unidade', async ({
+    landing,
+    unidade,
+  }) => {
     configurarRd()
-    await actions.submitPropostaRapida(envioB, 'token')
+    vi.stubEnv(
+      'RD_CRM_UNIDADES_POR_CIDADE',
+      JSON.stringify({
+        'Recife e região': 'Recife',
+        'João Pessoa e região': 'João Pessoa',
+        'Campina Grande e região': 'Campina Grande',
+        'Belém e região': 'Belém',
+      }),
+    )
+    const cidade = CITY_LANDINGS[landing].cidadeNoFormulario
+    await actions.submitPropostaRapida({ ...envioB, cidade }, 'token')
     await rodarAfterCrm()
 
     expect(pushLeadMock).toHaveBeenCalledTimes(1)
@@ -131,6 +162,7 @@ describe('envio do braço b', () => {
     ]
     expect(formType).toBe('proposta')
     expect(leadId).toBe('321')
+    expect(data.cidade).toBe(cidade)
 
     const contato = contatoRd(data)
     expect(contato.name).toBe('Maria Souza')
@@ -138,24 +170,25 @@ describe('envio do braço b', () => {
     expect(contato.emails).toEqual([])
 
     const negocio = negocioRd(formType, data, leadId, configRd())
-    expect(negocio.custom_fields).toMatchObject({
-      id_lead_site: '321',
-      unidade_semog: 'Recife',
-    })
+    expect(negocio.custom_fields).toMatchObject({ id_lead_site: '321', unidade_semog: unidade })
     expect(String(negocio.custom_fields.dados_proposta)).toContain('testeFormulario: b')
   })
 
-  it('o e-mail vai ao comercial da cidade com nome, WhatsApp e a variante', async () => {
-    await actions.submitPropostaRapida(envioB, 'token')
+  it.each(PRACAS)('$landing: o e-mail vai a $para com nome, WhatsApp, cidade e a variante', async ({
+    landing,
+    para,
+  }) => {
+    const cidade = CITY_LANDINGS[landing].cidadeNoFormulario
+    await actions.submitPropostaRapida({ ...envioB, cidade }, 'token')
     await rodarAfterCrm()
 
     expect(sendMailMock).toHaveBeenCalledTimes(1)
     const [mail] = sendMailMock.mock.calls[0] as [{ to: string[]; react: React.ReactElement }]
-    expect(mail.to).toEqual(['ivan@semog.com.br'])
+    expect(mail.to).toEqual(para)
     const texto = await render(mail.react, { plainText: true })
     expect(texto).toContain('Maria Souza')
     expect(texto).toContain('+5581999501388')
-    expect(texto).toContain('Recife e região')
+    expect(texto).toContain(cidade)
     expect(texto).toContain('Teste A/B do formulário (variante)')
   })
 
@@ -167,6 +200,18 @@ describe('envio do braço b', () => {
     const { lead } = mapLead('proposta', data, 'sdr@example.com')
     expect(lead.description).toContain('formulário curto da landing de cidade (teste A/B)')
     expect(lead.description).not.toContain('botão de WhatsApp')
+    expect(lead.description).toContain('sem e-mail nem tipo')
+  })
+
+  it('no Exact, com condomínio informado, a origem não diz que veio só com nome e WhatsApp', async () => {
+    await actions.submitPropostaRapida({ ...envioB, nomeCondominio: 'Ed. Aurora' }, 'token')
+    await rodarAfterCrm()
+
+    const [, data] = pushLeadMock.mock.calls[0] as [string, Record<string, string>]
+    expect(data.nomeCondominio).toBe('Ed. Aurora')
+    const { lead } = mapLead('proposta', data, 'sdr@example.com')
+    expect(lead.description).not.toMatch(/só com nome/)
+    expect(lead.description).toContain('se informado, condomínio')
   })
 
   it('Turnstile recusado não grava nada (as proteções valem para o b)', async () => {

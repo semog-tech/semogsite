@@ -134,7 +134,7 @@ function linhaDoFormulario(formType: FormType, data: Record<string, string>): st
     return 'Origem: formulário de contato do site (assunto proposta comercial).'
   }
   if (data[TESTE_FORMULARIO_FIELD] === 'b') {
-    return 'Origem: formulário curto da landing de cidade (teste A/B), só com nome, WhatsApp e cidade.'
+    return 'Origem: formulário curto da landing de cidade (teste A/B): nome, WhatsApp, cidade e, se informado, condomínio; sem e-mail nem tipo.'
   }
   if (data.variante === VARIANTE_CONTATO_RAPIDO) {
     const protocolo = nonEmpty(data.protocolo)

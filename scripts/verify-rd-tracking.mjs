@@ -230,7 +230,15 @@ for (const [name, browserType] of Object.entries({ chromium, firefox })) {
       const loaded = page.waitForResponse(
         (response) => response.url() === loader && response.status() === 200,
       )
-      const destination = path === '/' ? '/?utm_source=verificacao-local&utm_medium=teste' : path
+      // As landings de cidade sorteiam o formulário do topo (teste A/B, ver
+      // `docs/teste-ab-formulario.md`). O `b` não tem e-mail e o script do RD não
+      // o captura; esta verificação é do `a`, então a variante é forçada.
+      const destination =
+        path === '/'
+          ? '/?utm_source=verificacao-local&utm_medium=teste'
+          : path.startsWith('/administradora-')
+            ? `${path}?form=a`
+            : path
       const response = await page.goto(`${origin}${destination}`)
       assert.equal(response?.status(), 200)
       await loaded

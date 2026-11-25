@@ -40,6 +40,11 @@ na página própria, ausência de captura com campos vazios, payload sem token,
 Contato protegido, consentimento e CSP. Executa as bibliotecas reais com coleta
 interceptada localmente; isso não comprova recebimento na conta RD.
 
+Nas quatro landings de cidade o smoke abre a página com `?form=a`: o formulário
+do topo está em teste A/B (`docs/teste-ab-formulario.md`), e o braço `b`, sem
+e-mail, não é capturado pelo script do RD. Sem forçar, a verificação falharia
+sempre que o sorteio caísse no `b`.
+
 Verificação local concluída: Biome, TypeScript, gate de Server Actions e build
 passaram. Suíte integral: 998 testes passaram; cinco testes dependentes do
 PostgreSQL isolado foram ignorados. A primeira rodada teve um timeout no teste

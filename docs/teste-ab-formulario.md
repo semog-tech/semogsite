@@ -44,6 +44,48 @@ curta e grava `variante = 'contato-rapido'` e um protocolo, que a tela não most
   `teste_formulario` (Admin → Definições personalizadas). Ela só vale dali para a frente;
   o banco tem o histórico completo.
 
+## Cuidados na leitura
+
+- **`variante` não é a variante do teste.** O `b` grava `data.variante = 'contato-rapido'`,
+  o mesmo valor da proposta curta da triagem do WhatsApp (e o GA4 do `b` também leva
+  `variante: contato-rapido`). Qualquer relatório que agrupe por `variante` mistura os dois
+  caminhos: separe sempre por `data->>'testeFormulario'` (no GA4, `teste_formulario`). Lead
+  da triagem não tem `testeFormulario`.
+- **RD Marketing não serve para comparar as variantes.** Os dois braços chegam ao Marketing
+  por caminhos diferentes:
+  - o `a` é capturado no navegador pelo script do RD (`permitirCapturaRd`), que identifica o
+    lead pelo e-mail. Ele só roda se o visitante não recusou cookies de análise ou de
+    marketing, e bloqueador de anúncio também o impede;
+  - o `b` não tem e-mail, e o script do RD não o captura. Ele só chega ao Marketing pela
+    conversão do servidor (`montarConversaoMarketing`, a mesma da triagem), que exige
+    `RD_MARKETING_API_KEY` configurada (sem ela a linha grava `rd_marketing_payload` nulo e
+    nada sai). Também depende do consentimento: a escolha de marketing salva pelo visitante;
+    sem escolha salva, a regra de região do `adsConsent` (concede no Brasil e quando o país é
+    desconhecido; nega nos 32 territórios de `consentRegions.ts`). Proposta curta repetida
+    (`duplicaDe`) não gera conversão.
+
+  Por isso a contagem de conversões no RD Marketing pende para um lado por motivo que não é o
+  formulário: sem a chave, o `b` não aparece lá; com ela, os dois são barrados em situações
+  diferentes (bloqueador e recusa no navegador para o `a`, recusa salva ou região para o
+  `b`). **O resultado do teste se lê pelo banco** (`cms.leads`, consultas abaixo), que recebe
+  os dois braços pelo mesmo caminho. O RD CRM recebe os dois do mesmo jeito (pelo servidor) e
+  serve para a qualidade, não para o volume no Marketing.
+- **Depois do primeiro lead `b` real**, confira a linha dele:
+
+  ```sql
+  select id, created_at, data->>'cidade' as cidade,
+         rd_marketing_payload is not null as tem_conversao_marketing,
+         rd_marketing_status, rd_marketing_error, rd_marketing_enviado_em
+  from cms.leads
+  where form = 'proposta' and data->>'testeFormulario' = 'b'
+  order by created_at desc
+  limit 5;
+  ```
+
+  Esperado com a chave configurada: `tem_conversao_marketing = true` e, em minutos,
+  `rd_marketing_status = 'enviado'`. `false` com a chave ligada é recusa de consentimento ou
+  proposta repetida; `erro`/`esgotado` pede leitura do `rd_marketing_error`.
+
 ## Como ler o resultado
 
 Como o sorteio é 50/50, as duas variantes recebem o mesmo tráfego, e dá para comparar o
