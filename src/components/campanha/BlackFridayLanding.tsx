@@ -211,7 +211,7 @@ function PorQueSemog() {
       <div className="mx-auto grid w-full max-w-[1280px] gap-12 px-[clamp(1.25rem,4vw,3rem)] lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <Reveal dir="left">
           <h2 className="font-display text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.06]">
-            A administradora líder do Nordeste, agora com a primeira taxa em fevereiro.
+            A administradora líder do Norte e Nordeste, agora com a primeira taxa em fevereiro.
           </h2>
           <ul className="mt-8 flex flex-col gap-6">
             {DIFERENCIAIS.map((d) => (

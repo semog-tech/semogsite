@@ -43,14 +43,12 @@ describe('sitemap.xml', () => {
   })
 
   /**
-   * A landing do Semog Experience vive num route group irmão (`(evento)`), com
-   * rota explícita própria e fora de `content/pages` — exatamente a mesma
-   * forma das landings de cidade, que foi como elas escaparam do sitemap. É
-   * página de captação (tem formulário), então entra na regra acima.
+   * O Semog Experience 26 foi em 26/09/2026. A página continua no ar, mas
+   * evento passado não é página de captação: sai do sitemap.
    */
-  it('inclui a landing do Experience', async () => {
+  it('não lista mais a landing do Experience (evento encerrado)', async () => {
     const entries = await sitemap()
-    expect(entries.map((e) => e.url)).toContain(absoluteUrl('experience'))
+    expect(entries.map((e) => e.url)).not.toContain(absoluteUrl('experience'))
   })
 
   it('inclui a landing da Black Friday', async () => {
