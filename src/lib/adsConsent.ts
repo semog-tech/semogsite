@@ -83,13 +83,20 @@ export function paisDaRequisicao(headers: Headers): string | null {
 /**
  * Converte o valor gravado na linha para o enum da Data Manager API.
  *
- * **`null` vira `CONSENT_GRANTED`, e isso é temporário** — decisão de
- * 11/09/2026, com prazo de validade de três dias a partir do deploy. Linha com
- * `ads_consent` nulo é linha gravada ANTES desta coluna existir, e o cron só
- * olha `WINDOW_DAYS` (3 dias) para trás: passado esse prazo, não há mais
- * nenhuma, e este ramo deixa de ser alcançado.
+ * **`null` vira `CONSENT_GRANTED`** — decisão de 11/09/2026. Linha com
+ * `ads_consent` nulo é linha gravada ANTES desta coluna existir (o último
+ * lead assim é de 11/09/2026).
  *
- * **Tamanho real da população, medido em 11/09/2026: UMA linha** — 1 em
+ * Quando isso é alcançado hoje: os lotes de leads e de WhatsApp olham só
+ * `WINDOW_DAYS` (3 dias) para trás e já não encontram linha nula. O lote dos
+ * marcos do RD (`@/lib/conversoesRd`, 25/11/2026) olha 90 dias, mas só lê
+ * leads enviados ao RD CRM, que começaram em 05/11/2026, todos com a coluna
+ * preenchida. Medido em 25/11/2026, os leads com consentimento nulo dentro de
+ * 90 dias eram 7: 6 antigos do Exact e 1 sem CRM, nenhum do RD. Então o ramo
+ * continua sem uso, mas não por causa do prazo de 3 dias: se algum lote novo
+ * passar a ler leads antigos, eles sobem como concedidos.
+ *
+ * **Tamanho da população no deploy, medido em 11/09/2026: UMA linha** — 1 em
  * `cms.leads` e 0 em `cms.whatsapp_clicks`. Contagem reproduzível:
  *
  *     select count(*) from cms.leads

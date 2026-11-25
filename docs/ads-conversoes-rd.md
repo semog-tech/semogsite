@@ -10,9 +10,19 @@ negócio. O cron `upload-ads-conversions` sobe duas ações novas para leads que
 | `RD - Proposta enviada` | `GOOGLE_ADS_RD_PROPOSTA_CONVERSION_ACTION_ID` | a negociação chegou a "Visita realizada" ou depois (Negociação, Vendidos), ou foi ganha |
 | `RD - Ganho`            | `GOOGLE_ADS_RD_GANHO_CONVERSION_ACTION_ID`    | a negociação chegou a "Vendidos" ou foi ganha                                       |
 
-Perdido não vira conversão, mas não desfaz um marco já alcançado. As etapas são do Funil
-Padrão, onde o site cria as negociações. O ganho também conta como proposta enviada: uma
-negociação ganha sem ter passado pelas etapas teve proposta.
+Perdido não vira conversão, mas não desfaz um marco já alcançado. Negociação perdida numa
+etapa a partir de "Visita realizada" conta como proposta enviada (decisão: a proposta existiu),
+com a data da primeira observação naquela etapa. As etapas são do Funil Padrão, onde o site cria
+as negociações. O ganho também conta como proposta enviada: uma negociação ganha sem ter
+passado pelas etapas teve proposta.
+
+As etapas são reconhecidas pelo id do RD, fixado na função do semogapp
+`commercial.crm_rdstation_marcos_obter()` (`db/2026-11-25-crm-rdstation-marcos.sql`): Visita
+realizada é `6abd62c1c2a30800240fb2b7` e Vendidos é `6ac7a5e6a3aab600243102d4`. Etapa nova
+depois de Visita realizada conta sozinha, pela posição no funil. Mas se "Visita realizada" for
+apagada e recriada no RD, o id muda e a proposta enviada para de contar **sem erro nenhum** (o
+ganho continua, pelo status won). Nesse caso, troque o id na função por uma migração nova no
+semogapp (`create or replace` com o id novo, conferido em `commercial.crm_stages`).
 
 ## De onde vem a data
 
@@ -29,13 +39,16 @@ isso não os alcança.
 
 ## Regras do envio
 
-- **Uma vez por lead e marco.** O que o Google aceitou fica em `cms.ads_conversoes_rd`
-  (chave `lead_id, marco`), gravado só depois da resposta OK. O `transactionId` estável
-  (`rd-proposta-<id>`, `rd-ganho-<id>`) é a segunda defesa: o Google deduplica por ele dentro
-  da mesma ação.
+- **Uma vez por lead e marco.** O que foi enviado ao Google fica em `cms.ads_conversoes_rd`
+  (chave `lead_id, marco`), gravado só depois da resposta OK. A resposta OK só diz que o lote
+  passou na validação: a API processa cada evento depois, e um descarte nessa fase não volta
+  para o site. O `transactionId` estável (`rd-proposta-<id>`, `rd-ganho-<id>`) é a segunda
+  defesa: o Google deduplica por ele dentro da mesma ação.
 - **Janela de 90 dias**, o máximo do Google Ads para conversão por clique. O site não guarda a
-  hora do clique e conta a partir da criação do lead. Um clique muito anterior ao lead pode
-  fazer o Google recusar o evento; a recusa é por evento, no processamento, e não derruba o lote.
+  hora do clique e conta a partir da criação do lead. Como o gclid vem de um cookie de até 90
+  dias, um marco dentro dessa janela pode chegar até ~180 dias depois do clique. O Google
+  descarta esse evento sem avisar e sem derrubar o lote, e a tabela o registra como enviado.
+  Reenviar não adiantaria: o clique continuaria velho demais.
 - Marco anterior à criação do lead não sobe (indica vínculo errado entre lead e negociação).
 - O consentimento vai por evento, da coluna `ads_consent` do lead, como nos outros lotes.
 - A data do evento é a do marco; o valor é 1 BRL, como nas outras ações do site.

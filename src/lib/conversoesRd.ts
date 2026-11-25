@@ -49,9 +49,11 @@ export const MARCOS_RD: readonly {
 /**
  * Janela máxima de conversão por clique do Google Ads: 90 dias. O site não
  * guarda a hora do clique, então conta a partir da criação do lead, que é o
- * limite mais tarde possível. Clique bem anterior ao lead pode fazer o Google
- * recusar um evento dentro desta janela; essa recusa é por evento, no
- * processamento assíncrono, e não derruba o lote.
+ * limite mais tarde possível. O gclid vem de um cookie de até 90 dias, então
+ * um marco dentro desta janela pode chegar até ~180 dias depois do clique. O
+ * Google processa cada evento depois da resposta e descarta esse sem avisar:
+ * o lote não falha, e `cms.ads_conversoes_rd` registra o marco como enviado.
+ * Reenviar não adiantaria, porque o clique continuaria velho demais.
  */
 export const JANELA_RD_DIAS = 90
 const JANELA_RD_MS = JANELA_RD_DIAS * 24 * 60 * 60 * 1000
@@ -65,7 +67,7 @@ export type LinhaMarcoRd = {
   ads_consent: string | null
   proposta_enviada_em: string | Date | null
   ganho_em: string | Date | null
-  /** Marcos deste lead já aceitos pelo Google (`cms.ads_conversoes_rd`). */
+  /** Marcos deste lead já enviados ao Google (`cms.ads_conversoes_rd`). */
   enviados: string[] | null
 }
 
@@ -86,9 +88,11 @@ export const SQL_MARCOS_RD = `select l.id, l.created_at, l.gclid, l.ads_consent,
  order by l.created_at`
 
 /**
- * Registro do que o Google aceitou: um único INSERT por marco, depois da
- * resposta OK. A chave primária (lead, marco) é a deduplicação; o
- * `on conflict` cobre duas execuções do cron ao mesmo tempo.
+ * Registro do que foi enviado ao Google: um único INSERT por marco, depois da
+ * resposta OK. A resposta OK só diz que o lote passou na validação; cada
+ * evento é processado depois, e uma recusa nessa fase (clique fora da janela,
+ * por exemplo) não volta para cá. A chave primária (lead, marco) é a
+ * deduplicação; o `on conflict` cobre duas execuções do cron ao mesmo tempo.
  */
 export const SQL_REGISTRAR_RD = `insert into cms.ads_conversoes_rd (lead_id, marco, marco_em)
 select lead_id, $2, marco_em

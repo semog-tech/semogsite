@@ -19,7 +19,9 @@ do $$ begin
   end if;
 end $$;
 
--- Uma linha por lead e marco que o Google aceitou. A chave primária é a
+-- Uma linha por lead e marco enviado ao Google (resposta OK do lote). A API
+-- processa cada evento depois, e um descarte nessa fase (clique fora da
+-- janela) não volta: a linha continua dizendo "enviado". A chave primária é a
 -- deduplicação: cada lead sobe cada marco uma vez. Sem FK para `cms.leads`
 -- (o `postgres` não tem REFERENCES nela); a linha guarda só o id e datas, e
 -- um lead apagado por LGPD deixa aqui um id sem dado pessoal.
@@ -36,7 +38,7 @@ alter table cms.ads_conversoes_rd owner to postgres;
 revoke all on table cms.ads_conversoes_rd from public, anon, authenticated, service_role, cms_user;
 grant select, insert on table cms.ads_conversoes_rd to cms_user;
 comment on table cms.ads_conversoes_rd is
-  'Marcos do RD CRM já aceitos pelo Google Ads (cron upload-ads-conversions). Sem dado pessoal.';
+  'Marcos do RD CRM já enviados ao Google Ads (cron upload-ads-conversions); o Google processa cada evento depois e pode descartá-lo sem avisar. Sem dado pessoal.';
 
 -- Fachada privada: o site não recebe USAGE em commercial nem EXECUTE direto.
 create or replace function cms.crm_rdstation_marcos_obter()
