@@ -47,7 +47,7 @@ export type SubmitFormResult = {
 
 /**
  * Valor de `data.variante` na proposta curta da triagem do WhatsApp. Ela grava
- * como `form = 'proposta'` (para seguir nos crons e no desfecho), e é este
+ * como `form = 'proposta'` (para seguir nos crons), e é este
  * campo que a distingue do formulário completo — no e-mail interno e na
  * descrição do Exact, onde a SDR precisa saber que o lead tem só nome, WhatsApp
  * e cidade.

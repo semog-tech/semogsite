@@ -26,7 +26,6 @@ import { clienteIp } from '@/lib/clienteIp'
 import { CONSENT_COOKIE_NAME } from '@/lib/consent'
 import { enviarLeadAoCrm, relatarErroCrm } from '@/lib/crm/send-lead'
 import { pool, query } from '@/lib/db'
-import { botoesDeDesfecho } from '@/lib/desfechoToken'
 import { isExactEligible } from '@/lib/exact/map-lead'
 import { validarLotacaoExperience } from '@/lib/experienceLotacao'
 import type {
@@ -149,11 +148,10 @@ const PB_TO = 'comercial.pb@semog.com.br'
  * `src/lib/form-schemas.ts` — se o enum mudar as opções, o `tsc` cobra a
  * entrada aqui). Só a Proposta usa isto; Contato continua indo pro `CONTACT_TO`.
  *
- * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026. Ele é uma lista de
- * distribuição, e lista não responde: com os botões de desfecho no e-mail, um
- * registro que chega por caixa individual (`ivan@`, `galvao@`) tem autor
- * conhecido, e um que chega por grupo não tem. Trocar o grupo pela caixa da
- * filial da Paraíba mantém o endereçamento concreto.
+ * O grupo `comercial@semog.com.br` saiu daqui em 16/09/2026: o aviso vai a
+ * caixas individuais (`ivan@`, `galvao@`) e à caixa da Unidade da Paraíba, e
+ * não a uma lista de distribuição, para que cada lead tenha um responsável
+ * conhecido.
  *
  * **"Outra cidade" vai para os três de uma vez.** Não dá para saber de que
  * praça é um condomínio que não está na lista, então todo mundo recebe e quem
@@ -184,8 +182,7 @@ const EXPERIENCE_TO = 'comercial.pb@semog.com.br'
  *
  * É função, e não um trecho dentro do bloco de e-mail, porque a decisão passou
  * a ser gravada na linha do lead (`notificado_para`) e portanto precisa
- * acontecer ANTES do INSERT: quem recebeu o aviso é o que separa, depois, um
- * desfecho com autor conhecido de um que veio de caixa compartilhada.
+ * acontecer ANTES do INSERT: é o registro de a quem o lead foi avisado.
  */
 function destinatariosDaNotificacao(
   formType: FormType,
@@ -466,7 +463,6 @@ async function enviarAoCrm(
 type EmailsDoEnvio = {
   envio: Envio
   leadData: Record<string, string>
-  leadRowId?: string
   attributionFields: { label: string; value: string }[]
   notifyTo?: readonly string[]
   /** E-mail de quem preencheu; ausente na proposta curta, que não o pergunta. */
@@ -476,21 +472,9 @@ type EmailsDoEnvio = {
 }
 
 /**
- * Notificação interna, com os botões de desfecho quando é captação.
- *
- * O critério dos botões (Em negociação / Fechou / Não evoluiu / Não é lead) é
- * `isExactEligible` — a MESMA função que decide o que vira card no CRM —, e não
- * `formType === 'proposta'`. Perguntar "isto é captação?" e "vale perguntar o
- * desfecho disto?" é perguntar a mesma coisa, e duplicar a regra faria as duas
- * respostas divergirem com o tempo. Na prática isso inclui o Contato com
- * assunto `proposta-comercial`, que é pedido de proposta escrito no formulário
- * errado: ele já entra no CRM como lead e agora também tem desfecho. O resto do
- * Contato (2ª via, CND, acordo) é atendimento a quem já é cliente, e "fechou"
- * não faz sentido ali.
- *
- * `leadRowId` ausente = sem o que assinar. `botoesDeDesfecho` devolve
- * `undefined` também quando falta `LEAD_OUTCOME_SECRET`, e aí o e-mail sai como
- * sempre saiu, sem a seção.
+ * Notificação interna. O acompanhamento do lead depois do aviso é feito no
+ * CRM (RD Station): os botões de desfecho que o e-mail levava saíram em
+ * 25/11/2026, porque ninguém da equipe comercial os usava.
  */
 async function enviarNotificacao(emails: EmailsDoEnvio): Promise<boolean> {
   const { notifyTo } = emails
@@ -513,20 +497,14 @@ async function enviarNotificacao(emails: EmailsDoEnvio): Promise<boolean> {
 
 /**
  * Assunto e corpo da notificação interna. Com `naoGravado`, o assunto leva a
- * marca na frente — é o que aparece na caixa de entrada sem abrir o e-mail — e
- * não há botões de desfecho, porque não existe linha para o desfecho apontar.
+ * marca na frente — é o que aparece na caixa de entrada sem abrir o e-mail.
  */
 function montarNotificacao(emails: EmailsDoEnvio, notifyTo: readonly string[]): SendMailArgs {
-  const { envio, leadData, leadRowId, attributionFields, naoGravado } = emails
+  const { envio, attributionFields, naoGravado } = emails
   const labels = rotulosDoFormulario(envio.formType)
   const fields = Object.entries(envio.data)
     .filter(([, value]) => value !== undefined)
     .map(([field, value]) => ({ label: labels[field] ?? field, value: String(value) }))
-
-  const desfecho =
-    leadRowId && isExactEligible(envio.formType, leadData)
-      ? (botoesDeDesfecho(leadRowId) ?? undefined)
-      : undefined
 
   const marca = naoGravado ? '[GRAVAÇÃO NÃO CONFIRMADA — conferir no banco] ' : ''
   return {
@@ -536,7 +514,6 @@ function montarNotificacao(emails: EmailsDoEnvio, notifyTo: readonly string[]): 
       formTitle: envio.formTitle,
       fields,
       attribution: attributionFields,
-      desfecho,
       naoGravado,
     }),
   }
@@ -661,7 +638,7 @@ async function prepararLinha(
 
   // Decidido aqui, antes do INSERT, porque vai para a própria linha: é o
   // registro de a quem este lead foi endereçado, e ele precisa sobreviver a
-  // uma mudança futura do mapa de roteamento (ver `db/leads-desfecho.sql`).
+  // uma mudança futura do mapa de roteamento (coluna criada em `db/leads-desfecho.sql`).
   // A duplicada não notifica ninguém (ver `processarEnvio`), então grava nulo:
   // a coluna registra a quem o aviso foi, não a quem iria.
   const duplicada = Boolean(leadData[DUPLICA_DE_FIELD])
@@ -789,7 +766,6 @@ async function avisarLeadNaoGravado(emails: EmailsDoEnvio): Promise<boolean> {
     return await enviarNotificacao({
       ...emails,
       notifyTo: destinatariosDaNotificacao(formType, data),
-      leadRowId: undefined,
       naoGravado: avisosDoLeadNaoGravado(emails),
     })
   } catch (mailErr) {
@@ -862,7 +838,7 @@ async function concluirLeadGravado(
     return RECEBIDO
   }
 
-  await enviarEmails({ ...emails, leadRowId })
+  await enviarEmails(emails)
   if (leadRowId && isExactEligible(emails.envio.formType, emails.leadData)) {
     try {
       after(async () => {
@@ -951,7 +927,7 @@ export async function submitForm(
  *
  * Grava como `form = 'proposta'` pelo MESMO pipeline do formulário completo —
  * é isso que mantém o lead nos dois crons (Exact e Google Ads, que filtram por
- * esse valor) e com os botões de desfecho. O que o distingue vai no `data`:
+ * esse valor). O que o distingue vai no `data`:
  * `variante: 'contato-rapido'` e o `protocolo`.
  *
  * O protocolo só volta para a tela no `ok: true`. Se a gravação falhar, a tela

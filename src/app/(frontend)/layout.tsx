@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   // equivalente para o Google. NÃO conserta a `og:image` de `/styleguide` e do
   // 404: ela vem de `src/app/opengraph-image.tsx`, acima dos root layouts, e é
   // resolvida antes desta base (em produção a Vercel completa com o domínio).
-  // Cada root layout (`(frontend)`, `(evento)`, `(interno)`) precisa da sua:
+  // Cada root layout (`(frontend)`, `(evento)`) precisa da sua:
   // não herdam entre si.
   metadataBase: new URL(siteUrl()),
   description: 'Semog Administradora de Condomínios — site institucional.',

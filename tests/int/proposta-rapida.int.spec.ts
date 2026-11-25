@@ -11,7 +11,7 @@ import { respostaComLotacao } from './helpers/lotacaoExperience'
  * Proposta curta ("contato rápido") da triagem do botão de WhatsApp. O que se
  * defende aqui é a decisão central da spec: ela NÃO é um formulário novo. Grava
  * como `form = 'proposta'` pelo mesmo pipeline, para seguir nos crons do Exact e
- * do Ads e nos botões de desfecho, e se distingue só pelo `data.variante` e
+ * do Ads, e se distingue só pelo `data.variante` e
  * pelo `protocolo`. Mesmos dublês de `submit-form.int.spec.ts`.
  */
 
@@ -174,14 +174,12 @@ describe('submitPropostaRapida', () => {
     expect(lead.description).not.toContain('Origem: formulário de proposta do site.')
   })
 
-  it('notifica a praça da cidade, com protocolo e desfecho; não tenta auto-reply sem e-mail', async () => {
-    vi.stubEnv('LEAD_OUTCOME_SECRET', 'segredo-de-teste')
+  it('notifica a praça da cidade, com protocolo; não tenta auto-reply sem e-mail', async () => {
     const info = vi.spyOn(console, 'info').mockImplementation(() => {})
     const result = await submitPropostaRapida(valida, 'token')
 
     expect(sendMailMock).toHaveBeenCalledTimes(1)
-    expect(JSON.stringify(sendMailMock.mock.calls[0])).toContain('desfecho/321?t=')
-    vi.unstubAllEnvs()
+    expect(JSON.stringify(sendMailMock.mock.calls[0])).not.toContain('desfecho/')
     const [mail] = sendMailMock.mock.calls[0] as [{ to: string[]; subject: string }]
     expect(mail.to).toEqual(['ivan@semog.com.br'])
     expect(mail.subject).toBe('Novo contato via Proposta (contato rápido)')

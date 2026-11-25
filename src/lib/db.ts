@@ -7,7 +7,7 @@ import { conexaoComTls } from './db-tls'
 /**
  * Pool `pg` sobre o `DATABASE_URI` (o Postgres do Supabase, atrás do HAProxy
  * da VPS) — o único caminho do site até o banco: `submit-form.ts`, os crons do
- * Ads e do Exact, o desfecho do lead, o rastreio de WhatsApp e de QR leem e
+ * Ads e do Exact, o rastreio de WhatsApp e de QR leem e
  * escrevem `cms.*` por aqui. `server-only` garante que este módulo (e a
  * connection string) nunca vá pro bundle do client.
  *
