@@ -117,12 +117,8 @@ const footer: FooterConfig = {
         { label: 'Soluções', href: '/solucoes' },
         { label: 'Incorporadoras', href: '/incorporadoras' },
         { label: 'Blog', href: '/blog' },
-        // A landing do Semog Experience era ÓRFÃ: estava no sitemap, mas
-        // nenhuma das outras 29 páginas apontava pra ela — nem a home. Sitemap
-        // é convite, link é voto: sem nenhum link interno o Google trata a
-        // página como periférica, e o evento tem data. Sai daqui junto com a
-        // entrada do sitemap depois de 26/09/2026 (ver `sitemap.ts`).
-        { label: 'Semog Experience 26', href: '/experience' },
+        // O Semog Experience 26 (26/09/2026) já passou: o link saiu daqui e a
+        // entrada saiu do sitemap. A página `/experience` continua no ar.
         { label: 'Contato', href: '/contato' },
       ],
     },
@@ -207,7 +203,7 @@ const company: CompanyConfig = {
 }
 
 export const site: SiteConfig = {
-  defaultTitle: 'Semog | Administradora de Condomínios líder do Nordeste há 35 anos',
+  defaultTitle: 'Semog | Administradora de Condomínios líder do Norte e Nordeste há 35 anos',
   defaultDescription:
     'Administradora de condomínios em Recife, João Pessoa, Campina Grande e Belém. 650 condomínios, 70 mil clientes, prestação de contas 100% digital e inadimplência zero com o Semog Garante.',
   ogImage: null,
