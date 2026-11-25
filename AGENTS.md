@@ -32,7 +32,7 @@ aparece num dos lados pode ser a versão do Node.
   Next o registra como Server Action e o módulo quebra na primeira submissão, com tsc, Vitest e
   build verdes. Já derrubou os formulários por 12 dias; o `check:server-actions` existe para isso.
 - **Indexação**: produção roda com `SITE_ALLOW_INDEX=true` e não há `noindex` global. Página
-  interna ou utilitária (`(interno)/desfecho`, `styleguide`, rotas de QR) declara `robots`
+  interna ou utilitária (`styleguide`, rotas de QR) declara `robots`
   explicitamente. Sem a variável (preview, CI, local) tudo sai `noindex` por `X-Robots-Tag`, e
   isso não é bug.
 - **CSP** em `next.config.ts`: script ou pixel de terceiro (GTM, Google Ads, RD, Clarity) só

@@ -160,8 +160,8 @@ export type PropostaInput = z.input<typeof propostaSchema>
  * falar com alguém, não preencher o formulário completo.
  *
  * Não é um formulário novo: grava como `form = 'proposta'` (ver
- * `submitPropostaRapida`), para continuar dentro dos dois crons e dos botões de
- * desfecho, que filtram por esse valor. Os campos que sobram têm os mesmos
+ * `submitPropostaRapida`), para continuar dentro dos dois crons, que filtram
+ * por esse valor. Os campos que sobram têm os mesmos
  * nomes e mensagens do `propostaSchema`, e `cidade` usa o mesmo enum, então o
  * roteamento por praça e o mapa do Exact valem sem mudança.
  *

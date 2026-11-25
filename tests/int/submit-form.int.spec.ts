@@ -417,8 +417,8 @@ describe('submitForm — destino da notificação interna', () => {
   })
 
   it('o grupo comercial@ não recebe mais NENHUMA proposta', async () => {
-    // O grupo saiu do roteamento em 16/09/2026 — lista de distribuição não
-    // responde, e o desfecho que chega por ela não tem autor. Este teste é a
+    // O grupo saiu do roteamento em 16/09/2026 — o aviso vai a caixas com
+    // responsável conhecido, não a uma lista de distribuição. Este teste é a
     // trava: qualquer cidade que volte a apontar pra lá reprova aqui.
     for (const cidade of [
       'Recife e região',
@@ -470,20 +470,13 @@ describe('submitForm — destino da notificação interna', () => {
 })
 
 /**
- * Botões de desfecho no e-mail de notificação (16/09/2026). O token é o de
- * verdade — `@/lib/desfechoToken` não é mockado aqui, só o `server-only` que
- * ele importa (já neutralizado no topo do arquivo).
- *
- * O critério é `isExactEligible` — a mesma função que decide o que vira card no
- * CRM. Isso abrange a Proposta E o Contato com assunto `proposta-comercial`,
- * que é pedido de proposta escrito no formulário errado e já entra no CRM como
- * lead. Fica de fora o resto do Contato (2ª via, CND, acordo), que é
- * atendimento a quem já é cliente, e a inscrição no Experience, que não é lead
- * nenhum — "fechou" nesses dois é pergunta sem resposta possível.
+ * Os botões de desfecho saíram do e-mail de notificação em 25/11/2026: o
+ * acompanhamento do lead passou a ser feito no CRM (RD Station). Este bloco é
+ * a trava de que a notificação de captação (Proposta e Contato com assunto
+ * `proposta-comercial`, os dois casos que levavam os botões) sai sem link
+ * nenhum e com o resto do conteúdo de sempre.
  */
-describe('submitForm — botões de desfecho no e-mail interno', () => {
-  const SEGREDO_ORIGINAL = process.env.LEAD_OUTCOME_SECRET
-
+describe('submitForm — notificação interna sem botões de desfecho', () => {
   const proposta = {
     tipo: 'Condomínio residencial',
     nome: 'Maria Souza',
@@ -494,25 +487,19 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
   }
 
   /**
-   * Os `href` dos links da notificação interna (não do auto-reply), lidos do
-   * HTML REALMENTE renderizado.
-   *
-   * Inspecionar as props do elemento não serviria: `submit-form.ts` chama
-   * `ContactNotification({…})` como função, não como JSX, então o que chega ao
-   * `sendMail` já é a árvore montada — `props.desfecho` não existe ali. E
-   * mesmo que existisse, provaria só que o valor foi passado, não que virou
-   * link no e-mail. Este e-mail não tinha nenhum link até agora, então lista
-   * vazia é o estado anterior.
+   * O HTML REALMENTE renderizado da notificação interna (não do auto-reply).
+   * `submit-form.ts` chama `ContactNotification({…})` como função, então o que
+   * chega ao `sendMail` já é a árvore montada; renderizar é o que mostra o que
+   * a equipe recebe.
    */
-  async function linksDaNotificacao(): Promise<string[]> {
+  async function notificacaoRenderizada(): Promise<Document | undefined> {
     const chamada = sendMailMock.mock.calls.find(([arg]) =>
       /^Novo contato via /.test((arg as { subject: string }).subject),
     )
     const elemento = chamada?.[0] as { react: ReactElement } | undefined
-    if (!elemento) return []
+    if (!elemento) return undefined
     const html = await render(elemento.react)
-    const doc = new DOMParser().parseFromString(html, 'text/html')
-    return Array.from(doc.querySelectorAll('a')).map((a) => a.getAttribute('href') ?? '')
+    return new DOMParser().parseFromString(html, 'text/html')
   }
 
   beforeEach(() => {
@@ -524,135 +511,45 @@ describe('submitForm — botões de desfecho no e-mail interno', () => {
     cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
     pushLeadMock.mockResolvedValue(null)
     process.env.CONTACT_TO = 'caixa-do-contato@example.com'
-    process.env.LEAD_OUTCOME_SECRET = 'segredo-de-teste-nao-usado-em-producao'
+    // O segredo que assinava os links continua configurado na Vercel, sem uso.
+    // Ligado aqui, o teste reprova se algum caminho voltar a gerar os botões.
+    vi.stubEnv('LEAD_OUTCOME_SECRET', 'segredo-de-teste-nao-usado-em-producao')
   })
 
   afterEach(() => {
-    if (SEGREDO_ORIGINAL === undefined) delete process.env.LEAD_OUTCOME_SECRET
-    else process.env.LEAD_OUTCOME_SECRET = SEGREDO_ORIGINAL
+    vi.unstubAllEnvs()
   })
 
-  it('proposta leva os quatro botões, com o id da linha recém-inserida', async () => {
+  it('proposta: a notificação sai sem link nenhum, com os campos do lead', async () => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.40'))
 
-    await submitForm('proposta', proposta, 'test-token')
+    const resultado = await submitForm('proposta', proposta, 'test-token')
 
-    const links = await linksDaNotificacao()
-    expect(links).toHaveLength(4)
-    expect(links.map((url) => new URL(url).searchParams.get('s'))).toEqual([
-      'negociando',
-      'fechou',
-      'nao_evoluiu',
-      'nao_e_lead',
-    ])
-    // O id vem do `returning id` do INSERT — sem ele o link apontaria pro lead
-    // errado (ou pra lugar nenhum).
-    for (const url of links) {
-      expect(new URL(url).pathname).toBe('/desfecho/4242')
-      expect(new URL(url).searchParams.get('t')).toBeTruthy()
-    }
+    expect(resultado.ok).toBe(true)
+    const doc = await notificacaoRenderizada()
+    expect(doc).toBeDefined()
+    expect(doc?.querySelectorAll('a')).toHaveLength(0)
+    const texto = doc?.body.textContent ?? ''
+    expect(texto).toContain('Novo contato recebido')
+    expect(texto).toContain(proposta.nome)
+    expect(texto).toContain(proposta.nomeCondominio)
+    expect(texto).not.toMatch(/diga no que deu/)
   })
 
-  it('contato de atendimento não leva botões', async () => {
-    headersMock.mockResolvedValue(fakeHeaders('203.0.113.41'))
-
-    await submitForm('contato', { ...contatoValido, assunto: 'segunda-via-boleto' }, 'test-token')
-
-    expect(await linksDaNotificacao()).toEqual([])
-  })
-
-  it('contato SEM assunto não leva botões', async () => {
-    // `assunto` é opcional no schema. Ausente, não há o que sustente chamar
-    // aquilo de captação — e o default tem que ser não perguntar.
-    headersMock.mockResolvedValue(fakeHeaders('203.0.113.45'))
-
-    await submitForm('contato', contatoValido, 'test-token')
-
-    expect(await linksDaNotificacao()).toEqual([])
-  })
-
-  it('contato com assunto "proposta-comercial" LEVA os botões', async () => {
-    // É pedido de proposta escrito no formulário errado: já entra no CRM como
-    // lead pela mesma regra, e por isso também tem desfecho a registrar.
+  it('contato com assunto "proposta-comercial" também sai sem link nenhum', async () => {
     headersMock.mockResolvedValue(fakeHeaders('203.0.113.46'))
 
-    await submitForm('contato', { ...contatoValido, assunto: 'proposta-comercial' }, 'test-token')
-
-    const links = await linksDaNotificacao()
-    expect(links).toHaveLength(4)
-    expect(links.map((url) => new URL(url).searchParams.get('s'))).toEqual([
-      'negociando',
-      'fechou',
-      'nao_evoluiu',
-      'nao_e_lead',
-    ])
-  })
-
-  it('a regra dos botões é a MESMA que manda o lead pro CRM', async () => {
-    // Trava contra as duas regras divergirem: se `isExactEligible` passar a
-    // aceitar (ou recusar) um caso, os botões acompanham por construção. Um
-    // ramo próprio no `submit-form` reprovaria aqui.
-    const { isExactEligible } = await import('@/lib/exact/map-lead')
-
-    const casos = [
-      { form: 'contato' as const, valores: { ...contatoValido, assunto: 'proposta-comercial' } },
-      { form: 'contato' as const, valores: { ...contatoValido, assunto: 'cnd-condominio' } },
-      { form: 'proposta' as const, valores: proposta },
-    ]
-
-    for (const [i, caso] of casos.entries()) {
-      vi.clearAllMocks()
-      queryMock.mockImplementation(async (sql: string) => respostaComLotacao(sql, '4242'))
-      sendMailMock.mockResolvedValue({ ok: true })
-      verifyTurnstileMock.mockResolvedValue(true)
-      cookiesMock.mockResolvedValue(fakeCookiesSemAtribuicao())
-      pushLeadMock.mockResolvedValue(null)
-      headersMock.mockResolvedValue(fakeHeaders(`198.51.100.${200 + i}`))
-
-      await submitForm(caso.form, caso.valores, 'test-token')
-
-      const temBotoes = (await linksDaNotificacao()).length > 0
-      const dados = Object.fromEntries(Object.entries(caso.valores).map(([k, v]) => [k, String(v)]))
-      expect(temBotoes).toBe(isExactEligible(caso.form, dados))
-    }
-  })
-
-  it('inscrição no Experience não leva botões', async () => {
-    headersMock.mockResolvedValue(fakeHeaders('203.0.113.42'))
-
-    await submitForm(
-      'experience',
-      {
-        nome: 'Maria Souza',
-        email: 'maria@example.com',
-        telefone: '+5583999501388',
-        condominio: 'Residencial Aurora',
-        aceiteImagem: true,
-      },
+    const resultado = await submitForm(
+      'contato',
+      { ...contatoValido, assunto: 'proposta-comercial' },
       'test-token',
     )
 
-    expect(await linksDaNotificacao()).toEqual([])
-  })
-
-  it('sem LEAD_OUTCOME_SECRET a proposta sai sem botões — e a submissão segue ok', async () => {
-    headersMock.mockResolvedValue(fakeHeaders('203.0.113.43'))
-    delete process.env.LEAD_OUTCOME_SECRET
-
-    const resultado = await submitForm('proposta', proposta, 'test-token')
-
     expect(resultado.ok).toBe(true)
-    expect(await linksDaNotificacao()).toEqual([])
-  })
-
-  it('INSERT sem id devolvido não inventa link nenhum', async () => {
-    headersMock.mockResolvedValue(fakeHeaders('203.0.113.44'))
-    queryMock.mockResolvedValue({ rows: [], rowCount: 0 })
-
-    const resultado = await submitForm('proposta', proposta, 'test-token')
-
-    expect(resultado.ok).toBe(true)
-    expect(await linksDaNotificacao()).toEqual([])
+    const doc = await notificacaoRenderizada()
+    expect(doc).toBeDefined()
+    expect(doc?.querySelectorAll('a')).toHaveLength(0)
+    expect(doc?.body.textContent ?? '').toContain(contatoValido.mensagem)
   })
 })
 
@@ -758,8 +655,8 @@ describe('submitForm — cidade obrigatória na proposta', () => {
  * `notificado_para` — para qual endereço a notificação deste lead foi
  * ENDEREÇADA, gravado na própria linha no momento do envio.
  *
- * É o que separa, depois, um desfecho com autor conhecido de um que veio de
- * caixa compartilhada, sem perguntar identidade a ninguém. Está em coluna, e não
+ * É o registro de a quem o lead foi avisado, sem perguntar identidade a
+ * ninguém. Está em coluna, e não
  * derivado da cidade na hora da consulta, porque o roteamento muda: o mapa já
  * foi reescrito uma vez, e derivar faria o lead antigo responder com o destino
  * de hoje.
@@ -942,7 +839,6 @@ describe('submitForm — lead não gravado no banco', () => {
 
   it('proposta não gravada: avisa que o Exact precisa ser manual e vai para a praça certa', async () => {
     bancoFora()
-    vi.stubEnv('LEAD_OUTCOME_SECRET', 'segredo-de-teste-nao-usado-em-producao')
 
     const result = await submitForm('proposta', proposta, 'test-token')
 
@@ -954,8 +850,6 @@ describe('submitForm — lead não gravado no banco', () => {
     expect(corpo).toMatch(/não enviou este lead ao Exact/)
     expect(corpo).toMatch(/confira no banco antes de cadastrar no Exact à mão, para não duplicar/)
     expect(corpo).not.toMatch(/único registro dele/)
-    // Sem linha não há o que assinar: nenhum botão de desfecho, mesmo com o segredo.
-    expect(corpo).not.toMatch(/diga no que deu/)
   })
 
   it('falha + e-mail recusado pelo provedor: a pessoa vê o erro e não recebe auto-reply', async () => {
