@@ -1,11 +1,12 @@
 import { preload } from 'react-dom'
-import { PropostaForm } from '@/components/forms/PropostaForm'
+import { PropostaFormAb } from '@/components/forms/PropostaFormAb'
 import { type CityLandingData, wholeState } from '@/data/cityLandings'
+import { scriptTesteFormulario } from '@/lib/testeFormulario'
 import { Reveal, Stagger } from '@/motion/reveal'
 
 /**
  * Landing de unidade (produção) — premium navy/ice em camadas. Server
- * component: renderiza os leaves-cliente (Reveal/Stagger/PropostaForm). Recebe
+ * component: renderiza os leaves-cliente (Reveal/Stagger/PropostaFormAb). Recebe
  * os dados da cidade (`@/data/cityLandings`); as partes iguais entre cidades
  * (soluções, diferenciais, passos, autoridade G20) vivem aqui. Ver
  * [[city-landing-redesign]] e a análise SEO/Ads.
@@ -264,7 +265,14 @@ export function CityLanding({ data }: { data: CityLandingData }) {
               <p className="mt-2 mb-6 text-[0.9rem]" style={{ color: '#a9b4d6' }}>
                 Um consultor da unidade de {data.city} responde em até 24h úteis.
               </p>
-              <PropostaForm compact cidade={data.cidadeNoFormulario} />
+              {/* Teste A/B do formulário (ver `PropostaFormAb`): o script decide a
+                  variante e a marca no <html> antes de o navegador pintar os
+                  formulários logo abaixo, então nenhum troca depois de visível. */}
+              <script
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: script nosso, montado de constantes em `@/lib/testeFormulario`, sem input de usuário
+                dangerouslySetInnerHTML={{ __html: scriptTesteFormulario() }}
+              />
+              <PropostaFormAb cidade={data.cidadeNoFormulario} />
             </div>
           </Reveal>
         </div>

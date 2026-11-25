@@ -8,6 +8,7 @@ import { submitForm } from '@/app/(frontend)/_actions/submit-form'
 import { FalhaDeEnvio } from '@/components/forms/FalhaDeEnvio'
 import { Field } from '@/components/forms/Field'
 import { PhoneField } from '@/components/forms/PhoneField'
+import { PropostaRecebida } from '@/components/forms/PropostaRecebida'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { useEnvioVisivelNoErro } from '@/components/forms/useEnvioVisivelNoErro'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +17,7 @@ import { type PropostaInput, type PropostaValues, propostaSchema } from '@/lib/f
 import type { SubmitFormResult } from '@/lib/forms'
 import { registrarLeadGerado } from '@/lib/medicaoLead'
 import { lerOrigemDoNavegador } from '@/lib/origemDoNavegador'
+import type { VarianteTesteFormulario } from '@/lib/testeFormulario'
 
 /**
  * Opções de `tipo`/`cargo`/`cidade` — copiadas de propósito de
@@ -79,6 +81,7 @@ export function PropostaForm({
   withCityField = false,
   cidade,
   campanha,
+  testeFormulario,
 }: {
   compact?: boolean
   withCityField?: boolean
@@ -102,6 +105,12 @@ export function PropostaForm({
    * guarda só o primeiro toque, que pode ser outra página.
    */
   campanha?: string
+  /**
+   * Braço do teste A/B das landings de cidade em que este formulário aparece
+   * (ver `PropostaFormAb`). Vai junto com o envio, para `cms.leads.data`, e no
+   * `generate_lead`. Fora do teste fica ausente.
+   */
+  testeFormulario?: VarianteTesteFormulario
 } = {}) {
   const {
     register,
@@ -166,7 +175,12 @@ export function PropostaForm({
 
     let result: SubmitFormResult
     try {
-      result = await submitForm('proposta', values, token, lerOrigemDoNavegador())
+      result = await submitForm(
+        'proposta',
+        testeFormulario ? { ...values, testeFormulario } : values,
+        token,
+        lerOrigemDoNavegador(),
+      )
     } catch (err) {
       // Mesmo par de `global-error.tsx`: console + Sentry. O `console.error`
       // não é redundante — o Sentry só sai do no-op quando
@@ -184,7 +198,10 @@ export function PropostaForm({
     if (result.ok) {
       // Conversão de lead → GA4 `generate_lead`. Marcar como evento-chave no GA4
       // e importar como conversão no Google Ads (o Consent Mode cuida do gating).
-      registrarLeadGerado('proposta')
+      registrarLeadGerado(
+        'proposta',
+        testeFormulario ? { teste_formulario: testeFormulario } : undefined,
+      )
       setStatus('success')
       setMessage(result.message ?? 'Solicitação recebida!')
       return
@@ -203,29 +220,7 @@ export function PropostaForm({
   })
 
   if (status === 'success') {
-    return (
-      <div role="status" className="py-[1.5rem] text-center">
-        <div
-          aria-hidden="true"
-          className="mx-auto mb-[1.4rem] flex h-[72px] w-[72px] items-center justify-center rounded-pill border border-ice-400 bg-ice-400/10"
-        >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M20 6 9 17l-5-5"
-              stroke="var(--color-ice-400)"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        <h3 className="text-h3">{message}</h3>
-        <p className="mx-auto m-0 max-w-[40ch] text-fg-2">
-          Um consultor da Semog entra em contato pelo WhatsApp ou e-mail informado em até 24 horas
-          úteis.
-        </p>
-      </div>
-    )
+    return <PropostaRecebida titulo={message} />
   }
 
   // Variante COMPACTA (hero das landings de cidade): menos atrito = mais

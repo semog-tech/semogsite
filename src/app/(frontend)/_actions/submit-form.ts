@@ -76,6 +76,7 @@ const PROPOSTA_LABELS: Record<keyof PropostaValues, string> = {
   cidade: 'Cidade do condomínio',
   unidades: 'Número de unidades',
   mensagem: 'Mensagem',
+  testeFormulario: 'Teste A/B do formulário (variante)',
 }
 
 /**

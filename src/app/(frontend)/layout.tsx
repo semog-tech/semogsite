@@ -34,7 +34,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR">
+    // `suppressHydrationWarning`: o script do teste A/B das landings de cidade
+    // marca `data-form-ab` neste elemento antes da hidratação (ver
+    // `@/lib/testeFormulario`). Vale só para os atributos do próprio <html>.
+    <html className={`${clash.variable} ${satoshi.variable}`} lang="pt-BR" suppressHydrationWarning>
       <body>
         <a href="#conteudo" className="skip-link">
           Pular para o conteúdo

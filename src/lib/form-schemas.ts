@@ -1,5 +1,6 @@
 import { isValidPhoneNumber } from 'libphonenumber-js/min'
 import { z } from 'zod'
+import { VARIANTES_TESTE_FORMULARIO } from '@/lib/testeFormulario'
 
 /**
  * Schemas Zod dos dois formulários semeados pelo Form Builder
@@ -17,6 +18,14 @@ import { z } from 'zod'
  */
 
 const requiredText = (message: string) => z.string().trim().min(1, message)
+
+/**
+ * Variante do teste A/B do formulário das landings de cidade que o visitante
+ * viu (ver `@/lib/testeFormulario`). Opcional: só o formulário do topo das
+ * landings manda; nas outras páginas e na triagem do WhatsApp ela não existe. É
+ * medição, não decisão — vem do navegador e só é aceita entre as duas opções.
+ */
+const testeFormulario = z.enum(VARIANTES_TESTE_FORMULARIO).optional()
 
 /**
  * `PhoneField.tsx` sempre entrega o valor em E.164 (`+55...`, via
@@ -127,6 +136,7 @@ export const propostaSchema = z.object({
   cidade: z.enum(CIDADE_OPTIONS, 'Selecione a cidade do condomínio.'),
   unidades: unidadesField,
   mensagem: z.string().trim().optional(),
+  testeFormulario,
 })
 
 export type PropostaValues = z.infer<typeof propostaSchema>
@@ -163,6 +173,7 @@ export const propostaRapidaSchema = z.object({
   telefone: requiredPhone('Informe seu WhatsApp.', 'Informe um WhatsApp válido.'),
   nomeCondominio: z.string().trim().max(120, 'Use no máximo 120 caracteres.').optional(),
   cidade: z.enum(CIDADE_OPTIONS, 'Selecione a cidade do condomínio.'),
+  testeFormulario,
 })
 
 export type PropostaRapidaValues = z.infer<typeof propostaRapidaSchema>
