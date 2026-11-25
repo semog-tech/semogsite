@@ -1,5 +1,6 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/min'
 import { DUPLICA_DE_FIELD, type FormType, GCLID_FIELD, VARIANTE_CONTATO_RAPIDO } from '@/lib/forms'
+import { TESTE_FORMULARIO_FIELD } from '@/lib/testeFormulario'
 
 /**
  * Tradução do lead do site pro vocabulário do Exact Spotter. Função **pura**:
@@ -124,11 +125,16 @@ function linhasDeOrigem(data: Record<string, string>): string[] {
  *
  * O contato rápido da triagem do WhatsApp grava como `proposta`, mas chega só
  * com nome, WhatsApp e cidade — a linha diz isso e traz o protocolo, que é como
- * a pessoa se identifica quando continua a conversa no WhatsApp.
+ * a pessoa se identifica quando continua a conversa no WhatsApp. O formulário
+ * curto do teste A/B das landings (`testeFormulario: 'b'`) usa a mesma action e
+ * chega com os mesmos campos, mas veio da página, não do botão de WhatsApp.
  */
 function linhaDoFormulario(formType: FormType, data: Record<string, string>): string {
   if (formType !== 'proposta') {
     return 'Origem: formulário de contato do site (assunto proposta comercial).'
+  }
+  if (data[TESTE_FORMULARIO_FIELD] === 'b') {
+    return 'Origem: formulário curto da landing de cidade (teste A/B), só com nome, WhatsApp e cidade.'
   }
   if (data.variante === VARIANTE_CONTATO_RAPIDO) {
     const protocolo = nonEmpty(data.protocolo)
