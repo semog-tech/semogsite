@@ -94,6 +94,7 @@ papel de cada arquivo: `docs/DEPLOY.md`, seção 3.
 
 - Deploy, variáveis de ambiente, migrações, domínio: `docs/DEPLOY.md`
 - CRM (RD Station, Exact) e RD Marketing: `docs/rd-station.md` e `docs/CRM-RDSTATION-*.md`
+- Conversões do RD CRM no Google Ads (cron `upload-ads-conversions`): `docs/ads-conversoes-rd.md`
 - Formulário do topo das landings de cidade (teste A/B em curso desde 25/11/2026: leitura do
   resultado e encerramento): `docs/teste-ab-formulario.md`
 - Decisões de desenho (remoção do Payload, home, Experience, lead para o CRM):

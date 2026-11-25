@@ -1,6 +1,16 @@
 import { JWT } from 'google-auth-library'
 import { NextResponse } from 'next/server'
 import { paraDataManager } from '@/lib/adsConsent'
+import {
+  corteDaJanelaRd,
+  type LinhaMarcoRd,
+  MARCOS_RD,
+  type MarcoPendente,
+  type MarcoRd,
+  SQL_MARCOS_RD,
+  SQL_REGISTRAR_RD,
+  selecionarMarcosRd,
+} from '@/lib/conversoesRd'
 import { query } from '@/lib/db'
 import { TIPO_CLIQUE_FIELD } from '@/lib/forms'
 import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
@@ -13,6 +23,11 @@ import { SECOES_FORA_DO_ADS } from '@/lib/triagem'
  * - **Formulário** (`cms.leads`) → ação `Proposta (servidor) - gclid`.
  * - **Clique no WhatsApp** (`cms.whatsapp_clicks`, via `/api/track/whatsapp`)
  *   → ação `WhatsApp (servidor) - gclid`.
+ * - **Marcos do RD CRM** (25/11/2026) → ações `RD - Proposta enviada` e
+ *   `RD - Ganho`, com a data real do marco. Regra, janela de 90 dias e
+ *   deduplicação em `@/lib/conversoesRd`; o registro do que subiu fica em
+ *   `cms.ads_conversoes_rd`, não em `uploaded_to_ads`. Cada ação só sobe com a
+ *   sua variável de ambiente, e uma falha nesse lote não afeta os outros dois.
  *
  * O WhatsApp entrou porque é o canal dominante e estava invisível: medido em
  * 29/07/2026 no GA4 (janela 24-29/07, tracking limpo), 14 `whatsapp_click`
@@ -86,6 +101,8 @@ function tipoDeClique(valor: string | null | undefined): TipoDeClique {
   return valor === 'gbraid' || valor === 'wbraid' ? valor : 'gclid'
 }
 
+type EventoDataManager = Record<string, unknown>
+
 type BatchResult = {
   considered: number
   ok: boolean
@@ -157,9 +174,33 @@ export async function GET(req: Request): Promise<Response> {
       [cutoff, SECOES_FORA_DO_ADS],
     )
 
-    // Token uma vez só, reaproveitado pelos dois lotes.
+    // Marcos do RD: lidos antes do token para saber se há o que subir. Sem
+    // nenhuma das duas ações configurada, nem consulta o banco. Erro aqui
+    // (fachada ausente, banco fora) fica só neste lote.
+    const acoesRd = MARCOS_RD.map((m) => ({ ...m, destino: process.env[m.env] || null }))
+    const pendentesRd = new Map<MarcoRd, MarcoPendente[]>()
+    let erroRd: string | null = null
+    if (acoesRd.some((a) => a.destino)) {
+      try {
+        const { rows } = await query<LinhaMarcoRd>(SQL_MARCOS_RD, [corteDaJanelaRd(Date.now())])
+        for (const a of acoesRd) {
+          if (a.destino) pendentesRd.set(a.marco, selecionarMarcosRd(rows, a.marco))
+        }
+      } catch (err) {
+        console.error('[cron/upload-ads-conversions] marcos RD: erro ao ler', err)
+        erroRd = String(err)
+      }
+    }
+    for (const a of acoesRd) {
+      if (!a.destino) {
+        console.info(`[cron/upload-ads-conversions] ${a.env} não configurada; "${a.acao}" não sobe`)
+      }
+    }
+    const temRd = [...pendentesRd.values()].some((p) => p.length > 0)
+
+    // Token uma vez só, reaproveitado por todos os lotes.
     let accessToken: string | null = null
-    if (leads.length || (whatsapp.length && WA_ACTION)) {
+    if (leads.length || (whatsapp.length && WA_ACTION) || temRd) {
       const sa = JSON.parse(GOOGLE_SA_JSON) as { client_email: string; private_key: string }
       const jwt = new JWT({
         email: sa.client_email,
@@ -170,14 +211,47 @@ export async function GET(req: Request): Promise<Response> {
       accessToken = (await jwt.authorize()).access_token ?? null
     }
 
-    async function uploadBatch(
-      rows: PendingRow[],
+    /**
+     * Um evento da Data Manager API. `quando` é a hora da conversão: a criação
+     * do lead ou do clique, ou a data real do marco no RD.
+     */
+    function evento(row: PendingRow, quando: string | Date, transactionId: string) {
+      return {
+        // gclid, gbraid e wbraid são campos distintos em AdIdentifiers (referência
+        // da Data Manager API). Antes ia tudo como `gclid`, e um clique de iOS
+        // (gbraid/wbraid) chegava ao Google no campo errado.
+        adIdentifiers: { [tipoDeClique(row.tipo_de_clique)]: row.gclid },
+        conversionValue: 1,
+        currency: 'BRL',
+        eventTimestamp: new Date(quando).toISOString(),
+        transactionId,
+        eventSource: 'WEB',
+        // Consentimento POR EVENTO: a Data Manager API aceita `consent`
+        // dentro de cada `Event` e ele vence o do lote ("user-level consent
+        // overrides request-level consent"), então não é preciso partir o
+        // lote por valor. Antes havia aqui um `CONSENT_GRANTED` fixo no
+        // nível do lote — uma afirmação igual para todos, que o site não
+        // tinha como sustentar. Agora vem da coluna gravada na captura;
+        // o tratamento de linha legada (`null`) e a data em que ele expira
+        // estão em `paraDataManager` (`@/lib/adsConsent`).
+        consent: {
+          adUserData: paraDataManager(row.ads_consent),
+          adPersonalization: paraDataManager(row.ads_consent),
+        },
+      }
+    }
+
+    /**
+     * Sobe um lote para uma ação e, só com a resposta OK, chama `marcar` para
+     * registrar o envio no banco.
+     */
+    async function enviar(
+      events: EventoDataManager[],
       destinationId: string,
-      table: 'cms.leads' | 'cms.whatsapp_clicks',
-      prefix: 'lead' | 'wa',
+      marcar: () => Promise<unknown>,
     ): Promise<BatchResult> {
-      if (rows.length === 0) return { considered: 0, ok: true }
-      if (!accessToken) return { considered: rows.length, ok: false, skipped: 'sem token' }
+      if (events.length === 0) return { considered: 0, ok: true }
+      if (!accessToken) return { considered: events.length, ok: false, skipped: 'sem token' }
 
       const body = {
         destinations: [
@@ -187,29 +261,7 @@ export async function GET(req: Request): Promise<Response> {
             productDestinationId: destinationId,
           },
         ],
-        events: rows.map((row) => ({
-          // gclid, gbraid e wbraid são campos distintos em AdIdentifiers (referência
-          // da Data Manager API). Antes ia tudo como `gclid`, e um clique de iOS
-          // (gbraid/wbraid) chegava ao Google no campo errado.
-          adIdentifiers: { [tipoDeClique(row.tipo_de_clique)]: row.gclid },
-          conversionValue: 1,
-          currency: 'BRL',
-          eventTimestamp: new Date(row.created_at).toISOString(),
-          transactionId: `${prefix}-${row.id}`,
-          eventSource: 'WEB',
-          // Consentimento POR EVENTO: a Data Manager API aceita `consent`
-          // dentro de cada `Event` e ele vence o do lote ("user-level consent
-          // overrides request-level consent"), então não é preciso partir o
-          // lote por valor. Antes havia aqui um `CONSENT_GRANTED` fixo no
-          // nível do lote — uma afirmação igual para todos, que o site não
-          // tinha como sustentar. Agora vem da coluna gravada na captura;
-          // o tratamento de linha legada (`null`) e a data em que ele expira
-          // estão em `paraDataManager` (`@/lib/adsConsent`).
-          consent: {
-            adUserData: paraDataManager(row.ads_consent),
-            adPersonalization: paraDataManager(row.ads_consent),
-          },
-        })),
+        events,
       }
 
       const res = await fetch(INGEST_URL, {
@@ -223,18 +275,30 @@ export async function GET(req: Request): Promise<Response> {
       // status por evento individual (é uma chamada "tudo ou nada"), então uma
       // resposta OK cobre todo o lote; uma falha não marca nada, e as linhas
       // voltam a aparecer no SELECT de amanhã (retry natural).
-      if (res.ok) {
-        await query(`update ${table} set uploaded_to_ads = true where id = any($1::bigint[])`, [
-          rows.map((row) => row.id),
-        ])
-      }
+      if (res.ok) await marcar()
 
       return {
-        considered: rows.length,
+        considered: events.length,
         ok: res.ok,
         status: res.status,
         response: JSON.stringify(json).slice(0, 300),
       }
+    }
+
+    function uploadBatch(
+      rows: PendingRow[],
+      destinationId: string,
+      table: 'cms.leads' | 'cms.whatsapp_clicks',
+      prefix: 'lead' | 'wa',
+    ): Promise<BatchResult> {
+      return enviar(
+        rows.map((row) => evento(row, row.created_at, `${prefix}-${row.id}`)),
+        destinationId,
+        () =>
+          query(`update ${table} set uploaded_to_ads = true where id = any($1::bigint[])`, [
+            rows.map((row) => row.id),
+          ]),
+      )
     }
 
     const leadResult = await uploadBatch(leads, CONV_ACTION, 'cms.leads', 'lead')
@@ -246,10 +310,42 @@ export async function GET(req: Request): Promise<Response> {
           skipped: 'GOOGLE_ADS_WHATSAPP_CONVERSION_ACTION_ID não configurada',
         }
 
+    // Um lote por marco, cada um na sua ação. Erro de rede ou de banco aqui é
+    // registrado na resposta deste marco: leads e WhatsApp já foram marcados
+    // acima e não podem virar 500 por causa dele.
+    const rd: Record<string, BatchResult> = {}
+    for (const a of acoesRd) {
+      if (!a.destino) {
+        rd[a.marco] = { considered: 0, ok: true, skipped: `${a.env} não configurada` }
+        continue
+      }
+      if (erroRd) {
+        rd[a.marco] = { considered: 0, ok: false, skipped: `erro ao ler marcos: ${erroRd}` }
+        continue
+      }
+      const pendentes = pendentesRd.get(a.marco) ?? []
+      try {
+        rd[a.marco] = await enviar(
+          pendentes.map(({ linha, marcoEm }) => evento(linha, marcoEm, `${a.prefixo}-${linha.id}`)),
+          a.destino,
+          () =>
+            query(SQL_REGISTRAR_RD, [
+              pendentes.map(({ linha }) => linha.id),
+              a.marco,
+              pendentes.map(({ marcoEm }) => marcoEm.toISOString()),
+            ]),
+        )
+      } catch (err) {
+        console.error(`[cron/upload-ads-conversions] "${a.acao}": erro`, err)
+        rd[a.marco] = { considered: pendentes.length, ok: false, skipped: String(err) }
+      }
+    }
+
     return NextResponse.json({
-      ok: leadResult.ok && waResult.ok,
+      ok: leadResult.ok && waResult.ok && Object.values(rd).every((r) => r.ok),
       leads: leadResult,
       whatsapp: waResult,
+      rd,
     })
   } catch (err) {
     console.error('[cron/upload-ads-conversions] erro:', err)

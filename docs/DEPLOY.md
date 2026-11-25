@@ -472,6 +472,17 @@ Depois de cada passo, conferir no catálogo (`information_schema.columns` para 2
 Antes de aplicar, conferir no catálogo de produção se a pertinência entre os papéis e a ACL dos
 schemas continuam as descritas acima.
 
+### Conversões do RD no Google Ads (25/11/2026)
+
+| # | Repositório | Arquivo | Papel |
+| --- | --- | --- | --- |
+| 1 | semogapp | `db/2026-11-25-crm-rdstation-marcos.sql` — `commercial.crm_rdstation_marcos_obter()` | `postgres` |
+| 2 | site | `db/2026-11-25-ads-conversoes-rd-postgres.sql` — tabela `cms.ads_conversoes_rd` e fachada `cms.crm_rdstation_marcos_obter` + varredura | `postgres` |
+
+Aplicadas em produção em 25/11/2026. O passo 1 vem antes do 2 pelo mesmo motivo das fachadas
+acima. Descida na ordem inversa, depois de reverter o código ou esvaziar as variáveis
+`GOOGLE_ADS_RD_*`. Detalhe em `docs/ads-conversoes-rd.md`.
+
 ## 4. Preview deployments
 
 - Todo branch/PR aberto no repositório gera automaticamente um **preview deployment** na Vercel
