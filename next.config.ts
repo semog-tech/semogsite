@@ -285,9 +285,11 @@ const nextConfig: NextConfig = {
         destination: '/blog/assembleia-virtual-validade-juridica',
         permanent: true,
       },
+      // Apontava para o post de previsão orçamentária, que é outro assunto;
+      // a página de prestação de contas existe desde 30/07/2026.
       {
         source: '/prestacao-de-contas-do-condominio',
-        destination: '/blog/previsao-orcamentaria-guia-sindico',
+        destination: '/prestacao-de-contas-condominio',
         permanent: true,
       },
       {

@@ -27,19 +27,32 @@ export type CityLandingData = {
   uf: string
   ufFull: string
   /**
-   * Gênero do nome do estado — "o" Pernambuco, "o" Pará, "a" Paraíba. Alimenta
-   * `wholeState`; obrigatório de propósito, pra uma praça nova não entrar sem
-   * declarar a concordância.
+   * Gênero do nome do estado — Pernambuco e Pará no masculino, Paraíba no
+   * feminino. Alimenta `wholeState`; obrigatório de propósito, pra uma praça
+   * nova não entrar sem declarar a concordância.
    */
   ufGender: 'm' | 'f'
+  /**
+   * Se o nome do estado leva artigo: "o Pará", "a Paraíba", mas "Pernambuco"
+   * sem artigo ("todo Pernambuco", nunca "todo o Pernambuco"). Como o gênero,
+   * não é dedutível do nome, e é obrigatório pelo mesmo motivo.
+   */
+  ufComArtigo: boolean
   /** Foto aérea em `public/cities/<slug-curto>.jpg`. */
   image: string
   /**
    * Título e descrição da SERP, escritos um a um — NÃO um template com o
    * topônimo trocado, que era o formato anterior (as quatro descrições eram a
    * mesma frase e as quatro repetiam o título dentro dela, queimando os
-   * primeiros caracteres do snippet). Cada descrição aqui usa o que só aquela
-   * praça tem: o bairro da unidade, os bairros atendidos e o telefone local.
+   * primeiros caracteres do snippet). O termo buscado e a cidade ficam no
+   * título; a descrição não os repete. Ela usa o que só aquela praça tem (o
+   * bairro da unidade) e fecha com o motivo para clicar, que é igual nas
+   * quatro: a proposta em até 24h úteis, prometida no formulário. Até
+   * 25/11/2026 Belém e Campina Grande fechavam com o telefone, que no snippet
+   * não é clicável, João Pessoa não chamava para a proposta, e o Search Console
+   * mostrava clique quase nulo mesmo no top 3 (Belém: 1 clique em 115
+   * impressões na posição 1–2). Número só o que o site já afirma (35 anos,
+   * +650 condomínios, 5º no G20 Condo).
    *
    * Medidos em Arial 20px (título) e 14px (descrição), que é a métrica de
    * corte do Google — alvo de 580px e 920px. "35 anos" só entra no título de
@@ -94,13 +107,17 @@ type Gendered = { name: string; gender: 'm' | 'f' }
  * feminino na pergunta do FAQ ("toda a Grande Recife", que ainda vai pro
  * JSON-LD de FAQPage) — dois lugares, o mesmo erro, agora uma regra só.
  */
-function whole(subject: Gendered): string {
-  return subject.gender === 'f' ? `toda a ${subject.name}` : `todo o ${subject.name}`
+function whole(subject: Gendered, comArtigo = true): string {
+  const todo = subject.gender === 'f' ? 'toda' : 'todo'
+  if (!comArtigo) return `${todo} ${subject.name}`
+  return `${todo} ${subject.gender === 'f' ? 'a' : 'o'} ${subject.name}`
 }
 
-/** "todo o Pernambuco", "toda a Paraíba", "todo o Pará" — pro título da unidade. */
-export function wholeState(data: Pick<CityLandingData, 'ufFull' | 'ufGender'>): string {
-  return whole({ name: data.ufFull, gender: data.ufGender })
+/** "todo Pernambuco", "toda a Paraíba", "todo o Pará" — pro título da unidade. */
+export function wholeState(
+  data: Pick<CityLandingData, 'ufFull' | 'ufGender' | 'ufComArtigo'>,
+): string {
+  return whole({ name: data.ufFull, gender: data.ufGender }, data.ufComArtigo)
 }
 
 const WHATSAPP = '551130034506'
@@ -141,11 +158,12 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     uf: 'PE',
     ufFull: 'Pernambuco',
     ufGender: 'm',
+    ufComArtigo: false,
     image: '/cities/recife.jpg',
     meta: {
       title: 'Administradora de Condomínios em Recife há 35 anos | Semog',
       description:
-        'Equipe própria na Madalena para Boa Viagem, Casa Forte, Graças e toda a Região Metropolitana. Contas 100% digitais e proposta em até 24h.',
+        'Desde 1991 no Recife, com unidade na Madalena e equipe própria de Boa Viagem a Casa Forte. Contas 100% digitais e proposta em 24h úteis.',
     },
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
@@ -202,11 +220,12 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     uf: 'PB',
     ufFull: 'Paraíba',
     ufGender: 'f',
+    ufComArtigo: true,
     image: '/cities/joao-pessoa.jpg',
     meta: {
       title: 'Administradora de Condomínios em João Pessoa | G20 · Semog',
       description:
-        'Equipe pessoense em Manaíra, prestação de contas 100% digital e assembleia online para quem mora fora. 5º no G20 Condo da Superlógica.',
+        'Unidade em Manaíra, contas 100% digitais e assembleia online para quem mora fora. 5º no G20 Condo da Superlógica. Proposta em até 24h.',
     },
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
@@ -263,11 +282,12 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     uf: 'PB',
     ufFull: 'Paraíba',
     ufGender: 'f',
+    ufComArtigo: true,
     image: '/cities/campina-grande.jpg',
     meta: {
       title: 'Administradora de Condomínios em Campina Grande | Semog',
       description:
-        'Do Catolé ao Alto Branco e ao Mirante, com equipe campinense, tecnologia própria e prestação de contas 100% digital. (83) 3201-9039.',
+        'Unidade no Catolé, equipe campinense e prestação de contas 100% digital, do Alto Branco ao Mirante. Proposta sem compromisso em até 24h.',
     },
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
@@ -305,11 +325,12 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     uf: 'PA',
     ufFull: 'Pará',
     ufGender: 'm',
+    ufComArtigo: true,
     image: '/cities/belem.jpg',
     meta: {
       title: 'Administradora de Condomínios em Belém | Semog, 35 anos',
       description:
-        'Unidade na Cremação e equipe paraense para condomínios de Umarizal, Nazaré e Batista Campos, com contas 100% digitais. (91) 3115-4700.',
+        'Unidade na Cremação e equipe paraense, com a estrutura de 35 anos e +650 condomínios da Semog. Contas 100% digitais e proposta em 24h.',
     },
     heroSubhead:
       'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',

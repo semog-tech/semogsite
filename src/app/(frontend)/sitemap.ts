@@ -9,8 +9,9 @@ export const revalidate = 3600
 
 /**
  * `/sitemap.xml` — páginas estáticas (`content/pages`) + landings de cidade
- * (`src/data/cityLandings.ts`) + a landing do Experience + posts
- * (`content/blog/*.mdx`, via `src/lib/blog.ts`). `lastModified` das páginas usa
+ * (`src/data/cityLandings.ts`) + a landing da Black Friday + posts
+ * (`content/blog/*.mdx`, via `src/lib/blog.ts`). A landing do Semog Experience
+ * saiu depois do evento (26/09/2026); a página continua no ar, sem entrada aqui. `lastModified` das páginas usa
  * a data do build (não há `updatedAt` no modelo estático); os posts usam a
  * própria `date` do frontmatter.
  *
@@ -44,23 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   /**
-   * A landing do Semog Experience (`src/app/(evento)/experience`) cai no mesmo
-   * ponto cego das landings de cidade: rota explícita, fora de `content/pages`
-   * e ainda num route group irmão — nada aqui a varreria sozinha, e esse furo
-   * já custou ranking uma vez. `priority` abaixo das cidades porque é peça de
-   * campanha com prazo: depois de 26/09/2026 o evento passou e a entrada sai
-   * daqui (item em "Antes de publicar", no plano).
-   */
-  const experienceEntry: MetadataRoute.Sitemap = [
-    {
-      url: absoluteUrl('experience'),
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-  ]
-
-  /**
    * Landing da Black Friday 2026: rota explícita, fora de `content/pages`, no
    * mesmo ponto cego das anteriores. Peça de campanha com prazo — sai daqui
    * quando a campanha encerrar.
@@ -74,5 +58,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  return [...pageEntries, ...cityEntries, ...experienceEntry, ...blackFridayEntry, ...postEntries]
+  return [...pageEntries, ...cityEntries, ...blackFridayEntry, ...postEntries]
 }
