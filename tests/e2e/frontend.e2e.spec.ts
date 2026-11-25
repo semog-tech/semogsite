@@ -7,7 +7,7 @@ test.describe('Home', () => {
 
   test('tem o título e a headline da Semog', async ({ page }) => {
     await expect(page).toHaveTitle(/Semog/)
-    await expect(page.locator('h1').first()).toContainText('Preocupe-se apenas')
+    await expect(page.locator('h1').first()).toContainText('Administração de condomínios')
   })
 
   test('declara o idioma como pt-BR', async ({ page }) => {

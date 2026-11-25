@@ -10,10 +10,12 @@ export const revalidate = 3600
 /**
  * `/sitemap.xml` — páginas estáticas (`content/pages`) + landings de cidade
  * (`src/data/cityLandings.ts`) + a landing da Black Friday + posts
- * (`content/blog/*.mdx`, via `src/lib/blog.ts`). A landing do Semog Experience
- * saiu depois do evento (26/09/2026); a página continua no ar, sem entrada aqui. `lastModified` das páginas usa
- * a data do build (não há `updatedAt` no modelo estático); os posts usam a
+ * (`content/blog/*.mdx`, via `src/lib/blog.ts`). `lastModified` das páginas
+ * usa a data do build (não há `updatedAt` no modelo estático); os posts usam a
  * própria `date` do frontmatter.
+ *
+ * A landing do Semog Experience saiu depois do evento (26/09/2026). A página
+ * continua no ar, só não entra aqui.
  *
  * As landings de cidade **não** moram em `content/pages` (são data-driven, com
  * rota explícita própria em `src/app/(frontend)/administradora-de-condominios-*`),

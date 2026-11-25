@@ -44,22 +44,26 @@ export type CityLandingData = {
    * Título e descrição da SERP, escritos um a um — NÃO um template com o
    * topônimo trocado, que era o formato anterior (as quatro descrições eram a
    * mesma frase e as quatro repetiam o título dentro dela, queimando os
-   * primeiros caracteres do snippet). O termo buscado e a cidade ficam no
-   * título; a descrição não os repete. Ela usa o que só aquela praça tem (o
-   * bairro da unidade) e fecha com o motivo para clicar, que é igual nas
-   * quatro: a proposta em até 24h úteis, prometida no formulário. Até
-   * 25/11/2026 Belém e Campina Grande fechavam com o telefone, que no snippet
-   * não é clicável, João Pessoa não chamava para a proposta, e o Search Console
-   * mostrava clique quase nulo mesmo no top 3 (Belém: 1 clique em 115
-   * impressões na posição 1–2). Número só o que o site já afirma (35 anos,
-   * +650 condomínios, 5º no G20 Condo).
+   * primeiros caracteres do snippet).
+   *
+   * Título: "Administradora de Condomínios em <cidade>", o termo que se busca,
+   * seguido da marca. Recife e Belém levam "35 anos" e João Pessoa leva "G20".
+   * Campina Grande fica só com a marca, porque o topônimo longo não deixa
+   * espaço. Em Recife os 35 anos são da própria unidade, que é a fundação. Em
+   * Belém, a vírgula ("Semog, 35 anos") prende o número à marca, não à praça.
+   *
+   * Descrição: não repete o termo do título. Traz o bairro da unidade e o que
+   * só aquela praça tem: 1991 em Recife, a assembleia online e o G20 em João
+   * Pessoa, os bairros em Campina Grande, os 35 anos e +650 condomínios da
+   * Semog em Belém. As quatro fecham igual, com "proposta em até 24h úteis",
+   * o prazo que o formulário promete. Até 25/11/2026 Belém e Campina Grande
+   * fechavam com o telefone, que não é clicável no snippet, e João Pessoa não
+   * chamava para a proposta. O Search Console mostrava clique quase nulo mesmo
+   * no top 3 (Belém: 1 clique em 115 impressões na posição 1–2). Número só o
+   * que o site já afirma.
    *
    * Medidos em Arial 20px (título) e 14px (descrição), que é a métrica de
-   * corte do Google — alvo de 580px e 920px. "35 anos" só entra no título de
-   * Recife e de Belém: em Recife a unidade tem mesmo essa idade (é a
-   * fundação), em Belém a vírgula prende o número à marca, não à praça. Em
-   * João Pessoa e Campina Grande o topônimo é longo e nada mais cabe sem
-   * truncar — a prova social vai na descrição.
+   * corte do Google: alvo de 580px e 920px.
    */
   meta: { title: string; description: string }
   heroSubhead: string
@@ -163,7 +167,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     meta: {
       title: 'Administradora de Condomínios em Recife há 35 anos | Semog',
       description:
-        'Desde 1991 no Recife, com unidade na Madalena e equipe própria de Boa Viagem a Casa Forte. Contas 100% digitais e proposta em 24h úteis.',
+        'Desde 1991 no Recife, com unidade na Madalena e equipe de Boa Viagem a Casa Forte. Contas 100% digitais e proposta em até 24h úteis.',
     },
     heroSubhead:
       'Tecnologia, transparência e uma equipe local que cuida do seu patrimônio como se fosse dela.',
@@ -225,7 +229,7 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     meta: {
       title: 'Administradora de Condomínios em João Pessoa | G20 · Semog',
       description:
-        'Unidade em Manaíra, contas 100% digitais e assembleia online para quem mora fora. 5º no G20 Condo da Superlógica. Proposta em até 24h.',
+        'Unidade em Manaíra, contas 100% digitais e assembleia online para quem mora fora. 5º no G20 Condo da Superlógica. Proposta em até 24h úteis.',
     },
     heroSubhead:
       'Gestão local, prestação de contas 100% digital e uma equipe que trata o seu condomínio como se fosse o dela.',
@@ -287,12 +291,12 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     meta: {
       title: 'Administradora de Condomínios em Campina Grande | Semog',
       description:
-        'Unidade no Catolé, equipe campinense e prestação de contas 100% digital, do Alto Branco ao Mirante. Proposta sem compromisso em até 24h.',
+        'Unidade no Catolé, equipe campinense e prestação de contas 100% digital, do Alto Branco ao Mirante. Proposta em até 24h úteis.',
     },
     heroSubhead:
       'A gestão condominial da Rainha da Borborema com tecnologia própria, transparência e equipe local.',
     localContext:
-      'Rainha da Borborema e principal polo tecnológico e universitário do interior nordestino, Campina Grande combina tradição e inovação — e o mesmo vale para a gestão de condomínios. Do Catolé ao Mirante e ao Alto Branco, o mercado condominial cresce junto com a cidade, e a Semog atende com tecnologia própria e um atendimento próximo, no jeito campinense. Aqui você tem a estrutura de uma administradora líder do Nordeste sem abrir mão da proximidade que o interior valoriza.',
+      'Rainha da Borborema e principal polo tecnológico e universitário do interior nordestino, Campina Grande combina tradição e inovação — e o mesmo vale para a gestão de condomínios. Do Catolé ao Mirante e ao Alto Branco, o mercado condominial cresce junto com a cidade, e a Semog atende com tecnologia própria e um atendimento próximo, no jeito campinense. Aqui você tem a estrutura de uma administradora líder do Norte e Nordeste sem abrir mão da proximidade que o interior valoriza.',
     coverageText:
       'Do Catolé ao Centro, em toda Campina Grande e no agreste paraibano, sua gestão é local e próxima. Presença especialmente forte em:',
     neighborhoods: [
@@ -330,10 +334,10 @@ export const CITY_LANDINGS: Record<string, CityLandingData> = {
     meta: {
       title: 'Administradora de Condomínios em Belém | Semog, 35 anos',
       description:
-        'Unidade na Cremação e equipe paraense, com a estrutura de 35 anos e +650 condomínios da Semog. Contas 100% digitais e proposta em 24h.',
+        'Unidade na Cremação e equipe paraense, com os 35 anos e +650 condomínios da Semog. Contas 100% digitais e proposta em até 24h úteis.',
     },
     heroSubhead:
-      'A força de uma administradora líder do Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
+      'A força de uma administradora líder do Norte e Nordeste, agora no coração da Amazônia: tecnologia, transparência e equipe local.',
     localContext:
       'No coração da Amazônia, Belém une o charme histórico da Cidade Velha e do Ver-o-Peso à verticalização acelerada de Umarizal, Nazaré e Batista Campos. Levar uma gestão condominial moderna à capital paraense é a missão da Semog no Norte: tecnologia que ainda era rara por aqui, prestação de contas transparente e uma equipe local que entende as particularidades do clima e do mercado amazônico. Do edifício histórico ao lançamento de alto padrão, seu condomínio ganha a estrutura de uma administradora com 35 anos de mercado e mais de 650 condomínios.',
     coverageText:

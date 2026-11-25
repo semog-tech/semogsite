@@ -132,7 +132,7 @@ export const semog: PageData = {
         },
         {
           date: 'Hoje',
-          title: 'Líder do Nordeste',
+          title: 'Líder do Norte e Nordeste',
           text: 'Mais de 650 condomínios, 70 mil clientes e 100 especialistas. E seguimos crescendo.',
           now: true,
         },

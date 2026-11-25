@@ -17,10 +17,12 @@ const WHATSAPP_URL = 'https://wa.me/551130034506'
 // for ao ar.
 const APP_HREF = '/solucoes#aplicativo'
 
-// `\n` reproduz o `<br>` literal de `_reference/index.html:491`
-// (`Preocupe-se apenas<br>em morar.`) — `src/motion/Chars.tsx` insere uma
-// quebra de linha real no lugar, ver doc do componente.
-const HERO_HEADLINE = 'Preocupe-se apenas\nem morar.'
+// O H1 era só o slogan (`Preocupe-se apenas<br>em morar.`, de
+// `_reference/index.html:491`) e não dizia o que a Semog faz. Desde 25/11/2026
+// abre com o serviço e mantém o slogan inteiro na segunda linha. O `\n` vira
+// quebra de linha real em `src/motion/Chars.tsx`. O slogan segue sozinho no
+// rodapé (`content/site.ts`), na imagem de compartilhamento e no JSON-LD.
+const HERO_HEADLINE = 'Administração de condomínios.\nPreocupe-se apenas em morar.'
 
 export const home: PageData = {
   slug: 'home',
@@ -43,7 +45,7 @@ export const home: PageData = {
     {
       blockType: 'hero',
       headline: HERO_HEADLINE,
-      subhead: 'Há 35 anos, a líder do Nordeste cuida do condomínio para você cuidar da vida.',
+      subhead: 'Há 35 anos, a líder do Norte e Nordeste cuida do condomínio para você cuidar da vida.',
       background: 'videoSequence',
       // Substitui a antiga `tag` (`.hero-tagbox`) — mesma faixa de vidro, agora
       // com prova em número em vez de só um rótulo.
@@ -79,7 +81,7 @@ export const home: PageData = {
     },
     {
       blockType: 'stats',
-      eyebrow: 'A líder do Nordeste',
+      eyebrow: 'A líder do Norte e Nordeste',
       title: 'Liderança não se declara. Se comprova.',
       variant: 'band',
       items: [
