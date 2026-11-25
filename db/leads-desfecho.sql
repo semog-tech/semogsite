@@ -1,6 +1,12 @@
 -- Desfecho comercial do lead — o que aconteceu DEPOIS que o responsável da
 -- praça recebeu o e-mail de notificação.
 --
+-- SEM USO desde 25/11/2026 (PR #32): ninguém da equipe usava os botões, e o
+-- acompanhamento do lead passou para o RD Station CRM. Os botões, a página
+-- `/desfecho` e `src/lib/desfecho.ts` saíram do código; as colunas e os dados
+-- gravados ficaram. O texto abaixo descreve como funcionava, para quem for ler
+-- os valores já gravados ou remover as colunas por migração própria.
+--
 -- Por que existe (16/09/2026): o site sabe quanto custa comprar uma proposta
 -- (R$ 167 no último ciclo) e não sabe quanto ela vale. O responsável trata o
 -- lead fora daqui — WhatsApp, telefone, visita — e o resultado nunca voltava
@@ -16,9 +22,9 @@
 --
 -- `text` sem enum nem CHECK, pelo mesmo motivo de `cms.leads.form` e
 -- `cms.leads.ads_consent`: um valor novo (um quinto desfecho, um motivo a
--- mais) não deve exigir migração. A lista canônica é `DESFECHOS`/`MOTIVOS` em
--- `src/lib/desfecho.ts`, e o preço desta escolha é esse comentário precisar
--- ser mantido junto com ela.
+-- mais) não deve exigir migração. A lista dos valores gravados era
+-- `DESFECHOS`/`MOTIVOS` em `src/lib/desfecho.ts`, removido em 25/11/2026: veja
+-- a versão anterior do arquivo no histórico do git.
 --
 -- A tabela pertence ao `cms_user`, então este ALTER roda pela própria
 -- `DATABASE_URI` — diferente de `cms.whatsapp_clicks`, que é de outro dono.
